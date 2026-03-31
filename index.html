@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Best Deal Mobile | المنصة الاحترافية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --bg: #020617; --card: rgba(255,255,255,0.03); --text: #f8fafc; --border: rgba(255,255,255,0.08);
+            --accent: #10b981;
+        }
+        .light-mode {
+            --bg: #f8fafc; --card: rgba(255,255,255,0.9); --text: #0f172a; --border: rgba(0,0,0,0.05);
+            --accent: #059669;
+        }
+
+        body { 
+            font-family: 'IBM Plex Sans Arabic', sans-serif; 
+            background: var(--bg); color: var(--text); 
+            transition: background 0.4s ease; overflow-x: hidden;
+        }
+
+        .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); }
+        
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 75px;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(30px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+        }
+
+        .nav-item { color: #64748b; transition: 0.3s; cursor: pointer; }
+        .nav-item.active { color: var(--accent); transform: translateY(-5px); }
+
+        /* عرض الـ 100% المميز */
+        .exclusive-offer {
+            background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+            position: relative; overflow: hidden;
+        }
+        .exclusive-offer::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg); animation: shine 4s infinite;
+        }
+        @keyframes shine { 0% { transform: translateX(-100%) rotate(45deg); } 100% { transform: translateX(100%) rotate(45deg); } }
+
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 35s linear infinite; }
+    </style>
+</head>
+<body class="antialiased" onload="initSite()">
+
+    <div class="bg-emerald-500 py-1.5 px-4 text-center text-black font-bold text-[10px] fixed top-0 w-full z-[1100] flex justify-between shadow-xl">
+        <span><i class="fa-solid fa-signal"></i> الخادم: مستقر جداً</span>
+        <span>الوكلاء النشطون الآن: <span id="agent-count">2325</span></span>
+    </div>
+
+    <nav class="fixed top-7 w-full z-[1000] bg-transparent backdrop-blur-md py-4 px-6 flex justify-between items-center border-b border-white/5">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-emerald-500/30">
+                <i class="fa-solid fa-crown text-xl"></i>
+            </div>
+            <span class="text-xl font-black text-emerald-500 italic tracking-tighter">BEST DEAL</span>
+        </div>
+        <button onclick="toggleTheme()" class="w-10 h-10 rounded-full glass flex items-center justify-center">
+            <i id="theme-icon" class="fa-solid fa-moon text-emerald-400"></i>
+        </button>
+    </nav>
+
+    <main class="pt-28 pb-32">
+        
+        <section id="hero-view" class="px-6 animate-in fade-in duration-700">
+            <div class="text-center mt-6 mb-10">
+                <h1 class="text-3xl font-black mb-3 leading-tight italic">مرحباً بك في <br><span class="text-emerald-500">نظام الوكالة المطور</span></h1>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">تحكم كامل • أرباح فورية • سحب آمن</p>
+            </div>
+
+            <div class="exclusive-offer p-6 rounded-[2.5rem] mb-10 border border-white/20">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="bg-black/40 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Limited Offer</span>
+                    <i class="fa-solid fa-star text-yellow-400 animate-pulse"></i>
+                </div>
+                <h2 class="text-3xl font-black text-white italic leading-none">مربح 100%+</h2>
+                <p class="text-emerald-100 text-sm mt-2 font-bold">على إيداعك الأول (لمرة واحدة فقط!)</p>
+                <div class="mt-6 flex items-center justify-between">
+                    <button onclick="toggleModal('loginModal', true)" class="bg-white text-emerald-900 px-6 py-3 rounded-xl font-black text-xs shadow-lg active:scale-95 transition-all uppercase">اشحن الآن</button>
+                    <div class="text-left">
+                        <span class="block text-[8px] text-emerald-200 font-bold uppercase">ينتهي خلال</span>
+                        <span class="text-white font-black text-xs tabular-nums">12:44:02</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-10">
+                <h2 class="text-lg font-black mb-5 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-check text-blue-400"></i> بوابات مالية معتمدة
+                </h2>
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="glass aspect-square rounded-2xl flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-money-bill-transfer text-2xl text-emerald-500"></i>
+                        <span class="text-[8px] font-black italic">هرم</span>
+                    </div>
+                    <div class="glass aspect-square rounded-2xl flex flex-col items-center justify-center gap-2">
+                        <i class="fa-brands fa-bitcoin text-2xl text-orange-400"></i>
+                        <span class="text-[8px] font-black italic">USDT</span>
+                    </div>
+                    <div class="glass aspect-square rounded-2xl flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-mobile-screen text-2xl text-blue-400"></i>
+                        <span class="text-[8px] font-black italic">زين كاش</span>
+                    </div>
+                    <div class="glass aspect-square rounded-2xl flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-building-columns text-2xl text-purple-400"></i>
+                        <span class="text-[8px] font-black italic">بنوك</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-black mb-5 flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-red-500"></i> مكافآت الوكلاء
+                </h2>
+                <div class="glass p-5 rounded-[2rem] border-emerald-500/10 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-500">
+                        <i class="fa-solid fa-percent text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-sm">عمولة مبيعات 75%</h4>
+                        <p class="text-[10px] text-slate-500 font-bold">أعلى نسبة أرباح في السوق حالياً</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="store-view" class="hidden px-4 animate-in slide-in-from-left duration-500">
+            <h2 class="text-2xl font-black mb-6 px-2 border-r-4 border-emerald-500 pr-3 italic">المعرض المعتمد</h2>
+            <div id="products-grid" class="grid grid-cols-2 gap-4"></div>
+        </section>
+
+        <section id="user-dashboard" class="hidden px-4 animate-in slide-in-from-bottom-4 duration-500"></section>
+
+    </main>
+
+    <div class="fixed bottom-[75px] w-full bg-black/80 backdrop-blur-md border-t border-white/5 py-2 overflow-hidden z-[900]">
+        <div id="live-transactions" class="animate-marquee text-emerald-400 text-[10px] font-bold flex gap-12"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active flex flex-col items-center gap-1" onclick="showView('hero-view', this)">
+            <i class="fa-solid fa-house-chimney text-xl"></i>
+            <span class="text-[10px] font-bold">الرئيسية</span>
+        </div>
+        <div class="nav-item flex flex-col items-center gap-1" onclick="showView('store-view', this)">
+            <i class="fa-solid fa-shop text-xl"></i>
+            <span class="text-[10px] font-bold">المعرض</span>
+        </div>
+        <div class="nav-item flex flex-col items-center gap-1" onclick="toggleModal('loginModal', true)">
+            <i class="fa-solid fa-wallet text-xl"></i>
+            <span class="text-[10px] font-bold">محفظتي</span>
+        </div>
+        <div class="nav-item flex flex-col items-center gap-1">
+            <i class="fa-solid fa-headset text-xl"></i>
+            <span class="text-[10px] font-bold">الدعم</span>
+        </div>
+    </div>
+
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl z-[2000] flex items-center justify-center p-6">
+        <div class="w-full glass rounded-[3rem] p-10 relative">
+            <button onclick="toggleModal('loginModal', false)" class="absolute top-6 left-6 text-slate-500"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
+            <div class="text-center mb-10">
+                <h3 class="text-3xl font-black text-emerald-500 italic mb-2 tracking-tighter">منصة الوكلاء</h3>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Secure Access Point</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="un" placeholder="اسم المستخدم" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-emerald-500 text-right transition-all">
+                <input type="password" id="pw" placeholder="كلمة المرور" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-emerald-500 text-right transition-all">
+                <button onclick="handleLogin()" class="w-full py-5 bg-emerald-500 text-black font-black rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition-all mt-4 uppercase tracking-widest">تأكيد الدخول</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const users = {
+            "abdo": { name: "عبدو", pw: "25002500", balance: 2000, profit: 1500, level: "فضي", next: "ذهبي", target: 5000, color: "#94a3b8" },
+            "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, level: "ذهبي", next: "ماسي", target: 10000, color: "#fbbf24" }
+        };
+
+        const prodImages = [
+            "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?q=80&w=400",
+            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=400",
+            "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?q=80&w=400",
+            "https://images.unsplash.com/photo-1523206489230-c012c744c595?q=80&w=400",
+            "https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?q=80&w=400",
+            "https://images.unsplash.com/photo-1551817419-f96603403366?q=80&w=400",
+            "https://images.unsplash.com/photo-1533228100845-08145b01de14?q=80&w=400",
+            "https://images.unsplash.com/photo-1565849906461-0ae56830d66e?q=80&w=400"
+        ];
+
+        function showView(viewId, el) {
+            document.getElementById('hero-view').classList.add('hidden');
+            document.getElementById('store-view').classList.add('hidden');
+            document.getElementById('user-dashboard').classList.add('hidden');
+            document.getElementById(viewId).classList.remove('hidden');
+
+            if(el) {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
+            }
+        }
+
+        function handleLogin() {
+            const un = document.getElementById('un').value;
+            const pw = document.getElementById('pw').value;
+            if (users[un] && users[un].pw === pw) {
+                const user = users[un];
+                toggleModal('loginModal', false);
+                showView('user-dashboard');
+                
+                const total = user.balance + user.profit;
+                const progress = (total / user.target) * 100;
+
+                document.getElementById('user-dashboard').innerHTML = `
+                    <div class="bg-gradient-to-br from-emerald-900 to-black p-8 rounded-[3rem] border border-emerald-500/30 mb-8 relative shadow-2xl">
+                        <div class="flex justify-between items-start mb-10">
+                            <div><p class="text-emerald-400 text-[10px] font-black uppercase mb-1 tracking-widest">المحفظة النشطة</p><h2 class="text-5xl font-black italic">$${total}</h2></div>
+                            <div class="glass px-4 py-2 rounded-2xl text-[9px] font-black uppercase border-emerald-500/40">${user.level}</div>
+                        </div>
+                        <div class="bg-black/50 backdrop-blur-xl p-5 rounded-[2rem] border border-white/5">
+                            <div class="flex justify-between text-[10px] mb-3 font-black"><span>إلى ${user.next}</span><span>${progress.toFixed(1)}%</span></div>
+                            <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden"><div class="h-full transition-all duration-1000 shadow-[0_0_15px_rgba(16,185,129,0.5)]" style="width:${progress}%; background:${user.color}"></div></div>
+                        </div>
+                        <button class="w-full bg-emerald-500 text-black py-5 rounded-[1.5rem] font-black mt-8 shadow-xl shadow-emerald-500/30 uppercase tracking-widest active:scale-95 transition-all italic">سحب الأرباح التراكمية</button>
+                    </div>
+
+                    <div class="glass rounded-[2.5rem] p-7 mb-8 border-white/5 shadow-xl">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-500"><i class="fa-solid fa-chart-pie text-xs"></i></div>
+                            <h3 class="font-black text-sm italic">تحليل الأرصدة</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center bg-white/5 p-5 rounded-2xl border border-white/5">
+                                <span class="text-[10px] font-black text-slate-500 uppercase tracking-tighter">رأس المال المودع</span><span class="text-lg font-black italic">$${user.balance}</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-emerald-500/5 p-5 rounded-2xl border border-emerald-500/10">
+                                <span class="text-[10px] font-black text-emerald-500 uppercase tracking-tighter">عمولة الأرباح (75%)</span><span class="text-lg font-black text-emerald-400 italic">+$${user.profit}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else { alert("بيانات الدخول غير صحيحة!"); }
+        }
+
+        function generateStats() {
+            const cities = ["دمشق", "حلب", "دبي", "الرياض", "الدوحة", "بغداد", "بيروت"];
+            const methods = ["Binance Pay", "ZainCash", "USDT-TRC20", "Visa/Mastercard", "Western Union"];
+            const container = document.getElementById('live-transactions');
+            let content = '';
+            for(let i=0; i<12; i++) {
+                const city = cities[Math.floor(Math.random() * cities.length)];
+                const method = methods[Math.floor(Math.random() * methods.length)];
+                const amount = Math.floor(Math.random() * 2500 + 100);
+                content += `<span class="flex items-center gap-2 italic uppercase tracking-tighter">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    عملية سحب ناجحة <span class="text-white">$${amount}</span> عبر ${method} (${city})
+                </span>`;
+            }
+            container.innerHTML = content + content;
+        }
+
+        function loadProducts() {
+            const grid = document.getElementById('products-grid');
+            let html = '';
+            for (let i = 0; i < 8; i++) {
+                html += `
+                    <div class="glass p-3 rounded-[2.2rem] product-card transition-all active:scale-95 border-white/5 shadow-lg">
+                        <div class="relative overflow-hidden rounded-[1.8rem] mb-3 aspect-square shadow-inner">
+                            <img src="${prodImages[i]}" class="w-full h-full object-cover">
+                            <div class="absolute top-2 left-2 bg-black/60 backdrop-blur-md text-[7px] text-white px-2 py-1 rounded-full font-black tracking-widest uppercase">Certified</div>
+                        </div>
+                        <div class="flex justify-between items-center px-1">
+                            <span class="font-bold text-[10px] text-slate-300">Edition v.${i+1}</span>
+                            <span class="text-emerald-500 font-black text-xs italic">$${Math.floor(Math.random()*400+180)}</span>
+                        </div>
+                    </div>`;
+            }
+            grid.innerHTML = html;
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const icon = document.getElementById('theme-icon');
+            icon.className = document.body.classList.contains('light-mode') ? "fa-solid fa-sun text-orange-500" : "fa-solid fa-moon text-emerald-400";
+        }
+
+        let agents = 2325;
+        setInterval(() => { agents += (Math.floor(Math.random()*5)-2); document.getElementById('agent-count').innerText = agents; }, 3000);
+
+        function initSite() { loadProducts(); generateStats(); }
+        function toggleModal(id, s) { 
+            const m = document.getElementById(id); 
+            s ? m.classList.remove('hidden') : m.classList.add('hidden'); 
+        }
+    </script>
+</body>
+</html>
