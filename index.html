@@ -58,6 +58,9 @@
             position: fixed; top: 25px; left: 50%; transform: translateX(-50%);
             z-index: 5000; display: none; min-width: 200px; text-align: center;
         }
+
+        .wheel-spin-anim { animation: fast-spin 0.5s linear infinite; }
+        @keyframes fast-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="antialiased" onload="initSite()">
@@ -210,9 +213,10 @@
 
     <script>
         const users = {
-            "abdo": { name: "عبدو", pw: "25002500", balance: 2000, profit: 1500, level: "فضي" },
-            "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, level: "ذهبي" },
-            "muhmmad": { name: "محمد", pw: "20002000", balance: 1000, profit: 750, level: "برونزي" }
+            "abdo": { name: "Abdul Ghani Ghannoum", pw: "25002500", balance: 2000, profit: 1500, level: "فضي", firstSpin: true },
+            "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, level: "ذهبي", firstSpin: true },
+            "muhmmad": { name: "محمد", pw: "20002000", balance: 1000, profit: 750, level: "برونزي", firstSpin: true },
+            "oday": { name: "عدي", pw: "65006500", balance: 1000, profit: 750, level: "فضي", firstSpin: true }
         };
 
         let currentUser = null;
@@ -249,7 +253,7 @@
             const un = document.getElementById('un').value.trim().toLowerCase(), pw = document.getElementById('pw').value.trim();
             if(!un || !pw) { showToast("يرجى إدخال البيانات كاملة"); return; }
             if(users[un]) { showToast("اسم المستخدم موجود مسبقاً"); return; }
-            users[un] = { name: un, pw: pw, balance: 0, profit: 0, level: "مبتدئ" };
+            users[un] = { name: un, pw: pw, balance: 0, profit: 0, level: "مبتدئ", firstSpin: true };
             showToast("تم إنشاء الحساب! يمكنك الدخول الآن");
             toggleAuthMode();
         }
@@ -280,6 +284,25 @@
                     </div>
                 </div>
 
+                <div class="glass rounded-[2rem] p-7 mb-6 border-emerald-500/10 bg-gradient-to-b from-transparent to-emerald-500/5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-black text-[10px] uppercase tracking-widest italic flex items-center gap-2">
+                            <i class="fa-solid fa-circle-notch text-emerald-500 animate-spin"></i> عجلة الحظ (VIP)
+                        </h3>
+                        <span class="text-[8px] bg-emerald-500/20 px-2 py-1 rounded text-emerald-400 font-bold">الحد الأدنى 50$</span>
+                    </div>
+                    <div class="text-center py-2">
+                        <div id="wheel-display" class="w-16 h-16 bg-emerald-500/20 rounded-full border-4 border-dotted border-emerald-500/40 mx-auto flex items-center justify-center mb-4 transition-all">
+                            <i class="fa-solid fa-clover text-2xl text-emerald-500"></i>
+                        </div>
+                        <p id="wheel-status" class="text-[9px] font-bold mb-4 text-slate-500 uppercase italic">جرب حظك وضاعف رصيدك الآن</p>
+                        <div class="flex gap-2">
+                            <input type="number" id="bet-amount" placeholder="مبلغ المراهنة" class="w-1/2 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-[10px] outline-none focus:border-emerald-500">
+                            <button onclick="spinWheel()" id="spin-btn" class="w-1/2 bg-emerald-500 text-black font-black py-3 rounded-xl text-[9px] uppercase italic active:scale-95 transition-all">بدء التدوير</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="glass rounded-[2rem] p-7 mb-6 border-white/5">
                     <div class="grid grid-cols-2 gap-4 mb-8">
                         <div class="bg-white/5 p-5 rounded-2xl border border-white/5 text-center">
@@ -291,22 +314,71 @@
                             <span class="text-xl font-black text-emerald-400 italic">+$${currentUser.profit}</span>
                         </div>
                     </div>
-
                     <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 italic flex items-center gap-2"><i class="fa-solid fa-history text-emerald-500"></i> سجل العمليات الأخير</h3>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
                             <div class="flex items-center gap-3"><i class="fa-solid fa-arrow-down text-emerald-500"></i><div><p class="text-[10px] font-black">أرباح وكالة يومية</p><p class="text-[8px] text-slate-500">31 مارس 2026</p></div></div>
                             <span class="text-xs font-black text-emerald-400">+$24.50</span>
                         </div>
-                        <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-blue-400"></i><div><p class="text-[10px] font-black">عمولة دعوة وكيل</p><p class="text-[8px] text-slate-500">30 مارس 2026</p></div></div>
-                            <span class="text-xs font-black text-emerald-400">+$12.00</span>
-                        </div>
                     </div>
                 </div>
-
                 <button onclick="logout()" class="w-full py-6 text-slate-600 font-bold text-[10px] hover:text-red-500 transition-colors uppercase tracking-widest italic">تسجيل الخروج من المنصة</button>
             `;
+        }
+
+        function spinWheel() {
+            const betInput = document.getElementById('bet-amount');
+            const bet = parseFloat(betInput.value);
+            const status = document.getElementById('wheel-status');
+            const wheelIco = document.getElementById('wheel-display');
+            const spinBtn = document.getElementById('spin-btn');
+
+            if (isNaN(bet) || bet <= 0) { showToast("أدخل مبلغ مراهنة صحيح"); return; }
+            if (currentUser.balance < 50) { showToast("يجب أن يكون رصيدك 50$ أو أكثر للعب"); return; }
+            if (bet > currentUser.balance) { showToast("رصيدك غير كافٍ لهذا الرهان"); return; }
+
+            spinBtn.disabled = true;
+            wheelIco.classList.add('wheel-spin-anim');
+            status.innerText = "جاري تدوير العجلة...";
+
+            setTimeout(() => {
+                wheelIco.classList.remove('wheel-spin-anim');
+                spinBtn.disabled = false;
+
+                let result;
+                if (currentUser.firstSpin) {
+                    result = { label: "ربح الضعف (هدية الترحيب)", mult: 1 };
+                    currentUser.firstSpin = false;
+                } else {
+                    const outcomes = [
+                        { label: "خسارة كاملة", mult: -1, weight: 40 }, 
+                        { label: "خسارة النصف", mult: -0.5, weight: 15 },
+                        { label: "خسارة الربع", mult: -0.25, weight: 10 },
+                        { label: "خسارة 3 أرباع", mult: -0.75, weight: 10 },
+                        { label: "ربح الضعف", mult: 1, weight: 10 },
+                        { label: "ربح ضعفين", mult: 2, weight: 6 },
+                        { label: "ربح 3 أضعاف", mult: 3, weight: 4 },
+                        { label: "ربح 4 أضعاف", mult: 4, weight: 3 },
+                        { label: "ربح 10 أضعاف", mult: 10, weight: 1.5 },
+                        { label: "30 ضعف (JACKPOT)", mult: 30, weight: 0.5 }
+                    ];
+                    let pool = [];
+                    outcomes.forEach(o => { for(let i=0; i<o.weight*10; i++) pool.push(o); });
+                    result = pool[Math.floor(Math.random() * pool.length)];
+                }
+
+                const change = bet * result.mult;
+                currentUser.balance += change;
+
+                if (change >= 0) {
+                    status.innerHTML = `<span class="text-emerald-400">مبروك! ${result.label} (+$${change})</span>`;
+                    showToast(`ربحت $${change}!`);
+                } else {
+                    status.innerHTML = `<span class="text-red-500">حظ أوفر! ${result.label} (-$${Math.abs(change)})</span>`;
+                    showToast(`خسرت $${Math.abs(change)}`);
+                }
+                renderDashboard();
+            }, 2000);
         }
 
         function saveSettings() {
