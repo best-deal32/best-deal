@@ -26,7 +26,8 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); }
+        .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); transition: all 0.2s ease; }
+        .glass-hover:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
         
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 75px;
@@ -41,9 +42,11 @@
 
         .exclusive-offer {
             background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 20px 35px -12px rgba(16, 185, 129, 0.4);
             position: relative; overflow: hidden;
+            transition: transform 0.2s ease;
         }
+        .exclusive-offer:hover { transform: translateY(-3px); }
 
         .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 35s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
@@ -59,9 +62,6 @@
             z-index: 5000; display: none; min-width: 280px; text-align: center;
         }
 
-        .wheel-spin-anim { animation: fast-spin 0.4s linear infinite; }
-        @keyframes fast-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
         #live-notify {
             position: fixed; bottom: 90px; right: 20px; z-index: 999;
             background: rgba(16, 185, 129, 0.95); color: white;
@@ -73,6 +73,72 @@
 
         input::placeholder { color: #94a3b8; }
         .light-mode input { color: #0f172a; background: rgba(0,0,0,0.05) !important; }
+
+        button, .nav-item, [onclick] { cursor: pointer; }
+        button:active, .nav-item:active { transform: scale(0.96); transition: 0.05s; }
+
+        /* تصميم عجلة الحظ */
+        .wheel-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 20px;
+        }
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 2s cubic-bezier(0.25, 0.1, 0.15, 1);
+            box-shadow: 0 0 0 6px rgba(16,185,129,0.2), 0 0 0 12px rgba(0,0,0,0.2);
+        }
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 0% 100%;
+            clip-path: polygon(0% 0%, 100% 0%, 0% 100%);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 1px 2px black;
+            pointer-events: none;
+        }
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            background: #0f172a;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 5;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            border: 2px solid #10b981;
+            color: #10b981;
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #fbbf24;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="antialiased" onload="initSite()">
@@ -109,11 +175,11 @@
 
             <div class="exclusive-offer p-7 rounded-[2.5rem] mb-8 border border-white/10">
                 <div class="flex justify-between items-center mb-5">
-                    <span class="bg-black/40 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase italic tracking-wider border border-white/10">مكافأة التسجيل</span>
+                    <span class="bg-black/40 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase italic tracking-wider border border-white/10">عرض حصري: أول إيداع</span>
                     <i class="fa-solid fa-gift text-white animate-bounce text-xl"></i>
                 </div>
-                <h2 class="text-4xl font-black text-white italic">بونص 50$</h2>
-                <p class="text-emerald-900 bg-white inline-block px-3 py-1 rounded-lg text-[10px] mt-2 font-black uppercase">عند أول إيداع لك</p>
+                <h2 class="text-4xl font-black text-white italic">ربح 80% فوراً</h2>
+                <p class="text-emerald-900 bg-white inline-block px-3 py-1 rounded-lg text-[10px] mt-2 font-black uppercase">لمرة واحدة فقط - ثم 50% على كل إيداع تالي</p>
                 <button onclick="toggleModal('loginModal', true)" class="w-full mt-8 bg-white text-emerald-900 py-4 rounded-2xl font-black text-sm shadow-2xl active:scale-95 transition-all uppercase italic">ابدأ التداول الآن</button>
             </div>
 
@@ -156,10 +222,11 @@
         </a>
     </div>
 
+    <!-- Login/Register Modal -->
     <div id="loginModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl z-[2000] flex items-center justify-center p-6">
         <div class="w-full max-sm glass rounded-[2.5rem] p-8 relative border-white/10 shadow-2xl">
             <button onclick="toggleModal('loginModal', false)" class="absolute top-6 left-6 text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
-            <div class="text-center mb-10">
+            <div class="text-center mb-6">
                 <h3 id="auth-title" class="text-3xl font-black text-emerald-500 italic mb-2 uppercase tracking-tighter">تسجيل الدخول</h3>
                 <p id="auth-desc" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest italic">الوصول الآمن للوكلاء</p>
             </div>
@@ -172,6 +239,10 @@
                     <i class="fa-solid fa-lock absolute right-5 top-5 text-slate-500"></i>
                     <input type="password" id="pw" placeholder="كلمة المرور" class="w-full bg-white/5 border border-white/10 rounded-2xl pr-12 pl-6 py-5 text-white outline-none focus:border-emerald-500 transition-all text-sm">
                 </div>
+                <div id="confirm-pw-container" class="relative hidden">
+                    <i class="fa-solid fa-check-circle absolute right-5 top-5 text-slate-500"></i>
+                    <input type="password" id="confirm-pw" placeholder="تأكيد كلمة المرور" class="w-full bg-white/5 border border-white/10 rounded-2xl pr-12 pl-6 py-5 text-white outline-none focus:border-emerald-500 transition-all text-sm">
+                </div>
                 <button id="auth-main-btn" onclick="handleLogin()" class="w-full py-5 bg-emerald-500 text-black font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase italic text-sm mt-4">دخول المنصة</button>
                 <div class="text-center mt-4">
                     <button id="toggle-auth-btn" onclick="toggleAuthMode()" class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest hover:underline">ليس لديك حساب؟ إنشاء حساب جديد</button>
@@ -180,27 +251,30 @@
         </div>
     </div>
 
+    <!-- Deposit Modal -->
     <div id="depositModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[3000] flex items-center justify-center p-6">
         <div class="w-full max-w-sm glass rounded-[2.5rem] p-8 border-emerald-500/20 relative shadow-2xl">
             <button onclick="toggleModal('depositModal', false)" class="absolute top-6 left-6 text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto mb-5 font-black text-2xl italic border border-emerald-500/30">BD</div>
                 <h3 class="text-xl font-black text-white italic">شحن الرصيد الفوري</h3>
+                <p class="text-[10px] text-slate-400 mt-2">أدخل المبلغ الذي تريد إيداعه</p>
             </div>
-            <div class="bg-black/50 border border-white/10 rounded-2xl p-5 mb-6 text-center">
-                <p class="text-[8px] text-slate-400 uppercase font-black mb-3 tracking-widest italic">عنوان المحفظة (USDT BEP20)</p>
-                <div class="flex items-center gap-3">
-                    <input id="myAddr" type="text" readonly value="0x7c487888402cC1e77E61eDf48BD20aa939624360" class="bg-transparent text-emerald-400 font-mono text-[10px] flex-1 outline-none truncate text-center">
-                    <button onclick="copyAddress()" class="text-emerald-500 hover:text-white active:scale-125 transition-transform"><i class="fa-solid fa-copy text-xl"></i></button>
+            <div class="space-y-4">
+                <input type="number" id="deposit-amount" placeholder="المبلغ بالدولار" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-emerald-500 text-sm text-center">
+                <div class="bg-black/50 border border-white/10 rounded-2xl p-5 mb-2 text-center">
+                    <p class="text-[8px] text-slate-400 uppercase font-black mb-3 tracking-widest italic">عنوان المحفظة (USDT BEP20)</p>
+                    <div class="flex items-center gap-3">
+                        <input id="myAddr" type="text" readonly value="0x7c487888402cC1e77E61eDf48BD20aa939624360" class="bg-transparent text-emerald-400 font-mono text-[10px] flex-1 outline-none truncate text-center">
+                        <button onclick="copyAddress()" class="text-emerald-500 hover:text-white active:scale-125 transition-transform"><i class="fa-solid fa-copy text-xl"></i></button>
+                    </div>
                 </div>
-            </div>
-            <div class="space-y-3">
                 <label class="block w-full bg-emerald-500/10 border border-dashed border-emerald-500/40 py-4 rounded-2xl text-center cursor-pointer hover:bg-emerald-500/20 transition-all">
                     <input type="file" class="hidden" onchange="showToast('تم اختيار صورة الإيصال بنجاح')">
                     <i class="fa-solid fa-cloud-arrow-up text-emerald-500 mb-2"></i>
                     <p class="text-[9px] text-emerald-400 font-black uppercase">ارفق لقطة شاشة العملية</p>
                 </label>
-                <button onclick="showToast('جاري مراجعة طلب الإيداع...')" class="w-full bg-emerald-500 py-4 rounded-2xl text-black font-black text-[10px] uppercase italic">تأكيد العملية</button>
+                <button onclick="processDeposit()" class="w-full bg-emerald-500 py-4 rounded-2xl text-black font-black text-[10px] uppercase italic">تأكيد الإيداع</button>
             </div>
         </div>
     </div>
@@ -245,18 +319,21 @@
 
     <script>
         const formatMoney = (val) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
-
+        
+        // هيكل المستخدم الجديد مع حقول الاستثمار
         const savedData = localStorage.getItem('bestDealUsers');
         const users = savedData ? JSON.parse(savedData) : {
-            "abdo": { name: "Abdul Ghani Ghannoum", pw: "25002500", balance: 2000, profit: 1500, level: "فضي", firstSpin: true },
-            "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, level: "ذهبي", firstSpin: true },
-            "muhmmad": { name: "محمد", pw: "20002000", balance: 1000, profit: 750, level: "برونزي", firstSpin: true },
-            "oday": { name: "عدي", pw: "65006500", balance: 1000, profit: 750, level: "فضي", firstSpin: true }
+            "abdo": { name: "Abdul Ghani Ghannoum", pw: "25002500", balance: 2000, profit: 1500, level: "فضي", firstSpin: true, 
+                      investedCapital: 2000, lastProfitDate: Date.now(), firstDepositDone: true, firstDepositAmount: 2000, firstDepositDate: Date.now() - 30*24*3600*1000 },
+            "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, level: "ذهبي", firstSpin: true,
+                        investedCapital: 3500, lastProfitDate: Date.now(), firstDepositDone: true, firstDepositAmount: 3500, firstDepositDate: Date.now() - 40*24*3600*1000 },
+            "muhmmad": { name: "محمد", pw: "20002000", balance: 1000, profit: 750, level: "برونزي", firstSpin: true,
+                         investedCapital: 1000, lastProfitDate: Date.now(), firstDepositDone: true, firstDepositAmount: 1000, firstDepositDate: Date.now() - 50*24*3600*1000 },
+            "oday": { name: "عدي", pw: "65006500", balance: 1000, profit: 750, level: "فضي", firstSpin: true,
+                      investedCapital: 1000, lastProfitDate: Date.now(), firstDepositDone: true, firstDepositAmount: 1000, firstDepositDate: Date.now() - 20*24*3600*1000 }
         };
 
-        function updateStorage() {
-            localStorage.setItem('bestDealUsers', JSON.stringify(users));
-        }
+        function updateStorage() { localStorage.setItem('bestDealUsers', JSON.stringify(users)); }
 
         let currentUser = null;
         let isLoginView = true;
@@ -268,12 +345,91 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
+        // حساب الأرباح المستحقة بناءً على الوقت المنقضي
+        function calculateAndAddProfit(user) {
+            const now = Date.now();
+            let last = user.lastProfitDate;
+            let totalProfitAdded = 0;
+            
+            // تحديد نسبة الربح لكل فترة: أول إيداع له نسبة 80% بعد 30 يوم
+            // ثم بعد ذلك جميع الإيداعات (بما في ذلك الأول بعد مرور 30 يوم) تحسب بنسبة 50% كل 40 يوم
+            // لكن يجب أن يتم حساب الربح على رأس المال الحالي (investedCapital)
+            
+            // معالجة الربح الخاص بالإيداع الأول إذا لم يمر 30 يوم بعد
+            if (user.firstDepositDone && user.firstDepositDate) {
+                const daysSinceFirst = (now - user.firstDepositDate) / (1000*3600*24);
+                if (daysSinceFirst >= 30 && !user.firstProfitPaid) {
+                    // ربح 80% من مبلغ الإيداع الأول
+                    const profit = user.firstDepositAmount * 0.8;
+                    user.balance += profit;
+                    user.profit += profit;
+                    user.firstProfitPaid = true;
+                    totalProfitAdded += profit;
+                    showToast(`تم إضافة أرباح الإيداع الأول: $${formatMoney(profit)}`);
+                }
+            }
+            
+            // الربح الدوري 50% كل 40 يوم على إجمالي رأس المال المستثمر
+            const intervalDays = 40;
+            const profitRate = 0.5;
+            const elapsedDays = (now - last) / (1000*3600*24);
+            if (elapsedDays >= intervalDays) {
+                const periods = Math.floor(elapsedDays / intervalDays);
+                const profitPerPeriod = user.investedCapital * profitRate;
+                const totalProfit = profitPerPeriod * periods;
+                user.balance += totalProfit;
+                user.profit += totalProfit;
+                user.lastProfitDate += periods * intervalDays * 24*3600*1000;
+                totalProfitAdded += totalProfit;
+                if (periods > 0) showToast(`تم إضافة أرباح دورية: $${formatMoney(totalProfit)}`);
+            }
+            
+            if (totalProfitAdded > 0) updateStorage();
+            return totalProfitAdded;
+        }
+
+        // دالة تستدعى بشكل دوري أو عند تسجيل الدخول
+        function updateProfitPeriodically() {
+            if (currentUser) {
+                calculateAndAddProfit(currentUser);
+                renderDashboard(); // تحديث الواجهة
+            }
+        }
+
+        // معالجة الإيداع
+        function processDeposit() {
+            if (!currentUser) { showToast("الرجاء تسجيل الدخول أولاً"); return; }
+            const amountInput = document.getElementById('deposit-amount');
+            let amount = parseFloat(amountInput.value);
+            if (isNaN(amount) || amount <= 0) { showToast("أدخل مبلغ صحيح أكبر من صفر"); return; }
+            
+            // إضافة المبلغ إلى رأس المال المستثمر
+            currentUser.investedCapital += amount;
+            
+            // إذا كان أول إيداع
+            if (!currentUser.firstDepositDone) {
+                currentUser.firstDepositDone = true;
+                currentUser.firstDepositAmount = amount;
+                currentUser.firstDepositDate = Date.now();
+                currentUser.firstProfitPaid = false;
+                showToast(`تم الإيداع الأول بنجاح. ستحصل على 80% ربح بعد 30 يوم.`);
+            } else {
+                showToast(`تم إيداع $${formatMoney(amount)} بنجاح. سيتم احتساب أرباح دورية 50% كل 40 يوم.`);
+            }
+            
+            // تحديث رصيد السحب (balance) قد يكون فقط الأرباح المضافة، ولكن لا نضيف المبلغ المستثمر إلى الرصيد مباشرة
+            // بل يظل في investedCapital لحساب الأرباح المستقبلية.
+            updateStorage();
+            amountInput.value = '';
+            toggleModal('depositModal', false);
+            renderDashboard();
+        }
+
         function randomNotify() {
             const names = ["سامر", "لؤي", "هدى", "فراس", "علاء", "ريما"];
             const actions = ["قام بإيداع", "سحب أرباح بقيمة", "ربح من عجلة الحظ"];
             const amounts = ["100$", "250$", "50$", "1000$"];
             const notify = document.getElementById('live-notify');
-            
             setInterval(() => {
                 const text = `${names[Math.floor(Math.random()*names.length)]} ${actions[Math.floor(Math.random()*actions.length)]} ${amounts[Math.floor(Math.random()*amounts.length)]}`;
                 notify.innerText = text;
@@ -290,40 +446,174 @@
         function toggleAuthMode() {
             isLoginView = !isLoginView;
             const title = document.getElementById('auth-title'), desc = document.getElementById('auth-desc'), 
-                  mainBtn = document.getElementById('auth-main-btn'), toggleBtn = document.getElementById('toggle-auth-btn');
+                  mainBtn = document.getElementById('auth-main-btn'), toggleBtn = document.getElementById('toggle-auth-btn'),
+                  confirmContainer = document.getElementById('confirm-pw-container');
             if(isLoginView) {
                 title.innerText = "تسجيل الدخول"; desc.innerText = "الوصول الآمن للوكلاء";
                 mainBtn.innerText = "دخول المنصة"; mainBtn.setAttribute('onclick', 'handleLogin()');
                 toggleBtn.innerText = "ليس لديك حساب؟ إنشاء حساب جديد";
+                confirmContainer.classList.add('hidden');
             } else {
                 title.innerText = "حساب جديد"; desc.innerText = "انضم الآن إلى عائلة Best Deal";
                 mainBtn.innerText = "إنشاء الحساب"; mainBtn.setAttribute('onclick', 'handleRegister()');
                 toggleBtn.innerText = "لديك حساب بالفعل؟ سجل دخولك";
+                confirmContainer.classList.remove('hidden');
             }
         }
 
         function handleRegister() {
-            const unInput = document.getElementById('un'), pwInput = document.getElementById('pw');
-            const un = unInput.value.trim().toLowerCase(), pw = pwInput.value.trim();
+            const unInput = document.getElementById('un'), pwInput = document.getElementById('pw'), confirmInput = document.getElementById('confirm-pw');
+            const un = unInput.value.trim().toLowerCase(), pw = pwInput.value.trim(), confirm = confirmInput.value.trim();
             
-            if(un.length < 3) { showToast("اسم المستخدم قصير جداً"); return; }
+            if(un.length < 3) { showToast("اسم المستخدم قصير جداً (3 أحرف على الأقل)"); return; }
             if(pw.length < 6) { showToast("كلمة المرور يجب أن لا تقل عن 6 أحرف"); return; }
+            if(pw !== confirm) { showToast("كلمة المرور وتأكيدها غير متطابقين"); return; }
             if(users[un]) { showToast("اسم المستخدم موجود مسبقاً"); return; }
             
-            users[un] = { name: un, pw: pw, balance: 0, profit: 0, level: "مبتدئ", firstSpin: true };
+            users[un] = { 
+                name: un, pw: pw, balance: 0, profit: 0, level: "مبتدئ", firstSpin: true,
+                investedCapital: 0, lastProfitDate: Date.now(), firstDepositDone: false, firstDepositAmount: 0, firstDepositDate: null, firstProfitPaid: false
+            };
             updateStorage();
             showToast("تم إنشاء الحساب بنجاح!");
-            unInput.value = ""; pwInput.value = "";
+            unInput.value = ""; pwInput.value = ""; confirmInput.value = "";
             toggleAuthMode();
         }
 
         function handleLogin() {
             const un = document.getElementById('un').value.trim().toLowerCase(), pw = document.getElementById('pw').value.trim();
             if (users[un] && users[un].pw === pw) {
-                currentUser = users[un]; toggleModal('loginModal', false);
+                currentUser = users[un];
+                // تحديث الأرباح قبل عرض لوحة التحكم
+                calculateAndAddProfit(currentUser);
+                toggleModal('loginModal', false);
                 renderDashboard(); showView('user-dashboard');
                 showToast(`مرحباً بك، ${currentUser.name}`);
             } else { showToast("خطأ في بيانات الدخول"); }
+        }
+
+        // عجلة الحظ المحسنة
+        let wheelSegments = [
+            { label: "خسارة", value: -1, color: "#ef4444", weight: 45 },
+            { label: "تعادل", value: 0, color: "#6b7280", weight: 15 },
+            { label: "ربح x2", value: 1, color: "#10b981", weight: 25 },
+            { label: "ربح x5", value: 4, color: "#f59e0b", weight: 10 },
+            { label: "الجائزة x10", value: 9, color: "#f97316", weight: 5 }
+        ];
+        let wheelAngle = 0;
+        let spinning = false;
+
+        function buildWheel() {
+            const wheel = document.getElementById('wheel');
+            if (!wheel) return;
+            wheel.innerHTML = '';
+            const totalWeight = wheelSegments.reduce((sum, seg) => sum + seg.weight, 0);
+            let startAngle = 0;
+            wheelSegments.forEach((seg, i) => {
+                const angle = (seg.weight / totalWeight) * 360;
+                const endAngle = startAngle + angle;
+                const largeArc = angle > 180 ? 1 : 0;
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const radius = 100;
+                const x1 = radius + radius * Math.cos((startAngle - 90) * Math.PI/180);
+                const y1 = radius + radius * Math.sin((startAngle - 90) * Math.PI/180);
+                const x2 = radius + radius * Math.cos((endAngle - 90) * Math.PI/180);
+                const y2 = radius + radius * Math.sin((endAngle - 90) * Math.PI/180);
+                const d = `M ${radius},${radius} L ${x1},${y1} A ${radius},${radius} 0 ${largeArc},1 ${x2},${y2} Z`;
+                path.setAttribute("d", d);
+                path.setAttribute("fill", seg.color);
+                path.setAttribute("stroke", "white");
+                path.setAttribute("stroke-width", "2");
+                path.setAttribute("data-value", seg.value);
+                path.setAttribute("data-label", seg.label);
+                wheel.appendChild(path);
+                
+                // إضافة نص
+                const textAngle = startAngle + angle/2;
+                const textRadius = 65;
+                const textX = radius + textRadius * Math.cos((textAngle - 90) * Math.PI/180);
+                const textY = radius + textRadius * Math.sin((textAngle - 90) * Math.PI/180);
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", textX);
+                text.setAttribute("y", textY);
+                text.setAttribute("fill", "white");
+                text.setAttribute("font-size", "12");
+                text.setAttribute("font-weight", "bold");
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("dominant-baseline", "middle");
+                text.textContent = seg.label;
+                wheel.appendChild(text);
+                
+                startAngle = endAngle;
+            });
+        }
+
+        function spinWheel() {
+            if (spinning) return;
+            const betInput = document.getElementById('bet-amount');
+            const bet = parseFloat(betInput.value);
+            if (isNaN(bet) || bet < 50) { showToast("الحد الأدنى هو 50$"); return; }
+            if (currentUser.balance < bet) { showToast("رصيدك الحالي غير كافٍ"); return; }
+            
+            spinning = true;
+            const spinBtn = document.getElementById('spin-btn');
+            spinBtn.disabled = true;
+            
+            // خصم الرهان
+            currentUser.balance -= bet;
+            updateStorage();
+            
+            // توليد نتيجة عشوائية
+            let result;
+            if (currentUser.firstSpin) {
+                result = { label: "ربح الضعف (هدية)", value: 1 };
+                currentUser.firstSpin = false;
+            } else {
+                let pool = [];
+                wheelSegments.forEach(seg => {
+                    for(let i=0; i<seg.weight; i++) pool.push(seg);
+                });
+                result = pool[Math.floor(Math.random() * pool.length)];
+            }
+            
+            // حساب التغير
+            const change = bet * result.value;
+            currentUser.balance += change;
+            if(change > 0) currentUser.profit += change;
+            updateStorage();
+            
+            // تدوير العجلة بشكل عشوائي مع توقف عند القطاع المناسب
+            const wheelElem = document.getElementById('wheel');
+            const totalWeight = wheelSegments.reduce((sum, seg) => sum + seg.weight, 0);
+            // حساب الزاوية التي يجب أن يتوقف عندها المؤشر ليشير إلى النتيجة
+            // نبحث عن مؤشر الزاوية للقطاع المطابق للنتيجة
+            let targetIndex = wheelSegments.findIndex(seg => seg.label === result.label);
+            if (targetIndex === -1) targetIndex = 0;
+            let cumAngle = 0;
+            for (let i=0; i<targetIndex; i++) {
+                cumAngle += (wheelSegments[i].weight / totalWeight) * 360;
+            }
+            const segAngle = (wheelSegments[targetIndex].weight / totalWeight) * 360;
+            const targetAngle = cumAngle + segAngle/2; // منتصف القطاع
+            
+            // دوران عشوائي عدة لفات ثم التوقف عند الزاوية المستهدفة
+            const extraSpins = 5 * 360;
+            const newAngle = extraSpins + targetAngle;
+            wheelElem.style.transform = `rotate(${newAngle}deg)`;
+            wheelAngle = newAngle;
+            
+            setTimeout(() => {
+                spinning = false;
+                spinBtn.disabled = false;
+                if (change > 0) {
+                    showToast(`مبروك! ${result.label} (+$${formatMoney(change)})`);
+                } else if (change === 0) {
+                    showToast(`تعادل! استرداد المبلغ`);
+                } else {
+                    showToast(`خسارة: ${result.label} (-$${formatMoney(Math.abs(change))})`);
+                }
+                renderDashboard();
+            }, 2100);
         }
 
         function renderDashboard() {
@@ -351,8 +641,10 @@
                         <span class="text-[8px] bg-emerald-500/20 px-2 py-1 rounded text-emerald-400 font-bold italic">VIP ACCESS</span>
                     </div>
                     <div class="text-center py-2">
-                        <div id="wheel-display" class="w-20 h-20 bg-emerald-500/10 rounded-full border-4 border-dashed border-emerald-500/40 mx-auto flex items-center justify-center mb-6 transition-all shadow-inner shadow-emerald-500/20">
-                            <i class="fa-solid fa-star text-3xl text-emerald-500"></i>
+                        <div class="wheel-container">
+                            <svg id="wheel" viewBox="0 0 200 200" width="200" height="200" style="transform: rotate(${wheelAngle}deg); transition: transform 2s cubic-bezier(0.25, 0.1, 0.15, 1);"></svg>
+                            <div class="wheel-center"><i class="fa-solid fa-star"></i></div>
+                            <div class="wheel-pointer"></div>
                         </div>
                         <p id="wheel-status" class="text-[10px] font-black mb-6 text-slate-400 uppercase italic">استثمر 50$ لتدوير العجلة ومضاعفة رصيدك</p>
                         <div class="flex gap-2">
@@ -365,78 +657,21 @@
                 <div class="glass rounded-[2rem] p-7 mb-6 border-white/5">
                     <div class="grid grid-cols-2 gap-4 mb-8">
                         <div class="bg-white/5 p-5 rounded-2xl border border-white/5 text-center">
-                            <p class="text-[8px] font-bold text-slate-500 uppercase mb-2 italic">رأس المال</p>
-                            <span class="text-xl font-black text-current italic">$${formatMoney(currentUser.balance)}</span>
+                            <p class="text-[8px] font-bold text-slate-500 uppercase mb-2 italic">رأس المال المستثمر</p>
+                            <span class="text-xl font-black text-current italic">$${formatMoney(currentUser.investedCapital || 0)}</span>
                         </div>
                         <div class="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20 text-center">
                             <p class="text-[8px] font-bold text-emerald-500 uppercase mb-2 italic">إجمالي الربح</p>
                             <span class="text-xl font-black text-emerald-500 italic">+$${formatMoney(currentUser.profit)}</span>
                         </div>
                     </div>
-                    <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 italic flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-emerald-500"></i> آخر العمليات</h3>
-                    <div id="trans-list" class="space-y-3">
-                        <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
-                            <div class="flex items-center gap-3"><i class="fa-solid fa-check-double text-emerald-500"></i><div><p class="text-[10px] font-black italic">أرباح يومية تلقائية</p><p class="text-[8px] text-slate-500">اليوم، 12:45 م</p></div></div>
-                            <span class="text-xs font-black text-emerald-500">+$12.00</span>
-                        </div>
+                    <div class="bg-white/5 p-4 rounded-xl mb-4">
+                        <p class="text-[9px] text-slate-400 uppercase font-black">ملاحظة: أرباح الإيداع الأول 80% بعد 30 يوم، ثم أرباح دورية 50% كل 40 يوم على إجمالي رأس المال.</p>
                     </div>
                 </div>
                 <button onclick="logout()" class="w-full py-6 text-slate-500 font-bold text-[10px] hover:text-red-500 transition-colors uppercase tracking-widest italic">تسجيل الخروج الآمن</button>
             `;
-        }
-
-        function spinWheel() {
-            const betInput = document.getElementById('bet-amount');
-            const bet = parseFloat(betInput.value);
-            const status = document.getElementById('wheel-status');
-            const wheelIco = document.getElementById('wheel-display');
-            const spinBtn = document.getElementById('spin-btn');
-
-            if (isNaN(bet) || bet < 50) { showToast("الحد الأدنى هو 50$"); return; }
-            if (currentUser.balance < 50) { showToast("رصيدك أقل من الحد الأدنى (50$)"); return; }
-            if (bet > currentUser.balance) { showToast("رصيدك الحالي غير كافٍ"); return; }
-
-            spinBtn.disabled = true;
-            wheelIco.classList.add('wheel-spin-anim');
-            status.innerText = "جاري الاتصال بالسيرفر...";
-
-            setTimeout(() => {
-                wheelIco.classList.remove('wheel-spin-anim');
-                spinBtn.disabled = false;
-
-                let result;
-                if (currentUser.firstSpin) {
-                    result = { label: "ربح الضعف (هدية)", mult: 1 };
-                    currentUser.firstSpin = false;
-                } else {
-                    const outcomes = [
-                        { label: "خسارة المحاولة", mult: -1, weight: 45 }, 
-                        { label: "تعادل", mult: 0, weight: 15 },
-                        { label: "ربح x2", mult: 1, weight: 25 },
-                        { label: "ربح x5", mult: 4, weight: 10 },
-                        { label: "الجائزة الكبرى x10", mult: 9, weight: 5 }
-                    ];
-                    let pool = [];
-                    outcomes.forEach(o => { for(let i=0; i<o.weight; i++) pool.push(o); });
-                    result = pool[Math.floor(Math.random() * pool.length)];
-                }
-
-                const change = bet * result.mult;
-                currentUser.balance += change;
-                if(change > 0) currentUser.profit += change;
-                updateStorage();
-
-                if (change > 0) {
-                    status.innerHTML = `<span class="text-emerald-500 font-black">رائع! ${result.label} (+$${formatMoney(change)})</span>`;
-                    showToast(`مبروك! تم إضافة $${formatMoney(change)}`);
-                } else if(change === 0) {
-                    status.innerHTML = `<span class="text-current font-black italic">تم استرداد الرهان</span>`;
-                } else {
-                    status.innerHTML = `<span class="text-red-500 font-black italic">حظ أوفر! ${result.label} (-$${formatMoney(Math.abs(change))})</span>`;
-                    showToast(`خسرت $${formatMoney(Math.abs(change))}`);
-                }
-                renderDashboard();
-            }, 2500);
+            buildWheel();
         }
 
         function saveSettings() {
@@ -485,8 +720,11 @@
 
         let agents = 2325;
         setInterval(() => { agents += (Math.floor(Math.random()*5)-2); if(agents < 100) agents = 100; document.getElementById('agent-count').innerText = agents; }, 3000);
-
-        function initSite() { generateStats(); randomNotify(); }
+        
+        // محاكاة الربح الدوري كل دقيقة (للتجربة) - في الواقع سيتم حسابه عند تسجيل الدخول فقط
+        setInterval(() => { if(currentUser) updateProfitPeriodically(); }, 60000);
+        
+        function initSite() { generateStats(); randomNotify(); buildWheel(); }
     </script>
 </body>
 </html>
