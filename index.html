@@ -62,7 +62,6 @@
         .wheel-spin-anim { animation: fast-spin 0.4s linear infinite; }
         @keyframes fast-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* Notification Bubble */
         #live-notify {
             position: fixed; bottom: 90px; right: 20px; z-index: 999;
             background: rgba(16, 185, 129, 0.9); color: white;
@@ -155,7 +154,7 @@
     </div>
 
     <div id="loginModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl z-[2000] flex items-center justify-center p-6">
-        <div class="w-full max-w-sm glass rounded-[2.5rem] p-8 relative border-white/10 shadow-2xl">
+        <div class="w-full max-sm glass rounded-[2.5rem] p-8 relative border-white/10 shadow-2xl">
             <button onclick="toggleModal('loginModal', false)" class="absolute top-6 left-6 text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
             <div class="text-center mb-10">
                 <h3 id="auth-title" class="text-3xl font-black text-emerald-500 italic mb-2 uppercase tracking-tighter">تسجيل الدخول</h3>
@@ -242,12 +241,18 @@
     </div>
 
     <script>
-        const users = {
+        // نظام التخزين المحلي - جلب البيانات أو استخدام الافتراضية
+        const savedData = localStorage.getItem('bestDealUsers');
+        const users = savedData ? JSON.parse(savedData) : {
             "abdo": { name: "Abdul Ghani Ghannoum", pw: "25002500", balance: 2000, profit: 1500, level: "فضي", firstSpin: true },
             "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, level: "ذهبي", firstSpin: true },
             "muhmmad": { name: "محمد", pw: "20002000", balance: 1000, profit: 750, level: "برونزي", firstSpin: true },
             "oday": { name: "عدي", pw: "65006500", balance: 1000, profit: 750, level: "فضي", firstSpin: true }
         };
+
+        function updateStorage() {
+            localStorage.setItem('bestDealUsers', JSON.stringify(users));
+        }
 
         let currentUser = null;
         let isLoginView = true;
@@ -259,7 +264,6 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        // إشعارات عشوائية لزيادة المصداقية
         function randomNotify() {
             const names = ["سامر", "لؤي", "هدى", "فراس", "علاء", "ريما"];
             const actions = ["قام بإيداع", "سحب أرباح بقيمة", "ربح من عجلة الحظ"];
@@ -299,6 +303,7 @@
             if(!un || !pw) { showToast("يرجى إدخال البيانات كاملة"); return; }
             if(users[un]) { showToast("اسم المستخدم موجود مسبقاً"); return; }
             users[un] = { name: un, pw: pw, balance: 0, profit: 0, level: "مبتدئ", firstSpin: true };
+            updateStorage();
             showToast("تم إنشاء الحساب! يمكنك الدخول الآن");
             toggleAuthMode();
         }
@@ -409,6 +414,8 @@
 
                 const change = bet * result.mult;
                 currentUser.balance += change;
+                
+                updateStorage(); // حفظ التغيير فوراً
 
                 if (change > 0) {
                     status.innerHTML = `<span class="text-emerald-400 font-black tracking-tighter">رائع! ${result.label} (+$${change})</span>`;
@@ -428,6 +435,7 @@
             const newPw = document.getElementById('new-pw').value.trim();
             if(newName) currentUser.name = newName;
             if(newPw) currentUser.pw = newPw;
+            updateStorage(); // حفظ التعديلات
             showToast("تم تحديث البيانات بنجاح");
             toggleModal('settingsModal', false);
             renderDashboard();
