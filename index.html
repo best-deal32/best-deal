@@ -3,264 +3,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Best Deal | نظام إدارة الوكلاء</title>
+    <title>Best Deal Mobile | المنصة الاحترافية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap');
         
-        :root { --bg: #020617; --accent: #10b981; --card: rgba(255,255,255,0.02); }
-        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: var(--bg); color: #f8fafc; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --bg: #020617; --card: rgba(255,255,255,0.03); --text: #f8fafc; --border: rgba(255,255,255,0.08);
+            --accent: #10b981;
+        }
+        .light-mode {
+            --bg: #f8fafc; --card: rgba(255,255,255,0.9); --text: #0f172a; --border: rgba(0,0,0,0.05);
+            --accent: #059669;
+        }
+
+        body { 
+            font-family: 'IBM Plex Sans Arabic', sans-serif; 
+            background: var(--bg); color: var(--text); 
+            transition: all 0.4s ease; overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); }
         
-        .glass { background: var(--card); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.05); }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); border-top: 1px solid rgba(255,255,255,0.1); display: flex; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-size: 10px; font-weight: bold; }
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; height: 75px;
+            background: rgba(0,0,0,0.95); backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-item { color: #64748b; transition: 0.3s; cursor: pointer; text-align: center; flex: 1; }
         .nav-item.active { color: var(--accent); }
 
-        .animate-up { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .exclusive-offer {
+            background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            position: relative; overflow: hidden;
+        }
 
-        .wheel-spin { animation: fast-spin 0.3s linear infinite; }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 35s linear infinite; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        
+        .view-transition { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #custom-toast {
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+            z-index: 5000; display: none; min-width: 250px; text-align: center;
+        }
+
+        .wheel-spin-anim { animation: fast-spin 0.4s linear infinite; }
         @keyframes fast-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* تحسينات الموبايل */
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* Notification Bubble */
+        #live-notify {
+            position: fixed; bottom: 90px; right: 20px; z-index: 999;
+            background: rgba(16, 185, 129, 0.9); color: white;
+            padding: 8px 15px; border-radius: 15px; font-size: 10px;
+            font-weight: bold; transform: translateY(100px); transition: 0.5s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        #live-notify.show { transform: translateY(0); }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased" onload="initSite()">
 
-    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 z-[5000] hidden glass px-6 py-4 rounded-2xl border-emerald-500/30 shadow-2xl text-[11px] font-black text-white text-center min-w-[280px] animate-up">
-        <span id="toast-msg"></span>
+    <div id="live-notify"></div>
+
+    <div id="custom-toast" class="glass px-6 py-4 rounded-2xl shadow-2xl border-emerald-500/50 text-white text-[11px] font-bold">
+        <i class="fa-solid fa-circle-info text-emerald-400 ml-2"></i> <span id="toast-msg"></span>
     </div>
 
-    <nav class="fixed top-0 w-full z-[1000] glass py-4 px-6 flex justify-between items-center border-b border-white/5">
-        <div class="flex items-center gap-2">
-            <div class="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center text-black shadow-lg shadow-emerald-500/20"><i class="fa-solid fa-bolt text-sm"></i></div>
-            <span class="text-lg font-black text-emerald-500 italic uppercase tracking-tighter">Best Deal</span>
+    <div class="bg-emerald-500 py-1.5 px-4 text-center text-black font-bold text-[10px] fixed top-0 w-full z-[1100] flex justify-between shadow-md">
+        <span><i class="fa-solid fa-shield-check"></i> نظام الحماية النشط: SSL </span>
+        <span>المتصلون الآن: <span id="agent-count">2325</span></span>
+    </div>
+
+    <nav class="fixed top-7 w-full z-[1000] bg-transparent backdrop-blur-md py-4 px-6 flex justify-between items-center border-b border-white/5">
+        <div class="flex items-center gap-2" onclick="location.reload()">
+            <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black shadow-lg">
+                <i class="fa-solid fa-crown text-lg"></i>
+            </div>
+            <span class="text-xl font-black text-emerald-500 italic tracking-tighter uppercase">Best Deal</span>
         </div>
-        <div class="text-[8px] font-bold text-slate-500 uppercase text-left">
-            <span class="block">Status: <span class="text-emerald-500">Secure SSL</span></span>
-            <span class="block">Region: <span class="text-emerald-500">Syria Admin</span></span>
-        </div>
+        <button onclick="toggleTheme()" class="w-10 h-10 rounded-xl glass flex items-center justify-center transition-all active:scale-90">
+            <i id="theme-icon" class="fa-solid fa-moon text-emerald-400"></i>
+        </button>
     </nav>
 
-    <main class="pt-24 pb-32">
-        <section id="hero-view" class="px-5 animate-up">
-            <div class="bg-gradient-to-br from-emerald-600 to-black p-8 rounded-[2.5rem] mb-6 shadow-2xl relative overflow-hidden border border-white/5">
-                <h2 class="text-3xl font-black italic mb-2">منصة الوكلاء</h2>
-                <p class="text-[9px] font-bold opacity-60 uppercase tracking-[0.2em] mb-8">نظام الإيداع الذكي والمؤمن بالكامل</p>
-                <button onclick="toggleModal('loginModal', true)" class="w-full bg-white text-emerald-950 py-4 rounded-2xl font-black text-xs uppercase italic active:scale-95 transition-all shadow-xl">تسجيل الدخول</button>
+    <main class="pt-28 pb-32">
+        <section id="hero-view" class="px-5 view-transition">
+            <div class="text-center mt-6 mb-8">
+                <h1 class="text-3xl font-black mb-2 leading-tight">استثمر بذكاء في <span class="text-emerald-500">مستقبلك</span></h1>
+                <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">توصيل مجاني لكافة المحافظات السورية</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="glass p-5 rounded-[2rem] text-center"><i class="fa-solid fa-shield-check text-emerald-500 mb-2 text-xl"></i><p class="text-[9px] font-black uppercase">حماية 100%</p></div>
-                <div class="glass p-5 rounded-[2rem] text-center"><i class="fa-solid fa-money-bill-transfer text-emerald-500 mb-2 text-xl"></i><p class="text-[9px] font-black uppercase">سحب سريع</p></div>
+            <div class="exclusive-offer p-7 rounded-[2.5rem] mb-8 border border-white/10">
+                <div class="flex justify-between items-center mb-5">
+                    <span class="bg-black/40 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase italic tracking-wider border border-white/10">مكافأة التسجيل</span>
+                    <i class="fa-solid fa-gift text-white animate-bounce text-xl"></i>
+                </div>
+                <h2 class="text-4xl font-black text-white italic">بونص 50$</h2>
+                <p class="text-emerald-900 bg-white inline-block px-3 py-1 rounded-lg text-[10px] mt-2 font-black uppercase">عند أول إيداع لك</p>
+                <button onclick="toggleModal('loginModal', true)" class="w-full mt-8 bg-white text-emerald-900 py-4 rounded-2xl font-black text-sm shadow-2xl active:scale-95 transition-all uppercase italic">ابدأ التداول الآن</button>
+            </div>
+
+            <div class="mb-8 px-1">
+                <h2 class="text-sm font-black mb-5 flex items-center gap-2 italic"><i class="fa-solid fa-bolt text-emerald-500"></i> خيارات الإيداع السريع</h2>
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="glass py-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-emerald-500/10">
+                        <i class="fa-solid fa-money-bill-transfer text-xl text-emerald-500"></i>
+                        <span class="text-[8px] font-bold">هرم</span>
+                    </div>
+                    <div class="glass py-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-orange-500/10">
+                        <i class="fa-brands fa-bitcoin text-xl text-orange-400"></i>
+                        <span class="text-[8px] font-bold">USDT</span>
+                    </div>
+                    <div class="glass py-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-blue-500/10">
+                        <i class="fa-solid fa-mobile-screen text-xl text-blue-400"></i>
+                        <span class="text-[8px] font-bold">زين كاش</span>
+                    </div>
+                    <div class="glass py-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-purple-500/10">
+                        <i class="fa-solid fa-building-columns text-xl text-purple-400"></i>
+                        <span class="text-[8px] font-bold">بنوك</span>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section id="dashboard-view" class="hidden px-5 animate-up"></section>
+        <section id="user-dashboard" class="hidden px-5 view-transition"></section>
     </main>
 
-    <div class="fixed bottom-[75px] w-full bg-black/90 py-2.5 z-[900] border-t border-white/5 overflow-hidden">
-        <marquee class="text-emerald-400 text-[9px] font-black italic uppercase">
-            إيداع جديد بقيمة $450 (حلب) • سحب ناجح $210 (دمشق) • وكيل جديد انضم من اللاذقية • تحديث النظام v4.0 • عمولة الوكلاء مرتفعة الآن
-        </marquee>
+    <div class="fixed bottom-[75px] w-full bg-black/60 backdrop-blur-xl border-t border-white/5 py-2.5 overflow-hidden z-[900]">
+        <div id="live-transactions" class="animate-marquee text-emerald-400 text-[10px] font-bold flex gap-12 italic"></div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="showHero()"><i class="fa-solid fa-house-chimney text-xl mb-1"></i><span>الرئيسية</span></div>
-        <div class="nav-item" onclick="checkAuth()"><i class="fa-solid fa-wallet text-xl mb-1"></i><span>محفظتي</span></div>
-        <a href="https://wa.me/639553327014" target="_blank" class="nav-item no-underline"><i class="fa-brands fa-whatsapp text-xl mb-1 text-emerald-500"></i><span>الدعم</span></a>
+        <div class="nav-item active flex flex-col items-center gap-1" onclick="showView('hero-view', this)"><i class="fa-solid fa-house text-xl"></i><span class="text-[10px] font-bold">الرئيسية</span></div>
+        <div class="nav-item flex flex-col items-center gap-1" onclick="checkAuth()"><i class="fa-solid fa-wallet text-xl"></i><span class="text-[10px] font-bold">المحفظة</span></div>
+        <a href="https://wa.me/639553327014" target="_blank" class="nav-item flex flex-col items-center gap-1 no-underline">
+            <i class="fa-brands fa-whatsapp text-xl text-emerald-500"></i>
+            <span class="text-[10px] font-bold">الدعم</span>
+        </a>
     </div>
 
-    <div id="loginModal" class="hidden fixed inset-0 bg-black/95 z-[2000] flex items-center justify-center p-6 backdrop-blur-3xl">
-        <div class="w-full max-w-sm glass rounded-[3rem] p-8 relative border-emerald-500/20">
-            <button onclick="toggleModal('loginModal', false)" class="absolute top-6 left-6 text-slate-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div class="text-center mb-10"><h3 class="text-2xl font-black text-emerald-500 italic uppercase">Login Access</h3></div>
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl z-[2000] flex items-center justify-center p-6">
+        <div class="w-full max-w-sm glass rounded-[2.5rem] p-8 relative border-white/10 shadow-2xl">
+            <button onclick="toggleModal('loginModal', false)" class="absolute top-6 left-6 text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <div class="text-center mb-10">
+                <h3 id="auth-title" class="text-3xl font-black text-emerald-500 italic mb-2 uppercase tracking-tighter">تسجيل الدخول</h3>
+                <p id="auth-desc" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest italic">الوصول الآمن للوكلاء</p>
+            </div>
             <div class="space-y-4">
-                <input type="text" id="un" placeholder="اسم المستخدم" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none focus:border-emerald-500 text-sm">
-                <input type="password" id="pw" placeholder="كلمة المرور" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white outline-none focus:border-emerald-500 text-sm">
-                <button onclick="handleLogin()" class="w-full py-5 bg-emerald-500 text-black font-black rounded-2xl text-xs uppercase shadow-xl active:scale-95 transition-all">دخول النظام</button>
+                <div class="relative">
+                    <i class="fa-solid fa-user absolute right-5 top-5 text-slate-500"></i>
+                    <input type="text" id="un" placeholder="اسم المستخدم" class="w-full bg-white/5 border border-white/10 rounded-2xl pr-12 pl-6 py-5 text-white outline-none focus:border-emerald-500 transition-all text-sm">
+                </div>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute right-5 top-5 text-slate-500"></i>
+                    <input type="password" id="pw" placeholder="كلمة المرور" class="w-full bg-white/5 border border-white/10 rounded-2xl pr-12 pl-6 py-5 text-white outline-none focus:border-emerald-500 transition-all text-sm">
+                </div>
+                <button id="auth-main-btn" onclick="handleLogin()" class="w-full py-5 bg-emerald-500 text-black font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase italic text-sm mt-4">دخول المنصة</button>
+                <div class="text-center mt-4">
+                    <button id="toggle-auth-btn" onclick="toggleAuthMode()" class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest hover:underline">ليس لديك حساب؟ إنشاء حساب جديد</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 bg-black/98 z-[3000] flex items-center justify-center p-6 backdrop-blur-2xl">
-        <div class="w-full max-w-sm glass rounded-[3rem] p-9 relative border-emerald-500/20 shadow-2xl animate-up">
-            <button onclick="toggleModal('depositModal', false)" class="absolute top-6 left-6 text-slate-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-            
+    <div id="depositModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[3000] flex items-center justify-center p-6">
+        <div class="w-full max-w-sm glass rounded-[2.5rem] p-8 border-emerald-500/20 relative shadow-2xl">
+            <button onclick="toggleModal('depositModal', false)" class="absolute top-6 left-6 text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
             <div class="text-center mb-8">
-                <h3 class="text-xl font-black text-white italic">شحن الرصيد</h3>
-                <p class="text-[9px] text-emerald-500/60 font-black uppercase mt-1">يتطلب صورة التحويل للظهور في السجل</p>
+                <div class="w-16 h-16 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto mb-5 font-black text-2xl italic border border-emerald-500/30">BD</div>
+                <h3 class="text-xl font-black text-white italic">شحن الرصيد الفوري</h3>
             </div>
-
-            <div class="space-y-5">
-                <input type="number" id="dep-val" placeholder="أدخل مبلغ الإيداع ($)" 
-                       class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-5 text-white outline-none focus:border-emerald-500 text-center font-black text-xl tracking-tighter">
-
-                <div class="bg-black/50 border border-white/5 rounded-2xl p-4 text-center">
-                    <p class="text-[8px] text-slate-500 uppercase font-black mb-2">USDT Wallet (BEP20)</p>
-                    <input id="addr" type="text" readonly value="0x7c487888402cC1e77E61eDf48BD20aa939624360" class="bg-transparent text-emerald-400 font-mono text-[9px] w-full text-center outline-none mb-2">
-                    <button onclick="copyAddr()" class="text-[10px] text-emerald-500 font-black underline">نسخ العنوان</button>
+            <div class="bg-black/50 border border-white/10 rounded-2xl p-5 mb-6 text-center">
+                <p class="text-[8px] text-slate-500 uppercase font-black mb-3 tracking-widest italic">عنوان المحفظة (USDT BEP20)</p>
+                <div class="flex items-center gap-3">
+                    <input id="myAddr" type="text" readonly value="0x7c487888402cC1e77E61eDf48BD20aa939624360" class="bg-transparent text-emerald-400 font-mono text-[10px] flex-1 outline-none truncate text-center">
+                    <button onclick="copyAddress()" class="text-emerald-500 hover:text-white active:scale-125 transition-transform"><i class="fa-solid fa-copy text-xl"></i></button>
                 </div>
-
-                <label id="up-box" class="block w-full bg-white/5 border-2 border-dashed border-white/10 py-8 rounded-2xl text-center cursor-pointer active:bg-emerald-500/5 transition-all">
-                    <input type="file" id="dep-img" class="hidden" onchange="checkFile()">
-                    <div id="up-state">
-                        <i class="fa-solid fa-camera-retro text-2xl text-slate-600 mb-2"></i>
-                        <p class="text-[9px] text-slate-500 font-black uppercase">إرفاق لقطة شاشة (إجباري)</p>
-                    </div>
+            </div>
+            <div class="space-y-3">
+                <label class="block w-full bg-emerald-500/10 border border-dashed border-emerald-500/40 py-4 rounded-2xl text-center cursor-pointer hover:bg-emerald-500/20 transition-all">
+                    <input type="file" class="hidden" onchange="showToast('تم اختيار صورة الإيصال بنجاح')">
+                    <i class="fa-solid fa-cloud-arrow-up text-emerald-500 mb-2"></i>
+                    <p class="text-[9px] text-emerald-400 font-black uppercase">ارفق لقطة شاشة العملية</p>
                 </label>
+                <button onclick="showToast('جاري مراجعة طلب الإيداع...')" class="w-full bg-emerald-500 py-4 rounded-2xl text-black font-black text-[10px] uppercase italic">تأكيد العملية</button>
+            </div>
+        </div>
+    </div>
 
-                <button onclick="confirmNewDep()" class="w-full bg-emerald-500 py-5 rounded-2xl text-black font-black text-xs uppercase italic shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">إرسال للمراجعة اليدوية</button>
+    <div id="withdrawModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl z-[3000] flex items-center justify-center p-6">
+        <div class="w-full max-w-sm glass rounded-[2.5rem] p-8 border-emerald-500/20 relative shadow-2xl">
+            <button onclick="toggleModal('withdrawModal', false)" class="absolute top-6 left-6 text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <div class="text-center mb-8">
+                <h3 class="text-xl font-black text-white italic mb-2 uppercase">طلب سحب أرباح</h3>
+                <p class="text-[9px] text-slate-500 font-bold tracking-widest italic uppercase">اختر بوابة السحب المفضلة</p>
+            </div>
+            <div class="grid grid-cols-1 gap-3">
+                <button onclick="showToast('تم اختيار شركة الهرم')" class="w-full bg-white/5 border border-white/10 py-4 rounded-2xl text-sm font-bold flex items-center px-6 gap-4 hover:bg-emerald-500/10 transition-colors">
+                    <i class="fa-solid fa-paper-plane text-emerald-500"></i> شركة الهرم للحوالات
+                </button>
+                <button onclick="showToast('تم اختيار شركة الفؤاد')" class="w-full bg-white/5 border border-white/10 py-4 rounded-2xl text-sm font-bold flex items-center px-6 gap-4 hover:bg-emerald-500/10 transition-colors">
+                    <i class="fa-solid fa-bolt text-orange-500"></i> شركة الفؤاد
+                </button>
+                <button onclick="showToast('تم اختيار الحساب البنكي')" class="w-full bg-white/5 border border-white/10 py-4 rounded-2xl text-sm font-bold flex items-center px-6 gap-4 hover:bg-emerald-500/10 transition-colors">
+                    <i class="fa-solid fa-building-columns text-purple-500"></i> حساب بنكي مباشر
+                </button>
+                <button onclick="showToast('تم اختيار Trust Wallet')" class="w-full bg-white/5 border border-white/10 py-4 rounded-2xl text-sm font-bold flex items-center px-6 gap-4 hover:bg-emerald-500/10 transition-colors">
+                    <i class="fa-solid fa-shield-halved text-blue-500"></i> محفظة Trust Wallet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black/95 backdrop-blur-xl z-[3000] flex items-center justify-center p-6">
+        <div class="w-full max-w-sm glass rounded-[2.5rem] p-8 border-white/10 relative shadow-2xl">
+            <button onclick="toggleModal('settingsModal', false)" class="absolute top-6 left-6 text-slate-500 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <div class="text-center mb-8">
+                <h3 class="text-xl font-black text-white italic mb-2 uppercase">إعدادات الحساب</h3>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="new-name" placeholder="الاسم المستعار الجديد" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-emerald-500 text-sm">
+                <input type="password" id="new-pw" placeholder="كلمة المرور الجديدة" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-emerald-500 text-sm">
+                <button onclick="saveSettings()" class="w-full py-4 bg-emerald-500 text-black font-black rounded-2xl text-[10px] uppercase italic">حفظ التغييرات</button>
             </div>
         </div>
     </div>
 
     <script>
-        // قاعدة البيانات مع مبالغ ثابتة للمستخدمين القدامى
         const users = {
-            "abdo": { name: "Abdul Ghani Ghannoum", pw: "25002500", balance: 2000, profit: 1500, history: [] },
-            "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, history: [] },
-            "muhmmad": { name: "محمد", pw: "20002000", balance: 1000, profit: 750, history: [] },
-            "oday": { name: "عدي", pw: "65006500", balance: 1000, profit: 750, history: [] }
+            "abdo": { name: "Abdul Ghani Ghannoum", pw: "25002500", balance: 2000, profit: 1500, level: "فضي", firstSpin: true },
+            "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, level: "ذهبي", firstSpin: true },
+            "muhmmad": { name: "محمد", pw: "20002000", balance: 1000, profit: 750, level: "برونزي", firstSpin: true },
+            "oday": { name: "عدي", pw: "65006500", balance: 1000, profit: 750, level: "فضي", firstSpin: true }
         };
 
         let currentUser = null;
+        let isLoginView = true;
 
-        function showToast(m) {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = m;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3500);
+        function showToast(msg) {
+            const toast = document.getElementById('custom-toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        function toggleModal(id, s) { document.getElementById(id).classList.toggle('hidden', !s); }
-
-        function handleLogin() {
-            const u = document.getElementById('un').value.trim().toLowerCase();
-            const p = document.getElementById('pw').value.trim();
-            if (users[u] && users[u].pw === p) {
-                currentUser = users[u];
-                toggleModal('loginModal', false);
-                renderDash();
-                showView('dashboard-view');
-            } else { showToast("فشل الدخول: بيانات غير صحيحة"); }
+        // إشعارات عشوائية لزيادة المصداقية
+        function randomNotify() {
+            const names = ["سامر", "لؤي", "هدى", "فراس", "علاء", "ريما"];
+            const actions = ["قام بإيداع", "سحب أرباح بقيمة", "ربح من عجلة الحظ"];
+            const amounts = ["100$", "250$", "50$", "1000$"];
+            const notify = document.getElementById('live-notify');
+            
+            setInterval(() => {
+                const text = `${names[Math.floor(Math.random()*names.length)]} ${actions[Math.floor(Math.random()*actions.length)]} ${amounts[Math.floor(Math.random()*amounts.length)]}`;
+                notify.innerText = text;
+                notify.classList.add('show');
+                setTimeout(() => notify.classList.remove('show'), 4000);
+            }, 8000);
         }
 
-        function checkFile() {
-            const f = document.getElementById('dep-img');
-            const s = document.getElementById('up-state');
-            const b = document.getElementById('up-box');
-            if (f.files[0]) {
-                b.style.borderColor = "#10b981";
-                s.innerHTML = `<i class="fa-solid fa-check-double text-2xl text-emerald-500 mb-2"></i><p class="text-[9px] text-emerald-500 font-black">جاهز للرفع</p>`;
+        function checkAuth() {
+            if(!currentUser) toggleModal('loginModal', true);
+            else showView('user-dashboard');
+        }
+
+        function toggleAuthMode() {
+            isLoginView = !isLoginView;
+            const title = document.getElementById('auth-title'), desc = document.getElementById('auth-desc'), 
+                  mainBtn = document.getElementById('auth-main-btn'), toggleBtn = document.getElementById('toggle-auth-btn');
+            if(isLoginView) {
+                title.innerText = "تسجيل الدخول"; desc.innerText = "الوصول الآمن للوكلاء";
+                mainBtn.innerText = "دخول المنصة"; mainBtn.setAttribute('onclick', 'handleLogin()');
+                toggleBtn.innerText = "ليس لديك حساب؟ إنشاء حساب جديد";
+            } else {
+                title.innerText = "حساب جديد"; desc.innerText = "انضم الآن إلى عائلة Best Deal";
+                mainBtn.innerText = "إنشاء الحساب"; mainBtn.setAttribute('onclick', 'handleRegister()');
+                toggleBtn.innerText = "لديك حساب بالفعل؟ سجل دخولك";
             }
         }
 
-        // دالة الإيداع الجديدة والمقيدة بالكامل
-        function confirmNewDep() {
-            const val = document.getElementById('dep-val').value;
-            const img = document.getElementById('dep-img').files[0];
-
-            if (!val || val <= 0) return showToast("خطأ: يرجى كتابة مبلغ الإيداع");
-            if (!img) return showToast("خطأ: يجب إرفاق لقطة الشاشة أولاً");
-
-            // الإضافة للسجل فقط دون زيادة الرصيد
-            const t = new Date();
-            const time = `${t.getHours()}:${t.getMinutes()}`;
-            
-            currentUser.history.unshift({
-                title: "إيداع (قيد المراجعة)",
-                amount: `$${parseFloat(val).toLocaleString()}`,
-                status: "text-amber-400",
-                icon: "fa-solid fa-clock-rotate-left animate-pulse",
-                time: time
-            });
-
-            // تحديث الواجهة والرسائل
-            showToast("تم الإرسال! طلبك الآن تحت المراجعة اليدوية");
-            renderDash();
-            toggleModal('depositModal', false);
-
-            // تصفير الحقول
-            document.getElementById('dep-val').value = '';
-            document.getElementById('dep-img').value = '';
-            document.getElementById('up-state').innerHTML = `<i class="fa-solid fa-camera-retro text-2xl text-slate-600 mb-2"></i><p class="text-[9px] text-slate-500 font-black uppercase">إرفاق لقطة شاشة (إجباري)</p>`;
-            document.getElementById('up-box').style.borderColor = "rgba(255,255,255,0.1)";
+        function handleRegister() {
+            const un = document.getElementById('un').value.trim().toLowerCase(), pw = document.getElementById('pw').value.trim();
+            if(!un || !pw) { showToast("يرجى إدخال البيانات كاملة"); return; }
+            if(users[un]) { showToast("اسم المستخدم موجود مسبقاً"); return; }
+            users[un] = { name: un, pw: pw, balance: 0, profit: 0, level: "مبتدئ", firstSpin: true };
+            showToast("تم إنشاء الحساب! يمكنك الدخول الآن");
+            toggleAuthMode();
         }
 
-        function spin() {
-            const bet = parseFloat(document.getElementById('bet').value);
-            if (!bet || bet < 10) return showToast("الحد الأدنى للمراهنة 10$");
-            if (currentUser.balance < bet) return showToast("رصيدك غير كافٍ");
-
-            const btn = document.getElementById('spin-btn');
-            const ico = document.getElementById('wheel-ico');
-            btn.disabled = true; ico.classList.add('wheel-spin');
-
-            setTimeout(() => {
-                ico.classList.remove('wheel-spin');
-                btn.disabled = false;
-                const win = Math.random() > 0.7; // نسبة الربح 30% لواقعية أكثر
-                const time = new Date().getHours() + ":" + new Date().getMinutes();
-                
-                if (win) {
-                    currentUser.balance += bet;
-                    currentUser.history.unshift({ title: "ربح عجلة الحظ", amount: `+$${bet}`, status: "text-emerald-400", icon: "fa-solid fa-circle-check", time });
-                    showToast("مبروك! ربحت الضعف");
-                } else {
-                    currentUser.balance -= bet;
-                    currentUser.history.unshift({ title: "خسارة عجلة الحظ", amount: `-$${bet}`, status: "text-red-500", icon: "fa-solid fa-circle-xmark", time });
-                    showToast("للأسف، لم يحالفك الحظ");
-                }
-                renderDash();
-            }, 1800);
+        function handleLogin() {
+            const un = document.getElementById('un').value.trim().toLowerCase(), pw = document.getElementById('pw').value.trim();
+            if (users[un] && users[un].pw === pw) {
+                currentUser = users[un]; toggleModal('loginModal', false);
+                renderDashboard(); showView('user-dashboard');
+                showToast(`مرحباً بك مجدداً، ${currentUser.name}`);
+            } else { showToast("خطأ في البيانات، حاول مجدداً"); }
         }
 
-        function renderDash() {
-            let logs = currentUser.history.map(h => `
-                <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5 mb-2 animate-up">
-                    <div class="flex items-center gap-3">
-                        <i class="${h.icon} ${h.status} text-lg"></i>
-                        <div><p class="text-[10px] font-bold">${h.title}</p><p class="text-[8px] text-slate-500 uppercase">${h.time}</p></div>
+        function renderDashboard() {
+            const total = currentUser.balance + currentUser.profit;
+            document.getElementById('user-dashboard').innerHTML = `
+                <div class="bg-gradient-to-br from-emerald-900 via-black to-black p-8 rounded-[2.5rem] border border-emerald-500/30 mb-6 relative shadow-2xl">
+                    <div class="flex justify-between items-start mb-10">
+                        <div>
+                            <p class="text-emerald-400 text-[10px] font-black uppercase mb-1 tracking-[0.2em] italic">إجمالي المحفظة</p>
+                            <h2 class="text-5xl font-black italic text-white leading-none tracking-tighter">$${total.toLocaleString()}</h2>
+                        </div>
+                        <div onclick="toggleModal('settingsModal', true)" class="glass w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-400 cursor-pointer hover:bg-emerald-500/10 transition-colors"><i class="fa-solid fa-gear text-xl"></i></div>
                     </div>
-                    <span class="text-xs font-black ${h.status}">${h.amount}</span>
-                </div>
-            `).join('');
-
-            document.getElementById('dashboard-view').innerHTML = `
-                <div class="bg-gradient-to-br from-slate-900 to-black p-8 rounded-[2.5rem] border border-white/10 mb-6 shadow-2xl">
-                    <p class="text-slate-500 text-[10px] font-black uppercase mb-1 tracking-widest">إجمالي الرصيد الفعلي</p>
-                    <h2 class="text-4xl font-black italic text-white mb-8 tracking-tighter">$${(currentUser.balance + currentUser.profit).toLocaleString()}</h2>
-                    <div class="flex gap-3">
-                        <button onclick="toggleModal('depositModal', true)" class="flex-1 bg-emerald-500 text-black py-4 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">إيداع رصيد</button>
-                        <button onclick="showToast('السحب متوقف مؤقتاً')" class="flex-1 bg-white/5 text-white border border-white/10 py-4 rounded-2xl font-black text-[10px] uppercase italic">سحب الأرباح</button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="toggleModal('depositModal', true)" class="bg-emerald-500 text-black py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase shadow-lg shadow-emerald-500/20"><i class="fa-solid fa-plus-circle"></i> إيداع</button>
+                        <button onclick="toggleModal('withdrawModal', true)" class="bg-white/10 text-white border border-white/10 py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase"><i class="fa-solid fa-money-bill-transfer"></i> سحب</button>
                     </div>
                 </div>
 
-                <div class="glass p-6 rounded-[2.5rem] mb-6 text-center border-emerald-500/5">
-                    <div id="wheel-ico" class="w-16 h-16 bg-emerald-500/5 rounded-full border border-emerald-500/20 mx-auto flex items-center justify-center mb-4"><i class="fa-solid fa-dharmachakra text-2xl text-emerald-500"></i></div>
-                    <div class="flex gap-2">
-                        <input type="number" id="bet" placeholder="مبلغ المراهنة" class="w-1/2 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-[10px] outline-none text-center font-bold">
-                        <button id="spin-btn" onclick="spin()" class="w-1/2 bg-emerald-500 text-black font-black py-3 rounded-xl text-[9px] uppercase italic active:scale-95 transition-all">تدوير العجلة</button>
+                <div class="glass rounded-[2rem] p-7 mb-6 border-emerald-500/10 bg-gradient-to-b from-transparent to-emerald-500/5">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-black text-[10px] uppercase tracking-widest italic flex items-center gap-2">
+                            <i class="fa-solid fa-dharmachakra text-emerald-500"></i> عجلة الأرباح الذكية
+                        </h3>
+                        <span class="text-[8px] bg-emerald-500/20 px-2 py-1 rounded text-emerald-400 font-bold italic">VIP ACCESS</span>
+                    </div>
+                    <div class="text-center py-2">
+                        <div id="wheel-display" class="w-20 h-20 bg-emerald-500/10 rounded-full border-4 border-dashed border-emerald-500/40 mx-auto flex items-center justify-center mb-6 transition-all shadow-inner shadow-emerald-500/20">
+                            <i class="fa-solid fa-star text-3xl text-emerald-500"></i>
+                        </div>
+                        <p id="wheel-status" class="text-[10px] font-black mb-6 text-slate-400 uppercase italic">استثمر 50$ لتدوير العجلة ومضاعفة رصيدك</p>
+                        <div class="flex gap-2">
+                            <input type="number" id="bet-amount" placeholder="المبلغ (Min 50$)" class="w-1/2 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-[10px] outline-none focus:border-emerald-500 text-center font-bold">
+                            <button onclick="spinWheel()" id="spin-btn" class="w-1/2 bg-emerald-500 text-black font-black py-3 rounded-xl text-[10px] uppercase italic active:scale-95 transition-all shadow-lg shadow-emerald-500/10">تدوير الآن</button>
+                        </div>
                     </div>
                 </div>
 
-                <h3 class="text-[10px] font-black uppercase italic mb-4 text-slate-500 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-emerald-500"></i> سجل العمليات المباشر</h3>
-                <div class="max-h-64 overflow-y-auto no-scrollbar">
-                    ${logs || '<p class="text-center text-[9px] text-slate-700 py-6 font-bold italic">لا يوجد نشاط مسجل حتى الآن</p>'}
+                <div class="glass rounded-[2rem] p-7 mb-6 border-white/5">
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-white/5 p-5 rounded-2xl border border-white/5 text-center">
+                            <p class="text-[8px] font-bold text-slate-500 uppercase mb-2 italic">رأس المال</p>
+                            <span class="text-xl font-black text-white italic">$${currentUser.balance}</span>
+                        </div>
+                        <div class="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20 text-center">
+                            <p class="text-[8px] font-bold text-emerald-400 uppercase mb-2 italic">إجمالي الربح</p>
+                            <span class="text-xl font-black text-emerald-400 italic">+$${currentUser.profit}</span>
+                        </div>
+                    </div>
+                    <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 italic flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-emerald-500"></i> آخر العمليات</h3>
+                    <div id="trans-list" class="space-y-3">
+                        <div class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5">
+                            <div class="flex items-center gap-3"><i class="fa-solid fa-check-double text-emerald-500"></i><div><p class="text-[10px] font-black italic">أرباح يومية تلقائية</p><p class="text-[8px] text-slate-500">اليوم، 12:45 م</p></div></div>
+                            <span class="text-xs font-black text-emerald-400">+$12.00</span>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="location.reload()" class="w-full mt-6 py-4 text-slate-600 font-black text-[9px] uppercase italic">تسجيل الخروج الآمن</button>
+                <button onclick="logout()" class="w-full py-6 text-slate-600 font-bold text-[10px] hover:text-red-500 transition-colors uppercase tracking-widest italic">تسجيل الخروج من الحساب</button>
             `;
         }
 
-        function showHero() { showView('hero-view'); document.querySelectorAll('.nav-item').forEach((n,i) => n.classList.toggle('active', i===0)); }
-        function checkAuth() { if(!currentUser) toggleModal('loginModal', true); else { showView('dashboard-view'); renderDash(); } }
-        function showView(id) { document.getElementById('hero-view').classList.add('hidden'); document.getElementById('dashboard-view').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); }
-        function copyAddr() { navigator.clipboard.writeText(document.getElementById('addr').value); showToast("تم نسخ عنوان المحفظة"); }
+        function spinWheel() {
+            const betInput = document.getElementById('bet-amount');
+            const bet = parseFloat(betInput.value);
+            const status = document.getElementById('wheel-status');
+            const wheelIco = document.getElementById('wheel-display');
+            const spinBtn = document.getElementById('spin-btn');
+
+            if (isNaN(bet) || bet < 50) { showToast("الحد الأدنى للمراهنة هو 50$"); return; }
+            if (currentUser.balance < 50) { showToast("يجب أن يكون رصيدك 50$ أو أكثر للعب"); return; }
+            if (bet > currentUser.balance) { showToast("رصيدك غير كافٍ لهذا الرهان"); return; }
+
+            spinBtn.disabled = true;
+            wheelIco.classList.add('wheel-spin-anim');
+            status.innerText = "جاري تدوير العجلة... ترقب الربح";
+
+            setTimeout(() => {
+                wheelIco.classList.remove('wheel-spin-anim');
+                spinBtn.disabled = false;
+
+                let result;
+                if (currentUser.firstSpin) {
+                    result = { label: "ربح الضعف (هدية ترحيب)", mult: 1 };
+                    currentUser.firstSpin = false;
+                } else {
+                    const outcomes = [
+                        { label: "خسارة المحاولة", mult: -1, weight: 40 }, 
+                        { label: "تعادل (استرداد رهان)", mult: 0, weight: 15 },
+                        { label: "ربح x2", mult: 1, weight: 25 },
+                        { label: "ربح x5", mult: 4, weight: 10 },
+                        { label: "الجائزة الكبرى x10", mult: 9, weight: 5 }
+                    ];
+                    let pool = [];
+                    outcomes.forEach(o => { for(let i=0; i<o.weight; i++) pool.push(o); });
+                    result = pool[Math.floor(Math.random() * pool.length)];
+                }
+
+                const change = bet * result.mult;
+                currentUser.balance += change;
+
+                if (change > 0) {
+                    status.innerHTML = `<span class="text-emerald-400 font-black tracking-tighter">رائع! ${result.label} (+$${change})</span>`;
+                    showToast(`مبروك! ربحت $${change}`);
+                } else if(change === 0) {
+                    status.innerHTML = `<span class="text-white font-black italic">حاول مجدداً! تم استرداد الرهان</span>`;
+                } else {
+                    status.innerHTML = `<span class="text-red-500 font-black italic">حظ أوفر! ${result.label} (-$${Math.abs(change)})</span>`;
+                    showToast(`خسرت $${Math.abs(change)}`);
+                }
+                renderDashboard();
+            }, 2500);
+        }
+
+        function saveSettings() {
+            const newName = document.getElementById('new-name').value.trim();
+            const newPw = document.getElementById('new-pw').value.trim();
+            if(newName) currentUser.name = newName;
+            if(newPw) currentUser.pw = newPw;
+            showToast("تم تحديث البيانات بنجاح");
+            toggleModal('settingsModal', false);
+            renderDashboard();
+        }
+
+        function logout() { currentUser = null; showView('hero-view'); showToast("تم تسجيل الخروج بنجاح"); }
+        
+        function showView(v, el) { 
+            document.getElementById('hero-view').classList.add('hidden'); document.getElementById('user-dashboard').classList.add('hidden'); 
+            document.getElementById(v).classList.remove('hidden');
+            if(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
+        }
+
+        function copyAddress() { 
+            const c = document.getElementById("myAddr"); c.select(); 
+            navigator.clipboard.writeText(c.value); 
+            showToast("تم نسخ عنوان USDT بنجاح"); 
+        }
+
+        function toggleTheme() { 
+            document.body.classList.toggle('light-mode'); 
+            const i = document.getElementById('theme-icon'); 
+            i.className = document.body.classList.contains('light-mode') ? "fa-solid fa-sun text-orange-500" : "fa-solid fa-moon text-emerald-400"; 
+        }
+
+        function toggleModal(id, s) { const m = document.getElementById(id); s ? m.classList.remove('hidden') : m.classList.add('hidden'); }
+
+        function generateStats() {
+            const cities = ["دمشق", "حلب", "اللاذقية", "حمص", "طرطوس", "حماة"], methods = ["Binance", "USDT", "هرم"];
+            const container = document.getElementById('live-transactions');
+            let content = '';
+            for(let i=0; i<15; i++) {
+                const c = cities[Math.floor(Math.random() * cities.length)], m = methods[Math.floor(Math.random() * methods.length)], a = Math.floor(Math.random() * 3000 + 150);
+                content += `<span class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> سحب بقيمة <span class="text-white">$${a}</span> إلى ${c} (${m})</span>`;
+            }
+            container.innerHTML = content + content;
+        }
+
+        let agents = 2325;
+        setInterval(() => { agents += (Math.floor(Math.random()*5)-2); document.getElementById('agent-count').innerText = agents; }, 3000);
+
+        function initSite() { generateStats(); randomNotify(); }
     </script>
 </body>
 </html>
