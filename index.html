@@ -6,8 +6,10 @@
     <title>Best Deal Mobile | المنصة الاحترافية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
+        /* نفس الأنماط السابقة */
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap');
         
         :root {
@@ -27,8 +29,6 @@
         }
 
         .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); transition: all 0.2s ease; }
-        .glass-hover:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
-        
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 75px;
             background: var(--nav-bg); backdrop-filter: blur(20px);
@@ -36,10 +36,8 @@
             display: flex; justify-content: space-around; align-items: center; z-index: 1000;
             padding-bottom: env(safe-area-inset-bottom);
         }
-
         .nav-item { color: var(--sub-text); transition: 0.3s; cursor: pointer; text-align: center; flex: 1; }
         .nav-item.active { color: var(--accent); }
-
         .exclusive-offer {
             background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
             box-shadow: 0 20px 35px -12px rgba(16, 185, 129, 0.4);
@@ -47,21 +45,14 @@
             transition: transform 0.2s ease;
         }
         .exclusive-offer:hover { transform: translateY(-3px); }
-
         .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 35s linear infinite; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        
         .view-transition { animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         #custom-toast {
             position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
             z-index: 5000; display: none; min-width: 280px; text-align: center;
         }
-
         #live-notify {
             position: fixed; bottom: 90px; right: 20px; z-index: 999;
             background: rgba(16, 185, 129, 0.95); color: white;
@@ -70,10 +61,8 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
         #live-notify.show { transform: translateY(0); }
-
         input::placeholder { color: #94a3b8; }
         .light-mode input { color: #0f172a; background: rgba(0,0,0,0.05) !important; }
-
         button, .nav-item, [onclick] { cursor: pointer; }
         button:active, .nav-item:active { transform: scale(0.96); transition: 0.05s; }
 
@@ -91,22 +80,6 @@
             position: relative;
             transition: transform 2s cubic-bezier(0.25, 0.1, 0.15, 1);
             box-shadow: 0 0 0 6px rgba(16,185,129,0.2), 0 0 0 12px rgba(0,0,0,0.2);
-        }
-        .wheel-segment {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: 0% 100%;
-            clip-path: polygon(0% 0%, 100% 0%, 0% 100%);
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 1px 2px black;
-            pointer-events: none;
         }
         .wheel-center {
             position: absolute;
@@ -144,7 +117,6 @@
 <body class="antialiased" onload="initSite()">
 
     <div id="live-notify"></div>
-
     <div id="custom-toast" class="glass px-6 py-4 rounded-2xl shadow-2xl border-emerald-500/50 text-emerald-500 light-mode:text-emerald-700 text-[11px] font-bold">
         <i class="fa-solid fa-circle-info ml-2"></i> <span id="toast-msg" class="text-current"></span>
     </div>
@@ -172,7 +144,6 @@
                 <h1 class="text-3xl font-black mb-2 leading-tight">استثمر بذكاء في <span class="text-emerald-500">مستقبلك</span></h1>
                 <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">توصيل مجاني لكافة المحافظات السورية</p>
             </div>
-
             <div class="exclusive-offer p-7 rounded-[2.5rem] mb-8 border border-white/10">
                 <div class="flex justify-between items-center mb-5">
                     <span class="bg-black/40 text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase italic tracking-wider border border-white/10">عرض حصري: أول إيداع</span>
@@ -182,7 +153,6 @@
                 <p class="text-emerald-900 bg-white inline-block px-3 py-1 rounded-lg text-[10px] mt-2 font-black uppercase">لمرة واحدة فقط - ثم 50% على كل إيداع تالي</p>
                 <button onclick="toggleModal('loginModal', true)" class="w-full mt-8 bg-white text-emerald-900 py-4 rounded-2xl font-black text-sm shadow-2xl active:scale-95 transition-all uppercase italic">ابدأ التداول الآن</button>
             </div>
-
             <div class="mb-8 px-1">
                 <h2 class="text-sm font-black mb-5 flex items-center gap-2 italic"><i class="fa-solid fa-bolt text-emerald-500"></i> خيارات الإيداع السريع</h2>
                 <div class="grid grid-cols-4 gap-3">
@@ -258,7 +228,7 @@
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto mb-5 font-black text-2xl italic border border-emerald-500/30">BD</div>
                 <h3 class="text-xl font-black text-white italic">شحن الرصيد الفوري</h3>
-                <p class="text-[10px] text-slate-400 mt-2">أدخل المبلغ الذي تريد إيداعه</p>
+                <p class="text-[10px] text-slate-400 mt-2">أدخل المبلغ وارفع إيصال التحويل</p>
             </div>
             <div class="space-y-4">
                 <input type="number" id="deposit-amount" placeholder="المبلغ بالدولار" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-emerald-500 text-sm text-center">
@@ -270,11 +240,14 @@
                     </div>
                 </div>
                 <label class="block w-full bg-emerald-500/10 border border-dashed border-emerald-500/40 py-4 rounded-2xl text-center cursor-pointer hover:bg-emerald-500/20 transition-all">
-                    <input type="file" class="hidden" onchange="showToast('تم اختيار صورة الإيصال بنجاح')">
+                    <input type="file" id="receipt-file" accept="image/*" class="hidden" onchange="previewFile(this)">
                     <i class="fa-solid fa-cloud-arrow-up text-emerald-500 mb-2"></i>
-                    <p class="text-[9px] text-emerald-400 font-black uppercase">ارفق لقطة شاشة العملية</p>
+                    <p class="text-[9px] text-emerald-400 font-black uppercase">اختر صورة الإيصال</p>
                 </label>
-                <button onclick="processDeposit()" class="w-full bg-emerald-500 py-4 rounded-2xl text-black font-black text-[10px] uppercase italic">تأكيد الإيداع</button>
+                <div id="file-preview" class="hidden mt-2 text-center">
+                    <img id="preview-img" class="max-h-24 mx-auto rounded-lg border border-emerald-500/30">
+                </div>
+                <button onclick="submitDeposit()" class="w-full bg-emerald-500 py-4 rounded-2xl text-black font-black text-[10px] uppercase italic">إرسال طلب الإيداع</button>
             </div>
         </div>
     </div>
@@ -318,23 +291,11 @@
     </div>
 
     <script>
-        const formatMoney = (val) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
+        // إعداد Supabase (استبدل البيانات الخاصة بك)
+        const SUPABASE_URL = "https://yourproject.supabase.co"; // ضع رابط مشروعك
+        const SUPABASE_ANON_KEY = "your-anon-key"; // ضع المفتاح العام
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // هيكل المستخدم الجديد مع حقول الاستثمار
-        const savedData = localStorage.getItem('bestDealUsers');
-        const users = savedData ? JSON.parse(savedData) : {
-            "abdo": { name: "Abdul Ghani Ghannoum", pw: "25002500", balance: 2000, profit: 1500, level: "فضي", firstSpin: true, 
-                      investedCapital: 2000, lastProfitDate: Date.now(), firstDepositDone: true, firstDepositAmount: 2000, firstDepositDate: Date.now() - 30*24*3600*1000 },
-            "ghazal": { name: "أحمد بكور", pw: "15001500", balance: 3500, profit: 1250, level: "ذهبي", firstSpin: true,
-                        investedCapital: 3500, lastProfitDate: Date.now(), firstDepositDone: true, firstDepositAmount: 3500, firstDepositDate: Date.now() - 40*24*3600*1000 },
-            "muhmmad": { name: "محمد", pw: "20002000", balance: 1000, profit: 750, level: "برونزي", firstSpin: true,
-                         investedCapital: 1000, lastProfitDate: Date.now(), firstDepositDone: true, firstDepositAmount: 1000, firstDepositDate: Date.now() - 50*24*3600*1000 },
-            "oday": { name: "عدي", pw: "65006500", balance: 1000, profit: 750, level: "فضي", firstSpin: true,
-                      investedCapital: 1000, lastProfitDate: Date.now(), firstDepositDone: true, firstDepositAmount: 1000, firstDepositDate: Date.now() - 20*24*3600*1000 }
-        };
-
-        function updateStorage() { localStorage.setItem('bestDealUsers', JSON.stringify(users)); }
-
         let currentUser = null;
         let isLoginView = true;
 
@@ -345,104 +306,327 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
-        // حساب الأرباح المستحقة بناءً على الوقت المنقضي
-        function calculateAndAddProfit(user) {
+        async function handleRegister() {
+            const un = document.getElementById('un').value.trim().toLowerCase();
+            const pw = document.getElementById('pw').value.trim();
+            const confirm = document.getElementById('confirm-pw').value.trim();
+            if (un.length < 3) { showToast("اسم المستخدم قصير جداً"); return; }
+            if (pw.length < 6) { showToast("كلمة المرور يجب أن لا تقل عن 6 أحرف"); return; }
+            if (pw !== confirm) { showToast("كلمة المرور غير متطابقة"); return; }
+            // التحقق من عدم وجود اسم المستخدم
+            const { data: existing, error: checkErr } = await supabase.from('users').select('id').eq('username', un).maybeSingle();
+            if (existing) { showToast("اسم المستخدم موجود بالفعل"); return; }
+            const { data: newUser, error: insertErr } = await supabase.from('users').insert({
+                username: un,
+                password: pw,
+                balance: 0,
+                profit: 0,
+                invested_capital: 0,
+                last_profit_date: new Date().toISOString(),
+                first_deposit_done: false,
+                level: "مبتدئ"
+            }).select().single();
+            if (insertErr) { console.error(insertErr); showToast("حدث خطأ في التسجيل"); return; }
+            showToast("تم إنشاء الحساب بنجاح!");
+            document.getElementById('un').value = '';
+            document.getElementById('pw').value = '';
+            document.getElementById('confirm-pw').value = '';
+            toggleAuthMode(); // العودة إلى وضع تسجيل الدخول
+        }
+
+        async function handleLogin() {
+            const un = document.getElementById('un').value.trim().toLowerCase();
+            const pw = document.getElementById('pw').value.trim();
+            const { data: user, error } = await supabase.from('users').select('*').eq('username', un).eq('password', pw).maybeSingle();
+            if (error || !user) { showToast("خطأ في بيانات الدخول"); return; }
+            currentUser = user;
+            // حساب الأرباح المستحقة
+            await calculateAndAddProfit(currentUser);
+            toggleModal('loginModal', false);
+            renderDashboard();
+            showView('user-dashboard');
+            showToast(`مرحباً بك، ${currentUser.username}`);
+        }
+
+        async function calculateAndAddProfit(user) {
             const now = Date.now();
-            let last = user.lastProfitDate;
-            let totalProfitAdded = 0;
-            
-            // تحديد نسبة الربح لكل فترة: أول إيداع له نسبة 80% بعد 30 يوم
-            // ثم بعد ذلك جميع الإيداعات (بما في ذلك الأول بعد مرور 30 يوم) تحسب بنسبة 50% كل 40 يوم
-            // لكن يجب أن يتم حساب الربح على رأس المال الحالي (investedCapital)
-            
-            // معالجة الربح الخاص بالإيداع الأول إذا لم يمر 30 يوم بعد
-            if (user.firstDepositDone && user.firstDepositDate) {
-                const daysSinceFirst = (now - user.firstDepositDate) / (1000*3600*24);
-                if (daysSinceFirst >= 30 && !user.firstProfitPaid) {
-                    // ربح 80% من مبلغ الإيداع الأول
-                    const profit = user.firstDepositAmount * 0.8;
-                    user.balance += profit;
-                    user.profit += profit;
-                    user.firstProfitPaid = true;
-                    totalProfitAdded += profit;
+            let last = new Date(user.last_profit_date).getTime();
+            let updated = false;
+            let profitAdded = 0;
+            // ربح الإيداع الأول بعد 30 يوم
+            if (user.first_deposit_done && !user.first_profit_paid && user.first_deposit_date) {
+                const daysSinceFirst = (now - new Date(user.first_deposit_date).getTime()) / (1000*3600*24);
+                if (daysSinceFirst >= 30) {
+                    const profit = user.first_deposit_amount * 0.8;
+                    profitAdded += profit;
+                    await supabase.from('users').update({
+                        balance: user.balance + profit,
+                        profit: user.profit + profit,
+                        first_profit_paid: true
+                    }).eq('id', user.id);
+                    updated = true;
                     showToast(`تم إضافة أرباح الإيداع الأول: $${formatMoney(profit)}`);
                 }
             }
-            
-            // الربح الدوري 50% كل 40 يوم على إجمالي رأس المال المستثمر
+            // الربح الدوري 50% كل 40 يوم
             const intervalDays = 40;
             const profitRate = 0.5;
             const elapsedDays = (now - last) / (1000*3600*24);
             if (elapsedDays >= intervalDays) {
                 const periods = Math.floor(elapsedDays / intervalDays);
-                const profitPerPeriod = user.investedCapital * profitRate;
+                const profitPerPeriod = user.invested_capital * profitRate;
                 const totalProfit = profitPerPeriod * periods;
-                user.balance += totalProfit;
-                user.profit += totalProfit;
-                user.lastProfitDate += periods * intervalDays * 24*3600*1000;
-                totalProfitAdded += totalProfit;
+                profitAdded += totalProfit;
+                const newBalance = user.balance + totalProfit;
+                const newProfit = user.profit + totalProfit;
+                const newLastDate = new Date(last + periods * intervalDays * 24*3600*1000).toISOString();
+                await supabase.from('users').update({
+                    balance: newBalance,
+                    profit: newProfit,
+                    last_profit_date: newLastDate
+                }).eq('id', user.id);
+                updated = true;
                 if (periods > 0) showToast(`تم إضافة أرباح دورية: $${formatMoney(totalProfit)}`);
             }
-            
-            if (totalProfitAdded > 0) updateStorage();
-            return totalProfitAdded;
-        }
-
-        // دالة تستدعى بشكل دوري أو عند تسجيل الدخول
-        function updateProfitPeriodically() {
-            if (currentUser) {
-                calculateAndAddProfit(currentUser);
-                renderDashboard(); // تحديث الواجهة
+            if (updated) {
+                // تحديث الكائن المحلي
+                const { data: freshUser } = await supabase.from('users').select('*').eq('id', user.id).single();
+                if (freshUser) currentUser = freshUser;
             }
         }
 
-        // معالجة الإيداع
-        function processDeposit() {
-            if (!currentUser) { showToast("الرجاء تسجيل الدخول أولاً"); return; }
-            const amountInput = document.getElementById('deposit-amount');
-            let amount = parseFloat(amountInput.value);
-            if (isNaN(amount) || amount <= 0) { showToast("أدخل مبلغ صحيح أكبر من صفر"); return; }
+        async function submitDeposit() {
+            if (!currentUser) { showToast("الرجاء تسجيل الدخول"); return; }
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            if (isNaN(amount) || amount <= 0) { showToast("أدخل مبلغ صحيح"); return; }
+            const fileInput = document.getElementById('receipt-file');
+            const file = fileInput.files[0];
+            if (!file) { showToast("الرجاء اختيار صورة الإيصال"); return; }
             
-            // إضافة المبلغ إلى رأس المال المستثمر
-            currentUser.investedCapital += amount;
+            // رفع الصورة إلى Supabase Storage
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${currentUser.id}.${fileExt}`;
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('deposit_receipts')
+                .upload(fileName, file);
+            if (uploadError) { showToast("فشل رفع الصورة"); console.error(uploadError); return; }
+            const publicUrl = supabase.storage.from('deposit_receipts').getPublicUrl(fileName).data.publicUrl;
             
-            // إذا كان أول إيداع
-            if (!currentUser.firstDepositDone) {
-                currentUser.firstDepositDone = true;
-                currentUser.firstDepositAmount = amount;
-                currentUser.firstDepositDate = Date.now();
-                currentUser.firstProfitPaid = false;
-                showToast(`تم الإيداع الأول بنجاح. ستحصل على 80% ربح بعد 30 يوم.`);
-            } else {
-                showToast(`تم إيداع $${formatMoney(amount)} بنجاح. سيتم احتساب أرباح دورية 50% كل 40 يوم.`);
-            }
-            
-            // تحديث رصيد السحب (balance) قد يكون فقط الأرباح المضافة، ولكن لا نضيف المبلغ المستثمر إلى الرصيد مباشرة
-            // بل يظل في investedCapital لحساب الأرباح المستقبلية.
-            updateStorage();
-            amountInput.value = '';
+            // إنشاء طلب إيداع في الجدول
+            const { error: insertError } = await supabase.from('deposits').insert({
+                user_id: currentUser.id,
+                amount: amount,
+                receipt_image_url: publicUrl,
+                status: 'pending'
+            });
+            if (insertError) { showToast("حدث خطأ في إرسال الطلب"); console.error(insertError); return; }
+            showToast("تم إرسال طلب الإيداع بنجاح، سيتم مراجعته قريباً");
             toggleModal('depositModal', false);
+            document.getElementById('deposit-amount').value = '';
+            fileInput.value = '';
+            document.getElementById('file-preview').classList.add('hidden');
+        }
+
+        // دوال العجلة المحسنة (مشابهة للسابق مع تعديل لتسجيل النتائج في supabase)
+        let wheelSegments = [
+            { label: "خسارة", value: -1, color: "#ef4444", weight: 45 },
+            { label: "تعادل", value: 0, color: "#6b7280", weight: 15 },
+            { label: "ربح x2", value: 1, color: "#10b981", weight: 25 },
+            { label: "ربح x5", value: 4, color: "#f59e0b", weight: 10 },
+            { label: "الجائزة x10", value: 9, color: "#f97316", weight: 5 }
+        ];
+        let wheelAngle = 0;
+        let spinning = false;
+
+        function buildWheel() {
+            const wheel = document.getElementById('wheel');
+            if (!wheel) return;
+            wheel.innerHTML = '';
+            const totalWeight = wheelSegments.reduce((sum, seg) => sum + seg.weight, 0);
+            let startAngle = 0;
+            wheelSegments.forEach((seg) => {
+                const angle = (seg.weight / totalWeight) * 360;
+                const endAngle = startAngle + angle;
+                const largeArc = angle > 180 ? 1 : 0;
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const radius = 100;
+                const x1 = radius + radius * Math.cos((startAngle - 90) * Math.PI/180);
+                const y1 = radius + radius * Math.sin((startAngle - 90) * Math.PI/180);
+                const x2 = radius + radius * Math.cos((endAngle - 90) * Math.PI/180);
+                const y2 = radius + radius * Math.sin((endAngle - 90) * Math.PI/180);
+                const d = `M ${radius},${radius} L ${x1},${y1} A ${radius},${radius} 0 ${largeArc},1 ${x2},${y2} Z`;
+                path.setAttribute("d", d);
+                path.setAttribute("fill", seg.color);
+                path.setAttribute("stroke", "white");
+                path.setAttribute("stroke-width", "2");
+                wheel.appendChild(path);
+                // نص
+                const textAngle = startAngle + angle/2;
+                const textRadius = 65;
+                const textX = radius + textRadius * Math.cos((textAngle - 90) * Math.PI/180);
+                const textY = radius + textRadius * Math.sin((textAngle - 90) * Math.PI/180);
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", textX);
+                text.setAttribute("y", textY);
+                text.setAttribute("fill", "white");
+                text.setAttribute("font-size", "12");
+                text.setAttribute("font-weight", "bold");
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("dominant-baseline", "middle");
+                text.textContent = seg.label;
+                wheel.appendChild(text);
+                startAngle = endAngle;
+            });
+        }
+
+        async function spinWheel() {
+            if (spinning) return;
+            const betInput = document.getElementById('bet-amount');
+            const bet = parseFloat(betInput.value);
+            if (isNaN(bet) || bet < 50) { showToast("الحد الأدنى هو 50$"); return; }
+            if (currentUser.balance < bet) { showToast("رصيدك غير كافٍ"); return; }
+            spinning = true;
+            const spinBtn = document.getElementById('spin-btn');
+            spinBtn.disabled = true;
+            
+            // خصم الرهان
+            await supabase.from('users').update({ balance: currentUser.balance - bet }).eq('id', currentUser.id);
+            currentUser.balance -= bet;
+            
+            // توليد نتيجة
+            let result;
+            if (!currentUser.first_spin) {
+                result = { label: "ربح الضعف (هدية)", value: 1 };
+                await supabase.from('users').update({ first_spin: true }).eq('id', currentUser.id);
+                currentUser.first_spin = true;
+            } else {
+                let pool = [];
+                wheelSegments.forEach(seg => { for(let i=0; i<seg.weight; i++) pool.push(seg); });
+                result = pool[Math.floor(Math.random() * pool.length)];
+            }
+            const change = bet * result.value;
+            const newBalance = currentUser.balance + change;
+            const newProfit = currentUser.profit + (change > 0 ? change : 0);
+            await supabase.from('users').update({ balance: newBalance, profit: newProfit }).eq('id', currentUser.id);
+            currentUser.balance = newBalance;
+            currentUser.profit = newProfit;
+            
+            // تسجيل اللعبة
+            await supabase.from('wheel_spins').insert({
+                user_id: currentUser.id,
+                bet_amount: bet,
+                result: result.label,
+                profit_change: change
+            });
+            
+            // تدوير العجلة
+            const wheelElem = document.getElementById('wheel');
+            const totalWeight = wheelSegments.reduce((sum, seg) => sum + seg.weight, 0);
+            let targetIndex = wheelSegments.findIndex(seg => seg.label === result.label);
+            if (targetIndex === -1) targetIndex = 0;
+            let cumAngle = 0;
+            for (let i=0; i<targetIndex; i++) {
+                cumAngle += (wheelSegments[i].weight / totalWeight) * 360;
+            }
+            const segAngle = (wheelSegments[targetIndex].weight / totalWeight) * 360;
+            const targetAngle = cumAngle + segAngle/2;
+            const extraSpins = 5 * 360;
+            const newAngle = extraSpins + targetAngle;
+            wheelElem.style.transform = `rotate(${newAngle}deg)`;
+            wheelAngle = newAngle;
+            
+            setTimeout(() => {
+                spinning = false;
+                spinBtn.disabled = false;
+                if (change > 0) showToast(`مبروك! ${result.label} (+$${formatMoney(change)})`);
+                else if (change === 0) showToast(`تعادل! استرداد المبلغ`);
+                else showToast(`خسارة: ${result.label} (-$${formatMoney(Math.abs(change))})`);
+                renderDashboard();
+            }, 2100);
+        }
+
+        function formatMoney(val) { return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val); }
+
+        async function renderDashboard() {
+            const total = currentUser.balance + currentUser.profit;
+            document.getElementById('user-dashboard').innerHTML = `
+                <div class="bg-gradient-to-br from-emerald-900 via-black to-black p-8 rounded-[2.5rem] border border-emerald-500/30 mb-6 relative shadow-2xl">
+                    <div class="flex justify-between items-start mb-10">
+                        <div>
+                            <p class="text-emerald-400 text-[10px] font-black uppercase mb-1 tracking-[0.2em] italic">إجمالي المحفظة</p>
+                            <h2 class="text-5xl font-black italic text-white leading-none tracking-tighter">$${formatMoney(total)}</h2>
+                        </div>
+                        <div onclick="toggleModal('settingsModal', true)" class="glass w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-400 cursor-pointer hover:bg-emerald-500/10 transition-colors"><i class="fa-solid fa-gear text-xl"></i></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="toggleModal('depositModal', true)" class="bg-emerald-500 text-black py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase shadow-lg shadow-emerald-500/20"><i class="fa-solid fa-plus-circle"></i> إيداع</button>
+                        <button onclick="toggleModal('withdrawModal', true)" class="bg-white/10 text-white border border-white/10 py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase"><i class="fa-solid fa-money-bill-transfer"></i> سحب</button>
+                    </div>
+                </div>
+                <div class="glass rounded-[2rem] p-7 mb-6 border-emerald-500/10 bg-gradient-to-b from-transparent to-emerald-500/5">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-black text-[10px] uppercase tracking-widest italic flex items-center gap-2">
+                            <i class="fa-solid fa-dharmachakra text-emerald-500"></i> عجلة الأرباح الذكية
+                        </h3>
+                        <span class="text-[8px] bg-emerald-500/20 px-2 py-1 rounded text-emerald-400 font-bold italic">VIP ACCESS</span>
+                    </div>
+                    <div class="text-center py-2">
+                        <div class="wheel-container">
+                            <svg id="wheel" viewBox="0 0 200 200" width="200" height="200" style="transform: rotate(${wheelAngle}deg); transition: transform 2s cubic-bezier(0.25, 0.1, 0.15, 1);"></svg>
+                            <div class="wheel-center"><i class="fa-solid fa-star"></i></div>
+                            <div class="wheel-pointer"></div>
+                        </div>
+                        <p class="text-[10px] font-black mb-6 text-slate-400 uppercase italic">استثمر 50$ لتدوير العجلة ومضاعفة رصيدك</p>
+                        <div class="flex gap-2">
+                            <input type="number" id="bet-amount" step="0.01" min="50" placeholder="المبلغ (Min 50$)" class="w-1/2 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-[10px] outline-none focus:border-emerald-500 text-center font-bold">
+                            <button onclick="spinWheel()" id="spin-btn" class="w-1/2 bg-emerald-500 text-black font-black py-3 rounded-xl text-[10px] uppercase italic active:scale-95 transition-all shadow-lg shadow-emerald-500/10">تدوير الآن</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass rounded-[2rem] p-7 mb-6 border-white/5">
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-white/5 p-5 rounded-2xl border border-white/5 text-center">
+                            <p class="text-[8px] font-bold text-slate-500 uppercase mb-2 italic">رأس المال المستثمر</p>
+                            <span class="text-xl font-black text-current italic">$${formatMoney(currentUser.invested_capital || 0)}</span>
+                        </div>
+                        <div class="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20 text-center">
+                            <p class="text-[8px] font-bold text-emerald-500 uppercase mb-2 italic">إجمالي الربح</p>
+                            <span class="text-xl font-black text-emerald-500 italic">+$${formatMoney(currentUser.profit)}</span>
+                        </div>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl mb-4">
+                        <p class="text-[9px] text-slate-400 uppercase font-black">ملاحظة: أرباح الإيداع الأول 80% بعد 30 يوم، ثم أرباح دورية 50% كل 40 يوم على إجمالي رأس المال.</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="w-full py-6 text-slate-500 font-bold text-[10px] hover:text-red-500 transition-colors uppercase tracking-widest italic">تسجيل الخروج الآمن</button>
+            `;
+            buildWheel();
+        }
+
+        async function saveSettings() {
+            const newName = document.getElementById('new-name').value.trim();
+            const newPw = document.getElementById('new-pw').value.trim();
+            let update = {};
+            if (newName.length > 2) update.username = newName;
+            if (newPw.length > 5) update.password = newPw;
+            if (Object.keys(update).length) {
+                await supabase.from('users').update(update).eq('id', currentUser.id);
+                if (update.username) currentUser.username = update.username;
+                if (update.password) currentUser.password = update.password;
+                showToast("تم التحديث بنجاح");
+            }
+            toggleModal('settingsModal', false);
             renderDashboard();
         }
 
-        function randomNotify() {
-            const names = ["سامر", "لؤي", "هدى", "فراس", "علاء", "ريما"];
-            const actions = ["قام بإيداع", "سحب أرباح بقيمة", "ربح من عجلة الحظ"];
-            const amounts = ["100$", "250$", "50$", "1000$"];
-            const notify = document.getElementById('live-notify');
-            setInterval(() => {
-                const text = `${names[Math.floor(Math.random()*names.length)]} ${actions[Math.floor(Math.random()*actions.length)]} ${amounts[Math.floor(Math.random()*amounts.length)]}`;
-                notify.innerText = text;
-                notify.classList.add('show');
-                setTimeout(() => notify.classList.remove('show'), 4000);
-            }, 8000);
+        function logout() { currentUser = null; showView('hero-view'); showToast("خرجت بأمان"); }
+        function showView(v, el) { 
+            document.getElementById('hero-view').classList.add('hidden'); 
+            document.getElementById('user-dashboard').classList.add('hidden'); 
+            document.getElementById(v).classList.remove('hidden');
+            if(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
         }
-
-        function checkAuth() {
-            if(!currentUser) toggleModal('loginModal', true);
-            else showView('user-dashboard');
-        }
-
+        function checkAuth() { if(!currentUser) toggleModal('loginModal', true); else showView('user-dashboard'); }
         function toggleAuthMode() {
             isLoginView = !isLoginView;
             const title = document.getElementById('auth-title'), desc = document.getElementById('auth-desc'), 
@@ -460,271 +644,39 @@
                 confirmContainer.classList.remove('hidden');
             }
         }
-
-        function handleRegister() {
-            const unInput = document.getElementById('un'), pwInput = document.getElementById('pw'), confirmInput = document.getElementById('confirm-pw');
-            const un = unInput.value.trim().toLowerCase(), pw = pwInput.value.trim(), confirm = confirmInput.value.trim();
-            
-            if(un.length < 3) { showToast("اسم المستخدم قصير جداً (3 أحرف على الأقل)"); return; }
-            if(pw.length < 6) { showToast("كلمة المرور يجب أن لا تقل عن 6 أحرف"); return; }
-            if(pw !== confirm) { showToast("كلمة المرور وتأكيدها غير متطابقين"); return; }
-            if(users[un]) { showToast("اسم المستخدم موجود مسبقاً"); return; }
-            
-            users[un] = { 
-                name: un, pw: pw, balance: 0, profit: 0, level: "مبتدئ", firstSpin: true,
-                investedCapital: 0, lastProfitDate: Date.now(), firstDepositDone: false, firstDepositAmount: 0, firstDepositDate: null, firstProfitPaid: false
-            };
-            updateStorage();
-            showToast("تم إنشاء الحساب بنجاح!");
-            unInput.value = ""; pwInput.value = ""; confirmInput.value = "";
-            toggleAuthMode();
-        }
-
-        function handleLogin() {
-            const un = document.getElementById('un').value.trim().toLowerCase(), pw = document.getElementById('pw').value.trim();
-            if (users[un] && users[un].pw === pw) {
-                currentUser = users[un];
-                // تحديث الأرباح قبل عرض لوحة التحكم
-                calculateAndAddProfit(currentUser);
-                toggleModal('loginModal', false);
-                renderDashboard(); showView('user-dashboard');
-                showToast(`مرحباً بك، ${currentUser.name}`);
-            } else { showToast("خطأ في بيانات الدخول"); }
-        }
-
-        // عجلة الحظ المحسنة
-        let wheelSegments = [
-            { label: "خسارة", value: -1, color: "#ef4444", weight: 45 },
-            { label: "تعادل", value: 0, color: "#6b7280", weight: 15 },
-            { label: "ربح x2", value: 1, color: "#10b981", weight: 25 },
-            { label: "ربح x5", value: 4, color: "#f59e0b", weight: 10 },
-            { label: "الجائزة x10", value: 9, color: "#f97316", weight: 5 }
-        ];
-        let wheelAngle = 0;
-        let spinning = false;
-
-        function buildWheel() {
-            const wheel = document.getElementById('wheel');
-            if (!wheel) return;
-            wheel.innerHTML = '';
-            const totalWeight = wheelSegments.reduce((sum, seg) => sum + seg.weight, 0);
-            let startAngle = 0;
-            wheelSegments.forEach((seg, i) => {
-                const angle = (seg.weight / totalWeight) * 360;
-                const endAngle = startAngle + angle;
-                const largeArc = angle > 180 ? 1 : 0;
-                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                const radius = 100;
-                const x1 = radius + radius * Math.cos((startAngle - 90) * Math.PI/180);
-                const y1 = radius + radius * Math.sin((startAngle - 90) * Math.PI/180);
-                const x2 = radius + radius * Math.cos((endAngle - 90) * Math.PI/180);
-                const y2 = radius + radius * Math.sin((endAngle - 90) * Math.PI/180);
-                const d = `M ${radius},${radius} L ${x1},${y1} A ${radius},${radius} 0 ${largeArc},1 ${x2},${y2} Z`;
-                path.setAttribute("d", d);
-                path.setAttribute("fill", seg.color);
-                path.setAttribute("stroke", "white");
-                path.setAttribute("stroke-width", "2");
-                path.setAttribute("data-value", seg.value);
-                path.setAttribute("data-label", seg.label);
-                wheel.appendChild(path);
-                
-                // إضافة نص
-                const textAngle = startAngle + angle/2;
-                const textRadius = 65;
-                const textX = radius + textRadius * Math.cos((textAngle - 90) * Math.PI/180);
-                const textY = radius + textRadius * Math.sin((textAngle - 90) * Math.PI/180);
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                text.setAttribute("x", textX);
-                text.setAttribute("y", textY);
-                text.setAttribute("fill", "white");
-                text.setAttribute("font-size", "12");
-                text.setAttribute("font-weight", "bold");
-                text.setAttribute("text-anchor", "middle");
-                text.setAttribute("dominant-baseline", "middle");
-                text.textContent = seg.label;
-                wheel.appendChild(text);
-                
-                startAngle = endAngle;
-            });
-        }
-
-        function spinWheel() {
-            if (spinning) return;
-            const betInput = document.getElementById('bet-amount');
-            const bet = parseFloat(betInput.value);
-            if (isNaN(bet) || bet < 50) { showToast("الحد الأدنى هو 50$"); return; }
-            if (currentUser.balance < bet) { showToast("رصيدك الحالي غير كافٍ"); return; }
-            
-            spinning = true;
-            const spinBtn = document.getElementById('spin-btn');
-            spinBtn.disabled = true;
-            
-            // خصم الرهان
-            currentUser.balance -= bet;
-            updateStorage();
-            
-            // توليد نتيجة عشوائية
-            let result;
-            if (currentUser.firstSpin) {
-                result = { label: "ربح الضعف (هدية)", value: 1 };
-                currentUser.firstSpin = false;
-            } else {
-                let pool = [];
-                wheelSegments.forEach(seg => {
-                    for(let i=0; i<seg.weight; i++) pool.push(seg);
-                });
-                result = pool[Math.floor(Math.random() * pool.length)];
-            }
-            
-            // حساب التغير
-            const change = bet * result.value;
-            currentUser.balance += change;
-            if(change > 0) currentUser.profit += change;
-            updateStorage();
-            
-            // تدوير العجلة بشكل عشوائي مع توقف عند القطاع المناسب
-            const wheelElem = document.getElementById('wheel');
-            const totalWeight = wheelSegments.reduce((sum, seg) => sum + seg.weight, 0);
-            // حساب الزاوية التي يجب أن يتوقف عندها المؤشر ليشير إلى النتيجة
-            // نبحث عن مؤشر الزاوية للقطاع المطابق للنتيجة
-            let targetIndex = wheelSegments.findIndex(seg => seg.label === result.label);
-            if (targetIndex === -1) targetIndex = 0;
-            let cumAngle = 0;
-            for (let i=0; i<targetIndex; i++) {
-                cumAngle += (wheelSegments[i].weight / totalWeight) * 360;
-            }
-            const segAngle = (wheelSegments[targetIndex].weight / totalWeight) * 360;
-            const targetAngle = cumAngle + segAngle/2; // منتصف القطاع
-            
-            // دوران عشوائي عدة لفات ثم التوقف عند الزاوية المستهدفة
-            const extraSpins = 5 * 360;
-            const newAngle = extraSpins + targetAngle;
-            wheelElem.style.transform = `rotate(${newAngle}deg)`;
-            wheelAngle = newAngle;
-            
-            setTimeout(() => {
-                spinning = false;
-                spinBtn.disabled = false;
-                if (change > 0) {
-                    showToast(`مبروك! ${result.label} (+$${formatMoney(change)})`);
-                } else if (change === 0) {
-                    showToast(`تعادل! استرداد المبلغ`);
-                } else {
-                    showToast(`خسارة: ${result.label} (-$${formatMoney(Math.abs(change))})`);
-                }
-                renderDashboard();
-            }, 2100);
-        }
-
-        function renderDashboard() {
-            const total = currentUser.balance + currentUser.profit;
-            document.getElementById('user-dashboard').innerHTML = `
-                <div class="bg-gradient-to-br from-emerald-900 via-black to-black p-8 rounded-[2.5rem] border border-emerald-500/30 mb-6 relative shadow-2xl">
-                    <div class="flex justify-between items-start mb-10">
-                        <div>
-                            <p class="text-emerald-400 text-[10px] font-black uppercase mb-1 tracking-[0.2em] italic">إجمالي المحفظة</p>
-                            <h2 class="text-5xl font-black italic text-white leading-none tracking-tighter">$${formatMoney(total)}</h2>
-                        </div>
-                        <div onclick="toggleModal('settingsModal', true)" class="glass w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-400 cursor-pointer hover:bg-emerald-500/10 transition-colors"><i class="fa-solid fa-gear text-xl"></i></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="toggleModal('depositModal', true)" class="bg-emerald-500 text-black py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase shadow-lg shadow-emerald-500/20"><i class="fa-solid fa-plus-circle"></i> إيداع</button>
-                        <button onclick="toggleModal('withdrawModal', true)" class="bg-white/10 text-white border border-white/10 py-4.5 rounded-2xl font-black text-[11px] flex items-center justify-center gap-2 italic uppercase"><i class="fa-solid fa-money-bill-transfer"></i> سحب</button>
-                    </div>
-                </div>
-
-                <div class="glass rounded-[2rem] p-7 mb-6 border-emerald-500/10 bg-gradient-to-b from-transparent to-emerald-500/5">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-black text-[10px] uppercase tracking-widest italic flex items-center gap-2">
-                            <i class="fa-solid fa-dharmachakra text-emerald-500"></i> عجلة الأرباح الذكية
-                        </h3>
-                        <span class="text-[8px] bg-emerald-500/20 px-2 py-1 rounded text-emerald-400 font-bold italic">VIP ACCESS</span>
-                    </div>
-                    <div class="text-center py-2">
-                        <div class="wheel-container">
-                            <svg id="wheel" viewBox="0 0 200 200" width="200" height="200" style="transform: rotate(${wheelAngle}deg); transition: transform 2s cubic-bezier(0.25, 0.1, 0.15, 1);"></svg>
-                            <div class="wheel-center"><i class="fa-solid fa-star"></i></div>
-                            <div class="wheel-pointer"></div>
-                        </div>
-                        <p id="wheel-status" class="text-[10px] font-black mb-6 text-slate-400 uppercase italic">استثمر 50$ لتدوير العجلة ومضاعفة رصيدك</p>
-                        <div class="flex gap-2">
-                            <input type="number" id="bet-amount" step="0.01" min="50" placeholder="المبلغ (Min 50$)" class="w-1/2 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-[10px] outline-none focus:border-emerald-500 text-center font-bold">
-                            <button onclick="spinWheel()" id="spin-btn" class="w-1/2 bg-emerald-500 text-black font-black py-3 rounded-xl text-[10px] uppercase italic active:scale-95 transition-all shadow-lg shadow-emerald-500/10">تدوير الآن</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="glass rounded-[2rem] p-7 mb-6 border-white/5">
-                    <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="bg-white/5 p-5 rounded-2xl border border-white/5 text-center">
-                            <p class="text-[8px] font-bold text-slate-500 uppercase mb-2 italic">رأس المال المستثمر</p>
-                            <span class="text-xl font-black text-current italic">$${formatMoney(currentUser.investedCapital || 0)}</span>
-                        </div>
-                        <div class="bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20 text-center">
-                            <p class="text-[8px] font-bold text-emerald-500 uppercase mb-2 italic">إجمالي الربح</p>
-                            <span class="text-xl font-black text-emerald-500 italic">+$${formatMoney(currentUser.profit)}</span>
-                        </div>
-                    </div>
-                    <div class="bg-white/5 p-4 rounded-xl mb-4">
-                        <p class="text-[9px] text-slate-400 uppercase font-black">ملاحظة: أرباح الإيداع الأول 80% بعد 30 يوم، ثم أرباح دورية 50% كل 40 يوم على إجمالي رأس المال.</p>
-                    </div>
-                </div>
-                <button onclick="logout()" class="w-full py-6 text-slate-500 font-bold text-[10px] hover:text-red-500 transition-colors uppercase tracking-widest italic">تسجيل الخروج الآمن</button>
-            `;
-            buildWheel();
-        }
-
-        function saveSettings() {
-            const newName = document.getElementById('new-name').value.trim();
-            const newPw = document.getElementById('new-pw').value.trim();
-            if(newName.length > 2) currentUser.name = newName;
-            if(newPw.length > 5) currentUser.pw = newPw;
-            updateStorage();
-            showToast("تم التحديث بنجاح");
-            toggleModal('settingsModal', false);
-            renderDashboard();
-        }
-
-        function logout() { currentUser = null; showView('hero-view'); showToast("خرجت بأمان"); }
-        
-        function showView(v, el) { 
-            document.getElementById('hero-view').classList.add('hidden'); document.getElementById('user-dashboard').classList.add('hidden'); 
-            document.getElementById(v).classList.remove('hidden');
-            if(el) { document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
-        }
-
+        function toggleModal(id, s) { const m = document.getElementById(id); s ? m.classList.remove('hidden') : m.classList.add('hidden'); }
         function copyAddress() { 
             const c = document.getElementById("myAddr"); c.select(); 
             navigator.clipboard.writeText(c.value); 
             showToast("تم النسخ بنجاح"); 
         }
-
         function toggleTheme() { 
             document.body.classList.toggle('light-mode'); 
             const i = document.getElementById('theme-icon'); 
             i.className = document.body.classList.contains('light-mode') ? "fa-solid fa-sun text-orange-500" : "fa-solid fa-moon text-emerald-400"; 
         }
-
-        function toggleModal(id, s) { const m = document.getElementById(id); s ? m.classList.remove('hidden') : m.classList.add('hidden'); }
-
+        function previewFile(input) {
+            const preview = document.getElementById('file-preview');
+            const img = document.getElementById('preview-img');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => { img.src = e.target.result; preview.classList.remove('hidden'); };
+                reader.readAsDataURL(input.files[0]);
+            } else { preview.classList.add('hidden'); }
+        }
         function generateStats() {
-            const cities = ["دمشق", "حلب", "اللاذقية", "حمص", "طرطوس", "حماة"], methods = ["Binance", "USDT", "هرم"];
+            const cities = ["دمشق", "حلب", "اللاذقية", "حمص", "طرطوس", "حماة"];
             const container = document.getElementById('live-transactions');
             let content = '';
             for(let i=0; i<15; i++) {
-                const c = cities[Math.floor(Math.random() * cities.length)], m = methods[Math.floor(Math.random() * methods.length)], a = Math.floor(Math.random() * 3000 + 150);
+                const c = cities[Math.floor(Math.random() * cities.length)], a = Math.floor(Math.random() * 3000 + 150);
                 content += `<span class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> سحب <span class="text-emerald-500">$${formatMoney(a)}</span> إلى ${c}</span>`;
             }
             container.innerHTML = content + content;
         }
-
         let agents = 2325;
         setInterval(() => { agents += (Math.floor(Math.random()*5)-2); if(agents < 100) agents = 100; document.getElementById('agent-count').innerText = agents; }, 3000);
-        
-        // محاكاة الربح الدوري كل دقيقة (للتجربة) - في الواقع سيتم حسابه عند تسجيل الدخول فقط
-        setInterval(() => { if(currentUser) updateProfitPeriodically(); }, 60000);
-        
-        function initSite() { generateStats(); randomNotify(); buildWheel(); }
+        function initSite() { generateStats(); buildWheel(); }
     </script>
 </body>
 </html>
