@@ -24,8 +24,8 @@
         const SUPABASE_URL = "https://ulzjfglasylhjapedsqj.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_QJV0VIRZByPdnkJX-azaeg_xheDpVfA";
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const ADMIN_PASSWORD = "admin123"; // غيرها إلى كلمة سر قوية
-        
+        const ADMIN_PASSWORD = "admin123";
+
         async function adminLogin() {
             const pass = document.getElementById('admin-pass').value;
             if (pass !== ADMIN_PASSWORD) { alert("كلمة المرور غير صحيحة"); return; }
@@ -33,7 +33,7 @@
             document.getElementById('admin-panel').classList.remove('hidden');
             loadDeposits();
         }
-        
+
         async function loadDeposits() {
             const { data: deposits, error } = await supabase
                 .from('deposits')
@@ -60,17 +60,13 @@
                 </div>
             `).join('');
         }
-        
+
         async function approveDeposit(depositId, amount, userId) {
-            // 1. تحديث حالة الإيداع
             await supabase.from('deposits').update({ status: 'approved' }).eq('id', depositId);
-            // 2. جلب بيانات المستخدم
             const { data: user, error } = await supabase.from('users').select('*').eq('id', userId).single();
             if (!user) return;
-            // 3. تحديث رأس المال المستثمر
             const newInvested = (user.invested_capital || 0) + amount;
             let updateData = { invested_capital: newInvested };
-            // إذا كان أول إيداع
             if (!user.first_deposit_done) {
                 updateData.first_deposit_done = true;
                 updateData.first_deposit_amount = amount;
@@ -81,7 +77,7 @@
             alert("تم قبول الإيداع وتحديث رأس المال");
             loadDeposits();
         }
-        
+
         async function rejectDeposit(depositId) {
             await supabase.from('deposits').update({ status: 'rejected' }).eq('id', depositId);
             alert("تم رفض الإيداع");
