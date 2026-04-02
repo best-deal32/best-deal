@@ -11,8 +11,8 @@
 <body class="p-6">
     <div class="max-w-6xl mx-auto">
         <h1 class="text-3xl font-black mb-6 text-emerald-500">لوحة تحكم المشرف</h1>
-        <div id="login-area" class="glass p-6 rounded-2xl">
-            <input type="password" id="admin-pass" placeholder="كلمة المرور" class="bg-slate-800 p-3 rounded-xl text-white w-full mb-4">
+        <div id="login-area" class="bg-slate-800 p-6 rounded-2xl">
+            <input type="password" id="admin-pass" placeholder="كلمة المرور" class="bg-slate-700 p-3 rounded-xl text-white w-full mb-4">
             <button onclick="adminLogin()" class="bg-emerald-500 text-black px-6 py-2 rounded-xl font-bold">دخول</button>
         </div>
         <div id="admin-panel" class="hidden space-y-6">
@@ -51,7 +51,7 @@
                             <p><strong>المبلغ:</strong> $${d.amount}</p>
                             <p><strong>التاريخ:</strong> ${new Date(d.created_at).toLocaleString()}</p>
                         </div>
-                        <img src="${d.receipt_image_url}" class="max-h-32 rounded-lg shadow-md" onclick="window.open(this.src)">
+                        <img src="${d.receipt_image_url}" class="max-h-32 rounded-lg shadow-md cursor-pointer" onclick="window.open(this.src)">
                     </div>
                     <div class="flex gap-3 mt-4">
                         <button onclick="approveDeposit('${d.id}', ${d.amount}, '${d.user_id}')" class="bg-emerald-600 px-4 py-2 rounded-xl">قبول</button>
