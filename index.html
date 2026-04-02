@@ -7,11 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        /* نفس الأنماط السابقة */
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap');
-        
         :root {
             --bg: #020617; --card: rgba(255,255,255,0.03); --text: #f8fafc; --border: rgba(255,255,255,0.08);
             --accent: #10b981; --nav-bg: rgba(0,0,0,0.95); --sub-text: #64748b;
@@ -20,14 +17,12 @@
             --bg: #f1f5f9; --card: rgba(255,255,255,0.8); --text: #0f172a; --border: rgba(0,0,0,0.1);
             --accent: #059669; --nav-bg: rgba(255,255,255,0.95); --sub-text: #475569;
         }
-
         body { 
             font-family: 'IBM Plex Sans Arabic', sans-serif; 
             background: var(--bg); color: var(--text); 
             transition: all 0.4s ease; overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
         }
-
         .glass { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); transition: all 0.2s ease; }
         .bottom-nav {
             position: fixed; bottom: 0; width: 100%; height: 75px;
@@ -65,8 +60,6 @@
         .light-mode input { color: #0f172a; background: rgba(0,0,0,0.05) !important; }
         button, .nav-item, [onclick] { cursor: pointer; }
         button:active, .nav-item:active { transform: scale(0.96); transition: 0.05s; }
-
-        /* تصميم عجلة الحظ */
         .wheel-container {
             position: relative;
             width: 220px;
@@ -291,9 +284,9 @@
     </div>
 
     <script>
-        // إعداد Supabase (استبدل البيانات الخاصة بك)
-        const SUPABASE_URL = "https://https://ulzjfglasylhjapedsqj.supabase.co"; // ضع رابط مشروعك
-        const SUPABASE_ANON_KEY = "sb_publishable_QJV0VIRZByPdnkJX-azaeg_xheDpVfA"; // ضع المفتاح العام
+        // 🔁 أدخل بيانات Supabase الصحيحة هنا
+        const SUPABASE_URL = "https://https://ulzjfglasylhjapedsqj.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_QJV0VIRZByPdnkJX-azaeg_xheDpVfA";
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         let currentUser = null;
@@ -313,7 +306,6 @@
             if (un.length < 3) { showToast("اسم المستخدم قصير جداً"); return; }
             if (pw.length < 6) { showToast("كلمة المرور يجب أن لا تقل عن 6 أحرف"); return; }
             if (pw !== confirm) { showToast("كلمة المرور غير متطابقة"); return; }
-            // التحقق من عدم وجود اسم المستخدم
             const { data: existing, error: checkErr } = await supabase.from('users').select('id').eq('username', un).maybeSingle();
             if (existing) { showToast("اسم المستخدم موجود بالفعل"); return; }
             const { data: newUser, error: insertErr } = await supabase.from('users').insert({
@@ -331,7 +323,7 @@
             document.getElementById('un').value = '';
             document.getElementById('pw').value = '';
             document.getElementById('confirm-pw').value = '';
-            toggleAuthMode(); // العودة إلى وضع تسجيل الدخول
+            toggleAuthMode();
         }
 
         async function handleLogin() {
@@ -340,7 +332,6 @@
             const { data: user, error } = await supabase.from('users').select('*').eq('username', un).eq('password', pw).maybeSingle();
             if (error || !user) { showToast("خطأ في بيانات الدخول"); return; }
             currentUser = user;
-            // حساب الأرباح المستحقة
             await calculateAndAddProfit(currentUser);
             toggleModal('loginModal', false);
             renderDashboard();
@@ -353,7 +344,6 @@
             let last = new Date(user.last_profit_date).getTime();
             let updated = false;
             let profitAdded = 0;
-            // ربح الإيداع الأول بعد 30 يوم
             if (user.first_deposit_done && !user.first_profit_paid && user.first_deposit_date) {
                 const daysSinceFirst = (now - new Date(user.first_deposit_date).getTime()) / (1000*3600*24);
                 if (daysSinceFirst >= 30) {
@@ -368,7 +358,6 @@
                     showToast(`تم إضافة أرباح الإيداع الأول: $${formatMoney(profit)}`);
                 }
             }
-            // الربح الدوري 50% كل 40 يوم
             const intervalDays = 40;
             const profitRate = 0.5;
             const elapsedDays = (now - last) / (1000*3600*24);
@@ -389,7 +378,6 @@
                 if (periods > 0) showToast(`تم إضافة أرباح دورية: $${formatMoney(totalProfit)}`);
             }
             if (updated) {
-                // تحديث الكائن المحلي
                 const { data: freshUser } = await supabase.from('users').select('*').eq('id', user.id).single();
                 if (freshUser) currentUser = freshUser;
             }
@@ -403,7 +391,6 @@
             const file = fileInput.files[0];
             if (!file) { showToast("الرجاء اختيار صورة الإيصال"); return; }
             
-            // رفع الصورة إلى Supabase Storage
             const fileExt = file.name.split('.').pop();
             const fileName = `${Date.now()}_${currentUser.id}.${fileExt}`;
             const { data: uploadData, error: uploadError } = await supabase.storage
@@ -412,7 +399,6 @@
             if (uploadError) { showToast("فشل رفع الصورة"); console.error(uploadError); return; }
             const publicUrl = supabase.storage.from('deposit_receipts').getPublicUrl(fileName).data.publicUrl;
             
-            // إنشاء طلب إيداع في الجدول
             const { error: insertError } = await supabase.from('deposits').insert({
                 user_id: currentUser.id,
                 amount: amount,
@@ -427,7 +413,6 @@
             document.getElementById('file-preview').classList.add('hidden');
         }
 
-        // دوال العجلة المحسنة (مشابهة للسابق مع تعديل لتسجيل النتائج في supabase)
         let wheelSegments = [
             { label: "خسارة", value: -1, color: "#ef4444", weight: 45 },
             { label: "تعادل", value: 0, color: "#6b7280", weight: 15 },
@@ -460,7 +445,6 @@
                 path.setAttribute("stroke", "white");
                 path.setAttribute("stroke-width", "2");
                 wheel.appendChild(path);
-                // نص
                 const textAngle = startAngle + angle/2;
                 const textRadius = 65;
                 const textX = radius + textRadius * Math.cos((textAngle - 90) * Math.PI/180);
@@ -489,11 +473,9 @@
             const spinBtn = document.getElementById('spin-btn');
             spinBtn.disabled = true;
             
-            // خصم الرهان
             await supabase.from('users').update({ balance: currentUser.balance - bet }).eq('id', currentUser.id);
             currentUser.balance -= bet;
             
-            // توليد نتيجة
             let result;
             if (!currentUser.first_spin) {
                 result = { label: "ربح الضعف (هدية)", value: 1 };
@@ -511,7 +493,6 @@
             currentUser.balance = newBalance;
             currentUser.profit = newProfit;
             
-            // تسجيل اللعبة
             await supabase.from('wheel_spins').insert({
                 user_id: currentUser.id,
                 bet_amount: bet,
@@ -519,7 +500,6 @@
                 profit_change: change
             });
             
-            // تدوير العجلة
             const wheelElem = document.getElementById('wheel');
             const totalWeight = wheelSegments.reduce((sum, seg) => sum + seg.weight, 0);
             let targetIndex = wheelSegments.findIndex(seg => seg.label === result.label);
