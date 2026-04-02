@@ -624,7 +624,7 @@
                 confirmContainer.classList.remove('hidden');
             }
         }
-        function toggleModal(id, s) { const m = document.getElementById(id); s ? m.classList.remove('hidden') : m.classList.add('hidden'); }
+        function toggleModal(id, s) { const m = document.getElementById(id); if(m) { s ? m.classList.remove('hidden') : m.classList.add('hidden'); } else { console.error("Modal not found:", id); } }
         function copyAddress() { 
             const c = document.getElementById("myAddr"); c.select(); 
             navigator.clipboard.writeText(c.value); 
