@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>تسجيل الدخول | النظام الملكي - Best Deal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --gold-light: #f7e08a;
+            --gold-main: #d4af37;
+            --gold-dark: #8a6d3b;
+            --black-bg: #05070a;
+            --card-bg: rgba(15, 23, 42, 0.98);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--black-bg);
+            background-image: 
+                radial-gradient(circle at top left, rgba(212, 175, 55, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at bottom right, rgba(212, 175, 55, 0.1) 0%, transparent 40%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            color: #fff;
+        }
+
+        .login-container {
+            background: var(--card-bg);
+            border: 2px solid rgba(212, 175, 55, 0.25);
+            padding: 2rem;
+            border-radius: 2.5rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(25px);
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-main), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.8rem;
+        }
+
+        .input-group i {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold-main);
+            font-size: 1.2rem;
+            transition: 0.3s;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1.2rem;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.2rem;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .login-input:focus {
+            border-color: var(--gold-main);
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--gold-main), var(--gold-dark));
+            border: none;
+            border-radius: 1.2rem;
+            color: #000;
+            font-size: 1.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.4s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 0.5rem;
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .footer-links {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .footer-links a {
+            color: var(--gold-main);
+            font-weight: 800;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-links a:hover {
+            text-shadow: 0 0 5px var(--gold-main);
+            text-decoration: underline;
+        }
+
+        .divider {
+            margin: 1.5rem 0;
+            height: 1px;
+            background: linear-gradient(to left, transparent, rgba(212,175,55,0.3), transparent);
+        }
+
+        .loader-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-top: 2px solid #000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gold-main/10 border-2 border-gold-main mb-4">
+                <i class="fa-solid fa-crown text-3xl text-[var(--gold-main)]"></i>
+            </div>
+            <h1 class="text-3xl font-black gold-gradient-text italic">تسجيل الدخول</h1>
+            <p class="text-slate-500 text-[10px] font-bold mt-2 tracking-widest">نظام الاستثمار الآمن</p>
+        </div>
+
+        <form id="loginForm" onsubmit="executeLogin(event)">
+            <div class="input-group">
+                <input type="text" id="username" class="login-input" placeholder="اسم المستخدم" required autocomplete="username">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" class="login-input" placeholder="كلمة المرور" required autocomplete="current-password">
+                <i class="fa-solid fa-key"></i>
+            </div>
+
+            <button type="submit" id="loginBtn" class="submit-btn">
+                <span id="btnText">دخول</span>
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <div id="loader" class="loader-spinner"></div>
+            </button>
+        </form>
+
+        <div class="footer-links">
+            <a href="forgot-password.html"><i class="fa-regular fa-question-circle ml-1"></i> نسيت كلمة المرور؟</a>
+            <div class="divider"></div>
+            <p>ليس لديك حساب؟ <a href="register.html">إنشاء حساب جديد</a></p>
+            <p class="mt-4 text-[9px] text-slate-500 tracking-wider">🔒 اتصال مشفر بالكامل</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. الإعدادات العامة
+        // ============================================================
+        const API_BASE_URL = "http://localhost:5000";
+        const LOGIN_URL = `${API_BASE_URL}/api/users/login`;
+        const REFRESH_URL = `${API_BASE_URL}/api/auth/refresh`;
+
+        // ============================================================
+        // 2. دوال مساعدة للتخزين
+        // ============================================================
+        function setToken(token) {
+            localStorage.setItem('token', token);
+        }
+        function setRefreshToken(refreshToken) {
+            localStorage.setItem('refreshToken', refreshToken);
+        }
+        function setCurrentUser(user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        }
+        function clearAuthData() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('currentUser');
+        }
+
+        // ============================================================
+        // 3. تنفيذ تسجيل الدخول
+        // ============================================================
+        async function executeLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const loader = document.getElementById('loader');
+
+            if (!username || !password) {
+                Swal.fire('خطأ', 'يرجى إدخال اسم المستخدم وكلمة المرور', 'error');
+                return;
+            }
+
+            // تعطيل الزر وعرض التحميل
+            loginBtn.disabled = true;
+            btnText.innerText = 'جاري التحقق';
+            loader.style.display = 'block';
+
+            try {
+                const response = await fetch(LOGIN_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                // معالجة حالة قفل الحساب (423 Locked)
+                if (response.status === 423) {
+                    Swal.fire({
+                        title: 'الحساب مقفل مؤقتاً',
+                        text: data.message || 'تم قفل الحساب بسبب كثرة المحاولات الفاشلة، حاول لاحقاً',
+                        icon: 'warning',
+                        confirmButtonColor: '#d4af37',
+                        background: '#05070a',
+                        color: '#fff'
+                    });
+                    return;
+                }
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'فشل تسجيل الدخول');
+                }
+
+                // في حالة تفعيل المصادقة الثنائية (2FA)
+                if (data.requireTwoFactor) {
+                    // تخزين userId مؤقتاً لاستخدامه في التحقق
+                    sessionStorage.setItem('pending2FAUserId', data.userId);
+                    // عرض نافذة إدخال رمز 2FA
+                    const { value: code } = await Swal.fire({
+                        title: 'التحقق بخطوتين',
+                        input: 'text',
+                        inputLabel: 'أدخل الرمز المرسل إلى بريدك الإلكتروني',
+                        inputPlaceholder: '6 أرقام',
+                        inputAttributes: { maxlength: 6, pattern: '[0-9]*', inputmode: 'numeric' },
+                        showCancelButton: true,
+                        confirmButtonText: 'تحقق',
+                        cancelButtonText: 'إلغاء',
+                        background: '#05070a',
+                        color: '#fff',
+                        confirmButtonColor: '#d4af37'
+                    });
+                    if (!code) {
+                        Swal.fire('تم الإلغاء', 'يجب إدخال الرمز للمتابعة', 'info');
+                        return;
+                    }
+                    // التحقق من 2FA
+                    const verifyResponse = await fetch(`${API_BASE_URL}/api/auth/verify-2fa`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: data.userId, code })
+                    });
+                    const verifyData = await verifyResponse.json();
+                    if (!verifyResponse.ok || !verifyData.success) {
+                        throw new Error(verifyData.message || 'رمز غير صحيح');
+                    }
+                    // بعد التحقق، حفظ التوكنات
+                    setToken(verifyData.token);
+                    if (verifyData.refreshToken) setRefreshToken(verifyData.refreshToken);
+                    setCurrentUser(verifyData.user);
+                    Swal.fire({
+                        title: 'تم الدخول',
+                        text: `مرحباً ${verifyData.user.fullName || verifyData.user.username}`,
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        redirectAfterLogin(verifyData.user.role);
+                    });
+                    return;
+                }
+
+                // تسجيل الدخول العادي (بدون 2FA)
+                if (data.token) {
+                    setToken(data.token);
+                    if (data.refreshToken) setRefreshToken(data.refreshToken);
+                    setCurrentUser(data.user);
+                    Swal.fire({
+                        title: 'تم الدخول',
+                        text: `مرحباً ${data.user.fullName || data.user.username}`,
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        redirectAfterLogin(data.user.role);
+                    });
+                } else {
+                    throw new Error('لم يتم استلام رمز المصادقة');
+                }
+
+            } catch (err) {
+                console.error(err);
+                let errorMsg = err.message;
+                if (errorMsg.includes('فشل') || errorMsg.includes('بيانات')) {
+                    errorMsg = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+                }
+                Swal.fire('خطأ', errorMsg, 'error');
+            } finally {
+                loginBtn.disabled = false;
+                btnText.innerText = 'دخول';
+                loader.style.display = 'none';
+            }
+        }
+
+        function redirectAfterLogin(role) {
+            if (role === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
+        }
+
+        // ============================================================
+        // 4. التحقق من وجود جلسة حالية (توجيه تلقائي)
+        // ============================================================
+        (function checkExistingSession() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // محاولة تجديد التوكن أو التحقق من صلاحيته
+                fetch(`${API_BASE_URL}/api/users/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).then(res => {
+                    if (res.ok) {
+                        // الجلسة لا تزال صالحة، توجيه إلى لوحة التحكم
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        // التوكن منتهي، محاولة التجديد باستخدام refresh token
+                        const refreshToken = localStorage.getItem('refreshToken');
+                        if (refreshToken) {
+                            fetch(REFRESH_URL, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ refreshToken })
+                            }).then(refreshRes => refreshRes.json()).then(refreshData => {
+                                if (refreshData.token) {
+                                    localStorage.setItem('token', refreshData.token);
+                                    window.location.href = 'dashboard.html';
+                                } else {
+                                    clearAuthData();
+                                }
+                            }).catch(() => clearAuthData());
+                        } else {
+                            clearAuthData();
+                        }
+                    }
+                }).catch(() => clearAuthData());
+            }
+        })();
+
+        // ============================================================
+        // 5. دعم زر Enter
+        // ============================================================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const form = document.getElementById('loginForm');
+                if (form) form.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

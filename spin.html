@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>عجلة الحظ الملكية | العجلة الذهبية</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f7e08a;
+            --gold-dark: #8a6d3b;
+            --dark-bg: #05070a;
+            --card-glass: rgba(15, 23, 42, 0.95);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at center, #111b27 0%, var(--dark-bg) 100%);
+            color: #fff;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* توهج ذهبي */
+        @keyframes goldPulse {
+            0% { text-shadow: 0 0 0px rgba(212,175,55,0); }
+            100% { text-shadow: 0 0 20px rgba(212,175,55,0.8); }
+        }
+        .gold-glow {
+            animation: goldPulse 1.5s infinite alternate;
+        }
+
+        .glass-card {
+            background: var(--card-glass);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+        }
+        .glass-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(212,175,55,0.2);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        .royal-input {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            color: var(--gold-light);
+            font-weight: 900;
+            text-align: center;
+            font-size: 1.8rem;
+            padding: 1rem;
+            border-radius: 1.5rem;
+            width: 100%;
+            outline: none;
+            transition: 0.3s;
+        }
+        .royal-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212,175,55,0.4);
+        }
+
+        .btn-spin {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000;
+            font-weight: 900;
+            font-size: 1.5rem;
+            padding: 1.2rem;
+            border-radius: 2rem;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(212,175,55,0.3);
+        }
+        .btn-spin:hover:not(:disabled) {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
+        .btn-spin:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* العجلة */
+        .wheel-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+        }
+        @media (min-width: 768px) {
+            .wheel-container {
+                width: 450px;
+                height: 450px;
+            }
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7), 0 0 0 8px rgba(212,175,55,0.3);
+            transition: transform 5s cubic-bezier(0.2, 0.9, 0.1, 1.1);
+        }
+        .pointer {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 50px solid var(--gold);
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+            z-index: 10;
+        }
+        .pointer::after {
+            content: "★";
+            position: absolute;
+            top: -55px;
+            left: -12px;
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 0 0 5px gold;
+        }
+
+        .stats-box {
+            background: rgba(0,0,0,0.5);
+            border-radius: 1rem;
+            padding: 0.8rem;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .winner-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+        .winner-rank {
+            background: rgba(212,175,55,0.2);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .winner-name {
+            font-weight: 800;
+            color: var(--gold-light);
+        }
+        .winner-amount {
+            color: #4ade80;
+            font-weight: 900;
+        }
+    </style>
+</head>
+<body class="p-4 pb-28">
+
+    <!-- الهيدر -->
+    <header class="max-w-4xl mx-auto flex justify-between items-center mb-6">
+        <button onclick="window.location.href='dashboard.html'" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-white/10 transition">
+            <i class="fa-solid fa-arrow-right text-xl text-[var(--gold)]"></i>
+        </button>
+        <div class="text-center">
+            <h1 class="text-2xl md:text-3xl font-black gold-gradient-text italic">عجلة الحظ الذهبية</h1>
+            <p class="text-[9px] text-slate-500 tracking-widest">SPIN & WIN</p>
+        </div>
+        <div class="bg-black/60 px-4 py-2 rounded-2xl border border-gold/40">
+            <p class="text-[9px] text-slate-400 font-bold">رصيدك</p>
+            <p id="user-balance" class="text-xl font-bold text-white">0.00 $</p>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-4xl mx-auto w-full">
+        <!-- العجلة -->
+        <div class="wheel-container relative mb-8">
+            <div class="pointer"></div>
+            <canvas id="wheelCanvas" width="600" height="600"></canvas>
+        </div>
+
+        <!-- لوحة التحكم -->
+        <div class="glass-card p-6 mb-8">
+            <div class="mb-6">
+                <label class="block text-xs text-slate-400 font-bold mb-2">💰 مبلغ المراهنة (دولار)</label>
+                <input type="number" id="betAmount" class="royal-input" value="10" min="1" step="1">
+                <p class="text-[10px] text-slate-500 mt-2 text-center">الحد الأدنى 1$ - غير محدود</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="stats-box">
+                    <i class="fa-solid fa-chart-line text-[var(--gold)]"></i>
+                    <p class="text-[9px] text-slate-400">المضاعف الأخير</p>
+                    <p id="lastMultiplier" class="text-xl font-black text-white">—</p>
+                </div>
+                <div class="stats-box">
+                    <i class="fa-solid fa-fire text-orange-500"></i>
+                    <p class="text-[9px] text-slate-400">سلسلة الخسارة</p>
+                    <p id="lossStreak" class="text-xl font-black text-red-500">0</p>
+                </div>
+            </div>
+
+            <button id="spinBtn" class="btn-spin">
+                <i class="fa-solid fa-dharmachakra fa-spin"></i>
+                <span>دور العجلة الآن</span>
+            </button>
+
+            <div id="spinMessage" class="text-center mt-4 text-sm font-bold text-slate-400 min-h-[40px]"></div>
+        </div>
+
+        <!-- قائمة كبار الرابحين (مظهر تحسيني) -->
+        <div class="glass-card p-5">
+            <div class="flex items-center gap-2 border-b border-gold/30 pb-2 mb-3">
+                <i class="fa-solid fa-trophy text-2xl text-[var(--gold)]"></i>
+                <h3 class="text-xl font-black gold-gradient-text">كبار الرابحين (عجلة الحظ)</h3>
+            </div>
+            <div id="winnersList" class="max-h-80 overflow-y-auto space-y-1">
+                <!-- سيتم ملؤها بواسطة JS -->
+                <div class="text-center text-slate-500 py-4">جاري التحميل...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ============================================================
+        // 1. الإعدادات العامة
+        // ============================================================
+        const API_BASE_URL = "http://localhost:5000";
+        const API_SPIN = `${API_BASE_URL}/api/wheel/spin`;
+        const API_ME = `${API_BASE_URL}/api/users/me`;
+
+        let currentUser = null;
+        let lossStreak = parseInt(localStorage.getItem('wheel_loss_streak') || '0');
+        let isSpinning = false;
+        let currentRotation = 0;
+        let canvas = document.getElementById('wheelCanvas');
+        let ctx = canvas.getContext('2d');
+
+        // ============================================================
+        // 2. رسم العجلة (قطاعات عشوائية للزينة فقط)
+        // ============================================================
+        const sectors = [
+            { label: "خسارة", color: "#4a1a1a", textColor: "#ffaaaa" },
+            { label: "خسارة", color: "#5a2020", textColor: "#ffbbbb" },
+            { label: "خسارة", color: "#3a1515", textColor: "#ff8888" },
+            { label: "خسارة", color: "#4a1a1a", textColor: "#ffaaaa" },
+            { label: "خسارة", color: "#2a0a0a", textColor: "#ffcccc" },
+            { label: "خسارة", color: "#5a2020", textColor: "#ffbbbb" },
+            { label: "ربح 2x", color: "#1a4a1a", textColor: "#88ff88" },
+            { label: "جائزة 10x", color: "#d4af37", textColor: "#000000" },
+            { label: "خسارة", color: "#3a1515", textColor: "#ff8888" },
+            { label: "خسارة", color: "#4a1a1a", textColor: "#ffaaaa" }
+        ];
+        const arc = (Math.PI * 2) / sectors.length;
+
+        function drawWheel() {
+            const size = 600;
+            canvas.width = size;
+            canvas.height = size;
+            const centerX = size/2, centerY = size/2, radius = size/2 - 10;
+            ctx.clearRect(0, 0, size, size);
+            sectors.forEach((s, i) => {
+                const startAngle = i * arc;
+                const endAngle = startAngle + arc;
+                ctx.beginPath();
+                ctx.fillStyle = s.color;
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.fill();
+                ctx.strokeStyle = "rgba(212,175,55,0.5)";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + arc/2);
+                ctx.textAlign = "center";
+                ctx.fillStyle = s.textColor;
+                ctx.font = "bold 20px Cairo";
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = "black";
+                ctx.fillText(s.label, radius - 45, 12);
+                ctx.restore();
+            });
+        }
+
+        // ============================================================
+        // 3. دوال التوكن والمستخدم
+        // ============================================================
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        async function fetchUser() {
+            const token = getToken();
+            if (!token) return null;
+            try {
+                const res = await fetch(API_ME, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error();
+                const user = await res.json();
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                return user;
+            } catch(e) { return null; }
+        }
+
+        async function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                Swal.fire({
+                    title: 'غير مصرح',
+                    text: 'الرجاء تسجيل الدخول أولاً',
+                    icon: 'warning',
+                    background: '#05070a',
+                    color: '#fff',
+                    confirmButtonColor: '#d4af37'
+                }).then(() => window.location.href = 'login.html');
+                return false;
+            }
+            const user = await fetchUser();
+            if (!user) {
+                Swal.fire('جلسة منتهية', 'الرجاء تسجيل الدخول مجدداً', 'error').then(() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                });
+                return false;
+            }
+            currentUser = user;
+            document.getElementById('user-balance').innerText = currentUser.balance.toLocaleString() + ' $';
+            return true;
+        }
+
+        function updateBalanceUI(newBalance) {
+            if (currentUser) currentUser.balance = newBalance;
+            document.getElementById('user-balance').innerText = newBalance.toLocaleString() + ' $';
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+
+        // ============================================================
+        // 4. دوران العجلة (تحريك عشوائي ثم طلب النتيجة من السيرفر)
+        // ============================================================
+        function spinWheelAnimation(callback) {
+            const extraSpins = 360 * (8 + Math.floor(Math.random() * 12)); // 8-20 لفة
+            const randomStop = Math.random() * 360;
+            const newRotation = currentRotation + extraSpins + randomStop;
+            currentRotation = newRotation;
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+            canvas.style.transition = "transform 5s cubic-bezier(0.2, 0.9, 0.1, 1.1)";
+            setTimeout(() => {
+                callback();
+                // إعادة ضبط العجلة إلى وضعها الأصلي بعد فترة قصيرة
+                setTimeout(() => {
+                    canvas.style.transition = "transform 0.5s ease-out";
+                    canvas.style.transform = `rotate(${currentRotation % 360}deg)`;
+                    setTimeout(() => {
+                        canvas.style.transition = "transform 5s cubic-bezier(0.2, 0.9, 0.1, 1.1)";
+                    }, 500);
+                }, 1000);
+            }, 5000);
+        }
+
+        // ============================================================
+        // 5. إرسال الطلب إلى الخادم ومعالجة النتيجة
+        // ============================================================
+        async function performSpin(betAmount) {
+            const token = getToken();
+            if (!token) throw new Error("No token");
+            const response = await fetch(API_SPIN, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ betAmount })
+            });
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || 'فشل الاتصال');
+            }
+            const data = await response.json();
+            return data;
+        }
+
+        async function initiateSpin() {
+            if (isSpinning) return;
+            if (!await checkAuth()) return;
+
+            const betInput = document.getElementById('betAmount');
+            let bet = parseFloat(betInput.value);
+            if (isNaN(bet) || bet <= 0) {
+                Swal.fire('خطأ', 'المبلغ يجب أن يكون أكبر من صفر', 'error');
+                return;
+            }
+            if (bet > currentUser.balance) {
+                Swal.fire('رصيد غير كاف', `لديك ${currentUser.balance} $ فقط`, 'warning');
+                return;
+            }
+
+            isSpinning = true;
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            spinBtn.innerHTML = '<i class="fa-solid fa-spinner fa-pulse"></i> جاري الدوران...';
+            document.getElementById('spinMessage').innerHTML = '<span class="text-gold animate-pulse">العجلة تدور...</span>';
+
+            // بدء حركة العجلة
+            spinWheelAnimation(async () => {
+                try {
+                    // إرسال الطلب إلى الخادم للحصول على النتيجة الحقيقية
+                    const result = await performSpin(bet);
+                    if (!result.success) throw new Error(result.message);
+
+                    const { multiplier, winAmount, newBalance, result: resultText, netChange } = result;
+
+                    // تحديث الرصيد محلياً
+                    updateBalanceUI(newBalance);
+                    // تحديث سلسلة الخسارة
+                    if (multiplier < 1) {
+                        lossStreak++;
+                    } else {
+                        lossStreak = 0;
+                    }
+                    localStorage.setItem('wheel_loss_streak', lossStreak);
+                    document.getElementById('lossStreak').innerText = lossStreak;
+                    document.getElementById('lastMultiplier').innerHTML = multiplier === 0 ? 'خسارة' : `${multiplier}x`;
+
+                    // عرض النتيجة
+                    if (netChange > 0) {
+                        canvasConfetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, colors: ['#d4af37', '#ffffff'] });
+                        Swal.fire({
+                            title: '🎉 مبروك!',
+                            html: `لقد ربحت <strong class="text-green-400">${winAmount.toFixed(2)} $</strong><br>المضاعف: ${multiplier}x`,
+                            icon: 'success',
+                            background: '#05070a',
+                            color: '#fff',
+                            confirmButtonColor: '#d4af37'
+                        });
+                        document.getElementById('spinMessage').innerHTML = `<span class="text-green-400 font-black">✨ فوز! ربحت ${winAmount.toFixed(2)} $ ✨</span>`;
+                    } else if (netChange < 0) {
+                        Swal.fire({
+                            title: '💔 خسارة',
+                            html: `خسرت ${Math.abs(netChange).toFixed(2)} $<br>حظاً أفضل في المرة القادمة`,
+                            icon: 'error',
+                            background: '#05070a',
+                            color: '#fff',
+                            confirmButtonColor: '#d4af37'
+                        });
+                        document.getElementById('spinMessage').innerHTML = `<span class="text-red-500">😢 خسارة ${Math.abs(netChange).toFixed(2)} $</span>`;
+                    } else {
+                        Swal.fire('لا ربح ولا خسارة', 'تم استرجاع المبلغ', 'info');
+                        document.getElementById('spinMessage').innerHTML = `<span class="text-blue-400">🔄 تم استرجاع المبلغ</span>`;
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('خطأ', err.message || 'حدث خطأ أثناء اللعب', 'error');
+                    document.getElementById('spinMessage').innerHTML = '<span class="text-red-500">فشل الاتصال بالخادم</span>';
+                } finally {
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    spinBtn.innerHTML = '<i class="fa-solid fa-dharmachakra"></i> دور العجلة الآن';
+                }
+            });
+        }
+
+        // ============================================================
+        // 6. قائمة كبار الرابحين (وهمية للزينة)
+        // ============================================================
+        function generateWinners() {
+            const names = [
+                "سلطان القحطاني", "نورة العتيبي", "فيصل المالكي", "هند الزهراني", "خالد الفهد",
+                "ريم الحربي", "عبدالله الناصر", "لينا الشمري", "تركي المطيري", "سارة الجابري",
+                "ماجد السبيعي", "عائشة العبدلي", "ناصر الرشيد", "منى الدوسري", "عمر العبدالعزيز"
+            ];
+            let winners = [];
+            for (let i = 0; i < 20; i++) {
+                let amount = Math.floor(Math.random() * (25000 - 2000 + 1) + 2000);
+                winners.push({ name: names[i % names.length] + (i > names.length ? ` ${Math.floor(i/names.length)+1}` : ''), amount: amount });
+            }
+            winners.sort((a,b) => b.amount - a.amount);
+            return winners.slice(0, 15);
+        }
+
+        function renderWinners() {
+            const container = document.getElementById('winnersList');
+            if (!container) return;
+            const winners = generateWinners();
+            container.innerHTML = '';
+            winners.forEach((w, idx) => {
+                const div = document.createElement('div');
+                div.className = 'winner-item';
+                div.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="winner-rank">${idx+1}</span>
+                        <span class="winner-name">${w.name}</span>
+                    </div>
+                    <span class="winner-amount">${w.amount.toLocaleString()} $</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // ============================================================
+        // 7. تحديث سلسلة الخسارة من localStorage
+        // ============================================================
+        function updateLossStreakUI() {
+            document.getElementById('lossStreak').innerText = lossStreak;
+        }
+
+        // ============================================================
+        // 8. التهيئة
+        // ============================================================
+        window.onload = async () => {
+            if (!await checkAuth()) return;
+            drawWheel();
+            updateLossStreakUI();
+            renderWinners();
+            document.getElementById('spinBtn').onclick = initiateSpin;
+            // إضافة تأثير تحريك بسيط عند تحميل الصفحة
+            canvas.style.transform = 'rotate(0deg)';
+        };
+    </script>
+</body>
+</html>

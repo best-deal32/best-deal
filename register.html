@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الانضمام الملكية | إنشاء الحساب الإمبراطوري</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --gold-light: #f7e08a;
+            --gold-main: #d4af37;
+            --gold-dark: #8a6d3b;
+            --black-bg: #05070a;
+            --card-glass: rgba(15, 23, 42, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--black-bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .registration-card {
+            background: var(--card-glass);
+            border: 2px solid rgba(212, 175, 55, 0.25);
+            padding: 4rem;
+            border-radius: 3.5rem;
+            width: 100%;
+            max-width: 850px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9), 0 0 40px rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(20px);
+            animation: slideUpFade 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gold-title {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-main), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--gold-main);
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            right: 1.5rem;
+            top: 3.3rem;
+            color: var(--gold-main);
+            font-size: 1.2rem;
+            transition: 0.4s;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.3rem 4rem 1.3rem 1.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.2rem;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.4s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold-main);
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+            transform: scale(1.01);
+        }
+
+        .gold-btn {
+            width: 100%;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--gold-main), #8a6d3b);
+            border: none;
+            border-radius: 1.5rem;
+            color: #000;
+            font-size: 1.3rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .gold-btn:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.5);
+            filter: brightness(1.2);
+        }
+
+        .gold-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .card-footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 2rem;
+        }
+
+        .login-link {
+            color: var(--gold-main);
+            font-weight: 900;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+
+        .verification-section {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: none;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+        .inline-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .inline-buttons button {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="registration-card">
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-gold-main/10 border-2 border-gold-main mb-6 shadow-2xl">
+                <i class="fa-solid fa-crown text-5xl text-[var(--gold-main)]"></i>
+            </div>
+            <h1 class="text-4xl font-black gold-title italic uppercase tracking-tighter">بناء الهوية الإمبراطورية</h1>
+            <p class="text-slate-500 text-[11px] font-black mt-4 tracking-[0.5em] uppercase opacity-70">Supreme User Registration Core V6.0</p>
+        </div>
+
+        <form id="regForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="input-wrapper">
+                    <label>اسم المستخدم (Unique ID)</label>
+                    <input type="text" id="username" class="form-input" placeholder="User_2026" required>
+                    <i class="fa-solid fa-fingerprint"></i>
+                </div>
+
+                <div class="input-wrapper">
+                    <label>كلمة المرور (Secret Access)</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <label>الاسم الكامل (Full Legal Identity)</label>
+                <input type="text" id="fullName" class="form-input" placeholder="أدخل اسمك الثلاثي بدقة" required>
+                <i class="fa-solid fa-signature"></i>
+            </div>
+
+            <div class="input-wrapper">
+                <label>البريد الإلكتروني (Official Email)</label>
+                <input type="email" id="email" class="form-input" placeholder="example@domain.com" required>
+                <i class="fa-solid fa-envelope-open-text"></i>
+            </div>
+
+            <!-- قسم التحقق -->
+            <div id="verificationSection" class="verification-section">
+                <label>رمز التحقق (6 أرقام)</label>
+                <input type="text" id="verificationCode" class="form-input" placeholder="أدخل الرمز المرسل إلى بريدك" maxlength="6">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="input-wrapper">
+                    <label>بلد المنشأ (Country of Origin)</label>
+                    <input type="text" id="origin" class="form-input" placeholder="أدخل بلدك الأصلي">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+
+                <div class="input-wrapper">
+                    <label>السكن الحالي (Current Residence)</label>
+                    <input type="text" id="location" class="form-input" placeholder="المدينة، المنطقة">
+                    <i class="fa-solid fa-map-pinned"></i>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <label>العمل الحالي (Current Profession/Job)</label>
+                <input type="text" id="currentJob" class="form-input" placeholder="ما هو مسماك الوظيفي الحالي؟">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+
+            <button type="button" id="sendCodeBtn" class="gold-btn" style="background: linear-gradient(135deg, #2c3e50, #1a2632); margin-top: 0;">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>إرسال رمز التحقق</span>
+            </button>
+
+            <button type="submit" id="submitBtn" class="gold-btn" style="display: none;">
+                <span>تأكيد البيانات والانضمام</span>
+                <i class="fa-solid fa-circle-check"></i>
+            </button>
+        </form>
+
+        <div class="card-footer">
+            <p class="text-slate-500 font-bold text-sm">
+                هل تمتلك حساباً بالفعل؟ 
+                <a href="login.html" class="login-link ml-2 italic">دخول للمنظومة</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "http://localhost:5000";
+        let pendingEmail = null;
+        
+        // قراءة معامل الإحالة من الرابط (مثل ?ref=ali_dev_ref)
+        function getReferrerCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('ref');
+        }
+
+        document.getElementById('sendCodeBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                Swal.fire('خطأ', 'يرجى إدخال البريد الإلكتروني أولاً', 'error');
+                return;
+            }
+            const btn = document.getElementById('sendCodeBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/send-verification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    pendingEmail = email;
+                    document.getElementById('verificationSection').style.display = 'block';
+                    document.getElementById('submitBtn').style.display = 'flex';
+                    Swal.fire('تم الإرسال', 'تم إرسال رمز التحقق إلى بريدك الإلكتروني', 'success');
+                } else {
+                    Swal.fire('خطأ', data.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>إرسال رمز التحقق</span>';
+            }
+        });
+
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const origin = document.getElementById('origin').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const currentJob = document.getElementById('currentJob').value.trim();
+            const verificationCode = document.getElementById('verificationCode').value.trim();
+
+            if (!username || !password || !fullName || !email) {
+                Swal.fire('بيانات ناقصة', 'يرجى ملء جميع الحقول المطلوبة', 'warning');
+                return;
+            }
+            if (!verificationCode) {
+                Swal.fire('رمز مطلوب', 'يرجى إدخال رمز التحقق المرسل إلى بريدك', 'warning');
+                return;
+            }
+
+            // إضافة رمز الإحالة إذا وجد
+            const referrerCode = getReferrerCode();
+            const payload = {
+                username, password, fullName, email,
+                origin: origin || 'غير محدد',
+                currentLocation: location || 'غير محدد',
+                currentJob: currentJob || 'بدون عمل',
+                verificationCode
+            };
+            if (referrerCode) {
+                payload.referrerCode = referrerCode;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التسجيل...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('تم التسجيل', 'تم إنشاء حسابك بنجاح، يمكنك تسجيل الدخول الآن', 'success')
+                        .then(() => window.location.href = 'login.html');
+                } else {
+                    Swal.fire('فشل', data.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>تأكيد البيانات والانضمام</span> <i class="fa-solid fa-circle-check"></i>';
+            }
+        });
+    </script>
+</body>
+</html>

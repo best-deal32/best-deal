@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الإيداع الملكية | Golden Deposit</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        
+        :root {
+            --gold-primary: #d4af37;
+            --gold-light: #f7e08a;
+            --gold-dark: #8a6d3b;
+            --bg-darkest: #05070a;
+            --bg-card: rgba(15, 23, 42, 0.95);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at top center, #111b27 0%, var(--bg-darkest) 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .text-gold-gradient {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-primary), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        .royal-glass-panel {
+            background: var(--bg-card);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 2.5rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .royal-glass-panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .panel-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .royal-input-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .royal-input {
+            width: 100%;
+            background: rgba(5, 7, 10, 0.6);
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            color: var(--gold-light);
+            font-size: 2rem;
+            font-weight: 900;
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .royal-input:focus {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3), inset 0 0 10px rgba(0,0,0,0.8);
+            transform: scale(1.01);
+        }
+
+        .upload-container {
+            border: 2px dashed rgba(212, 175, 55, 0.3);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            transition: 0.3s;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+
+        .upload-container:hover {
+            border-color: var(--gold-primary);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        #screenshot-preview {
+            max-width: 100%;
+            max-height: 250px;
+            margin: 1rem auto 0;
+            border-radius: 1rem;
+            display: none;
+            border: 2px solid var(--gold-dark);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .royal-btn-submit {
+            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+            color: #000;
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            width: 100%;
+            padding: 1.5rem;
+            border-radius: 2rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .royal-btn-submit:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.4);
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 100%);
+        }
+
+        .royal-btn-submit:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .wallet-box {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px dashed var(--gold-dark);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .copy-btn {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-primary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 1rem;
+        }
+
+        .copy-btn:hover {
+            background: var(--gold-primary);
+            color: #000;
+        }
+
+        .network-badge {
+            display: inline-block;
+            background: #627eea;
+            color: #fff;
+            font-weight: 900;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <header class="max-w-3xl mx-auto w-full flex justify-between items-center mb-12 mt-4">
+        <button onclick="window.location.href='dashboard.html'" class="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all">
+            <i class="fa-solid fa-arrow-right text-2xl text-[var(--gold-primary)]"></i>
+        </button>
+        
+        <div class="text-center">
+            <h1 class="text-3xl md:text-4xl font-black text-gold-gradient italic uppercase">Royal Deposit</h1>
+            <p class="text-[10px] md:text-xs text-slate-500 font-bold tracking-[0.3em] uppercase mt-1">بوابة التمويل الآمنة</p>
+        </div>
+
+        <div class="w-14"></div>
+    </header>
+
+    <main class="flex-grow flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
+        <div class="royal-glass-panel w-full p-6 md:p-10">
+            <div class="panel-content">
+                
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-black/50 border-2 border-[var(--gold-dark)] mb-4">
+                        <i class="fa-solid fa-vault text-5xl text-[var(--gold-primary)]"></i>
+                    </div>
+                    <h2 class="text-2xl font-black text-white">إيداع رصيد جديد</h2>
+                    <p class="text-sm text-slate-400 mt-2">يرجى تحويل المبلغ المطلوب إلى محفظة النظام قبل تأكيد الطلب</p>
+                </div>
+
+                <div class="wallet-box">
+                    <span class="network-badge"><i class="fa-brands fa-ethereum"></i> USDT - ERC20</span>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-2">عنوان محفظة الإيداع الرسمية</p>
+                    <p id="admin-wallet" class="text-lg md:text-xl font-mono text-[var(--gold-light)] break-all select-all">0x7c487888402cC1e77E61eDf48BD20aa939624360</p>
+                    <button onclick="copyWallet()" class="copy-btn">
+                        <i class="fa-regular fa-copy ml-2"></i> نسخ العنوان
+                    </button>
+                </div>
+
+                <div class="royal-input-wrapper">
+                    <label class="block text-xs font-black text-slate-500 uppercase mb-3 mr-2 tracking-wider italic text-right">المبلغ المرسل (بالدولار $)</label>
+                    <input type="number" id="deposit-amount" class="royal-input" placeholder="0.00">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-black text-slate-500 uppercase mb-3 mr-2 tracking-wider italic text-right">إرفاق إثبات التحويل (لقطة شاشة)</label>
+                    <div class="upload-container" onclick="document.getElementById('screenshot-input').click()">
+                        <i class="fa-solid fa-camera-retro text-4xl text-[var(--gold-primary)] mb-2"></i>
+                        <p class="text-xs text-slate-400">انقر هنا لاختيار الصورة من جهازك</p>
+                        <input type="file" id="screenshot-input" accept="image/*" class="hidden" onchange="previewImage(this)">
+                        <img id="screenshot-preview" src="" alt="معاينة الصورة">
+                    </div>
+                </div>
+
+                <div class="bg-red-900/20 border border-red-500/30 rounded-2xl p-4 mb-8 flex items-start gap-4 text-right">
+                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mt-1"></i>
+                    <div>
+                        <h4 class="text-red-400 font-black text-sm mb-1">تحذير هام جداً</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">تأكد من ارسال الاموال عبر شبكة <strong class="text-white text-lg underline italic">erc20</strong> فقط. إرسال الأموال عبر شبكة أخرى سيؤدي إلى ضياعها ولن نتمكن من استردادها. لا تقم بالضغط على تأكيد إلا بعد إتمام التحويل فعلياً.</p>
+                    </div>
+                </div>
+
+                <button onclick="submitDeposit()" id="submit-btn" class="royal-btn-submit uppercase italic">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>تأكيد الإيداع الآن</span>
+                </button>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-6 text-slate-600 text-xs font-bold">
+        <p>&copy; 2026 Golden Emperor System. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script>
+        // ============================================================
+        // 1. الإعدادات العامة (API URL)
+        // ============================================================
+        const API_BASE_URL = "http://localhost:5000";
+        const URL_DEPOSIT_ADD = `${API_BASE_URL}/api/deposits/add`;
+
+        // ============================================================
+        // 2. دوال التوكن والمستخدم
+        // ============================================================
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getCurrentUser() {
+            const userRaw = localStorage.getItem('currentUser');
+            if (!userRaw) return null;
+            try { return JSON.parse(userRaw); } catch(e) { return null; }
+        }
+
+        // ============================================================
+        // 3. التحقق من المصادقة
+        // ============================================================
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                Swal.fire({
+                    title: 'غير مصرح',
+                    text: 'الرجاء تسجيل الدخول أولاً للوصول إلى صفحة الإيداع',
+                    icon: 'warning',
+                    background: '#05070a',
+                    color: '#fff',
+                    confirmButtonColor: '#d4af37'
+                }).then(() => {
+                    window.location.href = 'login.html';
+                });
+                return false;
+            }
+            return true;
+        }
+
+        // ============================================================
+        // 4. وظائف الصورة والنظام الأساسي
+        // ============================================================
+        function previewImage(input) {
+            const preview = document.getElementById('screenshot-preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function copyWallet() {
+            const walletText = document.getElementById('admin-wallet').innerText;
+            navigator.clipboard.writeText(walletText).then(() => {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'تم نسخ العنوان بنجاح',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#05070a',
+                    color: '#fff'
+                });
+            }).catch(() => {
+                Swal.fire('خطأ', 'تعذر نسخ العنوان', 'error');
+            });
+        }
+
+        // ============================================================
+        // 5. إرسال طلب الإيداع (باستخدام FormData ورفع الملف)
+        // ============================================================
+        async function submitDeposit() {
+            // التحقق من تسجيل الدخول
+            if (!checkAuth()) return;
+
+            const token = getToken();
+            const currentUser = getCurrentUser();
+            if (!currentUser || !currentUser.id) {
+                Swal.fire('خطأ', 'لم نتمكن من تحديد المستخدم', 'error').then(() => window.location.href='login.html');
+                return;
+            }
+
+            const amountInput = document.getElementById('deposit-amount');
+            const fileInput = document.getElementById('screenshot-input');
+            const amount = parseFloat(amountInput.value);
+
+            if (!amount || amount <= 0) {
+                Swal.fire('خطأ', 'يرجى إدخال مبلغ صحيح!', 'error');
+                return;
+            }
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                Swal.fire('تنبيه', 'يرجى إرفاق لقطة شاشة لإثبات عملية التحويل!', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري رفع البيانات...';
+
+            // إنشاء FormData لإرسال الملف
+            const formData = new FormData();
+            formData.append('screenshot', fileInput.files[0]);
+            formData.append('amount', amount);
+            formData.append('method', 'USDT/ERC20');
+
+            try {
+                const response = await fetch(URL_DEPOSIT_ADD, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`  // التوكن مهم للمصادقة
+                        // لا نضع Content-Type لأن FormData يحددها تلقائياً مع الـ boundary
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    Swal.fire({
+                        title: 'تم الإرسال بنجاح!',
+                        text: 'سيقوم الأدمن بمراجعة طلبك وصورة التحويل قريباً.',
+                        icon: 'success',
+                        confirmButtonColor: '#d4af37',
+                        background: '#05070a',
+                        color: '#fff'
+                    }).then(() => {
+                        window.location.href = 'dashboard.html';
+                    });
+                } else {
+                    Swal.fire('خطأ', data.message || 'فشل السيرفر في استلام الطلب.', 'error');
+                }
+            } catch (error) {
+                console.error("Error in submitDeposit:", error);
+                Swal.fire('فشل الاتصال', `تأكد من تشغيل السيرفر (Backend) على المنفذ 5000.\n${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>تأكيد الإيداع الآن</span>';
+            }
+        }
+
+        // ============================================================
+        // 6. التشغيل التلقائي عند فتح الصفحة
+        // ============================================================
+        window.onload = () => {
+            checkAuth();
+        };
+    </script>
+</body>
+</html>
