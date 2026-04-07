@@ -97,6 +97,12 @@
             font-size: 0.7rem;
             font-weight: bold;
         }
+        .reward-info {
+            background: rgba(212,175,55,0.1);
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="pb-32">
@@ -124,7 +130,7 @@
                     <i class="fa-regular fa-copy ml-2"></i> نسخ الرابط
                 </button>
             </div>
-            <p class="text-xs text-slate-400 mt-4 text-center">🔗 كل صديق يسجل عبر هذا الرابط ويقوم بإيداع يصبح ضمن شبكة إحالاتك، وتربح عمولة حسب مستواك.</p>
+            <p class="text-xs text-slate-400 mt-4 text-center">🔗 كل صديق يسجل عبر هذا الرابط ويقوم بإيداع يصبح ضمن شبكة إحالاتك، وتربح عمولة حسب مستواك الحالي.</p>
         </div>
 
         <!-- إحصائيات سريعة -->
@@ -161,7 +167,7 @@
                             <th class="p-3">أول إيداع</th>
                             <th class="p-3">المكافأة</th>
                             <th class="p-3">الحالة</th>
-                          </tr>
+                        </tr>
                     </thead>
                     <tbody id="referrals-table-body">
                         <tr><td colspan="6" class="text-center py-8 text-slate-500">لا يوجد مدعوون حتى الآن</td></tr>
@@ -170,7 +176,7 @@
             </div>
         </div>
 
-        <!-- شرح نظام المكافآت حسب المستوى -->
+        <!-- شرح نظام المكافآت حسب المستوى (محدث حسب الرتب الجديدة) -->
         <div class="glass-card p-6 mt-8">
             <h3 class="text-xl font-black gold-gradient-text mb-4"><i class="fa-solid fa-gift"></i> كيف تعمل المكافآت؟</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
@@ -190,7 +196,7 @@
                     <p class="text-green-400 font-bold text-lg">40$</p>
                 </div>
             </div>
-            <p class="text-xs text-slate-400 mt-4 text-center">⭐ ملاحظة: المكافأة تُمنح تلقائياً بعد أول إيداع للمدعو، وتُضاف إلى رصيدك القابل للسحب فوراً.</p>
+            <p class="text-xs text-slate-400 mt-4 text-center">⭐ ملاحظة: المكافأة تُمنح تلقائياً بعد أول إيداع للمدعو، وتُضاف إلى رصيدك القابل للسحب فوراً. مكافآت المستوى البرونزي: لا توجد مكافآت إحالة.</p>
         </div>
     </main>
 
@@ -199,7 +205,7 @@
         <div onclick="window.location.href='dashboard.html'" class="nav-link"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
         <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span>الإيداع</span></div>
         <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>المشاريع</span></div>
-        <div onclick="window.location.href='spin.html'" class="nav-link"><i class="fa-solid fa-dharmachakra"></i><span>العجلة</span></div>
+        <div onclick="window.location.href='referrals.html'" class="nav-link active"><i class="fa-solid fa-gift"></i><span>الإحالات</span></div>
         <div onclick="logout()" class="nav-link text-red-500"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
     </div>
 
@@ -222,10 +228,7 @@
             options.credentials = 'include';
             let response = await fetch(url, options);
             if (response.status === 401 || response.status === 403) {
-                const refreshRes = await fetch(URL_REFRESH, {
-                    method: 'POST',
-                    credentials: 'include'
-                });
+                const refreshRes = await fetch(URL_REFRESH, { method: 'POST', credentials: 'include' });
                 if (refreshRes.ok) {
                     response = await fetch(url, options);
                 } else {
@@ -342,7 +345,6 @@
                 confirmButtonColor: '#d4af37'
             }).then(res => {
                 if (res.isConfirmed) {
-                    // حذف الكوكيز
                     document.cookie.split(";").forEach((c) => {
                         document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
                     });
