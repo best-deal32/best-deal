@@ -1,0 +1,28 @@
+[2026-04-05T18:12:18.006Z] POST /api/users/login - Error: SQLITE_ERROR: no such column: loginAttempts
+--> in Database#get('SELECT loginAttempts, lockUntil FROM users WHERE email = ?', [ 'admin@bestdeal.com' ], [Function (anonymous)])
+    at C:\Users\muhmmad\Desktop\best deal\backend\server.js:243:12
+    at new Promise (<anonymous>)
+    at getQuery (C:\Users\muhmmad\Desktop\best deal\backend\server.js:242:12)
+    at checkAccountLock (C:\Users\muhmmad\Desktop\best deal\backend\server.js:288:24)
+    at C:\Users\muhmmad\Desktop\best deal\backend\server.js:506:34
+[2026-04-05T18:12:21.513Z] POST /api/users/login - Error: SQLITE_ERROR: no such column: loginAttempts
+--> in Database#get('SELECT loginAttempts, lockUntil FROM users WHERE email = ?', [ 'admin@bestdeal.com' ], [Function (anonymous)])
+    at C:\Users\muhmmad\Desktop\best deal\backend\server.js:243:12
+    at new Promise (<anonymous>)
+    at getQuery (C:\Users\muhmmad\Desktop\best deal\backend\server.js:242:12)
+    at checkAccountLock (C:\Users\muhmmad\Desktop\best deal\backend\server.js:288:24)
+    at C:\Users\muhmmad\Desktop\best deal\backend\server.js:506:34
+[2026-04-05T18:20:05.440Z] POST /api/users/login - Error: SQLITE_ERROR: no such column: loginAttempts
+--> in Database#get('SELECT loginAttempts, lockUntil FROM users WHERE email = ?', [ 'admin@bestdeal.com' ], [Function (anonymous)])
+    at C:\Users\muhmmad\Desktop\best deal\backend\server.js:243:12
+    at new Promise (<anonymous>)
+    at getQuery (C:\Users\muhmmad\Desktop\best deal\backend\server.js:242:12)
+    at checkAccountLock (C:\Users\muhmmad\Desktop\best deal\backend\server.js:288:24)
+    at C:\Users\muhmmad\Desktop\best deal\backend\server.js:506:34
+[2026-04-05T18:20:21.760Z] POST /api/users/login - Error: SQLITE_ERROR: no such column: loginAttempts
+--> in Database#get('SELECT loginAttempts, lockUntil FROM users WHERE email = ?', [ 'admin@bestdeal.com' ], [Function (anonymous)])
+    at C:\Users\muhmmad\Desktop\best deal\backend\server.js:243:12
+    at new Promise (<anonymous>)
+    at getQuery (C:\Users\muhmmad\Desktop\best deal\backend\server.js:242:12)
+    at checkAccountLock (C:\Users\muhmmad\Desktop\best deal\backend\server.js:288:24)
+    at C:\Users\muhmmad\Desktop\best deal\backend\server.js:506:34

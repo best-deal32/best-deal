@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>إنشاء حساب | النظام الملكي - Best Deal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+        
+        :root {
+            --gold-light: #f7e08a;
+            --gold-main: #d4af37;
+            --gold-dark: #8a6d3b;
+            --black-bg: #05070a;
+            --card-glass: rgba(15, 23, 42, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--black-bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .registration-card {
+            background: var(--card-glass);
+            border: 2px solid rgba(212, 175, 55, 0.25);
+            padding: 4rem;
+            border-radius: 3.5rem;
+            width: 100%;
+            max-width: 850px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9), 0 0 40px rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(20px);
+            animation: slideUpFade 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .gold-title {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-main), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--gold-main);
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            right: 1.5rem;
+            top: 3.3rem;
+            color: var(--gold-main);
+            font-size: 1.2rem;
+            transition: 0.4s;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1.3rem 4rem 1.3rem 1.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.2rem;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.4s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--gold-main);
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
+            transform: scale(1.01);
+        }
+
+        .gold-btn {
+            width: 100%;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--gold-main), #8a6d3b);
+            border: none;
+            border-radius: 1.5rem;
+            color: #000;
+            font-size: 1.3rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .gold-btn:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.5);
+            filter: brightness(1.2);
+        }
+
+        .gold-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .card-footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 2rem;
+        }
+
+        .login-link {
+            color: var(--gold-main);
+            font-weight: 900;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .login-link:hover {
+            text-decoration: underline;
+        }
+
+        .verification-section {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: none;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+
+        .username-status {
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
+            margin-right: 0.5rem;
+        }
+        .username-available { color: #10b981; }
+        .username-taken { color: #ef4444; }
+        .username-checking { color: #f59e0b; }
+        .email-status { font-size: 0.7rem; margin-top: 0.3rem; margin-right: 0.5rem; }
+        .email-valid { color: #10b981; }
+        .email-invalid { color: #ef4444; }
+        .email-checking { color: #f59e0b; }
+    </style>
+</head>
+<body>
+
+    <div class="registration-card">
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-gold-main/10 border-2 border-gold-main mb-6 shadow-2xl">
+                <i class="fa-solid fa-crown text-5xl text-[var(--gold-main)]"></i>
+            </div>
+            <h1 class="text-4xl font-black gold-title italic uppercase tracking-tighter">بناء الهوية الإمبراطورية</h1>
+            <p class="text-slate-500 text-[11px] font-black mt-4 tracking-[0.5em] uppercase opacity-70">Supreme User Registration Core V6.0</p>
+        </div>
+
+        <form id="regForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="input-wrapper">
+                    <label>اسم المستخدم (Unique ID)</label>
+                    <input type="text" id="username" class="form-input" placeholder="User_2026" required autocomplete="off">
+                    <i class="fa-solid fa-fingerprint"></i>
+                    <div id="username-status" class="username-status"></div>
+                </div>
+
+                <div class="input-wrapper">
+                    <label>كلمة المرور (Secret Access)</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <label>الاسم الكامل (Full Legal Identity)</label>
+                <input type="text" id="fullName" class="form-input" placeholder="أدخل اسمك الثلاثي بدقة" required>
+                <i class="fa-solid fa-signature"></i>
+            </div>
+
+            <div class="input-wrapper">
+                <label>البريد الإلكتروني (Official Email)</label>
+                <input type="email" id="email" class="form-input" placeholder="example@domain.com" required>
+                <i class="fa-solid fa-envelope-open-text"></i>
+                <div id="email-status" class="email-status"></div>
+            </div>
+
+            <!-- قسم التحقق (يظهر بعد إرسال الرمز) -->
+            <div id="verificationSection" class="verification-section">
+                <label>رمز التحقق (6 أرقام)</label>
+                <input type="text" id="verificationCode" class="form-input" placeholder="أدخل الرمز المرسل إلى بريدك" maxlength="6">
+                <p class="text-[10px] text-slate-400 mt-1">إذا لم تصلك رسالة، يمكنك التسجيل بدون توثيق وسيتم تفعيل حسابك لاحقاً.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="input-wrapper">
+                    <label>بلد المنشأ (Country of Origin)</label>
+                    <input type="text" id="origin" class="form-input" placeholder="أدخل بلدك الأصلي">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+
+                <div class="input-wrapper">
+                    <label>السكن الحالي (Current Residence)</label>
+                    <input type="text" id="location" class="form-input" placeholder="المدينة، المنطقة">
+                    <i class="fa-solid fa-map-pinned"></i>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <label>العمل الحالي (Current Profession/Job)</label>
+                <input type="text" id="currentJob" class="form-input" placeholder="ما هو مسماك الوظيفي الحالي؟">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+
+            <button type="button" id="sendCodeBtn" class="gold-btn" style="background: linear-gradient(135deg, #2c3e50, #1a2632); margin-top: 0;">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>إرسال رمز التحقق</span>
+            </button>
+
+            <button type="submit" id="submitBtn" class="gold-btn" style="display: none;">
+                <span>تأكيد البيانات والانضمام</span>
+                <i class="fa-solid fa-circle-check"></i>
+            </button>
+        </form>
+
+        <div class="card-footer">
+            <p class="text-slate-500 font-bold text-sm">
+                هل تمتلك حساباً بالفعل؟ 
+                <a href="login.html" class="login-link ml-2 italic">دخول للمنظومة</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. الإعدادات العامة (لا نحتاج CSRF)
+        // ============================================================
+        const API_BASE_URL = "http://localhost:5000";
+        let pendingEmail = null;
+        let isUsernameValid = false;
+        let isEmailValid = false;
+        let usernameCheckTimer = null;
+        let emailCheckTimer = null;
+
+        // قراءة رمز الإحالة من الرابط (مثل ?ref=freeze_ref_999)
+        function getReferrerCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('ref');
+        }
+
+        // ============================================================
+        // 2. التحقق من وجود اسم المستخدم (لحظي)
+        // ============================================================
+        const usernameInput = document.getElementById('username');
+        const usernameStatus = document.getElementById('username-status');
+
+        async function checkUsernameAvailability(username) {
+            if (!username || username.length < 3) {
+                usernameStatus.innerHTML = '<span class="username-checking">⏳ يجب أن يكون 3 أحرف على الأقل</span>';
+                isUsernameValid = false;
+                return false;
+            }
+            usernameStatus.innerHTML = '<span class="username-checking">🔍 جاري التحقق...</span>';
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users/check-username?username=${encodeURIComponent(username)}`);
+                const data = await response.json();
+                if (data.exists) {
+                    usernameStatus.innerHTML = '<span class="username-taken">❌ اسم المستخدم موجود بالفعل، اختر اسماً آخر</span>';
+                    isUsernameValid = false;
+                    return false;
+                } else {
+                    usernameStatus.innerHTML = '<span class="username-available">✅ اسم المستخدم متاح</span>';
+                    isUsernameValid = true;
+                    return true;
+                }
+            } catch (err) {
+                console.error("خطأ في التحقق:", err);
+                usernameStatus.innerHTML = '<span class="username-checking">⚠️ تعذر التحقق، حاول مرة أخرى</span>';
+                isUsernameValid = false;
+                return false;
+            }
+        }
+
+        usernameInput.addEventListener('input', function() {
+            clearTimeout(usernameCheckTimer);
+            const val = this.value.trim();
+            if (val.length >= 3) {
+                usernameCheckTimer = setTimeout(() => checkUsernameAvailability(val), 500);
+            } else if (val.length > 0 && val.length < 3) {
+                usernameStatus.innerHTML = '<span class="username-checking">⏳ يجب أن يكون 3 أحرف على الأقل</span>';
+                isUsernameValid = false;
+            } else {
+                usernameStatus.innerHTML = '';
+                isUsernameValid = false;
+            }
+        });
+
+        // ============================================================
+        // 3. التحقق من صحة البريد الإلكتروني (نطاق حقيقي)
+        // ============================================================
+        const emailInput = document.getElementById('email');
+        const emailStatus = document.getElementById('email-status');
+
+        async function validateEmailDomain(email) {
+            if (!email || !email.includes('@')) {
+                emailStatus.innerHTML = '<span class="email-invalid">⚠️ صيغة بريد غير صحيحة</span>';
+                isEmailValid = false;
+                return false;
+            }
+            emailStatus.innerHTML = '<span class="email-checking">🔍 جاري التحقق من البريد...</span>';
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/validate-email?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+                if (data.valid) {
+                    emailStatus.innerHTML = '<span class="email-valid">✅ البريد صالح</span>';
+                    isEmailValid = true;
+                    return true;
+                } else {
+                    emailStatus.innerHTML = `<span class="email-invalid">❌ ${data.reason || 'البريد غير صالح'}</span>`;
+                    isEmailValid = false;
+                    return false;
+                }
+            } catch (err) {
+                console.error("خطأ في التحقق من البريد:", err);
+                emailStatus.innerHTML = '<span class="email-checking">⚠️ تعذر التحقق، يمكنك المتابعة ولكن لن يتم إرسال رمز</span>';
+                isEmailValid = false;
+                return false;
+            }
+        }
+
+        emailInput.addEventListener('input', function() {
+            clearTimeout(emailCheckTimer);
+            const val = this.value.trim();
+            if (val.includes('@') && val.length > 5) {
+                emailCheckTimer = setTimeout(() => validateEmailDomain(val), 700);
+            } else if (val.length > 0) {
+                emailStatus.innerHTML = '<span class="email-checking">⏳ أدخل بريداً كاملاً</span>';
+                isEmailValid = false;
+            } else {
+                emailStatus.innerHTML = '';
+                isEmailValid = false;
+            }
+        });
+
+        // ============================================================
+        // 4. إرسال رمز التحقق (إذا كان البريد صالحاً)
+        // ============================================================
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const verificationSection = document.getElementById('verificationSection');
+        const submitBtn = document.getElementById('submitBtn');
+
+        sendCodeBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            if (!email) {
+                Swal.fire('خطأ', 'يرجى إدخال البريد الإلكتروني أولاً', 'error');
+                return;
+            }
+            // إذا كان البريد غير صالح، نسمح بالتسجيل بدون رمز (حساب غير موثق)
+            if (!isEmailValid) {
+                Swal.fire({
+                    title: 'تنبيه',
+                    text: 'البريد الإلكتروني غير صالح أو لم نتمكن من التحقق منه. سيتم إنشاء حسابك كـ "غير موثق" ويمكنك تفعيله لاحقاً.',
+                    icon: 'warning',
+                    confirmButtonText: 'متابعة بدون توثيق',
+                    showCancelButton: true,
+                    cancelButtonText: 'إلغاء'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        pendingEmail = email;
+                        verificationSection.style.display = 'block';
+                        submitBtn.style.display = 'flex';
+                        sendCodeBtn.style.display = 'none';
+                        Swal.fire('تم', 'يمكنك إكمال التسجيل الآن، سيتم إنشاء حساب غير موثق', 'info');
+                    }
+                });
+                return;
+            }
+
+            // البريد صالح، نرسل رمز التحقق
+            const btn = sendCodeBtn;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/send-verification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    pendingEmail = email;
+                    verificationSection.style.display = 'block';
+                    submitBtn.style.display = 'flex';
+                    sendCodeBtn.style.display = 'none';
+                    Swal.fire('تم الإرسال', 'تم إرسال رمز التحقق إلى بريدك الإلكتروني', 'success');
+                } else {
+                    Swal.fire('خطأ', data.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>إرسال رمز التحقق</span>';
+            }
+        });
+
+        // ============================================================
+        // 5. تقديم نموذج التسجيل (مع التحقق من اسم المستخدم)
+        // ============================================================
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // التحقق من اسم المستخدم مرة أخيرة
+            const username = usernameInput.value.trim();
+            if (!isUsernameValid) {
+                const available = await checkUsernameAvailability(username);
+                if (!available) {
+                    Swal.fire('اسم مستخدم غير متاح', 'هذا الاسم مستخدم بالفعل أو غير صالح', 'warning');
+                    return;
+                }
+            }
+            
+            const password = document.getElementById('password').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = emailInput.value.trim();
+            const origin = document.getElementById('origin').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const currentJob = document.getElementById('currentJob').value.trim();
+            const verificationCode = document.getElementById('verificationCode').value.trim();
+
+            if (!username || !password || !fullName || !email) {
+                Swal.fire('بيانات ناقصة', 'يرجى ملء جميع الحقول المطلوبة', 'warning');
+                return;
+            }
+
+            // إضافة رمز الإحالة إذا وجد
+            const referrerCode = getReferrerCode();
+            const payload = {
+                username, password, fullName, email,
+                origin: origin || 'غير محدد',
+                currentLocation: location || 'غير محدد',
+                currentJob: currentJob || 'بدون عمل',
+                verificationCode: verificationCode || ''  // قد يكون فارغاً إذا سجل بدون توثيق
+            };
+            if (referrerCode) {
+                payload.referrerCode = referrerCode;
+            }
+
+            const btn = submitBtn;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التسجيل...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        title: 'تم التسجيل',
+                        text: data.message || 'تم إنشاء حسابك بنجاح، يمكنك تسجيل الدخول الآن',
+                        icon: 'success'
+                    }).then(() => window.location.href = 'login.html');
+                } else {
+                    Swal.fire('فشل', data.message, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>تأكيد البيانات والانضمام</span> <i class="fa-solid fa-circle-check"></i>';
+            }
+        });
+    </script>
+</body>
+</html>

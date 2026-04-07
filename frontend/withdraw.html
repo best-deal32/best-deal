@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>سحب الأرباح | النظام الملكي - Trust Wallet</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f7e08a;
+            --gold-dark: #8a6d3b;
+            --dark-bg: #05070a;
+            --card-bg: rgba(15, 23, 42, 0.95);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at top center, #111b27 0%, var(--dark-bg) 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+        }
+
+        .glass-card:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(212,175,55,0.2);
+        }
+
+        .royal-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            color: var(--gold-light);
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 1rem;
+            border-radius: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        .royal-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(212,175,55,0.3);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000;
+            font-weight: 900;
+            padding: 1rem;
+            border-radius: 1.5rem;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+        .btn-gold:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+        .btn-gold:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .balance-box {
+            background: rgba(0,0,0,0.5);
+            border-radius: 1.5rem;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .info-text {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 pb-28">
+
+    <header class="max-w-2xl mx-auto flex justify-between items-center mb-8 mt-2">
+        <button onclick="window.location.href='dashboard.html'" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-white/10 transition">
+            <i class="fa-solid fa-arrow-right text-xl text-[var(--gold)]"></i>
+        </button>
+        <div class="text-center">
+            <h1 class="text-2xl md:text-3xl font-black gold-gradient-text italic">سحب الأرباح</h1>
+            <p class="text-[9px] text-slate-500 tracking-widest">سحب آمن إلى محفظتك</p>
+        </div>
+        <div class="w-12"></div>
+    </header>
+
+    <main class="flex-grow max-w-2xl mx-auto w-full">
+        <div class="glass-card p-6 md:p-8">
+            <!-- الرصيد المتاح -->
+            <div class="balance-box mb-6">
+                <p class="text-xs text-slate-400 font-bold uppercase">الرصيد المتاح للسحب</p>
+                <p id="withdrawable-balance" class="text-3xl font-black gold-gradient-text">0.00 $</p>
+                <p class="text-[10px] text-slate-500">(الرصيد القابل للسحب يشمل الأرباح + الإيداعات التي مضى عليها 10 أيام)</p>
+            </div>
+
+            <!-- حقل عنوان المحفظة -->
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-slate-400 mb-2">🔐 عنوان محفظة Trust Wallet (ERC20/BEP20)</label>
+                <input type="text" id="walletAddress" class="royal-input" placeholder="0x... أو عنوان المحفظة" dir="ltr">
+                <p class="info-text">⚠️ تأكد من صحة العنوان، فالأموال المرسلة إلى عنوان خاطئ لا يمكن استردادها.</p>
+            </div>
+
+            <!-- حقل المبلغ -->
+            <div class="mb-5">
+                <label class="block text-xs font-bold text-slate-400 mb-2">💰 المبلغ المراد سحبه (دولار)</label>
+                <input type="number" id="withdrawAmount" class="royal-input" placeholder="0.00" min="1" step="any">
+                <div class="flex justify-end mt-1">
+                    <button id="maxWithdrawBtn" class="text-[10px] text-gold hover:underline">الحد الأقصى للسحب</button>
+                </div>
+            </div>
+
+            <!-- زر تقديم طلب السحب -->
+            <button id="submitWithdrawBtn" class="btn-gold mt-6">
+                <i class="fa-solid fa-hand-holding-usd"></i> تقديم طلب السحب
+            </button>
+
+            <!-- تنبيهات إضافية -->
+            <div class="mt-6 p-3 bg-yellow-900/20 rounded-xl border border-yellow-500/30 text-center">
+                <i class="fa-solid fa-clock text-yellow-500"></i>
+                <p class="text-xs text-slate-300 mt-1">سيتم مراجعة طلب السحب من قبل الإدارة خلال 24 ساعة. بعد الموافقة، سيتم تحويل المبلغ إلى محفظتك.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ============================================================
+        // 1. الإعدادات العامة
+        // ============================================================
+        const API_BASE_URL = "http://localhost:5000";
+        const API_ME = `${API_BASE_URL}/api/users/me`;
+        const API_WITHDRAW = `${API_BASE_URL}/api/withdrawals/add`;
+
+        // ============================================================
+        // 2. التحقق من الجلسة
+        // ============================================================
+        async function fetchCurrentUser() {
+            try {
+                const res = await fetch(API_ME, { credentials: 'include' });
+                if (!res.ok) throw new Error();
+                const user = await res.json();
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                return user;
+            } catch(e) { return null; }
+        }
+
+        async function checkAuth() {
+            const user = await fetchCurrentUser();
+            if (!user) {
+                Swal.fire({
+                    title: 'غير مصرح',
+                    text: 'الرجاء تسجيل الدخول أولاً',
+                    icon: 'warning',
+                    background: '#05070a',
+                    color: '#fff',
+                    confirmButtonColor: '#d4af37'
+                }).then(() => window.location.href = 'login.html');
+                return false;
+            }
+            return user;
+        }
+
+        async function updateBalanceDisplay() {
+            const user = await fetchCurrentUser();
+            if (user) {
+                const withdrawable = user.withdrawableAmount || user.balance || 0;
+                document.getElementById('withdrawable-balance').innerText = withdrawable.toLocaleString() + ' $';
+                document.getElementById('withdrawAmount').setAttribute('data-max', withdrawable);
+            }
+        }
+
+        // ============================================================
+        // 3. تقديم طلب السحب (بدون رمز تأكيد)
+        // ============================================================
+        async function submitWithdraw() {
+            const walletAddress = document.getElementById('walletAddress').value.trim();
+            const amountRaw = document.getElementById('withdrawAmount').value;
+            const amount = parseFloat(amountRaw);
+
+            if (!walletAddress) {
+                Swal.fire('خطأ', 'يرجى إدخال عنوان المحفظة', 'error');
+                return;
+            }
+            if (isNaN(amount) || amount <= 0) {
+                Swal.fire('خطأ', 'المبلغ غير صالح', 'error');
+                return;
+            }
+            const withdrawableSpan = document.getElementById('withdrawable-balance');
+            let maxWithdrawable = parseFloat(withdrawableSpan.innerText.replace(' $', '').replace(',', ''));
+            if (isNaN(maxWithdrawable)) {
+                const user = await fetchCurrentUser();
+                maxWithdrawable = user?.withdrawableAmount || user?.balance || 0;
+            }
+            if (amount > maxWithdrawable) {
+                Swal.fire('رصيد غير كاف', `الحد الأقصى القابل للسحب هو ${maxWithdrawable.toFixed(2)} $`, 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('submitWithdrawBtn');
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري المعالجة...';
+
+            try {
+                const response = await fetch(API_WITHDRAW, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ walletAddress, amount }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    Swal.fire({
+                        title: 'تم تقديم الطلب',
+                        text: data.message || 'تم استلام طلب السحب، سيتم مراجعته من قبل الإدارة',
+                        icon: 'success',
+                        background: '#05070a',
+                        color: '#fff'
+                    }).then(() => {
+                        window.location.href = 'dashboard.html';
+                    });
+                } else {
+                    Swal.fire('فشل', data.message || 'حدث خطأ أثناء معالجة الطلب', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // ============================================================
+        // 4. زر الحد الأقصى للسحب
+        // ============================================================
+        function setMaxWithdraw() {
+            const withdrawableSpan = document.getElementById('withdrawable-balance');
+            let maxVal = parseFloat(withdrawableSpan.innerText.replace(' $', '').replace(',', ''));
+            if (isNaN(maxVal)) {
+                Swal.fire('خطأ', 'لم نتمكن من جلب الرصيد، حاول تحديث الصفحة', 'error');
+                return;
+            }
+            document.getElementById('withdrawAmount').value = maxVal.toFixed(2);
+        }
+
+        // ============================================================
+        // 5. التحميل الأولي
+        // ============================================================
+        window.onload = async () => {
+            const user = await checkAuth();
+            if (!user) return;
+            await updateBalanceDisplay();
+            document.getElementById('submitWithdrawBtn').onclick = submitWithdraw;
+            document.getElementById('maxWithdrawBtn').onclick = setMaxWithdraw;
+        };
+    </script>
+</body>
+</html>

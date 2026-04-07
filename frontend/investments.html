@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>المشاريع الاستثمارية | Best Deal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        :root {
+            --gold: #d4af37;
+            --gold-dark: #8a6d3b;
+            --dark-bg: #06090f;
+            --card-bg: rgba(15, 23, 42, 0.9);
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--dark-bg);
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #d4af37 0%, #f7e08a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+        }
+        .glass-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000;
+            font-weight: 900;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 15, 26, 0.98);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 1000;
+        }
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .nav-link.active { color: var(--gold); }
+        .nav-link i { font-size: 22px; margin-bottom: 4px; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+        <button onclick="window.location.href='dashboard.html'" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-white/10">
+            <i class="fa-solid fa-arrow-right text-xl text-[#d4af37]"></i>
+        </button>
+        <h1 class="text-2xl font-black gold-gradient-text italic">المشاريع الاستثمارية</h1>
+        <div class="bg-black/60 px-4 py-2 rounded-2xl">
+            <p class="text-[10px] text-slate-500">رصيدك</p>
+            <p id="user-balance" class="text-xl font-bold text-white">0.00 $</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 pb-24">
+        <!-- البطاقات الثلاث -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <!-- مشروع يومي -->
+            <div class="glass-card p-6 text-center">
+                <i class="fa-solid fa-sun text-5xl text-[#d4af37] mb-4"></i>
+                <h3 class="text-2xl font-black text-white">مشروع يومي</h3>
+                <p class="text-3xl font-black text-green-400 my-2">15% يومياً</p>
+                <p class="text-sm text-slate-400">ربح يومي 15% من المبلغ المستثمر</p>
+                <div class="bg-yellow-900/20 p-3 rounded-xl my-4 text-right">
+                    <p class="text-xs">💰 الحد الأدنى: <strong class="text-gold">25$</strong></p>
+                    <p class="text-xs">🔒 المبلغ الأصلي محجوز لمدة <strong>10 أيام</strong></p>
+                    <p class="text-xs">✅ يمكنك سحب الأرباح اليومية فوراً</p>
+                </div>
+                <input type="number" id="daily-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <button onclick="createInvestment(event, 'daily')" class="btn-gold w-full py-3 rounded-xl font-bold">استثمر الآن</button>
+            </div>
+
+            <!-- مشروع أسبوعي -->
+            <div class="glass-card p-6 text-center">
+                <i class="fa-solid fa-calendar-week text-5xl text-[#d4af37] mb-4"></i>
+                <h3 class="text-2xl font-black text-white">مشروع أسبوعي</h3>
+                <p class="text-3xl font-black text-green-400 my-2">70%</p>
+                <p class="text-sm text-slate-400">ربح 70% بعد أسبوع كامل</p>
+                <div class="bg-yellow-900/20 p-3 rounded-xl my-4 text-right">
+                    <p class="text-xs">💰 الحد الأدنى: <strong class="text-gold">100$</strong></p>
+                    <p class="text-xs">🔒 المبلغ الأصلي محجوز لمدة <strong>10 أيام</strong></p>
+                    <p class="text-xs">✅ يمكنك سحب الأرباح بعد 7 أيام</p>
+                </div>
+                <input type="number" id="weekly-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <button onclick="createInvestment(event, 'weekly')" class="btn-gold w-full py-3 rounded-xl font-bold">استثمر الآن</button>
+            </div>
+
+            <!-- مشروع شهري -->
+            <div class="glass-card p-6 text-center">
+                <i class="fa-solid fa-calendar-alt text-5xl text-[#d4af37] mb-4"></i>
+                <h3 class="text-2xl font-black text-white">مشروع شهري</h3>
+                <p class="text-3xl font-black text-green-400 my-2">150%</p>
+                <p class="text-sm text-slate-400">ربح 150% بعد شهر كامل</p>
+                <div class="bg-yellow-900/20 p-3 rounded-xl my-4 text-right">
+                    <p class="text-xs">💰 الحد الأدنى: <strong class="text-gold">300$</strong></p>
+                    <p class="text-xs">🔒 المبلغ الأصلي + الربح محجوزان لمدة <strong>30 يوم</strong></p>
+                    <p class="text-xs">✅ بعد 30 يوماً يمكنك سحب الكل</p>
+                </div>
+                <input type="number" id="monthly-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <button onclick="createInvestment(event, 'monthly')" class="btn-gold w-full py-3 rounded-xl font-bold">استثمر الآن</button>
+            </div>
+        </div>
+
+        <!-- جدول استثماراتي الحالية -->
+        <div class="glass-card p-6">
+            <h3 class="text-xl font-black gold-gradient-text mb-4">استثماراتي الحالية</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="p-3">المبلغ</th>
+                            <th class="p-3">النوع</th>
+                            <th class="p-3">تاريخ البدء</th>
+                            <th class="p-3">الربح الحالي</th>
+                            <th class="p-3">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="investments-list">
+                        <tr><td colspan="5" class="text-center py-8 text-slate-500">لا توجد استثمارات حالية</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- القائمة السفلية -->
+    <div class="bottom-nav">
+        <div onclick="window.location.href='dashboard.html'" class="nav-link"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
+        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span>الإيداع</span></div>
+        <div onclick="window.location.href='investments.html'" class="nav-link active"><i class="fa-solid fa-chart-line"></i><span>المشاريع</span></div>
+        <div onclick="window.location.href='spin.html'" class="nav-link"><i class="fa-solid fa-dharmachakra"></i><span>العجلة</span></div>
+        <div onclick="logout()" class="nav-link text-red-500"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 1. الإعدادات العامة والمكتبات
+        // ============================================================
+        const API_BASE_URL = "http://localhost:5000";
+        const URL_INVESTMENTS_CREATE = `${API_BASE_URL}/api/investments/create`;
+        const URL_INVESTMENTS_MY = `${API_BASE_URL}/api/investments/my`;
+        const URL_WITHDRAW_PROFIT = `${API_BASE_URL}/api/investments/withdraw-profit`;
+        const URL_WITHDRAW_PRINCIPAL = `${API_BASE_URL}/api/investments/withdraw-principal`;
+        const URL_ME = `${API_BASE_URL}/api/users/me`;
+        const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
+        const URL_CSRF = `${API_BASE_URL}/api/csrf-token`;
+
+        let currentUser = null;
+
+        // ============================================================
+        // 2. دوال CSRF والمصادقة
+        // ============================================================
+        function getCsrfTokenFromCookie() {
+            const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+
+        async function fetchCsrfToken() {
+            try {
+                const res = await fetch(URL_CSRF, { credentials: 'include' });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                return data.csrfToken;
+            } catch(e) { return null; }
+        }
+
+        async function ensureCsrfToken() {
+            let token = getCsrfTokenFromCookie();
+            if (token) return token;
+            token = await fetchCsrfToken();
+            return token;
+        }
+
+        async function fetchWithAuth(url, options = {}) {
+            const csrf = await ensureCsrfToken();
+            options.credentials = 'include';
+            options.headers = {
+                ...options.headers,
+                'CSRF-Token': csrf || ''
+            };
+            let response = await fetch(url, options);
+            if (response.status === 401 || response.status === 403) {
+                const refreshRes = await fetch(URL_REFRESH, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'CSRF-Token': csrf || '' }
+                });
+                if (refreshRes.ok) {
+                    response = await fetch(url, options);
+                } else {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                    throw new Error('Session expired');
+                }
+            }
+            return response;
+        }
+
+        // ============================================================
+        // 3. دوال المستخدم
+        // ============================================================
+        async function fetchUser() {
+            try {
+                const res = await fetchWithAuth(URL_ME);
+                if (!res.ok) throw new Error();
+                const user = await res.json();
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                return user;
+            } catch(e) { return null; }
+        }
+
+        async function checkAuth() {
+            const user = await fetchUser();
+            if (!user) {
+                Swal.fire('غير مصرح', 'الرجاء تسجيل الدخول أولاً', 'warning').then(() => window.location.href='login.html');
+                return false;
+            }
+            currentUser = user;
+            document.getElementById('user-balance').innerText = currentUser.balance.toLocaleString() + ' $';
+            return true;
+        }
+
+        // ============================================================
+        // 4. إنشاء استثمار
+        // ============================================================
+        async function createInvestment(event, type) {
+            if (event) event.preventDefault();
+            const btn = event ? event.currentTarget : null;
+            if (!await checkAuth()) return;
+            
+            let amountInput, minAmount, typeName;
+            if (type === 'daily') {
+                amountInput = document.getElementById('daily-amount');
+                minAmount = 25;
+                typeName = 'اليومي';
+            } else if (type === 'weekly') {
+                amountInput = document.getElementById('weekly-amount');
+                minAmount = 100;
+                typeName = 'الأسبوعي';
+            } else {
+                amountInput = document.getElementById('monthly-amount');
+                minAmount = 300;
+                typeName = 'الشهري';
+            }
+            
+            const amount = parseFloat(amountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                Swal.fire('خطأ', `الرجاء إدخال مبلغ صحيح (الحد الأدنى ${minAmount}$)`, 'error');
+                return;
+            }
+            if (amount < minAmount) {
+                Swal.fire('خطأ', `الحد الأدنى للاستثمار ${typeName} هو ${minAmount}$`, 'error');
+                return;
+            }
+            if (amount > currentUser.balance) {
+                Swal.fire('رصيد غير كاف', `رصيدك الحالي ${currentUser.balance} $ فقط`, 'warning');
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري...';
+            }
+
+            try {
+                const csrf = await ensureCsrfToken();
+                const res = await fetch(URL_INVESTMENTS_CREATE, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': csrf || ''
+                    },
+                    body: JSON.stringify({ amount, projectType: type }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    Swal.fire('تم الاستثمار بنجاح', `تم استثمار ${amount} $ في المشروع ${typeName}.`, 'success');
+                    amountInput.value = '';
+                    await checkAuth(); // تحديث الرصيد
+                    loadMyInvestments();
+                } else {
+                    Swal.fire('فشل', data.message || 'حدث خطأ غير معروف', 'error');
+                }
+            } catch(err) {
+                console.error(err);
+                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = 'استثمر الآن';
+                }
+            }
+        }
+
+        // ============================================================
+        // 5. تحميل الاستثمارات الحالية
+        // ============================================================
+        async function loadMyInvestments() {
+            if (!await checkAuth()) return;
+            try {
+                const res = await fetchWithAuth(URL_INVESTMENTS_MY);
+                const investments = await res.json();
+                const tbody = document.getElementById('investments-list');
+                if (!investments.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-500">لا توجد استثمارات حالية</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = '';
+                investments.forEach(inv => {
+                    const typeName = inv.projectType === 'daily' ? 'يومي' : inv.projectType === 'weekly' ? 'أسبوعي' : 'شهري';
+                    const startDate = new Date(inv.startDate).toLocaleDateString('ar-EG');
+                    const profit = inv.currentProfit || 0;
+                    const canWithdrawProfit = profit > 0;
+                    const canWithdrawPrincipal = inv.canWithdrawPrincipal && !inv.withdrawnPrincipal;
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-white/5';
+                    row.innerHTML = `
+                        <td class="p-3">${inv.amount} $</td>
+                        <td class="p-3">${typeName}</td>
+                        <td class="p-3">${startDate}</td>
+                        <td class="p-3 text-green-400">${profit.toFixed(2)} $</td>
+                        <td class="p-3">
+                            ${canWithdrawProfit ? `<button onclick="withdrawProfit('${inv.id}')" class="bg-green-600 px-3 py-1 rounded-lg text-xs ml-2">سحب الربح</button>` : ''}
+                            ${canWithdrawPrincipal ? `<button onclick="withdrawPrincipal('${inv.id}')" class="bg-blue-600 px-3 py-1 rounded-lg text-xs">سحب الأصل</button>` : ''}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch(err) {
+                console.error(err);
+            }
+        }
+
+        // ============================================================
+        // 6. سحب الأرباح والأصل
+        // ============================================================
+        async function withdrawProfit(investmentId) {
+            if (!await checkAuth()) return;
+            const { value: confirm } = await Swal.fire({
+                title: 'تأكيد سحب الأرباح',
+                text: 'هل تريد سحب جميع الأرباح المستحقة الآن؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d4af37'
+            });
+            if (!confirm) return;
+            try {
+                const csrf = await ensureCsrfToken();
+                const res = await fetch(URL_WITHDRAW_PROFIT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrf || '' },
+                    body: JSON.stringify({ investmentId }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('تم', data.message, 'success');
+                    await checkAuth();
+                    loadMyInvestments();
+                } else {
+                    Swal.fire('فشل', data.message, 'error');
+                }
+            } catch(err) {
+                Swal.fire('خطأ', 'فشل الاتصال', 'error');
+            }
+        }
+
+        async function withdrawPrincipal(investmentId) {
+            if (!await checkAuth()) return;
+            const { value: confirm } = await Swal.fire({
+                title: 'تأكيد سحب المبلغ الأصلي',
+                text: 'بعد سحب المبلغ الأصلي، لن يعود لك أي أرباح من هذا الاستثمار. هل أنت متأكد؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d4af37'
+            });
+            if (!confirm) return;
+            try {
+                const csrf = await ensureCsrfToken();
+                const res = await fetch(URL_WITHDRAW_PRINCIPAL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrf || '' },
+                    body: JSON.stringify({ investmentId }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('تم', data.message, 'success');
+                    await checkAuth();
+                    loadMyInvestments();
+                } else {
+                    Swal.fire('فشل', data.message, 'error');
+                }
+            } catch(err) {
+                Swal.fire('خطأ', 'فشل الاتصال', 'error');
+            }
+        }
+
+        // ============================================================
+        // 7. تسجيل الخروج
+        // ============================================================
+        function logout() {
+            Swal.fire({
+                title: 'تسجيل الخروج',
+                text: 'هل أنت متأكد؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d4af37'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+
+        // ============================================================
+        // 8. التحميل الأولي
+        // ============================================================
+        window.onload = async () => {
+            if (await checkAuth()) {
+                loadMyInvestments();
+            }
+        };
+    </script>
+</body>
+</html>
