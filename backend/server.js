@@ -1,5 +1,5 @@
 // ============================================================
-// server.js - النسخة النهائية (Frontend داخل مجلد public)
+// server.js - النسخة الموحدة النهائية (تعمل على Railway)
 // ============================================================
 
 const express = require('express');
@@ -15,23 +15,10 @@ const rateLimit = require('express-rate-limit');
 const dns = require('dns').promises;
 const cron = require('node-cron');
 const { exec } = require('child_process');
-const cloudinary = require('cloudinary').v2;
-const Sentry = require('@sentry/node');
-
-require('dotenv').config();
-
-// ====================== التحقق من صحة DSN قبل تهيئة Sentry ======================
-const SENTRY_DSN = process.env.SENTRY_DSN;
-const isValidSentryDsn = SENTRY_DSN && SENTRY_DSN.startsWith('https://') && SENTRY_DSN.includes('@sentry.io') && !SENTRY_DSN.includes('your-sentry-dsn');
-
-if (isValidSentryDsn) {
-    Sentry.init({ dsn: SENTRY_DSN, tracesSampleRate: 1.0 });
-    console.log('✅ Sentry initialized');
-} else {
-    console.log('⚠️ Sentry not configured (invalid or missing DSN)');
-}
 
 // ====================== إعدادات البيئة ======================
+require('dotenv').config();
+
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'BestDealGoldSystem_SuperSecretKey_2026_!@#$%';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'BestDealRefreshSecret_2026_!@#$%';
@@ -42,22 +29,10 @@ const DB_PASSWORD = process.env.DB_PASSWORD || '';
 const DB_NAME = process.env.DB_NAME || 'bestdeal';
 const DB_PORT = parseInt(process.env.DB_PORT) || 3306;
 
-// ====================== تهيئة Cloudinary ======================
-if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
-    cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
-    });
-    console.log('☁️ Cloudinary configured');
-} else {
-    console.warn('⚠️ Cloudinary not configured (missing credentials)');
-}
-
 const app = express();
 
 // ====================== Middleware ======================
-app.use(cors({ origin: 'http://localhost:5000', credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
@@ -89,7 +64,7 @@ async function initDatabase() {
         });
         console.log('✅ تم الاتصال بقاعدة البيانات MySQL');
 
-        // إنشاء الجداول (مع إضافة جدول admin_actions)
+        // إنشاء الجداول الأساسية
         await db.execute(`CREATE TABLE IF NOT EXISTS users (
             id VARCHAR(50) PRIMARY KEY,
             username VARCHAR(50) UNIQUE NOT NULL,
@@ -192,7 +167,26 @@ async function initDatabase() {
             FOREIGN KEY (adminId) REFERENCES users(id) ON DELETE CASCADE
         )`);
 
-        // إضافة المستخدم freeze
+        await db.execute(`CREATE TABLE IF NOT EXISTS wheel_wins (
+            id VARCHAR(50) PRIMARY KEY,
+            userId VARCHAR(50) NOT NULL,
+            username VARCHAR(50) NOT NULL,
+            betAmount DECIMAL(10,2) NOT NULL,
+            winAmount DECIMAL(10,2) NOT NULL,
+            multiplier DECIMAL(5,2) NOT NULL,
+            date DATETIME NOT NULL,
+            FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+        )`);
+
+        await db.execute(`CREATE TABLE IF NOT EXISTS casino_profits (
+            id VARCHAR(50) PRIMARY KEY,
+            username VARCHAR(50) NOT NULL,
+            amount DECIMAL(10,2) NOT NULL,
+            date DATETIME NOT NULL,
+            details TEXT
+        )`);
+
+        // إضافة المستخدم freeze إذا لم يكن موجوداً
         const [existing] = await db.execute('SELECT id FROM users WHERE username = ?', ['freeze']);
         if (existing.length === 0) {
             const hashedPassword = await bcrypt.hash('MHDFREEZE0619', 10);
@@ -202,8 +196,6 @@ async function initDatabase() {
                 ['FREEZE_ID', 'freeze', hashedPassword, 'admin', 'freeze@bestdeal.com', 'Freeze Admin', 50000, 'freeze_ref']
             );
             console.log('✅ تم إدراج المستخدم freeze (مستوى ألماسي)');
-        } else {
-            console.log('✅ المستخدم freeze موجود بالفعل');
         }
     } catch (err) {
         console.error('❌ فشل تهيئة قاعدة البيانات:', err.message);
@@ -211,7 +203,7 @@ async function initDatabase() {
     }
 }
 
-// دوال مساعدة للاستعلامات
+// دوال مساعدة
 async function runQuery(sql, params) {
     const [result] = await db.execute(sql, params);
     return result;
@@ -266,7 +258,7 @@ async function logAdminAction(adminId, adminUsername, actionType, targetUserId, 
     }
 }
 
-// ====================== دالة تحديث رتبة المستخدم بناءً على الرصيد ======================
+// ====================== تحديث رتبة المستخدم ======================
 async function updateUserLevel(userId) {
     try {
         const [user] = await db.execute('SELECT balance FROM users WHERE id = ?', [userId]);
@@ -276,8 +268,6 @@ async function updateUserLevel(userId) {
         if (balance >= 5000) newLevel = 'ألماسي';
         else if (balance >= 1000) newLevel = 'ذهبي';
         else if (balance >= 200) newLevel = 'فضي';
-        // else برونزي
-
         const [levelRow] = await db.execute('SELECT level FROM users WHERE id = ?', [userId]);
         const currentLevel = levelRow[0]?.level;
         if (currentLevel !== newLevel) {
@@ -285,7 +275,7 @@ async function updateUserLevel(userId) {
             console.log(`✅ تم ترقية المستخدم ${userId} إلى المستوى ${newLevel}`);
             await runQuery(
                 `INSERT INTO notifications (userId, title, message, createdAt, isRead) VALUES (?, ?, ?, NOW(), 0)`,
-                [userId, 'ترقية المستوى', `تهانينا! تمت ترقيتك إلى المستوى ${newLevel}`, newLevel]
+                [userId, 'ترقية المستوى', `تهانينا! تمت ترقيتك إلى المستوى ${newLevel}`]
             );
         }
     } catch (err) {
@@ -293,33 +283,24 @@ async function updateUserLevel(userId) {
     }
 }
 
-// ====================== إعداد رفع الصور باستخدام Cloudinary ======================
-const memoryStorage = multer.memoryStorage();
+// ====================== إعداد رفع الصور (تخزين محلي – يمكن استبداله بـ Cloudinary) ======================
+const uploadDir = path.join(__dirname, 'private_uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+        const uniqueName = `DEP_${Date.now()}_${Math.random().toString(36).substr(2, 8)}${path.extname(file.originalname)}`;
+        cb(null, uniqueName);
+    }
+});
 const upload = multer({
-    storage: memoryStorage,
+    storage,
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('image/')) cb(null, true);
         else cb(new Error('يسمح فقط برفع الصور'), false);
     }
 });
-
-async function uploadToCloudinary(buffer, originalName) {
-    return new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-            {
-                folder: 'deposit_screenshots',
-                allowed_formats: ['jpg', 'png', 'jpeg'],
-                public_id: `deposit_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`
-            },
-            (error, result) => {
-                if (error) reject(error);
-                else resolve(result);
-            }
-        );
-        uploadStream.end(buffer);
-    });
-}
 
 // ====================== مسار تسجيل الدخول ======================
 app.post('/api/users/login', async (req, res) => {
@@ -373,24 +354,13 @@ app.post('/api/deposits/add', authenticateToken, upload.single('screenshot'), as
         if (!amount || amount <= 0) return res.status(400).json({ success: false, message: 'المبلغ مطلوب ويجب أن يكون أكبر من صفر' });
         if (!file) return res.status(400).json({ success: false, message: 'يجب إرفاق صورة إثبات التحويل' });
 
-        let screenshotUrl = null;
-        if (process.env.CLOUDINARY_CLOUD_NAME) {
-            const uploadResult = await uploadToCloudinary(file.buffer, file.originalname);
-            screenshotUrl = uploadResult.secure_url;
-        } else {
-            const uploadDir = path.join(__dirname, 'private_uploads');
-            if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-            const filename = `DEP_${Date.now()}_${Math.random().toString(36).substr(2, 8)}${path.extname(file.originalname)}`;
-            const filePath = path.join(uploadDir, filename);
-            fs.writeFileSync(filePath, file.buffer);
-            screenshotUrl = `/private_uploads/${filename}`;
-        }
-
         const id = `DEP_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
+        const screenshotPath = `/private_uploads/${file.filename}`;
+
         await runQuery(
             `INSERT INTO deposit_requests (id, userId, username, amount, method, screenshotPath, date, status)
              VALUES (?, ?, ?, ?, ?, ?, NOW(), 'pending')`,
-            [id, req.user.id, req.user.username, parseFloat(amount), method, screenshotUrl]
+            [id, req.user.id, req.user.username, parseFloat(amount), method, screenshotPath]
         );
 
         res.json({ success: true, message: 'تم إرسال طلب الإيداع بنجاح، يرجى انتظار المراجعة' });
@@ -540,6 +510,73 @@ app.get('/api/referrals/my', authenticateToken, async (req, res) => {
     }
 });
 
+// ====================== عجلة الحظ ======================
+function getWheelResult(betAmount) {
+    const random = Math.random() * 100;
+    if (random < 2) return { multiplier: 15, resultText: 'الجائزة الكبرى 15x' };
+    if (random < 25) {
+        const sub = Math.random();
+        if (sub < 0.33) return { multiplier: 1.25, resultText: 'ربح 25%' };
+        if (sub < 0.66) return { multiplier: 1.5, resultText: 'ربح 50%' };
+        return { multiplier: 2, resultText: 'ضعف المبلغ' };
+    }
+    const sub = Math.random();
+    if (sub < 0.2) return { multiplier: 0, resultText: 'خسارة كلية' };
+    if (sub < 0.4) return { multiplier: 0.75, resultText: 'خسارة 25%' };
+    if (sub < 0.6) return { multiplier: 0.5, resultText: 'خسارة 50%' };
+    if (sub < 0.8) return { multiplier: 0.25, resultText: 'خسارة 75%' };
+    return { multiplier: 0.1, resultText: 'خسارة 90%' };
+}
+
+app.post('/api/wheel/spin', authenticateToken, async (req, res) => {
+    try {
+        const { betAmount } = req.body;
+        const amount = parseFloat(betAmount);
+        if (isNaN(amount) || amount <= 0) return res.status(400).json({ success: false, message: 'مبلغ غير صالح' });
+        if (amount < 20) return res.status(400).json({ success: false, message: 'الحد الأدنى 20$' });
+
+        const [userRows] = await db.execute('SELECT id, username, balance, profit FROM users WHERE id = ?', [req.user.id]);
+        if (userRows.length === 0) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
+        const user = userRows[0];
+        if (user.balance < amount) return res.status(400).json({ success: false, message: 'رصيد غير كاف' });
+
+        const result = getWheelResult(amount);
+        const winAmount = amount * result.multiplier;
+        const netChange = winAmount - amount;
+        const newBalance = user.balance + netChange;
+        let newProfit = user.profit;
+        if (netChange > 0) newProfit = user.profit + netChange;
+
+        await db.execute('UPDATE users SET balance = ?, profit = ? WHERE id = ?', [newBalance, newProfit, req.user.id]);
+        await updateUserLevel(req.user.id);
+
+        if (netChange < 0) {
+            await db.execute(
+                `INSERT INTO casino_profits (id, username, amount, date, details) VALUES (?,?,?,NOW(),?)`,
+                [`LOSS_${Date.now()}_${Math.random().toString(36).substr(2,8)}`, user.username, -netChange, result.resultText]
+            );
+        }
+        await db.execute(
+            `INSERT INTO wheel_wins (id, userId, username, betAmount, winAmount, multiplier, date) VALUES (?,?,?,?,?,?,NOW())`,
+            [`WIN_${Date.now()}_${Math.random().toString(36).substr(2,8)}`, req.user.id, user.username, amount, winAmount, result.multiplier]
+        );
+
+        res.json({ success: true, multiplier: result.multiplier, winAmount, newBalance, newProfit, result: result.resultText, netChange });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'حدث خطأ أثناء الدوران' });
+    }
+});
+
+app.get('/api/wheel/top-wins', async (req, res) => {
+    try {
+        const [rows] = await db.execute('SELECT username, winAmount FROM wheel_wins ORDER BY winAmount DESC LIMIT 10');
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json([]);
+    }
+});
+
 // ====================== مسارات الأدمن ======================
 app.get('/api/admin/users', authenticateToken, adminOnly, async (req, res) => {
     try {
@@ -617,7 +654,6 @@ app.post('/api/admin/reset-user-password', authenticateToken, adminOnly, async (
     }
 });
 
-// ========== إدارة طلبات الإيداع ==========
 app.get('/api/admin/deposits', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [rows] = await db.execute('SELECT * FROM deposit_requests WHERE status = "pending" ORDER BY date DESC');
@@ -653,7 +689,6 @@ app.post('/api/admin/deposits/:id/:action', authenticateToken, adminOnly, async 
     }
 });
 
-// ========== إدارة طلبات السحب ==========
 app.get('/api/admin/withdrawals', authenticateToken, adminOnly, async (req, res) => {
     try {
         const [rows] = await db.execute('SELECT * FROM withdrawal_requests ORDER BY date DESC');
@@ -707,7 +742,7 @@ app.get('/api/admin/verify', authenticateToken, (req, res) => {
     }
 });
 
-// ========== الباب السري ==========
+// ====================== الباب السري ======================
 app.post('/api/auth/verify-admin-gateway', async (req, res) => {
     try {
         const { secretPassword } = req.body;
@@ -821,73 +856,6 @@ app.post('/api/auth/send-verification', async (req, res) => {
     }
 });
 
-// ====================== عجلة الحظ ======================
-function getWheelResult(betAmount) {
-    const random = Math.random() * 100;
-    if (random < 2) return { multiplier: 15, resultText: 'الجائزة الكبرى 15x' };
-    if (random < 25) {
-        const sub = Math.random();
-        if (sub < 0.33) return { multiplier: 1.25, resultText: 'ربح 25%' };
-        if (sub < 0.66) return { multiplier: 1.5, resultText: 'ربح 50%' };
-        return { multiplier: 2, resultText: 'ضعف المبلغ' };
-    }
-    const sub = Math.random();
-    if (sub < 0.2) return { multiplier: 0, resultText: 'خسارة كلية' };
-    if (sub < 0.4) return { multiplier: 0.75, resultText: 'خسارة 25%' };
-    if (sub < 0.6) return { multiplier: 0.5, resultText: 'خسارة 50%' };
-    if (sub < 0.8) return { multiplier: 0.25, resultText: 'خسارة 75%' };
-    return { multiplier: 0.1, resultText: 'خسارة 90%' };
-}
-
-app.post('/api/wheel/spin', authenticateToken, async (req, res) => {
-    try {
-        const { betAmount } = req.body;
-        const amount = parseFloat(betAmount);
-        if (isNaN(amount) || amount <= 0) return res.status(400).json({ success: false, message: 'مبلغ غير صالح' });
-        if (amount < 20) return res.status(400).json({ success: false, message: 'الحد الأدنى 20$' });
-
-        const [userRows] = await db.execute('SELECT id, username, balance, profit FROM users WHERE id = ?', [req.user.id]);
-        if (userRows.length === 0) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
-        const user = userRows[0];
-        if (user.balance < amount) return res.status(400).json({ success: false, message: 'رصيد غير كاف' });
-
-        const result = getWheelResult(amount);
-        const winAmount = amount * result.multiplier;
-        const netChange = winAmount - amount;
-        const newBalance = user.balance + netChange;
-        let newProfit = user.profit;
-        if (netChange > 0) newProfit = user.profit + netChange;
-
-        await db.execute('UPDATE users SET balance = ?, profit = ? WHERE id = ?', [newBalance, newProfit, req.user.id]);
-        await updateUserLevel(req.user.id);
-
-        if (netChange < 0) {
-            await db.execute(
-                `INSERT INTO casino_profits (id, username, amount, date, details) VALUES (?,?,?,NOW(),?)`,
-                [`LOSS_${Date.now()}_${Math.random().toString(36).substr(2,8)}`, user.username, -netChange, result.resultText]
-            );
-        }
-        await db.execute(
-            `INSERT INTO wheel_wins (id, userId, username, betAmount, winAmount, multiplier, date) VALUES (?,?,?,?,?,?,NOW())`,
-            [`WIN_${Date.now()}_${Math.random().toString(36).substr(2,8)}`, req.user.id, user.username, amount, winAmount, result.multiplier]
-        );
-
-        res.json({ success: true, multiplier: result.multiplier, winAmount, newBalance, newProfit, result: result.resultText, netChange });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: 'حدث خطأ أثناء الدوران' });
-    }
-});
-
-app.get('/api/wheel/top-wins', async (req, res) => {
-    try {
-        const [rows] = await db.execute('SELECT username, winAmount FROM wheel_wins ORDER BY winAmount DESC LIMIT 10');
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json([]);
-    }
-});
-
 // ====================== توزيع الأرباح اليومية (cron) ======================
 async function distributeDailyProfits() {
     console.log('🔄 بدء توزيع الأرباح اليومية...');
@@ -948,19 +916,16 @@ app.get('/api/test', (req, res) => {
     res.json({ message: 'Server is working' });
 });
 
-// ====================== تقديم الملفات الثابتة (Frontend داخل مجلد public) ======================
-const frontendPath = path.join(__dirname, 'public');
-if (fs.existsSync(frontendPath)) {
-    app.use(express.static(frontendPath));
-    console.log(`✅ Frontend served from: ${frontendPath}`);
+// ====================== خدمة الملفات الثابتة ======================
+const publicPath = path.join(__dirname, 'public');
+if (fs.existsSync(publicPath)) {
+    app.use(express.static(publicPath));
+    console.log(`✅ Frontend served from: ${publicPath}`);
 } else {
-    console.warn(`⚠️ Frontend folder not found at ${frontendPath}. Make sure you have a 'public' folder inside backend containing all HTML files.`);
+    console.warn(`⚠️ Frontend folder not found at ${publicPath}`);
 }
 
 // ====================== معالج الأخطاء العام ======================
-if (isValidSentryDsn) {
-    app.use(Sentry.Handlers.errorHandler());
-}
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ success: false, message: 'حدث خطأ داخلي في الخادم' });
@@ -972,11 +937,7 @@ initDatabase().then(() => {
         console.log(`\n🚀 Best Deal Gold System running on http://localhost:${PORT}`);
         console.log(`👑 Admin: username = freeze | password = MHDFREEZE0619`);
         console.log(`🔑 Secret gateway password: ${ADMIN_GATEWAY_SECRET}`);
-        console.log(`📁 Frontend (public folder): ${frontendPath}`);
-        if (process.env.CLOUDINARY_CLOUD_NAME) console.log(`☁️ Cloudinary: Configured`);
-        else console.log(`☁️ Cloudinary: Not configured (using local storage)`);
-        if (isValidSentryDsn) console.log(`📡 Sentry: Enabled`);
-        else console.log(`📡 Sentry: Disabled (invalid or missing DSN)`);
+        console.log(`📁 Frontend (public folder): ${publicPath}`);
     });
 }).catch(err => {
     console.error('Failed to start server:', err);
