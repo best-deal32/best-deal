@@ -1,5 +1,5 @@
 // ============================================================
-// server.js - النسخة النهائية مع نظام الرتب المتكامل
+// server.js - النسخة النهائية (Frontend داخل مجلد public)
 // ============================================================
 
 const express = require('express');
@@ -89,7 +89,7 @@ async function initDatabase() {
         });
         console.log('✅ تم الاتصال بقاعدة البيانات MySQL');
 
-        // إنشاء الجداول (مع إضافة جدول admin_actions وكل الجداول)
+        // إنشاء الجداول (مع إضافة جدول admin_actions)
         await db.execute(`CREATE TABLE IF NOT EXISTS users (
             id VARCHAR(50) PRIMARY KEY,
             username VARCHAR(50) UNIQUE NOT NULL,
@@ -282,9 +282,7 @@ async function updateUserLevel(userId) {
         const currentLevel = levelRow[0]?.level;
         if (currentLevel !== newLevel) {
             await db.execute('UPDATE users SET level = ? WHERE id = ?', [newLevel, userId]);
-            // إرسال إشعار للمستخدم (اختياري)
             console.log(`✅ تم ترقية المستخدم ${userId} إلى المستوى ${newLevel}`);
-            // يمكن إضافة إشعار في جدول notifications
             await runQuery(
                 `INSERT INTO notifications (userId, title, message, createdAt, isRead) VALUES (?, ?, ?, NOW(), 0)`,
                 [userId, 'ترقية المستوى', `تهانينا! تمت ترقيتك إلى المستوى ${newLevel}`, newLevel]
@@ -415,7 +413,6 @@ app.post('/api/withdrawals/add', authenticateToken, async (req, res) => {
         if (user.balance < withdrawAmount) return res.status(400).json({ success: false, message: 'رصيد غير كافٍ' });
 
         await runQuery('UPDATE users SET balance = balance - ? WHERE id = ?', [withdrawAmount, req.user.id]);
-        // تحديث الرتبة بعد خصم الرصيد
         await updateUserLevel(req.user.id);
 
         const id = `WIT_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
@@ -452,7 +449,6 @@ app.post('/api/investments/create', authenticateToken, async (req, res) => {
             [id, req.user.id, req.user.username, invest, projectType]
         );
         await runQuery('UPDATE users SET balance = balance - ? WHERE id = ?', [invest, req.user.id]);
-        // تحديث الرتبة بعد خصم الرصيد
         await updateUserLevel(req.user.id);
         res.json({ success: true, message: 'تم إنشاء الاستثمار' });
     } catch (err) {
@@ -476,7 +472,6 @@ app.post('/api/investments/withdraw-profit', authenticateToken, async (req, res)
         const { investmentId } = req.body;
         const inv = await getQuery('SELECT * FROM investments WHERE id = ? AND userId = ?', [investmentId, req.user.id]);
         if (!inv) return res.status(404).json({ success: false });
-        // حساب الربح الحالي (للبساطة نستخدم دالة مبسطة)
         const now = new Date();
         const lastProfit = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
         const diffDays = Math.floor((now - lastProfit) / (1000 * 60 * 60 * 24));
@@ -487,7 +482,6 @@ app.post('/api/investments/withdraw-profit', authenticateToken, async (req, res)
         if (profit <= 0) return res.status(400).json({ success: false, message: 'لا توجد أرباح جديدة' });
         await runQuery('UPDATE users SET balance = balance + ? WHERE id = ?', [profit, req.user.id]);
         await runQuery('UPDATE investments SET withdrawnProfit = withdrawnProfit + ?, lastProfitDate = ? WHERE id = ?', [profit, new Date(), investmentId]);
-        // تحديث الرتبة بعد إضافة الربح
         await updateUserLevel(req.user.id);
         res.json({ success: true, message: 'تم سحب الأرباح' });
     } catch (err) {
@@ -508,7 +502,6 @@ app.post('/api/investments/withdraw-principal', authenticateToken, async (req, r
         if (inv.withdrawnPrincipal) return res.status(400).json({ success: false, message: 'تم السحب مسبقاً' });
         await runQuery('UPDATE users SET balance = balance + ? WHERE id = ?', [inv.amount, req.user.id]);
         await runQuery('UPDATE investments SET withdrawnPrincipal = 1 WHERE id = ?', [investmentId]);
-        // تحديث الرتبة بعد إضافة المبلغ الأصلي
         await updateUserLevel(req.user.id);
         res.json({ success: true, message: 'تم سحب المبلغ الأصلي' });
     } catch (err) {
@@ -584,7 +577,6 @@ app.post('/api/admin/set-user-balance', authenticateToken, adminOnly, async (req
         const [userRows] = await db.execute('SELECT username FROM users WHERE id = ?', [userId]);
         const oldBalance = await getQuery('SELECT balance FROM users WHERE id = ?', [userId]);
         await db.execute('UPDATE users SET balance = ? WHERE id = ?', [parseFloat(newBalance), userId]);
-        // تحديث الرتبة بعد تعديل الرصيد
         await updateUserLevel(userId);
         await logAdminAction(req.user.id, req.user.username, 'set_balance', userId, userRows[0]?.username || '', `تعديل الرصيد من ${oldBalance.balance} إلى ${newBalance}`, req.ip);
         res.json({ success: true, message: 'تم تحديث الرصيد' });
@@ -594,7 +586,6 @@ app.post('/api/admin/set-user-balance', authenticateToken, adminOnly, async (req
     }
 });
 
-// ========== نقطة نهاية جديدة لتعديل رتبة المستخدم يدوياً ==========
 app.post('/api/admin/set-user-level', authenticateToken, adminOnly, async (req, res) => {
     try {
         const { userId, newLevel } = req.body;
@@ -646,7 +637,6 @@ app.post('/api/admin/deposits/:id/:action', authenticateToken, adminOnly, async 
         if (action === 'approve') {
             await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [request.amount, request.userId]);
             await db.execute('UPDATE deposit_requests SET status = "approved" WHERE id = ?', [id]);
-            // تحديث الرتبة بعد إضافة الرصيد
             await updateUserLevel(request.userId);
             await logAdminAction(req.user.id, req.user.username, 'approve_deposit', request.userId, request.username, `قبول إيداع بمبلغ ${request.amount}$`, req.ip);
             return res.json({ success: true, message: 'تم قبول الإيداع وإضافة الرصيد' });
@@ -687,7 +677,6 @@ app.post('/api/admin/withdrawals/:id/:action', authenticateToken, adminOnly, asy
         } else if (action === 'reject') {
             await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [request.amount, request.userId]);
             await db.execute('UPDATE withdrawal_requests SET status = "rejected" WHERE id = ?', [id]);
-            // تحديث الرتبة بعد إعادة الرصيد
             await updateUserLevel(request.userId);
             await logAdminAction(req.user.id, req.user.username, 'reject_withdrawal', request.userId, request.username, `رفض سحب بمبلغ ${request.amount}$ (تمت إعادة المبلغ)`, req.ip);
             return res.json({ success: true, message: 'تم رفض السحب وإعادة المبلغ' });
@@ -870,7 +859,6 @@ app.post('/api/wheel/spin', authenticateToken, async (req, res) => {
         if (netChange > 0) newProfit = user.profit + netChange;
 
         await db.execute('UPDATE users SET balance = ?, profit = ? WHERE id = ?', [newBalance, newProfit, req.user.id]);
-        // تحديث الرتبة بعد تغير الرصيد
         await updateUserLevel(req.user.id);
 
         if (netChange < 0) {
@@ -960,13 +948,13 @@ app.get('/api/test', (req, res) => {
     res.json({ message: 'Server is working' });
 });
 
-// ====================== تقديم الملفات الثابتة ======================
-const frontendPath = path.join(__dirname, '../frontend');
+// ====================== تقديم الملفات الثابتة (Frontend داخل مجلد public) ======================
+const frontendPath = path.join(__dirname, 'public');
 if (fs.existsSync(frontendPath)) {
     app.use(express.static(frontendPath));
     console.log(`✅ Frontend served from: ${frontendPath}`);
 } else {
-    console.warn(`⚠️ Frontend folder not found at ${frontendPath}`);
+    console.warn(`⚠️ Frontend folder not found at ${frontendPath}. Make sure you have a 'public' folder inside backend containing all HTML files.`);
 }
 
 // ====================== معالج الأخطاء العام ======================
@@ -984,7 +972,7 @@ initDatabase().then(() => {
         console.log(`\n🚀 Best Deal Gold System running on http://localhost:${PORT}`);
         console.log(`👑 Admin: username = freeze | password = MHDFREEZE0619`);
         console.log(`🔑 Secret gateway password: ${ADMIN_GATEWAY_SECRET}`);
-        console.log(`📁 Frontend: http://localhost:${PORT}/login.html`);
+        console.log(`📁 Frontend (public folder): ${frontendPath}`);
         if (process.env.CLOUDINARY_CLOUD_NAME) console.log(`☁️ Cloudinary: Configured`);
         else console.log(`☁️ Cloudinary: Not configured (using local storage)`);
         if (isValidSentryDsn) console.log(`📡 Sentry: Enabled`);
