@@ -9,40 +9,29 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET || 'mySuperSecretKey';
+const JWT_SECRET = process.env.JWT_SECRET || 'mySecretKey';
 
-// Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// قاعدة البيانات
 let db;
 async function initDB() {
-    try {
-        db = await mysql.createConnection({
-            host: process.env.DB_HOST || 'localhost',
-            user: process.env.DB_USER || 'root',
-            password: process.env.DB_PASSWORD || '',
-            database: process.env.DB_NAME || 'bestdeal',
-            port: process.env.DB_PORT || 3306
-        });
-        console.log('✅ Database connected');
-        
-        // التأكد من وجود المستخدم freeze
-        const [rows] = await db.execute('SELECT id FROM users WHERE username = ?', ['freeze']);
-        if (rows.length === 0) {
-            const hashed = await bcrypt.hash('MHDFREEZE0619', 10);
-            await db.execute(
-                `INSERT INTO users (id, username, password, role, email, fullName, balance, createdAt, isVerified, referralCode)
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 1, ?)`,
-                ['FREEZE_ID', 'freeze', hashed, 'admin', 'freeze@bestdeal.com', 'Freeze Admin', 50000, 'freeze_ref']
-            );
-            console.log('✅ User freeze created');
-        }
-    } catch (err) {
-        console.error('DB error:', err);
-        process.exit(1);
+    db = await mysql.createConnection({
+        host: process.env.DB_HOST || 'localhost',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'bestdeal',
+        port: process.env.DB_PORT || 3306
+    });
+    console.log('✅ DB connected');
+    const [rows] = await db.execute('SELECT id FROM users WHERE username = ?', ['freeze']);
+    if (rows.length === 0) {
+        const hashed = await bcrypt.hash('MHDFREEZE0619', 10);
+        await db.execute(`INSERT INTO users (id, username, password, role, email, fullName, balance, createdAt, isVerified, referralCode)
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 1, ?)`,
+            ['FREEZE_ID', 'freeze', hashed, 'admin', 'freeze@bestdeal.com', 'Freeze Admin', 50000, 'freeze_ref']
+        );
     }
 }
 initDB();
@@ -52,56 +41,40 @@ async function getQuery(sql, params) {
     return rows[0];
 }
 
-// ========== تسجيل الدخول ==========
 app.post('/api/users/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        if (!username || !password) {
-            return res.status(400).json({ success: false, message: 'اسم المستخدم وكلمة المرور مطلوبان' });
-        }
+        if (!username || !password) return res.status(400).json({ success: false, message: 'مطلوب' });
         const user = await getQuery('SELECT * FROM users WHERE username = ?', [username]);
-        if (!user) {
-            return res.status(401).json({ success: false, message: 'بيانات غير صحيحة' });
-        }
+        if (!user) return res.status(401).json({ success: false, message: 'بيانات غير صحيحة' });
         const match = await bcrypt.compare(password, user.password);
-        if (!match) {
-            return res.status(401).json({ success: false, message: 'بيانات غير صحيحة' });
-        }
+        if (!match) return res.status(401).json({ success: false, message: 'بيانات غير صحيحة' });
         const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '15m' });
         res.cookie('token', token, { httpOnly: true, sameSite: 'lax', maxAge: 15 * 60 * 1000 });
         const { password: _, ...userData } = user;
         res.json({ success: true, user: userData });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+        res.status(500).json({ success: false, message: 'خطأ' });
     }
 });
 
-// ========== الحصول على بيانات المستخدم الحالي ==========
 app.get('/api/users/me', async (req, res) => {
     const token = req.cookies?.token;
-    if (!token) return res.status(401).json({ success: false, message: 'غير مصرح' });
+    if (!token) return res.status(401).json({ success: false });
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await getQuery('SELECT id, username, role, fullName, email, balance, profit, level, isVerified FROM users WHERE id = ?', [decoded.id]);
+        const user = await getQuery('SELECT id, username, role, fullName, email, balance FROM users WHERE id = ?', [decoded.id]);
         res.json(user);
-    } catch (err) {
-        res.status(401).json({ success: false });
-    }
+    } catch (err) { res.status(401).json({ success: false }); }
 });
 
-// ========== اختبار ==========
-app.get('/api/test', (req, res) => {
-    res.json({ message: 'Server is working' });
-});
+app.get('/api/test', (req, res) => { res.json({ message: 'Server is working' }); });
 
-// ========== تقديم الملفات الثابتة (public) ==========
 const publicPath = path.join(__dirname, 'public');
 app.use(express.static(publicPath));
-console.log(`✅ Serving static files from ${publicPath}`);
+console.log(`✅ Serving static from ${publicPath}`);
 
-// ========== تشغيل الخادم ==========
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
     console.log(`👑 Admin: freeze / MHDFREEZE0619`);
 });
