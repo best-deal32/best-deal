@@ -1,54 +1,63 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>سحب الأرباح | النظام الملكي - Trust Wallet</title>
+    <title>سحب الأموال | النظام الملكي - Best Deal</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
         
         :root {
-            --gold: #d4af37;
             --gold-light: #f7e08a;
+            --gold-main: #d4af37;
             --gold-dark: #8a6d3b;
-            --dark-bg: #05070a;
-            --card-bg: rgba(15, 23, 42, 0.95);
+            --black-bg: #05070a;
+            --card-glass: rgba(15, 23, 42, 0.95);
+            --border-gold: rgba(212, 175, 55, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background: radial-gradient(circle at top center, #111b27 0%, var(--dark-bg) 100%);
-            color: #ffffff;
+            background-color: var(--black-bg);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
             min-height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
+            padding: 2rem;
+            color: #ffffff;
             overflow-x: hidden;
         }
 
-        .gold-gradient-text {
-            background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
         .glass-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 2rem;
+            background: var(--card-glass);
             backdrop-filter: blur(20px);
-            transition: all 0.3s;
+            border: 1px solid var(--border-gold);
+            border-radius: 2rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
         }
 
         .glass-card:hover {
-            border-color: var(--gold);
+            border-color: var(--gold-main);
             box-shadow: 0 0 30px rgba(212,175,55,0.2);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-main), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
         }
 
         .royal-input {
@@ -64,12 +73,12 @@
             transition: 0.3s;
         }
         .royal-input:focus {
-            border-color: var(--gold);
+            border-color: var(--gold-main);
             box-shadow: 0 0 15px rgba(212,175,55,0.3);
         }
 
         .btn-gold {
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            background: linear-gradient(135deg, var(--gold-main), var(--gold-dark));
             color: #000;
             font-weight: 900;
             padding: 1rem;
@@ -85,8 +94,9 @@
             font-size: 1.2rem;
         }
         .btn-gold:hover:not(:disabled) {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             filter: brightness(1.05);
+            box-shadow: 0 10px 20px rgba(212,175,55,0.3);
         }
         .btn-gold:disabled {
             opacity: 0.6;
@@ -94,86 +104,303 @@
         }
 
         .balance-box {
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.4);
             border-radius: 1.5rem;
             padding: 1rem;
             text-align: center;
-            border-bottom: 3px solid var(--gold);
+            border-bottom: 3px solid var(--gold-main);
+        }
+
+        .toggle-switch {
+            display: flex;
+            background: rgba(0,0,0,0.5);
+            border-radius: 3rem;
+            padding: 0.3rem;
+            margin-bottom: 1.5rem;
+        }
+        .toggle-option {
+            flex: 1;
+            text-align: center;
+            padding: 0.7rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        .toggle-option.active {
+            background: linear-gradient(135deg, var(--gold-main), var(--gold-dark));
+            color: #000;
+        }
+
+        .warning-time {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid #f59e0b;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #f59e0b;
         }
 
         .info-text {
             font-size: 0.7rem;
             color: #94a3b8;
-            text-align: center;
             margin-top: 0.5rem;
+        }
+
+        .withdrawal-rules {
+            background: rgba(212,175,55,0.05);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-right: 3px solid var(--gold-main);
+        }
+        .withdrawal-rules h4 {
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--gold-main);
+        }
+        .withdrawal-rules p {
+            font-size: 0.7rem;
+            color: #cbd5e1;
+            margin-bottom: 0.3rem;
+        }
+
+        /* Language Switcher */
+        .lang-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: inline-flex;
+            gap: 0.25rem;
+            border: 1px solid rgba(212,175,55,0.3);
+            margin-bottom: 1rem;
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
         }
     </style>
 </head>
-<body class="p-4 pb-28">
+<body>
 
-    <header class="max-w-2xl mx-auto flex justify-between items-center mb-8 mt-2">
-        <button onclick="window.location.href='dashboard.html'" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-white/10 transition">
-            <i class="fa-solid fa-arrow-right text-xl text-[var(--gold)]"></i>
-        </button>
-        <div class="text-center">
-            <h1 class="text-2xl md:text-3xl font-black gold-gradient-text italic">سحب الأرباح</h1>
-            <p class="text-[9px] text-slate-500 tracking-widest">سحب آمن إلى محفظتك</p>
+    <div class="max-w-2xl mx-auto">
+        <!-- زر الرجوع -->
+        <div class="mb-4 flex justify-between items-center">
+            <button onclick="window.location.href='dashboard.html'" class="text-slate-400 hover:text-gold-main transition">
+                <i class="fa-solid fa-arrow-right ml-2"></i> <span data-i18n="back_to_dashboard">العودة إلى لوحة التحكم</span>
+            </button>
+            <div class="lang-selector">
+                <div class="lang-option active" data-lang="ar">العربية</div>
+                <div class="lang-option" data-lang="en">English</div>
+                <div class="lang-option" data-lang="zh">中文</div>
+                <div class="lang-option" data-lang="de">Deutsch</div>
+            </div>
         </div>
-        <div class="w-12"></div>
-    </header>
 
-    <main class="flex-grow max-w-2xl mx-auto w-full">
-        <div class="glass-card p-6 md:p-8">
-            <!-- الرصيد المتاح -->
-            <div class="balance-box mb-6">
-                <p class="text-xs text-slate-400 font-bold uppercase">الرصيد المتاح للسحب</p>
-                <p id="withdrawable-balance" class="text-3xl font-black gold-gradient-text">0.00 $</p>
-                <p class="text-[10px] text-slate-500">(الرصيد القابل للسحب يشمل الأرباح + الإيداعات التي مضى عليها 10 أيام)</p>
+        <div class="glass-card">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gold-main/10 border-2 border-gold-main mb-3">
+                    <i class="fa-solid fa-hand-holding-usd text-3xl text-gold-main"></i>
+                </div>
+                <h1 class="text-3xl font-black gold-gradient-text italic" data-i18n="withdraw_title">سحب الأموال</h1>
+                <p class="text-slate-400 text-sm mt-1" data-i18n="withdraw_subtitle">اختر نوع السحب والمبلغ المراد</p>
+            </div>
+
+            <!-- تحذير أوقات المراجعة -->
+            <div class="warning-time">
+                <i class="fa-regular fa-clock ml-2"></i>
+                <strong data-i18n="review_time_warning">تنبيه هام:</strong> <span data-i18n="review_time_details">يتم مراجعة طلبات السحب والموافقة عليها فقط بين الساعة 4:00 مساءً و 12:00 منتصف الليل (بتوقيت مكة المكرمة). الرجاء تقديم طلبك خلال هذه الفترة لضمان المراجعة السريعة.</span>
+            </div>
+
+            <!-- زر التبديل بين نوعي السحب -->
+            <div class="toggle-switch">
+                <div id="toggleProfit" class="toggle-option active">
+                    <i class="fa-solid fa-coins ml-1"></i> <span data-i18n="profit_withdrawal">سحب الأرباح (Profit)</span>
+                </div>
+                <div id="togglePrincipal" class="toggle-option">
+                    <i class="fa-solid fa-building-columns ml-1"></i> <span data-i18n="principal_withdrawal">سحب الرصيد الأساسي (Balance)</span>
+                </div>
+            </div>
+
+            <!-- عرض الأرصدة الحالية -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="balance-box">
+                    <p class="text-xs text-slate-400 font-bold uppercase" data-i18n="available_profit">الأرباح الصافية المتاحة</p>
+                    <p id="profitAmount" class="text-3xl font-black gold-gradient-text">0.00 $</p>
+                    <p class="text-[10px] text-slate-500" data-i18n="profit_hint">الأرباح الموزعة وغير المسحوبة</p>
+                </div>
+                <div class="balance-box">
+                    <p class="text-xs text-slate-400 font-bold uppercase" data-i18n="available_balance">الرصيد الأساسي المتاح</p>
+                    <p id="balanceAmount" class="text-3xl font-black gold-gradient-text">0.00 $</p>
+                    <p class="text-[10px] text-slate-500" data-i18n="balance_hint">الإيداعات + الأصول المسحوبة</p>
+                </div>
             </div>
 
             <!-- حقل عنوان المحفظة -->
             <div class="mb-5">
-                <label class="block text-xs font-bold text-slate-400 mb-2">🔐 عنوان محفظة Trust Wallet (ERC20/BEP20)</label>
-                <input type="text" id="walletAddress" class="royal-input" placeholder="0x... أو عنوان المحفظة" dir="ltr">
-                <p class="info-text">⚠️ تأكد من صحة العنوان، فالأموال المرسلة إلى عنوان خاطئ لا يمكن استردادها.</p>
+                <label class="block text-xs font-bold text-slate-400 mb-2" data-i18n="wallet_label">🔐 عنوان محفظة USDT (ERC20 / BEP20)</label>
+                <input type="text" id="walletAddress" class="royal-input" placeholder="0x7c487888402cC1e77E61eDf48BD20aa939624360" dir="ltr">
+                <div class="flex justify-end mt-1">
+                    <button id="pasteWalletBtn" class="text-[10px] text-gold hover:underline">
+                        <i class="fa-regular fa-paste ml-1"></i> <span data-i18n="paste_from_clipboard">لصق من الحافظة</span>
+                    </button>
+                </div>
+                <p class="info-text" data-i18n="wallet_warning">⚠️ تأكد من صحة العنوان، فالأموال المرسلة إلى عنوان خاطئ لا يمكن استردادها.</p>
             </div>
 
-            <!-- حقل المبلغ -->
+            <!-- حقل المبلغ مع زر الحد الأقصى -->
             <div class="mb-5">
-                <label class="block text-xs font-bold text-slate-400 mb-2">💰 المبلغ المراد سحبه (دولار)</label>
-                <input type="number" id="withdrawAmount" class="royal-input" placeholder="0.00" min="1" step="any">
+                <label class="block text-xs font-bold text-slate-400 mb-2" data-i18n="amount_label">💰 المبلغ المراد سحبه (دولار أمريكي)</label>
+                <input type="number" id="withdrawAmount" class="royal-input" placeholder="0.00" step="any" min="1">
                 <div class="flex justify-end mt-1">
-                    <button id="maxWithdrawBtn" class="text-[10px] text-gold hover:underline">الحد الأقصى للسحب</button>
+                    <button id="maxWithdrawBtn" class="text-xs text-gold hover:underline">
+                        <i class="fa-regular fa-circle-up ml-1"></i> <span data-i18n="max_amount">الحد الأقصى المسموح</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- زر تقديم طلب السحب -->
-            <button id="submitWithdrawBtn" class="btn-gold mt-6">
-                <i class="fa-solid fa-hand-holding-usd"></i> تقديم طلب السحب
+            <!-- زر تقديم الطلب -->
+            <button id="submitWithdrawBtn" class="btn-gold mt-2">
+                <i class="fa-solid fa-paper-plane"></i> <span data-i18n="submit_request">تقديم طلب السحب</span>
             </button>
 
-            <!-- تنبيهات إضافية -->
-            <div class="mt-6 p-3 bg-yellow-900/20 rounded-xl border border-yellow-500/30 text-center">
-                <i class="fa-solid fa-clock text-yellow-500"></i>
-                <p class="text-xs text-slate-300 mt-1">سيتم مراجعة طلب السحب من قبل الإدارة خلال 24 ساعة. بعد الموافقة، سيتم تحويل المبلغ إلى محفظتك.</p>
+            <!-- قواعد السحب وتوضيحات -->
+            <div class="withdrawal-rules">
+                <h4><i class="fa-regular fa-rectangle-list ml-1"></i> <span data-i18n="withdrawal_rules_title">قواعد وشروط السحب</span></h4>
+                <p><span data-i18n="profit_rule">✅ سحب الأرباح (Profit): يمكنك سحب الأرباح الصافية التي تم توزيعها تلقائياً من استثماراتك. الطلب يذهب للمراجعة، وبعد الموافقة يُخصم المبلغ من رصيد الأرباح.</span></p>
+                <p><span data-i18n="principal_rule">✅ سحب الرصيد الأساسي (Balance): يشمل المبالغ التي أودعتها مباشرة أو استعدتها من سحب أصول الاستثمارات. الطلب يذهب للمراجعة أيضاً.</span></p>
+                <p><span data-i18n="review_hours">⏰ أوقات المراجعة: من الساعة 4 مساءً حتى 12 ليلاً (بتوقيت مكة).</span></p>
+                <p><span data-i18n="no_double_withdrawal">📌 ملاحظة: لا يمكن سحب نفس المبلغ مرتين. بعد الموافقة، يختفي المبلغ من الرصيد المختار.</span></p>
+                <p><span data-i18n="min_withdrawal">🔒 الحد الأدنى للسحب: 1 دولار.</span></p>
             </div>
         </div>
-    </main>
+    </div>
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة
+        // 1. الإعدادات العامة - مسارات نسبية (يعمل على Railway)
         // ============================================================
-        const API_BASE_URL = "best-deal-production.up.railway.app";
-        const API_ME = `${API_BASE_URL}/api/users/me`;
-        const API_WITHDRAW = `${API_BASE_URL}/api/withdrawals/add`;
+        const API_BASE_URL = '';
+        const URL_ME = `${API_BASE_URL}/api/users/me`;
+        const URL_WITHDRAW = `${API_BASE_URL}/api/withdrawals/add`;
+        const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
+
+        let currentUser = null;
+        let withdrawType = 'profit'; // 'profit' or 'principal'
 
         // ============================================================
-        // 2. التحقق من الجلسة
+        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // ============================================================
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                return {};
+            }
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            // Update placeholders for inputs
+            const walletInput = document.getElementById('walletAddress');
+            if (walletInput && t.wallet_placeholder) walletInput.placeholder = t.wallet_placeholder;
+            const amountInput = document.getElementById('withdrawAmount');
+            if (amountInput && t.amount_placeholder) amountInput.placeholder = t.amount_placeholder;
+            // Direction
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+            }
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
+            });
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) await loadTranslations(lang);
+            applyTranslations(lang);
+            // Refresh user data to update displayed balances
+            if (currentUser) {
+                const newUser = await fetchCurrentUser();
+                if (newUser) updateBalancesDisplay();
+            }
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // 3. دالة fetch مع إعادة محاولة التجديد التلقائي
+        // ============================================================
+        async function fetchWithAuth(url, options = {}) {
+            options.credentials = 'include';
+            let response = await fetch(url, options);
+            if (response.status === 401 || response.status === 403) {
+                const refreshRes = await fetch(URL_REFRESH, { method: 'POST', credentials: 'include' });
+                if (refreshRes.ok) {
+                    response = await fetch(url, options);
+                } else {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                    throw new Error('Session expired');
+                }
+            }
+            return response;
+        }
+
+        // ============================================================
+        // 4. جلب بيانات المستخدم الحالي
         // ============================================================
         async function fetchCurrentUser() {
             try {
-                const res = await fetch(API_ME, { credentials: 'include' });
+                const res = await fetchWithAuth(URL_ME);
                 if (!res.ok) throw new Error();
                 const user = await res.json();
                 localStorage.setItem('currentUser', JSON.stringify(user));
@@ -185,8 +412,8 @@
             const user = await fetchCurrentUser();
             if (!user) {
                 Swal.fire({
-                    title: 'غير مصرح',
-                    text: 'الرجاء تسجيل الدخول أولاً',
+                    title: translations[currentLang]?.unauthorized || 'غير مصرح',
+                    text: translations[currentLang]?.login_required || 'الرجاء تسجيل الدخول أولاً',
                     icon: 'warning',
                     background: '#05070a',
                     color: '#fff',
@@ -194,62 +421,148 @@
                 }).then(() => window.location.href = 'login.html');
                 return false;
             }
-            return user;
+            currentUser = user;
+            updateBalancesDisplay();
+            return true;
         }
 
-        async function updateBalanceDisplay() {
-            const user = await fetchCurrentUser();
-            if (user) {
-                const withdrawable = user.withdrawableAmount || user.balance || 0;
-                document.getElementById('withdrawable-balance').innerText = withdrawable.toLocaleString() + ' $';
-                document.getElementById('withdrawAmount').setAttribute('data-max', withdrawable);
+        function updateBalancesDisplay() {
+            if (currentUser) {
+                const profit = parseFloat(currentUser.profit) || 0;
+                const balance = parseFloat(currentUser.balance) || 0;
+                document.getElementById('profitAmount').innerText = profit.toLocaleString() + ' $';
+                document.getElementById('balanceAmount').innerText = balance.toLocaleString() + ' $';
+                updateMaxHint();
             }
         }
 
+        function updateMaxHint() {
+            let max = 0;
+            if (withdrawType === 'profit') {
+                max = parseFloat(currentUser?.profit) || 0;
+            } else {
+                max = parseFloat(currentUser?.balance) || 0;
+            }
+            const input = document.getElementById('withdrawAmount');
+            const t = translations[currentLang] || {};
+            input.placeholder = (t.max_amount_hint || 'الحد الأقصى: ') + max.toFixed(2) + ' $';
+        }
+
         // ============================================================
-        // 3. تقديم طلب السحب (بدون رمز تأكيد)
+        // 5. تبديل نوع السحب
+        // ============================================================
+        document.getElementById('toggleProfit').addEventListener('click', () => {
+            withdrawType = 'profit';
+            document.getElementById('toggleProfit').classList.add('active');
+            document.getElementById('togglePrincipal').classList.remove('active');
+            updateMaxHint();
+            document.getElementById('withdrawAmount').value = '';
+        });
+        document.getElementById('togglePrincipal').addEventListener('click', () => {
+            withdrawType = 'principal';
+            document.getElementById('togglePrincipal').classList.add('active');
+            document.getElementById('toggleProfit').classList.remove('active');
+            updateMaxHint();
+            document.getElementById('withdrawAmount').value = '';
+        });
+
+        // ============================================================
+        // 6. زر الحد الأقصى
+        // ============================================================
+        document.getElementById('maxWithdrawBtn').addEventListener('click', () => {
+            let max = 0;
+            if (withdrawType === 'profit') {
+                max = parseFloat(currentUser?.profit) || 0;
+            } else {
+                max = parseFloat(currentUser?.balance) || 0;
+            }
+            document.getElementById('withdrawAmount').value = max.toFixed(2);
+        });
+
+        // ============================================================
+        // 7. لصق عنوان المحفظة من الحافظة
+        // ============================================================
+        document.getElementById('pasteWalletBtn').addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('walletAddress').value = text;
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: translations[currentLang]?.pasted || 'تم لصق العنوان',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    background: '#05070a',
+                    color: '#fff'
+                });
+            } catch (err) {
+                Swal.fire('خطأ', translations[currentLang]?.clipboard_error || 'لا يمكن الوصول إلى الحافظة', 'error');
+            }
+        });
+
+        // ============================================================
+        // 8. تقديم طلب السحب (مع تحسين معالجة الأخطاء)
         // ============================================================
         async function submitWithdraw() {
+            if (!currentUser) {
+                Swal.fire('خطأ', translations[currentLang]?.login_required || 'الرجاء تسجيل الدخول أولاً', 'error');
+                return;
+            }
+            
             const walletAddress = document.getElementById('walletAddress').value.trim();
             const amountRaw = document.getElementById('withdrawAmount').value;
             const amount = parseFloat(amountRaw);
+            let max = 0;
+            if (withdrawType === 'profit') {
+                max = parseFloat(currentUser.profit) || 0;
+            } else {
+                max = parseFloat(currentUser.balance) || 0;
+            }
 
             if (!walletAddress) {
-                Swal.fire('خطأ', 'يرجى إدخال عنوان المحفظة', 'error');
+                Swal.fire('خطأ', translations[currentLang]?.wallet_required || 'يرجى إدخال عنوان المحفظة', 'error');
                 return;
             }
             if (isNaN(amount) || amount <= 0) {
-                Swal.fire('خطأ', 'المبلغ غير صالح', 'error');
+                Swal.fire('خطأ', translations[currentLang]?.invalid_amount || 'المبلغ غير صالح', 'error');
                 return;
             }
-            const withdrawableSpan = document.getElementById('withdrawable-balance');
-            let maxWithdrawable = parseFloat(withdrawableSpan.innerText.replace(' $', '').replace(',', ''));
-            if (isNaN(maxWithdrawable)) {
-                const user = await fetchCurrentUser();
-                maxWithdrawable = user?.withdrawableAmount || user?.balance || 0;
+            if (amount > max) {
+                Swal.fire('خطأ', (translations[currentLang]?.insufficient_balance_msg || `الحد الأقصى المتاح للسحب من ${withdrawType === 'profit' ? 'الأرباح' : 'الرصيد الأساسي'} هو ${max.toFixed(2)} $`), 'warning');
+                return;
             }
-            if (amount > maxWithdrawable) {
-                Swal.fire('رصيد غير كاف', `الحد الأقصى القابل للسحب هو ${maxWithdrawable.toFixed(2)} $`, 'warning');
+            if (amount < 1) {
+                Swal.fire('تنبيه', translations[currentLang]?.min_withdrawal_amount || 'الحد الأدنى للسحب هو 1 دولار', 'info');
                 return;
             }
 
             const btn = document.getElementById('submitWithdrawBtn');
             btn.disabled = true;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري المعالجة...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.processing || 'جاري المعالجة...');
 
             try {
-                const response = await fetch(API_WITHDRAW, {
+                const requestBody = {
+                    walletAddress: walletAddress,
+                    amount: amount,
+                    type: withdrawType
+                };
+                console.log('إرسال طلب السحب:', requestBody);
+
+                const response = await fetchWithAuth(URL_WITHDRAW, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ walletAddress, amount }),
-                    credentials: 'include'
+                    body: JSON.stringify(requestBody)
                 });
+                
                 const data = await response.json();
+                console.log('استجابة السيرفر:', data);
+                
                 if (response.ok && data.success) {
                     Swal.fire({
-                        title: 'تم تقديم الطلب',
-                        text: data.message || 'تم استلام طلب السحب، سيتم مراجعته من قبل الإدارة',
+                        title: translations[currentLang]?.request_submitted || 'تم تقديم الطلب',
+                        text: data.message || (translations[currentLang]?.withdrawal_request_success || 'تم استلام طلب السحب، سيتم مراجعته من قبل الإدارة خلال الفترة المحددة. ستتلقى إشعاراً عند القبول أو الرفض.'),
                         icon: 'success',
                         background: '#05070a',
                         color: '#fff'
@@ -257,39 +570,39 @@
                         window.location.href = 'dashboard.html';
                     });
                 } else {
-                    Swal.fire('فشل', data.message || 'حدث خطأ أثناء معالجة الطلب', 'error');
+                    const errorMsg = data.message || (translations[currentLang]?.withdrawal_error || 'حدث خطأ أثناء معالجة الطلب');
+                    Swal.fire('فشل', errorMsg, 'error');
                 }
             } catch (err) {
-                console.error(err);
-                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+                console.error('خطأ في الاتصال:', err);
+                Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالسيرفر. تأكد من اتصالك بالإنترنت.', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
             }
         }
 
-        // ============================================================
-        // 4. زر الحد الأقصى للسحب
-        // ============================================================
-        function setMaxWithdraw() {
-            const withdrawableSpan = document.getElementById('withdrawable-balance');
-            let maxVal = parseFloat(withdrawableSpan.innerText.replace(' $', '').replace(',', ''));
-            if (isNaN(maxVal)) {
-                Swal.fire('خطأ', 'لم نتمكن من جلب الرصيد، حاول تحديث الصفحة', 'error');
-                return;
-            }
-            document.getElementById('withdrawAmount').value = maxVal.toFixed(2);
-        }
+        document.getElementById('submitWithdrawBtn').addEventListener('click', submitWithdraw);
 
         // ============================================================
-        // 5. التحميل الأولي
+        // 9. التحميل الأولي والتحديث الدوري للأرصدة
         // ============================================================
         window.onload = async () => {
-            const user = await checkAuth();
-            if (!user) return;
-            await updateBalanceDisplay();
-            document.getElementById('submitWithdrawBtn').onclick = submitWithdraw;
-            document.getElementById('maxWithdrawBtn').onclick = setMaxWithdraw;
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
+            const ok = await checkAuth();
+            if (ok) {
+                // تحديث الأرصدة كل 15 ثانية
+                setInterval(async () => {
+                    if (document.visibilityState === 'visible') {
+                        const newUser = await fetchCurrentUser();
+                        if (newUser) {
+                            currentUser = newUser;
+                            updateBalancesDisplay();
+                        }
+                    }
+                }, 15000);
+            }
         };
     </script>
 </body>

@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>المشاريع الاستثمارية | Best Deal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        :root {
+            --gold: #d4af37;
+            --gold-dark: #8a6d3b;
+            --dark-bg: #06090f;
+            --card-bg: rgba(15, 23, 42, 0.9);
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--dark-bg);
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #d4af37 0%, #f7e08a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s;
+        }
+        .glass-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000;
+            font-weight: 900;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 15, 26, 0.98);
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            z-index: 1000;
+        }
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .nav-link.active { color: var(--gold); }
+        .nav-link i { font-size: 22px; margin-bottom: 4px; }
+        .profit-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .info-note {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 1rem;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+        /* Language Switcher */
+        .lang-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
+        }
+    </style>
+</head>
+<body class="pb-32">
+
+    <header class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+        <button onclick="window.location.href='dashboard.html'" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-white/10">
+            <i class="fa-solid fa-arrow-right text-xl text-[#d4af37]"></i>
+        </button>
+        <h1 class="text-2xl font-black gold-gradient-text italic" data-i18n="investment_projects">المشاريع الاستثمارية</h1>
+        <div class="bg-black/60 px-4 py-2 rounded-2xl">
+            <p class="text-[10px] text-slate-500" data-i18n="your_balance">رصيدك</p>
+            <p id="user-balance" class="text-xl font-bold text-white">0.00 $</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 pb-24">
+        <!-- Language selector -->
+        <div class="flex justify-end mb-4">
+            <div class="lang-selector">
+                <div class="lang-option active" data-lang="ar">العربية</div>
+                <div class="lang-option" data-lang="en">English</div>
+                <div class="lang-option" data-lang="zh">中文</div>
+                <div class="lang-option" data-lang="de">Deutsch</div>
+            </div>
+        </div>
+
+        <!-- البطاقات الثلاث (القوانين الجديدة) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            <!-- مشروع يومي (5% يومياً، حد أدنى 90$) -->
+            <div class="glass-card p-6 text-center">
+                <i class="fa-solid fa-sun text-5xl text-[#d4af37] mb-4"></i>
+                <h3 class="text-2xl font-black text-white" data-i18n="daily_project">مشروع يومي</h3>
+                <p class="text-3xl font-black text-green-400 my-2" data-i18n="daily_return">5% يومياً</p>
+                <p class="text-sm text-slate-400" data-i18n="daily_desc">ربح يومي 5% من المبلغ المستثمر</p>
+                <div class="bg-yellow-900/20 p-3 rounded-xl my-4 text-right">
+                    <p class="text-xs"><span data-i18n="min_amount">💰 الحد الأدنى:</span> <strong class="text-gold">90$</strong></p>
+                    <p class="text-xs"><span data-i18n="lock_period_daily">🔒 المبلغ الأصلي محجوز لمدة 10 أيام</span></p>
+                    <p class="text-xs"><span data-i18n="profit_withdraw_daily">✅ يمكنك سحب الأرباح يومياً فوراً</span></p>
+                </div>
+                <input type="number" id="daily-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <button onclick="createInvestment(event, 'daily')" class="btn-gold w-full py-3 rounded-xl font-bold" data-i18n="invest_now">استثمر الآن</button>
+            </div>
+
+            <!-- مشروع أسبوعي (8% يومياً، حد أدنى 285$) -->
+            <div class="glass-card p-6 text-center">
+                <i class="fa-solid fa-calendar-week text-5xl text-[#d4af37] mb-4"></i>
+                <h3 class="text-2xl font-black text-white" data-i18n="weekly_project">مشروع أسبوعي</h3>
+                <p class="text-3xl font-black text-green-400 my-2" data-i18n="weekly_return">8% يومياً</p>
+                <p class="text-sm text-slate-400" data-i18n="weekly_desc">يصل إلى 56% أسبوعياً (يُصرف أسبوعياً)</p>
+                <div class="bg-yellow-900/20 p-3 rounded-xl my-4 text-right">
+                    <p class="text-xs"><span data-i18n="min_amount_weekly">💰 الحد الأدنى: 285$</span></p>
+                    <p class="text-xs"><span data-i18n="lock_period_weekly">🔒 المبلغ الأصلي محجوز لمدة 15 يوم</span></p>
+                    <p class="text-xs"><span data-i18n="profit_withdraw_weekly">✅ يمكنك سحب الأرباح كل 7 أيام (مرة واحدة أسبوعياً)</span></p>
+                </div>
+                <input type="number" id="weekly-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <button onclick="createInvestment(event, 'weekly')" class="btn-gold w-full py-3 rounded-xl font-bold" data-i18n="invest_now">استثمر الآن</button>
+            </div>
+
+            <!-- مشروع شهري (300% شهرياً، حد أدنى 490$) -->
+            <div class="glass-card p-6 text-center">
+                <i class="fa-solid fa-calendar-alt text-5xl text-[#d4af37] mb-4"></i>
+                <h3 class="text-2xl font-black text-white" data-i18n="monthly_project">مشروع شهري</h3>
+                <p class="text-3xl font-black text-green-400 my-2" data-i18n="monthly_return">300%</p>
+                <p class="text-sm text-slate-400" data-i18n="monthly_desc">ربح 300% بعد 30 يوماً (400% إجمالي)</p>
+                <div class="bg-yellow-900/20 p-3 rounded-xl my-4 text-right">
+                    <p class="text-xs"><span data-i18n="min_amount_monthly">💰 الحد الأدنى: 490$</span></p>
+                    <p class="text-xs"><span data-i18n="lock_period_monthly">🔒 المبلغ الأصلي + الربح محجوزان لمدة 30 يوم</span></p>
+                    <p class="text-xs"><span data-i18n="profit_withdraw_monthly">✅ بعد 30 يوماً يتم سحب الأصل + الربح معاً</span></p>
+                </div>
+                <input type="number" id="monthly-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <button onclick="createInvestment(event, 'monthly')" class="btn-gold w-full py-3 rounded-xl font-bold" data-i18n="invest_now">استثمر الآن</button>
+            </div>
+        </div>
+
+        <!-- جدول استثماراتي الحالية -->
+        <div class="glass-card p-6">
+            <h3 class="text-xl font-black gold-gradient-text mb-4" data-i18n="my_investments">استثماراتي الحالية</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="p-3" data-i18n="amount">المبلغ</th>
+                            <th class="p-3" data-i18n="type">النوع</th>
+                            <th class="p-3" data-i18n="start_date">تاريخ البدء</th>
+                            <th class="p-3" data-i18n="profit_due">الربح المستحق</th>
+                            <th class="p-3" data-i18n="actions">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="investments-list">
+                        <tr><td colspan="5" class="text-center py-8 text-slate-500" data-i18n="no_investments">لا توجد استثمارات حالية</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="info-note mt-4">
+                <i class="fa-solid fa-lightbulb ml-1"></i> <span data-i18n="update_note">يتم تحديث الأرباح تلقائياً كل ساعة. يمكنك سحب الأرباح المستحقة حسب نوع المشروع.</span>
+            </div>
+        </div>
+    </main>
+
+    <div class="bottom-nav">
+        <div onclick="window.location.href='dashboard.html'" class="nav-link"><i class="fa-solid fa-house-chimney"></i><span data-i18n="home">الرئيسية</span></div>
+        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span data-i18n="deposit">الإيداع</span></div>
+        <div onclick="window.location.href='investments.html'" class="nav-link active"><i class="fa-solid fa-chart-line"></i><span data-i18n="investments">المشاريع</span></div>
+        <div onclick="window.location.href='withdraw.html'" class="nav-link"><i class="fa-solid fa-hand-holding-usd"></i><span data-i18n="withdraw">السحب</span></div>
+        <div onclick="logout()" class="nav-link text-red-500"><i class="fa-solid fa-power-off"></i><span data-i18n="logout">خروج</span></div>
+    </div>
+
+    <script>
+        // ============================================================
+        // الإعدادات العامة - مسارات نسبية
+        // ============================================================
+        const API_BASE_URL = '';
+        const URL_INVESTMENTS_CREATE = `${API_BASE_URL}/api/investments/create`;
+        const URL_INVESTMENTS_MY = `${API_BASE_URL}/api/investments/my`;
+        const URL_WITHDRAW_PROFIT = `${API_BASE_URL}/api/investments/withdraw-profit`;
+        const URL_WITHDRAW_PRINCIPAL = `${API_BASE_URL}/api/investments/withdraw-principal`;
+        const URL_ME = `${API_BASE_URL}/api/users/me`;
+        const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
+
+        let currentUser = null;
+
+        // ============================================================
+        // i18n متعدد اللغات
+        // ============================================================
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                return {};
+            }
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            // Update placeholders for input fields
+            const placeholders = ['daily-amount', 'weekly-amount', 'monthly-amount'];
+            const placeholderText = t.amount_placeholder || 'المبلغ ($)';
+            placeholders.forEach(id => {
+                const inp = document.getElementById(id);
+                if (inp) inp.placeholder = placeholderText;
+            });
+            // Update direction
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+            }
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            // Update active class on language selector
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) {
+                    opt.classList.add('active');
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) {
+                await loadTranslations(lang);
+            }
+            applyTranslations(lang);
+            if (currentUser) {
+                await loadMyInvestments(); // reload table to translate status texts if any
+            }
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // fetch مع تجديد التوكن
+        // ============================================================
+        async function fetchWithAuth(url, options = {}) {
+            options.credentials = 'include';
+            let response = await fetch(url, options);
+            if (response.status === 401 || response.status === 403) {
+                const refreshRes = await fetch(URL_REFRESH, { method: 'POST', credentials: 'include' });
+                if (refreshRes.ok) {
+                    response = await fetch(url, options);
+                } else {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                    throw new Error('Session expired');
+                }
+            }
+            return response;
+        }
+
+        // ============================================================
+        // جلب المستخدم الحالي وتحديث الرصيد
+        // ============================================================
+        async function fetchUser() {
+            try {
+                const response = await fetchWithAuth(URL_ME);
+                if (!response.ok) throw new Error();
+                const user = await response.json();
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                return user;
+            } catch(e) { return null; }
+        }
+
+        async function checkAuth() {
+            const user = await fetchUser();
+            if (!user) {
+                Swal.fire({
+                    title: translations[currentLang]?.unauthorized || 'غير مصرح',
+                    text: translations[currentLang]?.login_required || 'الرجاء تسجيل الدخول أولاً',
+                    icon: 'warning',
+                    background: '#05070a',
+                    color: '#fff',
+                    confirmButtonColor: '#d4af37'
+                }).then(() => window.location.href='login.html');
+                return false;
+            }
+            currentUser = user;
+            document.getElementById('user-balance').innerText = (currentUser.balance || 0).toLocaleString() + ' $';
+            return true;
+        }
+
+        // ============================================================
+        // إنشاء استثمار جديد
+        // ============================================================
+        async function createInvestment(event, type) {
+            if (event) event.preventDefault();
+            const btn = event ? event.currentTarget : null;
+            if (!await checkAuth()) return;
+            
+            let amountInput, minAmount, typeName;
+            if (type === 'daily') {
+                amountInput = document.getElementById('daily-amount');
+                minAmount = 90;
+                typeName = translations[currentLang]?.daily || 'اليومي';
+            } else if (type === 'weekly') {
+                amountInput = document.getElementById('weekly-amount');
+                minAmount = 285;
+                typeName = translations[currentLang]?.weekly || 'الأسبوعي';
+            } else {
+                amountInput = document.getElementById('monthly-amount');
+                minAmount = 490;
+                typeName = translations[currentLang]?.monthly || 'الشهري';
+            }
+            
+            const amount = parseFloat(amountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                Swal.fire('خطأ', (translations[currentLang]?.invalid_amount || `الرجاء إدخال مبلغ صحيح (الحد الأدنى ${minAmount}$)`), 'error');
+                return;
+            }
+            if (amount < minAmount) {
+                Swal.fire('خطأ', (translations[currentLang]?.min_investment_error || `الحد الأدنى للاستثمار ${typeName} هو ${minAmount}$`), 'error');
+                return;
+            }
+            if (amount > currentUser.balance) {
+                Swal.fire('خطأ', (translations[currentLang]?.insufficient_balance || `رصيدك الحالي ${currentUser.balance.toLocaleString()} $ فقط`), 'warning');
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.processing || 'جاري...');
+            }
+
+            try {
+                const response = await fetchWithAuth(URL_INVESTMENTS_CREATE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, projectType: type })
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    Swal.fire('تم', (translations[currentLang]?.investment_created || `تم استثمار ${amount} $ في المشروع ${typeName}.`), 'success');
+                    amountInput.value = '';
+                    await checkAuth();
+                    loadMyInvestments();
+                } else {
+                    Swal.fire('فشل', data.message || (translations[currentLang]?.unknown_error || 'حدث خطأ غير معروف'), 'error');
+                }
+            } catch(err) {
+                console.error(err);
+                Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالسيرفر', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = translations[currentLang]?.invest_now || 'استثمر الآن';
+                }
+            }
+        }
+
+        // ============================================================
+        // حساب الربح المعلق ديناميكياً حسب القوانين الجديدة
+        // ============================================================
+        function calculatePendingProfit(inv, now) {
+            const lastProfit = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
+            const diffDays = Math.floor((now - lastProfit) / (1000 * 60 * 60 * 24));
+            if (diffDays <= 0) return 0;
+            if (inv.projectType === 'daily') {
+                return inv.amount * 0.05 * diffDays;
+            } else if (inv.projectType === 'weekly') {
+                return inv.amount * 0.08 * diffDays;
+            }
+            return 0;
+        }
+
+        // ============================================================
+        // تحميل الاستثمارات وعرضها مع الأرباح الحية
+        // ============================================================
+        async function loadMyInvestments() {
+            if (!await checkAuth()) return;
+            try {
+                const response = await fetchWithAuth(URL_INVESTMENTS_MY);
+                const investments = await response.json();
+                const tbody = document.getElementById('investments-list');
+                const t = translations[currentLang] || {};
+                if (!investments.length) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-500">${t.no_investments || 'لا توجد استثمارات حالية'}</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = '';
+                const now = new Date();
+                for (const inv of investments) {
+                    let typeName = '';
+                    if (inv.projectType === 'daily') typeName = t.daily || 'يومي';
+                    else if (inv.projectType === 'weekly') typeName = t.weekly || 'أسبوعي';
+                    else typeName = t.monthly || 'شهري';
+                    const startDate = new Date(inv.startDate).toLocaleDateString();
+                    const withdrawnProfit = parseFloat(inv.withdrawnProfit) || 0;
+                    const pendingProfit = calculatePendingProfit(inv, now);
+                    const totalProfit = withdrawnProfit + pendingProfit;
+                    
+                    let canWithdrawProfit = false;
+                    let canWithdrawPrincipal = false;
+                    const daysSinceStart = Math.floor((now - new Date(inv.startDate)) / (1000 * 60 * 60 * 24));
+                    
+                    if (inv.projectType === 'daily') {
+                        canWithdrawProfit = pendingProfit > 0;
+                        canWithdrawPrincipal = (!inv.withdrawnPrincipal) && (daysSinceStart >= 10);
+                    } else if (inv.projectType === 'weekly') {
+                        const lastProfitDate = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
+                        const daysSinceLastProfit = Math.floor((now - lastProfitDate) / (1000 * 60 * 60 * 24));
+                        canWithdrawProfit = (pendingProfit > 0) && (daysSinceLastProfit >= 7);
+                        canWithdrawPrincipal = (!inv.withdrawnPrincipal) && (daysSinceStart >= 15);
+                    } else if (inv.projectType === 'monthly') {
+                        canWithdrawPrincipal = (!inv.withdrawnPrincipal) && (daysSinceStart >= 30);
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-white/5';
+                    row.innerHTML = `
+                        <td class="p-3">${inv.amount} $</td>
+                        <td class="p-3">${typeName}</td>
+                        <td class="p-3">${startDate}</td>
+                        <td class="p-3">
+                            <span class="profit-badge">${totalProfit.toFixed(2)} $</span>
+                            ${pendingProfit > 0 ? `<span class="text-green-400 text-xs mr-2">(+${pendingProfit.toFixed(2)} ${t.new || 'جديد'})</span>` : ''}
+                        </td>
+                        <td class="p-3">
+                            ${(canWithdrawProfit || canWithdrawPrincipal) ? 
+                                `<button onclick="showWithdrawOptions('${inv.id}', ${canWithdrawProfit}, ${canWithdrawPrincipal})" class="bg-[#d4af37] text-black px-3 py-1 rounded-lg text-xs font-bold">💰 ${t.withdraw || 'سحب'}</button>` 
+                                : `<span class="text-slate-500 text-xs">${t.not_available || 'غير متاح'}</span>`}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            } catch(err) {
+                console.error(err);
+                Swal.fire('خطأ', t.load_failed || 'فشل تحميل الاستثمارات', 'error');
+            }
+        }
+
+        // ============================================================
+        // عرض خيارات السحب (الأرباح أو الأصل)
+        // ============================================================
+        window.showWithdrawOptions = async (investmentId, canWithdrawProfit, canWithdrawPrincipal) => {
+            const t = translations[currentLang] || {};
+            const buttons = [];
+            if (canWithdrawProfit) {
+                buttons.push({
+                    text: `💰 ${t.withdraw_profit || 'سحب الأرباح فقط'}`,
+                    value: 'profit',
+                });
+            }
+            if (canWithdrawPrincipal) {
+                buttons.push({
+                    text: `🏦 ${t.withdraw_principal || 'سحب المبلغ الأصلي (وإنهاء الاستثمار)'}`,
+                    value: 'principal',
+                });
+            }
+            if (buttons.length === 0) {
+                Swal.fire('تنبيه', t.no_withdraw_options || 'لا توجد خيارات سحب متاحة حالياً', 'info');
+                return;
+            }
+            
+            const { value: choice } = await Swal.fire({
+                title: t.choose_withdraw_type || 'اختر نوع السحب',
+                text: t.choose_withdraw_text || 'ما المبلغ الذي تريد سحبه؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: t.confirm || 'متابعة',
+                cancelButtonText: t.cancel || 'إلغاء',
+                background: '#05070a',
+                color: '#fff',
+                confirmButtonColor: '#d4af37',
+                input: 'select',
+                inputOptions: buttons.reduce((acc, btn) => { acc[btn.value] = btn.text; return acc; }, {}),
+                inputPlaceholder: t.select_withdraw_type || 'اختر نوع السحب...'
+            });
+            if (!choice) return;
+            if (choice === 'profit') {
+                await withdrawProfit(investmentId);
+            } else if (choice === 'principal') {
+                await withdrawPrincipal(investmentId);
+            }
+        };
+
+        async function withdrawProfit(investmentId) {
+            const t = translations[currentLang] || {};
+            const { value: confirm } = await Swal.fire({
+                title: t.confirm_profit_withdraw || 'تأكيد سحب الأرباح',
+                text: t.profit_withdraw_warning || 'سيتم سحب جميع الأرباح المستحقة الآن وإضافتها إلى رصيدك القابل للسحب. هل أنت متأكد؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d4af37'
+            });
+            if (!confirm) return;
+            try {
+                const response = await fetchWithAuth(URL_WITHDRAW_PROFIT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ investmentId })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('تم', data.message, 'success');
+                    await checkAuth();
+                    loadMyInvestments();
+                } else {
+                    Swal.fire('فشل', data.message, 'error');
+                }
+            } catch(err) {
+                Swal.fire('خطأ', t.connection_error || 'فشل الاتصال', 'error');
+            }
+        }
+
+        async function withdrawPrincipal(investmentId) {
+            const t = translations[currentLang] || {};
+            const { value: confirm } = await Swal.fire({
+                title: t.confirm_principal_withdraw || 'تأكيد سحب المبلغ الأصلي',
+                text: t.principal_withdraw_warning || 'سيتم إنهاء هذا الاستثمار بالكامل. سيتم إعادة المبلغ الأصلي (وربما الربح حسب نوع المشروع) إلى رصيدك. لن تحصل على أي أرباح مستقبلية من هذا الاستثمار. هل أنت متأكد؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d4af37'
+            });
+            if (!confirm) return;
+            try {
+                const response = await fetchWithAuth(URL_WITHDRAW_PRINCIPAL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ investmentId })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('تم', data.message, 'success');
+                    await checkAuth();
+                    loadMyInvestments();
+                } else {
+                    Swal.fire('فشل', data.message, 'error');
+                }
+            } catch(err) {
+                Swal.fire('خطأ', t.connection_error || 'فشل الاتصال', 'error');
+            }
+        }
+
+        // ============================================================
+        // تسجيل الخروج
+        // ============================================================
+        function logout() {
+            const t = translations[currentLang] || {};
+            Swal.fire({
+                title: t.logout_title || 'تسجيل الخروج',
+                text: t.logout_confirm || 'هل أنت متأكد؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d4af37'
+            }).then(res => {
+                if (res.isConfirmed) {
+                    document.cookie.split(";").forEach((c) => {
+                        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                    });
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+
+        // ============================================================
+        // التحميل الأولي والتحديث الدوري للأرباح (كل 30 ثانية)
+        // ============================================================
+        window.onload = async () => {
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
+            if (await checkAuth()) {
+                await loadMyInvestments();
+                setInterval(async () => {
+                    if (document.visibilityState === 'visible') {
+                        await loadMyInvestments();
+                    }
+                }, 30000);
+            }
+        };
+    </script>
+</body>
+</html>

@@ -223,6 +223,38 @@
         .forgot-pass {
             color: var(--gold-light) !important;
         }
+
+        /* Language Switcher */
+        .lang-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 20px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
+        }
     </style>
 </head>
 <body>
@@ -236,47 +268,136 @@
             <div class="logo-icon-wrapper">
                 <i class="fa-solid fa-crown"></i>
             </div>
-            <h1>النظام الملكي</h1>
-            <p>سجل دخولك للوصول إلى منصة Best Deal</p>
+            <h1 data-i18n="app_name">النظام الملكي</h1>
+            <p data-i18n="login_subtitle">سجل دخولك للوصول إلى منصة Best Deal</p>
         </div>
 
         <form id="loginForm">
             <div class="input-group">
-                <label>اسم المستخدم</label>
+                <label data-i18n="username_label">اسم المستخدم</label>
                 <div class="input-wrapper">
-                    <input type="text" id="username" class="input-field" placeholder="أدخل اسم المستخدم" required>
+                    <input type="text" id="username" class="input-field" placeholder="" required>
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
             </div>
             <div class="input-group">
-                <label>كلمة المرور</label>
+                <label data-i18n="password_label">كلمة المرور</label>
                 <div class="input-wrapper">
-                    <input type="password" id="password" class="input-field" placeholder="••••••••" required>
+                    <input type="password" id="password" class="input-field" placeholder="" required>
                     <i class="fa-solid fa-key"></i>
                 </div>
             </div>
             <button type="submit" id="submitBtn" class="submit-button">
-                <span>تسجيل الدخول</span>
+                <span data-i18n="login_btn">تسجيل الدخول</span>
                 <i class="fa-solid fa-paper-plane"></i>
             </button>
         </form>
 
         <div class="footer-links">
-            <a href="forgot-password.html" class="forgot-pass">نسيت كلمة المرور؟</a>
-            <a href="register.html">ليس لديك حساب؟ <span>أنشئ حساباً جديداً</span></a>
+            <a href="forgot-password.html" class="forgot-pass" data-i18n="forgot_password">نسيت كلمة المرور؟</a>
+            <a href="register.html"><span data-i18n="no_account">ليس لديك حساب؟</span> <span data-i18n="create_account">أنشئ حساباً جديداً</span></a>
+        </div>
+
+        <div class="lang-selector">
+            <div class="lang-option active" data-lang="ar">العربية</div>
+            <div class="lang-option" data-lang="en">English</div>
+            <div class="lang-option" data-lang="zh">中文</div>
+            <div class="lang-option" data-lang="de">Deutsch</div>
         </div>
     </div>
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (لا نحتاج CSRF مع السيرفر الجديد)
+        // 1. الإعدادات العامة (استخدام المسارات النسبية)
         // ============================================================
-        const API_BASE_URL = 'best-deal-production.up.railway.app';
+        const API_BASE_URL = '';
         const LOGIN_ENDPOINT = `${API_BASE_URL}/api/users/login`;
         const USER_ME_ENDPOINT = `${API_BASE_URL}/api/users/me`;
+        const REFRESH_ENDPOINT = `${API_BASE_URL}/api/auth/refresh`;
 
         // ============================================================
-        // 2. التحقق من وجود جلسة نشطة (توجيه تلقائي إلى dashboard)
+        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // ============================================================
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                // fallback empty object
+                return {};
+            }
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            // Update placeholders for input fields if needed
+            if (t.username_placeholder) document.getElementById('username').placeholder = t.username_placeholder;
+            if (t.password_placeholder) document.getElementById('password').placeholder = t.password_placeholder;
+            // Update direction for RTL/LTR
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+                // adjust input padding for RTL
+                document.querySelectorAll('.input-field').forEach(inp => {
+                    inp.style.paddingRight = '52px';
+                    inp.style.paddingLeft = '20px';
+                });
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+                document.querySelectorAll('.input-field').forEach(inp => {
+                    inp.style.paddingLeft = '52px';
+                    inp.style.paddingRight = '20px';
+                });
+            }
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            // Update active class on language selector
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) {
+                    opt.classList.add('active');
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+            // Set cookie for server-side detection
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) {
+                await loadTranslations(lang);
+            }
+            applyTranslations(lang);
+        }
+
+        // Language selector event listeners
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // 3. التحقق من وجود جلسة نشطة (توجيه تلقائي إلى dashboard)
         // ============================================================
         async function checkExistingSession() {
             try {
@@ -294,7 +415,7 @@
         }
 
         // ============================================================
-        // 3. معالجة نموذج تسجيل الدخول
+        // 4. معالجة نموذج تسجيل الدخول
         // ============================================================
         const loginForm = document.getElementById('loginForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -306,10 +427,11 @@
             const password = document.getElementById('password').value.trim();
 
             if (!username || !password) {
+                const t = translations[currentLang] || {};
                 Swal.fire({
                     icon: 'warning',
-                    title: 'تنبيه',
-                    text: 'يرجى إدخال اسم المستخدم وكلمة المرور',
+                    title: t.warning_title || 'تنبيه',
+                    text: t.login_required || 'يرجى إدخال اسم المستخدم وكلمة المرور',
                     background: '#05070a',
                     color: '#fff',
                     confirmButtonColor: '#d4af37'
@@ -320,7 +442,7 @@
             // تعطيل الزر أثناء الإرسال
             submitBtn.disabled = true;
             const originalContent = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري التحقق...</span>';
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>' + (translations[currentLang]?.logging_in || 'جاري التحقق...') + '</span>';
 
             try {
                 const response = await fetch(LOGIN_ENDPOINT, {
@@ -338,7 +460,7 @@
                 if (response.status === 423) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'الحساب مقفل مؤقتاً',
+                        title: translations[currentLang]?.account_locked || 'الحساب مقفل مؤقتاً',
                         text: data.message || 'تم قفل الحساب بسبب كثرة المحاولات الفاشلة، حاول لاحقاً',
                         background: '#05070a',
                         color: '#fff',
@@ -348,14 +470,14 @@
                 }
 
                 if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'فشل تسجيل الدخول');
+                    throw new Error(data.message || (translations[currentLang]?.login_failed || 'فشل تسجيل الدخول'));
                 }
 
                 // تسجيل الدخول العادي
                 if (data.user) {
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     Swal.fire({
-                        title: 'تم الدخول',
+                        title: translations[currentLang]?.welcome_back || 'تم الدخول',
                         text: `مرحباً ${data.user.fullName || data.user.username}`,
                         icon: 'success',
                         timer: 1500,
@@ -366,18 +488,18 @@
                         window.location.href = 'dashboard.html';
                     });
                 } else {
-                    throw new Error('لم يتم استلام بيانات المستخدم');
+                    throw new Error(translations[currentLang]?.no_user_data || 'لم يتم استلام بيانات المستخدم');
                 }
 
             } catch (err) {
                 console.error(err);
                 let errorMsg = err.message;
-                if (errorMsg.includes('فشل') || errorMsg.includes('بيانات')) {
-                    errorMsg = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+                if (errorMsg.includes('فشل') || errorMsg.includes('بيانات') || errorMsg.includes('Invalid')) {
+                    errorMsg = translations[currentLang]?.invalid_credentials || 'اسم المستخدم أو كلمة المرور غير صحيحة';
                 }
                 Swal.fire({
                     icon: 'error',
-                    title: 'خطأ',
+                    title: translations[currentLang]?.error || 'خطأ',
                     text: errorMsg,
                     background: '#05070a',
                     color: '#fff',
@@ -390,7 +512,7 @@
         });
 
         // ============================================================
-        // 4. دعم اختصار Enter
+        // 5. دعم اختصار Enter (أي زر في النموذج)
         // ============================================================
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -401,9 +523,13 @@
         });
 
         // ============================================================
-        // 5. التحقق من الجلسة عند تحميل الصفحة
+        // 6. التحميل الأولي: تحميل الترجمة ثم التحقق من الجلسة
         // ============================================================
-        checkExistingSession();
+        window.onload = async () => {
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
+            await checkExistingSession();
+        };
     </script>
 </body>
 </html>

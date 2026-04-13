@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>بوابة الإيداع الملكية | Golden Deposit</title>
+    <title>بوابة الإيداع الملكي | Golden Deposit | Best Deal</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -187,6 +186,33 @@
             font-size: 0.8rem;
             margin-bottom: 1rem;
         }
+
+        /* Language Switcher */
+        .lang-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: inline-flex;
+            gap: 0.25rem;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -197,11 +223,16 @@
         </button>
         
         <div class="text-center">
-            <h1 class="text-3xl md:text-4xl font-black text-gold-gradient italic uppercase">Royal Deposit</h1>
-            <p class="text-[10px] md:text-xs text-slate-500 font-bold tracking-[0.3em] uppercase mt-1">بوابة التمويل الآمنة</p>
+            <h1 class="text-3xl md:text-4xl font-black text-gold-gradient italic uppercase" data-i18n="deposit_title">Royal Deposit</h1>
+            <p class="text-[10px] md:text-xs text-slate-500 font-bold tracking-[0.3em] uppercase mt-1" data-i18n="deposit_subtitle">بوابة التمويل الآمنة</p>
         </div>
 
-        <div class="w-14"></div>
+        <div class="lang-selector">
+            <div class="lang-option active" data-lang="ar">العربية</div>
+            <div class="lang-option" data-lang="en">English</div>
+            <div class="lang-option" data-lang="zh">中文</div>
+            <div class="lang-option" data-lang="de">Deutsch</div>
+        </div>
     </header>
 
     <main class="flex-grow flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
@@ -212,29 +243,29 @@
                     <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-black/50 border-2 border-[var(--gold-dark)] mb-4">
                         <i class="fa-solid fa-vault text-5xl text-[var(--gold-primary)]"></i>
                     </div>
-                    <h2 class="text-2xl font-black text-white">إيداع رصيد جديد</h2>
-                    <p class="text-sm text-slate-400 mt-2">يرجى تحويل المبلغ المطلوب إلى محفظة النظام قبل تأكيد الطلب</p>
+                    <h2 class="text-2xl font-black text-white" data-i18n="new_deposit">إيداع رصيد جديد</h2>
+                    <p class="text-sm text-slate-400 mt-2" data-i18n="deposit_instruction">يرجى تحويل المبلغ المطلوب إلى محفظة النظام قبل تأكيد الطلب</p>
                 </div>
 
                 <div class="wallet-box">
                     <span class="network-badge"><i class="fa-brands fa-ethereum"></i> USDT - ERC20</span>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-2">عنوان محفظة الإيداع الرسمية</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-2" data-i18n="official_wallet">عنوان محفظة الإيداع الرسمية</p>
                     <p id="admin-wallet" class="text-lg md:text-xl font-mono text-[var(--gold-light)] break-all select-all">0x7c487888402cC1e77E61eDf48BD20aa939624360</p>
                     <button onclick="copyWallet()" class="copy-btn">
-                        <i class="fa-regular fa-copy ml-2"></i> نسخ العنوان
+                        <i class="fa-regular fa-copy ml-2"></i> <span data-i18n="copy_address">نسخ العنوان</span>
                     </button>
                 </div>
 
                 <div class="royal-input-wrapper">
-                    <label class="block text-xs font-black text-slate-500 uppercase mb-3 mr-2 tracking-wider italic text-right">المبلغ المرسل (بالدولار $)</label>
-                    <input type="number" id="deposit-amount" class="royal-input" placeholder="0.00">
+                    <label class="block text-xs font-black text-slate-500 uppercase mb-3 mr-2 tracking-wider italic text-right" data-i18n="amount_label">المبلغ المرسل (بالدولار $)</label>
+                    <input type="number" id="deposit-amount" class="royal-input" placeholder="0.00" step="any" min="1">
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-xs font-black text-slate-500 uppercase mb-3 mr-2 tracking-wider italic text-right">إرفاق إثبات التحويل (لقطة شاشة)</label>
+                    <label class="block text-xs font-black text-slate-500 uppercase mb-3 mr-2 tracking-wider italic text-right" data-i18n="screenshot_label">إرفاق إثبات التحويل (لقطة شاشة)</label>
                     <div class="upload-container" onclick="document.getElementById('screenshot-input').click()">
                         <i class="fa-solid fa-camera-retro text-4xl text-[var(--gold-primary)] mb-2"></i>
-                        <p class="text-xs text-slate-400">انقر هنا لاختيار الصورة من جهازك</p>
+                        <p class="text-xs text-slate-400" data-i18n="click_to_upload">انقر هنا لاختيار الصورة من جهازك</p>
                         <input type="file" id="screenshot-input" accept="image/*" class="hidden" onchange="previewImage(this)">
                         <img id="screenshot-preview" src="" alt="معاينة الصورة">
                     </div>
@@ -243,14 +274,14 @@
                 <div class="bg-red-900/20 border border-red-500/30 rounded-2xl p-4 mb-8 flex items-start gap-4 text-right">
                     <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mt-1"></i>
                     <div>
-                        <h4 class="text-red-400 font-black text-sm mb-1">تحذير هام جداً</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed">تأكد من ارسال الاموال عبر شبكة <strong class="text-white text-lg underline italic">erc20</strong> فقط. إرسال الأموال عبر شبكة أخرى سيؤدي إلى ضياعها ولن نتمكن من استردادها. لا تقم بالضغط على تأكيد إلا بعد إتمام التحويل فعلياً.</p>
+                        <h4 class="text-red-400 font-black text-sm mb-1" data-i18n="warning_title">تحذير هام جداً</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed" data-i18n="warning_text">تأكد من إرسال الأموال عبر شبكة <strong class="text-white text-lg underline italic">ERC20</strong> فقط. إرسال الأموال عبر شبكة أخرى سيؤدي إلى ضياعها ولن نتمكن من استردادها. لا تقم بالضغط على تأكيد إلا بعد إتمام التحويل فعلياً.</p>
                     </div>
                 </div>
 
                 <button onclick="submitDeposit()" id="submit-btn" class="royal-btn-submit uppercase italic">
                     <i class="fa-solid fa-paper-plane"></i>
-                    <span>تأكيد الإيداع الآن</span>
+                    <span data-i18n="confirm_deposit">تأكيد الإيداع الآن</span>
                 </button>
 
             </div>
@@ -258,25 +289,106 @@
     </main>
 
     <footer class="text-center py-6 text-slate-600 text-xs font-bold">
-        <p>&copy; 2026 Golden Emperor System. جميع الحقوق محفوظة.</p>
+        <p>&copy; 2026 Golden Emperor System. <span data-i18n="all_rights">جميع الحقوق محفوظة.</span></p>
     </footer>
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (لا نحتاج CSRF)
+        // 1. الإعدادات العامة - مسارات نسبية (يعمل على Railway)
         // ============================================================
-        const API_BASE_URL = "best-deal-production.up.railway.app";
+        const API_BASE_URL = '';
         const URL_DEPOSIT_ADD = `${API_BASE_URL}/api/deposits/add`;
         const URL_ME = `${API_BASE_URL}/api/users/me`;
+        const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
 
         // ============================================================
-        // 2. التحقق من الجلسة
+        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // ============================================================
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                return {};
+            }
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            // Update placeholders
+            const amountInput = document.getElementById('deposit-amount');
+            if (amountInput && t.amount_placeholder) amountInput.placeholder = t.amount_placeholder;
+            // Direction
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+            }
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
+            });
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) await loadTranslations(lang);
+            applyTranslations(lang);
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // 3. دالة fetch مع إعادة محاولة التجديد التلقائي
+        // ============================================================
+        async function fetchWithAuth(url, options = {}) {
+            options.credentials = 'include';
+            let response = await fetch(url, options);
+            if (response.status === 401 || response.status === 403) {
+                const refreshRes = await fetch(URL_REFRESH, { method: 'POST', credentials: 'include' });
+                if (refreshRes.ok) {
+                    response = await fetch(url, options);
+                } else {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                    throw new Error('Session expired');
+                }
+            }
+            return response;
+        }
+
+        // ============================================================
+        // 4. التحقق من الجلسة وجلب بيانات المستخدم (اختياري)
         // ============================================================
         async function checkAuthAndGetUser() {
             try {
-                const response = await fetch(URL_ME, {
-                    credentials: 'include'
-                });
+                const response = await fetchWithAuth(URL_ME);
                 if (!response.ok) throw new Error('غير مصرح');
                 const user = await response.json();
                 localStorage.setItem('currentUser', JSON.stringify(user));
@@ -284,8 +396,8 @@
             } catch (err) {
                 console.error("Auth check failed:", err);
                 Swal.fire({
-                    title: 'غير مصرح',
-                    text: 'الرجاء تسجيل الدخول أولاً للوصول إلى صفحة الإيداع',
+                    title: translations[currentLang]?.unauthorized || 'غير مصرح',
+                    text: translations[currentLang]?.login_required_deposit || 'الرجاء تسجيل الدخول أولاً للوصول إلى صفحة الإيداع',
                     icon: 'warning',
                     background: '#05070a',
                     color: '#fff',
@@ -298,7 +410,7 @@
         }
 
         // ============================================================
-        // 3. وظائف الصورة
+        // 5. وظائف الصورة
         // ============================================================
         function previewImage(input) {
             const preview = document.getElementById('screenshot-preview');
@@ -319,19 +431,19 @@
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
-                    title: 'تم نسخ العنوان بنجاح',
+                    title: translations[currentLang]?.copied || 'تم نسخ العنوان بنجاح',
                     showConfirmButton: false,
                     timer: 2000,
                     background: '#05070a',
                     color: '#fff'
                 });
             }).catch(() => {
-                Swal.fire('خطأ', 'تعذر نسخ العنوان', 'error');
+                Swal.fire('خطأ', translations[currentLang]?.copy_error || 'تعذر نسخ العنوان', 'error');
             });
         }
 
         // ============================================================
-        // 4. إرسال طلب الإيداع (بدون CSRF)
+        // 6. إرسال طلب الإيداع (باستخدام fetchWithAuth و FormData)
         // ============================================================
         async function submitDeposit() {
             const user = await checkAuthAndGetUser();
@@ -342,18 +454,18 @@
             const amount = parseFloat(amountInput.value);
 
             if (!amount || amount <= 0) {
-                Swal.fire('خطأ', 'يرجى إدخال مبلغ صحيح!', 'error');
+                Swal.fire('خطأ', translations[currentLang]?.invalid_amount || 'يرجى إدخال مبلغ صحيح!', 'error');
                 return;
             }
 
             if (!fileInput.files || !fileInput.files[0]) {
-                Swal.fire('تنبيه', 'يرجى إرفاق لقطة شاشة لإثبات عملية التحويل!', 'warning');
+                Swal.fire('تنبيه', translations[currentLang]?.screenshot_required || 'يرجى إرفاق لقطة شاشة لإثبات عملية التحويل!', 'warning');
                 return;
             }
 
             const btn = document.getElementById('submit-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري رفع البيانات...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.uploading || 'جاري رفع البيانات...');
 
             const formData = new FormData();
             formData.append('screenshot', fileInput.files[0]);
@@ -361,18 +473,17 @@
             formData.append('method', 'USDT/ERC20');
 
             try {
-                const response = await fetch(URL_DEPOSIT_ADD, {
+                const response = await fetchWithAuth(URL_DEPOSIT_ADD, {
                     method: 'POST',
-                    body: formData,
-                    credentials: 'include'
+                    body: formData
                 });
 
                 const data = await response.json();
 
                 if (response.ok && data.success) {
                     Swal.fire({
-                        title: 'تم الإرسال بنجاح!',
-                        text: 'سيقوم الأدمن بمراجعة طلبك وصورة التحويل قريباً.',
+                        title: translations[currentLang]?.success_title || 'تم الإرسال بنجاح!',
+                        text: data.message || (translations[currentLang]?.deposit_success_message || 'سيقوم الأدمن بمراجعة طلبك وصورة التحويل قريباً. ستتلقى إشعاراً عند الموافقة.'),
                         icon: 'success',
                         confirmButtonColor: '#d4af37',
                         background: '#05070a',
@@ -381,21 +492,23 @@
                         window.location.href = 'dashboard.html';
                     });
                 } else {
-                    Swal.fire('خطأ', data.message || 'فشل السيرفر في استلام الطلب.', 'error');
+                    Swal.fire('خطأ', data.message || (translations[currentLang]?.deposit_error || 'فشل السيرفر في استلام الطلب.'), 'error');
                 }
             } catch (error) {
                 console.error("Error in submitDeposit:", error);
-                Swal.fire('فشل الاتصال', `تأكد من تشغيل السيرفر (Backend) على المنفذ 5000.\n${error.message}`, 'error');
+                Swal.fire('فشل الاتصال', translations[currentLang]?.connection_error || `تأكد من اتصالك بالإنترنت أو حاول مرة أخرى.\n${error.message}`, 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>تأكيد الإيداع الآن</span>';
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>' + (translations[currentLang]?.confirm_deposit || 'تأكيد الإيداع الآن') + '</span>';
             }
         }
 
         // ============================================================
-        // 5. التشغيل التلقائي عند فتح الصفحة
+        // 7. التشغيل التلقائي عند فتح الصفحة (التحقق من الجلسة والترجمة)
         // ============================================================
         window.onload = async () => {
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
             await checkAuthAndGetUser();
         };
     </script>

@@ -1,24 +1,42 @@
 {
   "name": "best-deal-backend",
-  "version": "1.0.0",
-  "description": "Best Deal Gold System Backend",
+  "version": "2.0.0",
+  "description": "Best Deal Gold System - Complete Backend with Multi-Language Support (Arabic, English, Chinese, German)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
+  "keywords": [
+    "investment",
+    "gold",
+    "backend",
+    "express",
+    "mysql",
+    "i18n",
+    "multi-language"
+  ],
+  "author": "Best Deal Team",
+  "license": "ISC",
   "dependencies": {
-    "@sentry/node": "^7.80.0",
+    "express": "^4.18.2",
+    "mysql2": "^3.6.0",
     "bcrypt": "^5.1.0",
-    "cloudinary": "^1.41.0",
+    "jsonwebtoken": "^9.0.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "express-rate-limit": "^6.7.0",
-    "express-validator": "^6.15.0",
-    "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.6.0",
-    "node-cron": "^3.0.2"
+    "express-rate-limit": "^6.7.0",
+    "node-cron": "^3.0.2",
+    "express-validator": "^6.15.0",
+    "cloudinary": "^1.41.0",
+    "@sentry/node": "^7.80.0",
+    "i18next": "^23.7.6",
+    "i18next-fs-backend": "^2.3.1",
+    "i18next-http-middleware": "^3.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

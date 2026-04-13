@@ -18,6 +18,7 @@
             --gold-dark: #8a6d3b;
             --black-bg: #05070a;
             --card-glass: rgba(15, 23, 42, 0.95);
+            --border-gold: rgba(212, 175, 55, 0.25);
         }
 
         * {
@@ -44,13 +45,19 @@
         .registration-card {
             background: var(--card-glass);
             border: 2px solid rgba(212, 175, 55, 0.25);
-            padding: 4rem;
-            border-radius: 3.5rem;
+            padding: 2rem;
+            border-radius: 3rem;
             width: 100%;
-            max-width: 850px;
+            max-width: 950px;
             box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9), 0 0 40px rgba(212, 175, 55, 0.1);
             backdrop-filter: blur(20px);
             animation: slideUpFade 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @media (min-width: 768px) {
+            .registration-card {
+                padding: 3rem;
+            }
         }
 
         @keyframes slideUpFade {
@@ -67,8 +74,8 @@
 
         label {
             display: block;
-            margin-bottom: 0.8rem;
-            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.7rem;
             font-weight: 800;
             color: var(--gold-main);
             text-transform: uppercase;
@@ -77,441 +84,540 @@
 
         .input-wrapper {
             position: relative;
-            margin-bottom: 2rem;
+            margin-bottom: 1.2rem;
         }
 
         .input-wrapper i {
             position: absolute;
-            right: 1.5rem;
-            top: 3.3rem;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--gold-main);
-            font-size: 1.2rem;
-            transition: 0.4s;
-            pointer-events: none;
+            font-size: 1rem;
+            z-index: 2;
         }
 
         .form-input {
             width: 100%;
-            padding: 1.3rem 4rem 1.3rem 1.5rem;
-            background: rgba(0, 0, 0, 0.5);
+            padding: 0.9rem 2.8rem 0.9rem 1rem;
+            background: rgba(0, 0, 0, 0.6);
             border: 1.5px solid rgba(255, 255, 255, 0.08);
-            border-radius: 1.2rem;
+            border-radius: 1rem;
             color: #fff;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.9rem;
             outline: none;
-            transition: all 0.4s ease;
+            transition: all 0.4s;
         }
 
         .form-input:focus {
             border-color: var(--gold-main);
-            background: rgba(0, 0, 0, 0.7);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.25);
-            transform: scale(1.01);
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
         }
 
-        .gold-btn {
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0 1.2rem;
+        }
+        @media (min-width: 640px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .btn-gold {
             width: 100%;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, var(--gold-main), #8a6d3b);
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--gold-main), var(--gold-dark));
             border: none;
-            border-radius: 1.5rem;
+            border-radius: 1.2rem;
             color: #000;
-            font-size: 1.3rem;
+            font-size: 1rem;
             font-weight: 900;
             cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.4s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-top: 2rem;
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+            gap: 12px;
+            margin-top: 0.5rem;
         }
 
-        .gold-btn:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.5);
-            filter: brightness(1.2);
+        .btn-gold:hover:not(:disabled) {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
         }
 
-        .gold-btn:disabled {
+        .btn-gold:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .card-footer {
-            margin-top: 2.5rem;
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 2rem;
-        }
-
-        .login-link {
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--gold-main);
             color: var(--gold-main);
-            font-weight: 900;
-            text-decoration: none;
+            padding: 0.7rem 1rem;
+            border-radius: 1rem;
+            font-weight: bold;
+            font-size: 0.8rem;
+            cursor: pointer;
             transition: 0.3s;
+            white-space: nowrap;
+        }
+        .btn-outline:hover {
+            background: rgba(212,175,55,0.1);
         }
 
-        .login-link:hover {
+        .verification-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+        .verification-row input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .verification-row button {
+            width: auto;
+            padding: 0.9rem 1.2rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: var(--gold-main);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .back-link:hover {
             text-decoration: underline;
         }
 
-        .verification-section {
-            background: rgba(212, 175, 55, 0.1);
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            display: none;
-            border: 1px solid rgba(212,175,55,0.3);
-        }
-
-        .username-status {
+        .note-text {
             font-size: 0.7rem;
-            margin-top: 0.3rem;
+            color: #64748b;
+            margin-top: 0.2rem;
             margin-right: 0.5rem;
         }
-        .username-available { color: #10b981; }
-        .username-taken { color: #ef4444; }
-        .username-checking { color: #f59e0b; }
-        .email-status { font-size: 0.7rem; margin-top: 0.3rem; margin-right: 0.5rem; }
-        .email-valid { color: #10b981; }
-        .email-invalid { color: #ef4444; }
-        .email-checking { color: #f59e0b; }
+
+        /* Language Switcher */
+        .lang-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: inline-flex;
+            gap: 0.25rem;
+            border: 1px solid rgba(212,175,55,0.3);
+            margin-bottom: 1rem;
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
+        }
     </style>
 </head>
 <body>
-
     <div class="registration-card">
-        <div class="text-center mb-12">
-            <div class="inline-flex items-center justify-center w-24 h-24 rounded-[2rem] bg-gold-main/10 border-2 border-gold-main mb-6 shadow-2xl">
-                <i class="fa-solid fa-crown text-5xl text-[var(--gold-main)]"></i>
+        <div class="flex justify-between items-center mb-4">
+            <div></div>
+            <div class="lang-selector">
+                <div class="lang-option active" data-lang="ar">العربية</div>
+                <div class="lang-option" data-lang="en">English</div>
+                <div class="lang-option" data-lang="zh">中文</div>
+                <div class="lang-option" data-lang="de">Deutsch</div>
             </div>
-            <h1 class="text-4xl font-black gold-title italic uppercase tracking-tighter">بناء الهوية الإمبراطورية</h1>
-            <p class="text-slate-500 text-[11px] font-black mt-4 tracking-[0.5em] uppercase opacity-70">Supreme User Registration Core V6.0</p>
         </div>
 
-        <form id="regForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="input-wrapper">
-                    <label>اسم المستخدم (Unique ID)</label>
-                    <input type="text" id="username" class="form-input" placeholder="User_2026" required autocomplete="off">
-                    <i class="fa-solid fa-fingerprint"></i>
-                    <div id="username-status" class="username-status"></div>
-                </div>
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gold-main/10 border-2 border-gold-main mb-4">
+                <i class="fa-solid fa-crown text-3xl text-gold-main"></i>
+            </div>
+            <h1 class="text-3xl font-black gold-title italic" data-i18n="register_title">حساب جديد</h1>
+            <p class="text-slate-400 text-xs mt-2" data-i18n="register_subtitle">انضم إلى منصة Best Deal الذهبية واستثمر بذكاء</p>
+        </div>
 
+        <form id="registerForm">
+            <div class="grid-2">
                 <div class="input-wrapper">
-                    <label>كلمة المرور (Secret Access)</label>
-                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
-                    <i class="fa-solid fa-shield-halved"></i>
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" class="form-input" placeholder="اسم المستخدم" required>
+                    <div class="note-text" data-i18n="username_note">سيكون فريداً للدخول إلى المنصة</div>
+                </div>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-signature"></i>
+                    <input type="text" id="fullName" class="form-input" placeholder="الاسم الكامل" required>
                 </div>
             </div>
 
             <div class="input-wrapper">
-                <label>الاسم الكامل (Full Legal Identity)</label>
-                <input type="text" id="fullName" class="form-input" placeholder="أدخل اسمك الثلاثي بدقة" required>
-                <i class="fa-solid fa-signature"></i>
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="email" class="form-input" placeholder="البريد الإلكتروني" required>
+                <div class="note-text" data-i18n="email_note">سيتم إرسال رمز التحقق إلى هذا البريد</div>
             </div>
 
-            <div class="input-wrapper">
-                <label>البريد الإلكتروني (Official Email)</label>
-                <input type="email" id="email" class="form-input" placeholder="example@domain.com" required>
-                <i class="fa-solid fa-envelope-open-text"></i>
-                <div id="email-status" class="email-status"></div>
-            </div>
-
-            <!-- قسم التحقق (يظهر بعد إرسال الرمز) -->
-            <div id="verificationSection" class="verification-section">
-                <label>رمز التحقق (6 أرقام)</label>
-                <input type="text" id="verificationCode" class="form-input" placeholder="أدخل الرمز المرسل إلى بريدك" maxlength="6">
-                <p class="text-[10px] text-slate-400 mt-1">إذا لم تصلك رسالة، يمكنك التسجيل بدون توثيق وسيتم تفعيل حسابك لاحقاً.</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid-2">
                 <div class="input-wrapper">
-                    <label>بلد المنشأ (Country of Origin)</label>
-                    <input type="text" id="origin" class="form-input" placeholder="أدخل بلدك الأصلي">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" class="form-input" placeholder="كلمة المرور" required>
+                </div>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <input type="password" id="confirmPassword" class="form-input" placeholder="تأكيد كلمة المرور" required>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-wrapper">
                     <i class="fa-solid fa-globe"></i>
+                    <input type="text" id="origin" class="form-input" placeholder="بلد المنشأ">
                 </div>
-
                 <div class="input-wrapper">
-                    <label>السكن الحالي (Current Residence)</label>
-                    <input type="text" id="location" class="form-input" placeholder="المدينة، المنطقة">
-                    <i class="fa-solid fa-map-pinned"></i>
+                    <i class="fa-solid fa-location-dot"></i>
+                    <input type="text" id="currentLocation" class="form-input" placeholder="السكن الحالي">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <input type="text" id="currentJob" class="form-input" placeholder="العمل الحالي">
+                </div>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <input type="text" id="profession" class="form-input" placeholder="المهنة">
                 </div>
             </div>
 
             <div class="input-wrapper">
-                <label>العمل الحالي (Current Profession/Job)</label>
-                <input type="text" id="currentJob" class="form-input" placeholder="ما هو مسماك الوظيفي الحالي؟">
-                <i class="fa-solid fa-briefcase"></i>
+                <i class="fa-solid fa-gift"></i>
+                <input type="text" id="referrerCode" class="form-input" placeholder="كود الإحالة (اختياري)">
+                <div class="note-text" data-i18n="referral_note">إذا كان لديك كود دعائي من صديق، أدخله هنا</div>
             </div>
 
-            <button type="button" id="sendCodeBtn" class="gold-btn" style="background: linear-gradient(135deg, #2c3e50, #1a2632); margin-top: 0;">
-                <i class="fa-solid fa-paper-plane"></i>
-                <span>إرسال رمز التحقق</span>
-            </button>
+            <div class="verification-row">
+                <input type="text" id="verificationCode" class="form-input" placeholder="رمز التحقق (6 أرقام)">
+                <button type="button" id="sendCodeBtn" class="btn-outline">
+                    <i class="fa-regular fa-paper-plane ml-1"></i> <span data-i18n="send_code">إرسال الرمز</span>
+                </button>
+            </div>
 
-            <button type="submit" id="submitBtn" class="gold-btn" style="display: none;">
-                <span>تأكيد البيانات والانضمام</span>
-                <i class="fa-solid fa-circle-check"></i>
+            <button type="submit" id="registerBtn" class="btn-gold">
+                <i class="fa-regular fa-circle-check"></i> <span data-i18n="create_account_btn">إنشاء الحساب</span>
             </button>
         </form>
 
-        <div class="card-footer">
-            <p class="text-slate-500 font-bold text-sm">
-                هل تمتلك حساباً بالفعل؟ 
-                <a href="login.html" class="login-link ml-2 italic">دخول للمنظومة</a>
-            </p>
+        <div class="text-center mt-6">
+            <a href="login.html" class="back-link">
+                <i class="fa-solid fa-arrow-right ml-1"></i> <span data-i18n="have_account">لديك حساب بالفعل؟ سجل دخول الآن</span>
+            </a>
         </div>
     </div>
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (لا نحتاج CSRF)
+        // 1. الإعدادات العامة - مسارات نسبية
         // ============================================================
-        const API_BASE_URL = "best-deal-production.up.railway.app";
-        let pendingEmail = null;
-        let isUsernameValid = false;
-        let isEmailValid = false;
-        let usernameCheckTimer = null;
-        let emailCheckTimer = null;
+        const API_BASE_URL = '';
+        const URL_SEND_VERIFICATION = `${API_BASE_URL}/api/auth/send-verification`;
+        const URL_REGISTER = `${API_BASE_URL}/api/users/register`;
+        const URL_CHECK_USERNAME = `${API_BASE_URL}/api/users/check-username`;
+        const URL_VALIDATE_EMAIL = `${API_BASE_URL}/api/auth/validate-email`;
 
-        // قراءة رمز الإحالة من الرابط (مثل ?ref=freeze_ref_999)
-        function getReferrerCode() {
+        // ============================================================
+        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // ============================================================
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                return {};
+            }
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            // Update placeholders
+            const placeholders = {
+                username: t.username_placeholder || 'اسم المستخدم',
+                fullName: t.fullname_placeholder || 'الاسم الكامل',
+                email: t.email_placeholder || 'البريد الإلكتروني',
+                password: t.password_placeholder || 'كلمة المرور',
+                confirmPassword: t.confirm_password_placeholder || 'تأكيد كلمة المرور',
+                origin: t.origin_placeholder || 'بلد المنشأ',
+                currentLocation: t.current_location_placeholder || 'السكن الحالي',
+                currentJob: t.current_job_placeholder || 'العمل الحالي',
+                profession: t.profession_placeholder || 'المهنة',
+                referrerCode: t.referrer_code_placeholder || 'كود الإحالة (اختياري)',
+                verificationCode: t.verification_code_placeholder || 'رمز التحقق (6 أرقام)'
+            };
+            for (const [id, placeholder] of Object.entries(placeholders)) {
+                const input = document.getElementById(id);
+                if (input) input.placeholder = placeholder;
+            }
+            // Direction
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+            }
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
+            });
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) await loadTranslations(lang);
+            applyTranslations(lang);
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // 3. جلب كود الإحالة من الرابط إن وجد
+        // ============================================================
+        function getReferrerCodeFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('ref');
         }
 
         // ============================================================
-        // 2. التحقق من وجود اسم المستخدم (لحظي)
+        // 4. التحقق من البريد الإلكتروني (نطاق حقيقي)
         // ============================================================
-        const usernameInput = document.getElementById('username');
-        const usernameStatus = document.getElementById('username-status');
-
-        async function checkUsernameAvailability(username) {
-            if (!username || username.length < 3) {
-                usernameStatus.innerHTML = '<span class="username-checking">⏳ يجب أن يكون 3 أحرف على الأقل</span>';
-                isUsernameValid = false;
-                return false;
-            }
-            usernameStatus.innerHTML = '<span class="username-checking">🔍 جاري التحقق...</span>';
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/users/check-username?username=${encodeURIComponent(username)}`);
-                const data = await response.json();
-                if (data.exists) {
-                    usernameStatus.innerHTML = '<span class="username-taken">❌ اسم المستخدم موجود بالفعل، اختر اسماً آخر</span>';
-                    isUsernameValid = false;
-                    return false;
-                } else {
-                    usernameStatus.innerHTML = '<span class="username-available">✅ اسم المستخدم متاح</span>';
-                    isUsernameValid = true;
-                    return true;
-                }
-            } catch (err) {
-                console.error("خطأ في التحقق:", err);
-                usernameStatus.innerHTML = '<span class="username-checking">⚠️ تعذر التحقق، حاول مرة أخرى</span>';
-                isUsernameValid = false;
-                return false;
-            }
-        }
-
-        usernameInput.addEventListener('input', function() {
-            clearTimeout(usernameCheckTimer);
-            const val = this.value.trim();
-            if (val.length >= 3) {
-                usernameCheckTimer = setTimeout(() => checkUsernameAvailability(val), 500);
-            } else if (val.length > 0 && val.length < 3) {
-                usernameStatus.innerHTML = '<span class="username-checking">⏳ يجب أن يكون 3 أحرف على الأقل</span>';
-                isUsernameValid = false;
-            } else {
-                usernameStatus.innerHTML = '';
-                isUsernameValid = false;
-            }
-        });
-
-        // ============================================================
-        // 3. التحقق من صحة البريد الإلكتروني (نطاق حقيقي)
-        // ============================================================
-        const emailInput = document.getElementById('email');
-        const emailStatus = document.getElementById('email-status');
-
-        async function validateEmailDomain(email) {
-            if (!email || !email.includes('@')) {
-                emailStatus.innerHTML = '<span class="email-invalid">⚠️ صيغة بريد غير صحيحة</span>';
-                isEmailValid = false;
-                return false;
-            }
-            emailStatus.innerHTML = '<span class="email-checking">🔍 جاري التحقق من البريد...</span>';
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/validate-email?email=${encodeURIComponent(email)}`);
-                const data = await response.json();
-                if (data.valid) {
-                    emailStatus.innerHTML = '<span class="email-valid">✅ البريد صالح</span>';
-                    isEmailValid = true;
-                    return true;
-                } else {
-                    emailStatus.innerHTML = `<span class="email-invalid">❌ ${data.reason || 'البريد غير صالح'}</span>`;
-                    isEmailValid = false;
-                    return false;
-                }
-            } catch (err) {
-                console.error("خطأ في التحقق من البريد:", err);
-                emailStatus.innerHTML = '<span class="email-checking">⚠️ تعذر التحقق، يمكنك المتابعة ولكن لن يتم إرسال رمز</span>';
-                isEmailValid = false;
-                return false;
-            }
-        }
-
-        emailInput.addEventListener('input', function() {
-            clearTimeout(emailCheckTimer);
-            const val = this.value.trim();
-            if (val.includes('@') && val.length > 5) {
-                emailCheckTimer = setTimeout(() => validateEmailDomain(val), 700);
-            } else if (val.length > 0) {
-                emailStatus.innerHTML = '<span class="email-checking">⏳ أدخل بريداً كاملاً</span>';
-                isEmailValid = false;
-            } else {
-                emailStatus.innerHTML = '';
-                isEmailValid = false;
-            }
-        });
-
-        // ============================================================
-        // 4. إرسال رمز التحقق (إذا كان البريد صالحاً)
-        // ============================================================
-        const sendCodeBtn = document.getElementById('sendCodeBtn');
-        const verificationSection = document.getElementById('verificationSection');
-        const submitBtn = document.getElementById('submitBtn');
-
-        sendCodeBtn.addEventListener('click', async () => {
-            const email = emailInput.value.trim();
-            if (!email) {
-                Swal.fire('خطأ', 'يرجى إدخال البريد الإلكتروني أولاً', 'error');
-                return;
-            }
-            // إذا كان البريد غير صالح، نسمح بالتسجيل بدون رمز (حساب غير موثق)
-            if (!isEmailValid) {
-                Swal.fire({
-                    title: 'تنبيه',
-                    text: 'البريد الإلكتروني غير صالح أو لم نتمكن من التحقق منه. سيتم إنشاء حسابك كـ "غير موثق" ويمكنك تفعيله لاحقاً.',
-                    icon: 'warning',
-                    confirmButtonText: 'متابعة بدون توثيق',
-                    showCancelButton: true,
-                    cancelButtonText: 'إلغاء'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        pendingEmail = email;
-                        verificationSection.style.display = 'block';
-                        submitBtn.style.display = 'flex';
-                        sendCodeBtn.style.display = 'none';
-                        Swal.fire('تم', 'يمكنك إكمال التسجيل الآن، سيتم إنشاء حساب غير موثق', 'info');
+        let emailTimeout;
+        document.getElementById('email').addEventListener('input', async (e) => {
+            clearTimeout(emailTimeout);
+            const email = e.target.value.trim();
+            if (!email.includes('@')) return;
+            emailTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`${URL_VALIDATE_EMAIL}?email=${encodeURIComponent(email)}`);
+                    const data = await res.json();
+                    if (!data.valid) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: translations[currentLang]?.invalid_email_title || 'بريد غير صالح',
+                            text: data.reason || (translations[currentLang]?.invalid_email_reason || 'يرجى استخدام بريد إلكتروني حقيقي (غير مؤقت)'),
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 4000
+                        });
+                        document.getElementById('email').classList.add('border-red-500');
+                    } else {
+                        document.getElementById('email').classList.remove('border-red-500');
                     }
-                });
+                } catch(e) {}
+            }, 800);
+        });
+
+        // ============================================================
+        // 5. التحقق من اسم المستخدم فوراً (تجنب التكرار)
+        // ============================================================
+        let usernameTimeout;
+        document.getElementById('username').addEventListener('input', async (e) => {
+            clearTimeout(usernameTimeout);
+            const username = e.target.value.trim();
+            if (username.length < 3) return;
+            usernameTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`${URL_CHECK_USERNAME}?username=${encodeURIComponent(username)}`);
+                    const data = await res.json();
+                    if (data.exists) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: translations[currentLang]?.username_taken_title || 'اسم مستخدم موجود',
+                            text: translations[currentLang]?.username_taken_text || 'هذا الاسم مستخدم بالفعل، اختر اسماً آخر',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                        document.getElementById('username').classList.add('border-red-500');
+                    } else {
+                        document.getElementById('username').classList.remove('border-red-500');
+                    }
+                } catch(e) {}
+            }, 500);
+        });
+
+        // ============================================================
+        // 6. إرسال رمز التحقق
+        // ============================================================
+        document.getElementById('sendCodeBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                Swal.fire('خطأ', translations[currentLang]?.email_required || 'يرجى إدخال البريد الإلكتروني أولاً', 'error');
                 return;
             }
-
-            // البريد صالح، نرسل رمز التحقق
-            const btn = sendCodeBtn;
+            const btn = document.getElementById('sendCodeBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.sending || 'جاري الإرسال...');
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/send-verification`, {
+                const response = await fetch(URL_SEND_VERIFICATION, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({ email }),
+                    credentials: 'include'
                 });
                 const data = await response.json();
                 if (data.success) {
-                    pendingEmail = email;
-                    verificationSection.style.display = 'block';
-                    submitBtn.style.display = 'flex';
-                    sendCodeBtn.style.display = 'none';
-                    Swal.fire('تم الإرسال', 'تم إرسال رمز التحقق إلى بريدك الإلكتروني', 'success');
+                    Swal.fire(translations[currentLang]?.code_sent_title || 'تم الإرسال', translations[currentLang]?.code_sent_message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني (تحقق من spam إذا لم يصلك، أو راجع وحدة تحكم الخادم للاطلاع على الرمز في وضع التطوير)', 'success');
                 } else {
-                    Swal.fire('خطأ', data.message, 'error');
+                    Swal.fire('خطأ', data.message || (translations[currentLang]?.send_code_failed || 'فشل إرسال الرمز'), 'error');
                 }
             } catch (err) {
-                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+                Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالسيرفر', 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>إرسال رمز التحقق</span>';
+                btn.innerHTML = originalText;
             }
         });
 
         // ============================================================
-        // 5. تقديم نموذج التسجيل (مع التحقق من اسم المستخدم)
+        // 7. تقديم نموذج التسجيل الكامل
         // ============================================================
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // التحقق من اسم المستخدم مرة أخيرة
-            const username = usernameInput.value.trim();
-            if (!isUsernameValid) {
-                const available = await checkUsernameAvailability(username);
-                if (!available) {
-                    Swal.fire('اسم مستخدم غير متاح', 'هذا الاسم مستخدم بالفعل أو غير صالح', 'warning');
-                    return;
-                }
-            }
-            
-            const password = document.getElementById('password').value.trim();
+
+            const username = document.getElementById('username').value.trim();
             const fullName = document.getElementById('fullName').value.trim();
-            const email = emailInput.value.trim();
-            const origin = document.getElementById('origin').value.trim();
-            const location = document.getElementById('location').value.trim();
-            const currentJob = document.getElementById('currentJob').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const origin = document.getElementById('origin').value.trim() || 'غير محدد';
+            const currentLocation = document.getElementById('currentLocation').value.trim() || 'غير محدد';
+            const currentJob = document.getElementById('currentJob').value.trim() || 'غير محدد';
+            const profession = document.getElementById('profession').value.trim() || 'غير محدد';
+            let referrerCode = document.getElementById('referrerCode').value.trim();
             const verificationCode = document.getElementById('verificationCode').value.trim();
 
-            if (!username || !password || !fullName || !email) {
-                Swal.fire('بيانات ناقصة', 'يرجى ملء جميع الحقول المطلوبة', 'warning');
+            // إذا كان هناك كود إحالة من الرابط ولم يضع المستخدم شيئاً، نستخدمه
+            const urlReferrer = getReferrerCodeFromUrl();
+            if (!referrerCode && urlReferrer) {
+                referrerCode = urlReferrer;
+                document.getElementById('referrerCode').value = referrerCode;
+            }
+
+            // التحقق من الحقول الأساسية
+            if (!username || !fullName || !email || !password) {
+                Swal.fire('خطأ', translations[currentLang]?.required_fields || 'جميع الحقول الأساسية مطلوبة (اسم المستخدم، الاسم الكامل، البريد، كلمة المرور)', 'error');
+                return;
+            }
+            if (password !== confirmPassword) {
+                Swal.fire('خطأ', translations[currentLang]?.passwords_not_match || 'كلمتا المرور غير متطابقتين', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                Swal.fire('خطأ', translations[currentLang]?.password_too_short || 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+                return;
+            }
+            if (!email.includes('@')) {
+                Swal.fire('خطأ', translations[currentLang]?.invalid_email || 'البريد الإلكتروني غير صالح', 'error');
                 return;
             }
 
-            // إضافة رمز الإحالة إذا وجد
-            const referrerCode = getReferrerCode();
-            const payload = {
-                username, password, fullName, email,
-                origin: origin || 'غير محدد',
-                currentLocation: location || 'غير محدد',
-                currentJob: currentJob || 'بدون عمل',
-                verificationCode: verificationCode || ''  // قد يكون فارغاً إذا سجل بدون توثيق
-            };
-            if (referrerCode) {
-                payload.referrerCode = referrerCode;
-            }
-
-            const btn = submitBtn;
+            const btn = document.getElementById('registerBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التسجيل...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.creating_account || 'جاري إنشاء الحساب...');
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/users/register`, {
+                const response = await fetch(URL_REGISTER, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        fullName,
+                        email,
+                        origin,
+                        currentLocation,
+                        currentJob,
+                        work: currentJob,
+                        profession,
+                        verificationCode,
+                        referrerCode
+                    }),
                     credentials: 'include'
                 });
                 const data = await response.json();
                 if (data.success) {
                     Swal.fire({
-                        title: 'تم التسجيل',
-                        text: data.message || 'تم إنشاء حسابك بنجاح، يمكنك تسجيل الدخول الآن',
-                        icon: 'success'
-                    }).then(() => window.location.href = 'login.html');
+                        title: translations[currentLang]?.register_success_title || 'تم التسجيل بنجاح',
+                        text: data.message || (translations[currentLang]?.register_success_text || 'يمكنك الآن تسجيل الدخول إلى المنصة'),
+                        icon: 'success',
+                        background: '#05070a',
+                        color: '#fff',
+                        confirmButtonColor: '#d4af37'
+                    }).then(() => {
+                        window.location.href = 'login.html';
+                    });
                 } else {
-                    Swal.fire('فشل', data.message, 'error');
+                    Swal.fire(translations[currentLang]?.register_failed_title || 'فشل التسجيل', data.message || (translations[currentLang]?.register_failed_text || 'حدث خطأ غير معروف'), 'error');
                 }
             } catch (err) {
                 console.error(err);
-                Swal.fire('خطأ', 'فشل الاتصال بالسيرفر', 'error');
+                Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالسيرفر، تأكد من تشغيل الخادم', 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<span>تأكيد البيانات والانضمام</span> <i class="fa-solid fa-circle-check"></i>';
+                btn.innerHTML = '<i class="fa-regular fa-circle-check"></i> ' + (translations[currentLang]?.create_account_btn || 'إنشاء الحساب');
             }
         });
+
+        // ============================================================
+        // 8. تحميل الترجمات الأولية
+        // ============================================================
+        window.onload = async () => {
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
+        };
     </script>
 </body>
 </html>

@@ -36,7 +36,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* تنسيقات الزجاجية الفاخرة */
         .glass {
             background: var(--card-glass);
             backdrop-filter: blur(20px);
@@ -44,7 +43,6 @@
             border-radius: 1.5rem;
         }
 
-        /* البطاقة الذهبية المميزة */
         .exclusive-offer {
             background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
             border: 2px solid var(--gold-main);
@@ -65,7 +63,6 @@
             pointer-events: none;
         }
 
-        /* النص الذهبي المتدرج */
         .gold-gradient-text {
             background: linear-gradient(135deg, var(--gold-light), var(--gold-main), var(--gold-dark));
             -webkit-background-clip: text;
@@ -73,7 +70,6 @@
             font-weight: 900;
         }
 
-        /* شريط الإشعارات العلوي */
         .top-bar {
             background: linear-gradient(135deg, var(--gold-dark), var(--gold-main));
             color: #000;
@@ -90,7 +86,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        /* شريط التنقل العلوي */
         .nav-bar {
             position: fixed;
             top: 1.75rem;
@@ -105,7 +100,6 @@
             border-bottom: 1px solid var(--border-gold);
         }
 
-        /* أزرار ذهبية */
         .btn-gold-outline {
             background: rgba(212, 175, 55, 0.1);
             border: 1px solid var(--gold-main);
@@ -136,7 +130,6 @@
             box-shadow: 0 15px 25px -5px rgba(212, 175, 55, 0.5);
         }
 
-        /* الـ Modal */
         #choiceModal {
             display: none;
             position: fixed;
@@ -149,7 +142,6 @@
             padding: 20px;
         }
 
-        /* القائمة السفلية */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -184,7 +176,6 @@
             font-size: 1.4rem;
         }
 
-        /* بطاقات المميزات */
         .feature-card {
             background: var(--card-glass);
             border: 1px solid var(--border-gold);
@@ -192,6 +183,7 @@
             padding: 1.25rem;
             text-align: center;
             transition: all 0.4s ease;
+            cursor: pointer;
         }
 
         .feature-card:hover {
@@ -205,14 +197,111 @@
             color: var(--gold-main);
             margin-bottom: 0.5rem;
         }
+
+        /* Modals for explanations */
+        .info-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(15px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .info-modal-content {
+            background: var(--card-glass);
+            border: 2px solid var(--gold-main);
+            border-radius: 2rem;
+            max-width: 800px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--gold-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .close-modal:hover {
+            background: rgba(212,175,55,0.2);
+        }
+        .info-section {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(212,175,55,0.2);
+            padding-bottom: 1rem;
+        }
+        .info-section h3 {
+            color: var(--gold-main);
+            font-weight: 900;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .info-section p, .info-section li {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+        .info-section ul {
+            margin-right: 1.5rem;
+        }
+        .highlight {
+            color: var(--gold-main);
+            font-weight: bold;
+        }
+
+        /* Language Switcher */
+        .lang-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            border: 1px solid rgba(212,175,55,0.3);
+            margin-top: 1rem;
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
+        }
     </style>
 </head>
 <body onload="initSite()">
 
     <!-- الشريط العلوي الذهبي -->
     <div class="top-bar">
-        <span><i class="fa-solid fa-crown mr-1"></i> نظام تداول آمن وموثوق</span>
-        <span><i class="fa-regular fa-eye"></i> المتصلون: <span id="agent-count">2450</span></span>
+        <span><i class="fa-solid fa-crown mr-1"></i> <span data-i18n="safe_system">نظام تداول آمن وموثوق</span></span>
+        <span><i class="fa-regular fa-eye"></i> <span data-i18n="online_users">المتصلون:</span> <span id="agent-count">2450</span></span>
     </div>
 
     <!-- شريط التنقل العلوي -->
@@ -224,40 +313,67 @@
             <span class="text-xl font-black gold-gradient-text italic uppercase tracking-tighter">Best Deal</span>
         </div>
         <button onclick="checkAccess()" class="btn-gold-outline">
-            <i class="fa-regular fa-user mr-1"></i> حسابي
+            <i class="fa-regular fa-user mr-1"></i> <span data-i18n="my_account">حسابي</span>
         </button>
     </nav>
 
     <!-- المحتوى الرئيسي -->
     <main class="pt-36 pb-32 px-5">
         <div class="text-center mt-4 mb-10">
-            <h1 class="text-4xl font-black mb-3 leading-tight">استثمر بذكاء في <span class="gold-gradient-text">مستقبلك الذهبي</span></h1>
-            <p class="text-slate-400 text-[11px] font-bold uppercase tracking-[0.3em]">المنصة الرقمية الأولى للتداول الآمن بالفخامة الملكية</p>
+            <h1 class="text-4xl font-black mb-3 leading-tight"><span data-i18n="invest_smart">استثمر بذكاء في</span> <span class="gold-gradient-text" data-i18n="golden_future">مستقبلك الذهبي</span></h1>
+            <p class="text-slate-400 text-[11px] font-bold uppercase tracking-[0.3em]" data-i18n="platform_slogan">المنصة الرقمية الأولى للتداول الآمن بالفخامة الملكية</p>
+        </div>
+
+        <!-- Language selector -->
+        <div class="flex justify-center mb-6">
+            <div class="lang-selector">
+                <div class="lang-option active" data-lang="ar">العربية</div>
+                <div class="lang-option" data-lang="en">English</div>
+                <div class="lang-option" data-lang="zh">中文</div>
+                <div class="lang-option" data-lang="de">Deutsch</div>
+            </div>
         </div>
 
         <!-- البطاقة الذهبية المميزة -->
         <div class="exclusive-offer p-8 mb-10 text-center relative z-10">
             <i class="fa-solid fa-chart-line text-5xl text-gold-main mb-4 opacity-80"></i>
-            <h2 class="text-2xl font-black text-white italic mb-2">ابدأ رحلتك الاستثمارية</h2>
-            <p class="text-white/80 text-[12px] font-bold leading-relaxed max-w-md mx-auto">
-                انضم لآلاف المستثمرين وحقق عوائد يومية تصل إلى 80% مع دعم فني متواصل على مدار الساعة.
-            </p>
+            <h2 class="text-2xl font-black text-white italic mb-2" data-i18n="start_journey">ابدأ رحلتك الاستثمارية</h2>
+            <p class="text-white/80 text-[12px] font-bold leading-relaxed max-w-md mx-auto" data-i18n="investment_call">انضم لآلاف المستثمرين وحقق عوائد يومية تصل إلى 5% مع أنظمة إحالات تصل إلى 25% ودعم فني متواصل.</p>
             <button onclick="checkAccess()" class="btn-gold-full w-full mt-8 py-4 rounded-2xl font-black text-sm uppercase italic shadow-2xl transition-all active:scale-95">
-                <i class="fa-solid fa-right-to-bracket ml-2"></i> دخول المنصة الآن
+                <i class="fa-solid fa-right-to-bracket ml-2"></i> <span data-i18n="enter_platform">دخول المنصة الآن</span>
             </button>
         </div>
 
-        <!-- بطاقات المميزات -->
-        <div class="grid grid-cols-2 gap-5">
-            <div class="feature-card">
-                <i class="fa-solid fa-bolt"></i>
-                <h4 class="text-sm font-black text-white uppercase mt-2">سرعة السحب</h4>
-                <p class="text-[9px] text-slate-400 font-bold mt-1">فورية دون انتظار</p>
+        <!-- ثلاثة أزرار شرح النظام -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+            <div class="feature-card" onclick="showInvestModal()">
+                <i class="fa-solid fa-chart-simple"></i>
+                <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="investment_system">نظام الاستثمار</h4>
+                <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="learn_returns">تعرف على خطط العوائد</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card" onclick="showRankModal()">
+                <i class="fa-solid fa-ranking-star"></i>
+                <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="levels_rewards">الرتب والمكافآت</h4>
+                <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="level_up_rewards">ارتقِ واحصل على جوائز</p>
+            </div>
+            <div class="feature-card" onclick="showReferralModal()">
+                <i class="fa-solid fa-user-plus"></i>
+                <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="referral_system">نظام الإحالات</h4>
+                <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="invite_earn_percent">ادعُ واربح نسباً مئوية</p>
+            </div>
+        </div>
+
+        <!-- بطاقات المميزات الإضافية -->
+        <div class="grid grid-cols-2 gap-5">
+            <div class="feature-card" onclick="checkAccess()">
+                <i class="fa-solid fa-bolt"></i>
+                <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="fast_withdrawal">سرعة السحب</h4>
+                <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="fast_review">مراجعة سريعة للطلبات</p>
+            </div>
+            <div class="feature-card" onclick="checkAccess()">
                 <i class="fa-solid fa-shield-halved"></i>
-                <h4 class="text-sm font-black text-white uppercase mt-2">حماية 100%</h4>
-                <p class="text-[9px] text-slate-400 font-bold mt-1">تشفير عالي المستوى</p>
+                <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="full_protection">حماية 100%</h4>
+                <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="high_encryption">تشفير عالي المستوى</p>
             </div>
         </div>
     </main>
@@ -268,18 +384,107 @@
             <div class="w-16 h-16 mx-auto bg-gold-main/10 rounded-2xl flex items-center justify-center mb-4 border border-gold-main">
                 <i class="fa-solid fa-crown text-3xl text-gold-main"></i>
             </div>
-            <h3 class="text-xl font-black mb-2 gold-gradient-text uppercase">الوصول للمنصة</h3>
-            <p class="text-[10px] text-slate-400 mb-6">اختر طريقة الدخول إلى عالم Best Deal</p>
+            <h3 class="text-xl font-black mb-2 gold-gradient-text uppercase" data-i18n="access_platform">الوصول للمنصة</h3>
+            <p class="text-[10px] text-slate-400 mb-6" data-i18n="choose_access_method">اختر طريقة الدخول إلى عالم Best Deal</p>
             <div class="space-y-4">
                 <button onclick="window.location.href='register.html'" class="w-full bg-gradient-to-r from-[#d4af37] to-[#8a6d3b] text-black py-4 rounded-2xl font-black uppercase italic shadow-lg transition-all hover:scale-105">
-                    <i class="fa-solid fa-user-plus ml-2"></i> إنشاء حساب جديد
+                    <i class="fa-solid fa-user-plus ml-2"></i> <span data-i18n="create_account">إنشاء حساب جديد</span>
                 </button>
                 <button onclick="window.location.href='login.html'" class="w-full bg-white/10 text-white py-4 rounded-2xl font-black uppercase italic border border-white/20 transition-all hover:bg-white/20">
-                    <i class="fa-solid fa-right-to-bracket ml-2"></i> تسجيل الدخول
+                    <i class="fa-solid fa-right-to-bracket ml-2"></i> <span data-i18n="login">تسجيل الدخول</span>
                 </button>
                 <button onclick="closeChoice()" class="text-slate-500 text-[11px] font-bold uppercase mt-4 hover:text-gold-main transition">
-                    <i class="fa-solid fa-xmark ml-1"></i> إغلاق
+                    <i class="fa-solid fa-xmark ml-1"></i> <span data-i18n="close">إغلاق</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== نافذة شرح نظام الاستثمار ========== -->
+    <div id="investModal" class="info-modal">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeInvestModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-black gold-gradient-text mb-4 text-center" data-i18n="investment_plan">نظام الاستثمار</h2>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-sun"></i> <span data-i18n="daily_project">المشروع اليومي</span></h3>
+                <p><span data-i18n="min_amount_label">💰 الحد الأدنى:</span> <span class="highlight">90$</span><br>
+                <span data-i18n="return_label">📈 العائد:</span> <span class="highlight">5% يومياً</span> <span data-i18n="daily_return_desc">(يُضاف يومياً إلى أرباحك)</span>.<br>
+                <span data-i18n="lock_period_label">🔒 قفل المبلغ الأصلي:</span> <span class="highlight">10 أيام</span>.<br>
+                <span data-i18n="profit_withdraw_label">✅ سحب الأرباح:</span> <span class="highlight">يومياً</span>.<br>
+                <span data-i18n="principal_after_label">📅 بعد 10 أيام، يمكنك سحب المبلغ الأصلي.</span></p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-calendar-week"></i> <span data-i18n="weekly_project">المشروع الأسبوعي</span></h3>
+                <p><span data-i18n="min_amount_label">💰 الحد الأدنى:</span> <span class="highlight">285$</span><br>
+                <span data-i18n="return_label">📈 العائد:</span> <span class="highlight">8% يومياً</span> <span data-i18n="weekly_return_desc">(تُضاف يومياً، يُسمح بسحبها مرة كل 7 أيام)</span>.<br>
+                <span data-i18n="lock_period_label">🔒 قفل المبلغ الأصلي:</span> <span class="highlight">15 يوم</span>.<br>
+                <span data-i18n="profit_withdraw_label">✅ سحب الأرباح:</span> <span class="highlight">أسبوعياً</span>.<br>
+                <span data-i18n="principal_after_label">📅 بعد 15 يوماً، يمكنك سحب المبلغ الأصلي.</span></p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-calendar-alt"></i> <span data-i18n="monthly_project">المشروع الشهري</span></h3>
+                <p><span data-i18n="min_amount_label">💰 الحد الأدنى:</span> <span class="highlight">490$</span><br>
+                <span data-i18n="return_label">📈 العائد:</span> <span class="highlight">300%</span> <span data-i18n="monthly_return_desc">ربح إجمالي بعد 30 يوماً (400% من الأصل)</span>.<br>
+                <span data-i18n="lock_period_label">🔒 قفل المبلغ الأصلي + الربح:</span> <span class="highlight">30 يوم</span>.<br>
+                <span data-i18n="profit_withdraw_label">✅ سحب الأرباح والأصل:</span> <span class="highlight">بعد 30 يوماً معاً</span>.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-chart-line"></i> <span data-i18n="profit_calculation">كيف تُحتسب الأرباح؟</span></h3>
+                <p data-i18n="profit_calculation_desc">يتم توزيع الأرباح تلقائياً كل ساعة. يمكنك متابعة أرباحك في لوحة التحكم وسحبها فور استحقاقها حسب نوع المشروع.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== نافذة شرح الرتب والمكافآت ========== -->
+    <div id="rankModal" class="info-modal">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeRankModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-black gold-gradient-text mb-4 text-center" data-i18n="levels_rewards">الرتب والمكافآت الفورية</h2>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-medal"></i> <span data-i18n="bronze">المستوى البرونزي</span></h3>
+                <p data-i18n="bronze_desc">الرصيد: أقل من 300$<br>🎁 مكافأة الترقية: لا توجد<br>🤝 الإحالات: 2$ ثابت لكل مدعو يودع 50$ فأكثر.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-medal"></i> <span data-i18n="silver">المستوى الفضي</span></h3>
+                <p data-i18n="silver_desc">الرصيد: 300$ – 999$<br>🎁 مكافأة فورية: 25$<br>🤝 الإحالات: 10% من أول إيداع لكل مدعو.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-medal"></i> <span data-i18n="gold">المستوى الذهبي</span></h3>
+                <p data-i18n="gold_desc">الرصيد: 1000$ – 4999$<br>🎁 مكافأة فورية: 50$<br>🤝 الإحالات: 15% من أول إيداع لكل مدعو.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-medal"></i> <span data-i18n="diamond">المستوى الألماسي</span></h3>
+                <p data-i18n="diamond_desc">الرصيد: 5000$ فأكثر<br>🎁 مكافأة فورية: 500$<br>🤝 الإحالات: 25% من أول إيداع لكل مدعو.</p>
+            </div>
+            <div class="info-section">
+                <p class="text-sm"><i class="fa-regular fa-circle-check text-green-500"></i> <span data-i18n="level_bonus_note">تُمنح مكافآت الترقية تلقائياً فور وصول الرصيد إلى الحد المطلوب. الإحالات تُحسب من أول إيداع يتم قبوله للمدعو بعد تسجيله عبر رابطك.</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== نافذة شرح نظام الإحالات ========== -->
+    <div id="referralModal" class="info-modal">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeReferralModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-black gold-gradient-text mb-4 text-center" data-i18n="referral_system_title">نظام الإحالات (دع الأصدقاء)</h2>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-link"></i> <span data-i18n="how_it_works">كيف يعمل؟</span></h3>
+                <p data-i18n="referral_how_desc">احصل على رابط إحالة خاص بك من لوحة التحكم. شاركه مع أصدقائك. عندما يسجل صديق عبر رابطك ويقوم بأول إيداع (يتم قبوله من الإدارة)، تحصل أنت على مكافأة إحالة حسب مستواك الحالي:</p>
+                <ul class="mr-5 mt-2">
+                    <li>▪️ <span data-i18n="bronze">برونزي:</span> <span data-i18n="bronze_referral_detail">2$ ثابت (بشرط أن يودع المدعو 50$ فأكثر).</span></li>
+                    <li>▪️ <span data-i18n="silver">فضي:</span> <span data-i18n="silver_referral_detail">10% من قيمة أول إيداع للمدعو.</span></li>
+                    <li>▪️ <span data-i18n="gold">ذهبي:</span> <span data-i18n="gold_referral_detail">15% من قيمة أول إيداع.</span></li>
+                    <li>▪️ <span data-i18n="diamond">ألماسي:</span> <span data-i18n="diamond_referral_detail">25% من قيمة أول إيداع.</span></li>
+                </ul>
+                <p class="mt-2" data-i18n="referral_no_deduction">⚠️ المكافأة تُضاف إلى رصيدك القابل للسحب فور قبول إيداع المدعو، <span class="highlight">دون أي خصم من رصيد المدعو</span>.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-chart-line"></i> <span data-i18n="why_referrals">لماذا تستخدم الإحالات؟</span></h3>
+                <p data-i18n="why_referrals_desc">تعتبر الإحالات مصدر دخل سلبي ممتاز. كلما زاد مستواك، زادت نسبة المكافأة. ادعُ المزيد من الأصدقاء واربح ما يصل إلى 25% من إيداعاتهم الأولى.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-regular fa-lightbulb"></i> <span data-i18n="golden_tip">نصيحة ذهبية</span></h3>
+                <p data-i18n="golden_tip_desc">ارتقِ بمستواك (عن طريق زيادة رصيدك) لتحصل على نسب إحالة أعلى. المستوى الألماسي يمنحك 25%، مما يعني أنك تربح 250$ إذا أودع صديقك 1000$!</p>
             </div>
         </div>
     </div>
@@ -288,74 +493,164 @@
     <div class="bottom-nav">
         <div class="nav-item active" onclick="location.reload()">
             <i class="fa-solid fa-house-chimney"></i>
-            <span>الرئيسية</span>
+            <span data-i18n="home">الرئيسية</span>
         </div>
         <div class="nav-item" onclick="checkAccess()">
             <i class="fa-solid fa-wallet"></i>
-            <span>المحفظة</span>
+            <span data-i18n="wallet">المحفظة</span>
         </div>
         <a href="https://wa.me/639553327014" target="_blank" class="nav-item">
             <i class="fa-brands fa-whatsapp"></i>
-            <span>الدعم</span>
+            <span data-i18n="support">الدعم</span>
         </a>
     </div>
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (API URL متغير للتوحيد مع بقية الملفات)
+        // 1. الإعدادات العامة (لا نحتاج API base URL ثابت، نستخدم مسارات نسبية)
         // ============================================================
-        const API_BASE_URL = "best-deal-production.up.railway.app"; // يُستخدم لاحقاً إذا احتاج الملف إلى اتصال بالسيرفر
+        const API_BASE_URL = '';
+        const USER_ME_ENDPOINT = `${API_BASE_URL}/api/users/me`;
+        const REFRESH_ENDPOINT = `${API_BASE_URL}/api/auth/refresh`;
 
         // ============================================================
-        // 2. وظائف التحكم في الـ Modal والتحقق من تسجيل الدخول
+        // 2. نظام الترجمة متعدد اللغات (i18n)
         // ============================================================
-        function openChoice() { 
-            document.getElementById('choiceModal').style.display = 'flex'; 
-        }
-        
-        function closeChoice() { 
-            document.getElementById('choiceModal').style.display = 'none'; 
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                return {};
+            }
         }
 
-        // الوظيفة الأساسية: فحص الدخول (محسنة للتحقق من صحة الكائن المخزن)
-        function checkAccess() {
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            // Update direction
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+            }
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
+            });
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) await loadTranslations(lang);
+            applyTranslations(lang);
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // 3. وظائف التحكم في الـ Modal والتحقق من تسجيل الدخول
+        // ============================================================
+        function openChoice() { document.getElementById('choiceModal').style.display = 'flex'; }
+        function closeChoice() { document.getElementById('choiceModal').style.display = 'none'; }
+
+        async function isUserLoggedIn() {
+            try {
+                const response = await fetch(USER_ME_ENDPOINT, { credentials: 'include' });
+                if (response.ok) {
+                    const user = await response.json();
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    return true;
+                }
+                if (response.status === 401 || response.status === 403) {
+                    const refreshRes = await fetch(REFRESH_ENDPOINT, { method: 'POST', credentials: 'include' });
+                    if (refreshRes.ok) {
+                        const retryResponse = await fetch(USER_ME_ENDPOINT, { credentials: 'include' });
+                        if (retryResponse.ok) {
+                            const user = await retryResponse.json();
+                            localStorage.setItem('currentUser', JSON.stringify(user));
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            } catch (err) { return false; }
+        }
+
+        async function checkAccess() {
             const userRaw = localStorage.getItem('currentUser');
             let isValidUser = false;
-            
             if (userRaw && userRaw !== "undefined") {
                 try {
                     const user = JSON.parse(userRaw);
-                    // التأكد من أن الكائن يحتوي على id و username على الأقل
-                    if (user && user.id && user.username) {
-                        isValidUser = true;
-                    } else {
-                        // إذا كان الكائن غير مكتمل، نقوم بحذفه
-                        localStorage.removeItem('currentUser');
-                    }
-                } catch(e) {
-                    console.warn("خطأ في تحليل بيانات المستخدم:", e);
-                    localStorage.removeItem('currentUser');
-                }
+                    if (user && user.id && user.username) isValidUser = true;
+                    else localStorage.removeItem('currentUser');
+                } catch(e) { localStorage.removeItem('currentUser'); }
             }
-            
             if (isValidUser) {
-                window.location.href = 'dashboard.html'; // يفتح لوحة التحكم إذا كان مسجلاً
+                const stillValid = await isUserLoggedIn();
+                if (stillValid) window.location.href = 'dashboard.html';
+                else { localStorage.removeItem('currentUser'); openChoice(); }
             } else {
-                openChoice(); // يظهر له خيارات التسجيل إذا لم يكن مسجلاً
+                const loggedIn = await isUserLoggedIn();
+                if (loggedIn) window.location.href = 'dashboard.html';
+                else openChoice();
             }
         }
 
         // ============================================================
-        // 3. تهيئة الموقع عند التحميل (العداد الوهمي)
+        // 4. نوافذ شرح النظام (Modals)
+        // ============================================================
+        function showInvestModal() { document.getElementById('investModal').style.display = 'flex'; }
+        function closeInvestModal() { document.getElementById('investModal').style.display = 'none'; }
+        function showRankModal() { document.getElementById('rankModal').style.display = 'flex'; }
+        function closeRankModal() { document.getElementById('rankModal').style.display = 'none'; }
+        function showReferralModal() { document.getElementById('referralModal').style.display = 'flex'; }
+        function closeReferralModal() { document.getElementById('referralModal').style.display = 'none'; }
+
+        // ============================================================
+        // 5. تهيئة الموقع عند التحميل (العداد الوهمي)
         // ============================================================
         function initSite() {
-            // تحديث عداد المتصلين الوهمي (تأثير بصري فقط)
             setInterval(() => {
                 const count = 2300 + Math.floor(Math.random() * 150);
                 const el = document.getElementById('agent-count');
                 if(el) el.innerText = count;
             }, 3000);
         }
+
+        // ============================================================
+        // 6. تحميل الترجمات الأولية
+        // ============================================================
+        window.onload = async () => {
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
+        };
     </script>
 </body>
 </html>

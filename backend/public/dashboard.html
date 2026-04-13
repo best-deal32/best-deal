@@ -152,7 +152,7 @@
             background: var(--card-bg);
             border: 2px solid var(--gold);
             border-radius: 2rem;
-            max-width: 600px;
+            max-width: 700px;
             width: 100%;
             max-height: 80vh;
             overflow-y: auto;
@@ -166,9 +166,98 @@
             border-right: 4px solid var(--gold);
         }
 
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .notifications-dropdown {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            width: 320px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: var(--card-bg);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 1rem;
+            backdrop-filter: blur(20px);
+            z-index: 1100;
+            display: none;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+        }
+        .notification-item {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .notification-item.unread {
+            background: rgba(212,175,55,0.05);
+            border-right: 3px solid var(--gold);
+        }
+        .notification-title {
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .notification-message {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+        .notification-time {
+            font-size: 0.6rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        /* Language Switcher */
+        .lang-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
+        }
+
         @media (max-width: 768px) {
             .hide-mobile { display: none; }
             .balance-text { font-size: 3.5rem; }
+            .notifications-dropdown {
+                width: 280px;
+                left: 10px;
+            }
         }
     </style>
 </head>
@@ -180,7 +269,6 @@
     <nav class="top-nav px-6 py-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-4">
-                <!-- أيقونة التاج (الباب السري) - تظهر فقط لحساب freeze -->
                 <div id="crownIcon" class="w-12 h-12 bg-gradient-to-br from-[#d4af37] to-[#8a6d3b] rounded-2xl flex items-center justify-center shadow-2xl rotate-3 hover:rotate-0 transition-transform cursor-pointer" style="display: none;">
                     <i class="fa-solid fa-crown text-black text-2xl"></i>
                 </div>
@@ -191,11 +279,30 @@
             </div>
             
             <div class="flex items-center gap-4 bg-white/5 p-2 pr-5 rounded-3xl border border-white/10">
+                <div class="lang-selector">
+                    <div class="lang-option active" data-lang="ar">العربية</div>
+                    <div class="lang-option" data-lang="en">English</div>
+                    <div class="lang-option" data-lang="zh">中文</div>
+                    <div class="lang-option" data-lang="de">Deutsch</div>
+                </div>
                 <div class="text-left">
                     <p id="nav-username" class="text-sm font-black text-white leading-none mb-1">المستثمر الملكي</p>
                     <div class="flex items-center gap-1">
                         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                         <p id="user-level-badge" class="text-[9px] text-[#d4af37] font-black uppercase tracking-tighter">Bronze Member</p>
+                    </div>
+                </div>
+                <div class="relative notification-bell" id="notificationBell">
+                    <i class="fa-regular fa-bell text-xl text-[#d4af37]"></i>
+                    <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
+                    <div id="notificationsDropdown" class="notifications-dropdown">
+                        <div class="p-3 border-b border-white/10 text-center text-xs font-bold text-gold">الإشعارات</div>
+                        <div id="notificationsList">
+                            <div class="p-3 text-center text-slate-500 text-xs">لا توجد إشعارات</div>
+                        </div>
+                        <div class="p-2 border-t border-white/10 text-center">
+                            <button id="markAllReadBtn" class="text-[10px] text-gold hover:underline">تحديد الكل كمقروء</button>
+                        </div>
                     </div>
                 </div>
                 <div class="w-12 h-12 rounded-2xl border-2 border-[#d4af37]/40 overflow-hidden shadow-2xl">
@@ -209,8 +316,8 @@
         
         <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div class="w-full md:w-auto">
-                <h2 class="text-4xl font-black text-white leading-tight">مرحباً بك مجدداً، <br><span id="welcome-name" class="gold-gradient-text italic">عزيزي الشريك</span></h2>
-                <p class="text-slate-400 text-sm mt-3 font-semibold max-w-md">نحن هنا لمساعدتك في مراقبة نمو ثروتك وتحديثاتك المالية لحظة بلحظة.</p>
+                <h2 class="text-4xl font-black text-white leading-tight"><span data-i18n="welcome">مرحباً بك مجدداً</span>، <br><span id="welcome-name" class="gold-gradient-text italic">عزيزي الشريك</span></h2>
+                <p class="text-slate-400 text-sm mt-3 font-semibold max-w-md" data-i18n="dashboard_subtitle">نحن هنا لمساعدتك في مراقبة نمو ثروتك وتحديثاتك المالية لحظة بلحظة.</p>
             </div>
             <div class="flex gap-3 w-full md:w-auto">
                 <div class="glass-card px-6 py-3 flex items-center gap-3">
@@ -219,7 +326,11 @@
                 </div>
                 <button onclick="showLevelsModal()" class="glass-card px-6 py-3 flex items-center gap-2 hover:border-[#d4af37] transition">
                     <i class="fa-solid fa-chart-simple text-[#d4af37]"></i>
-                    <span class="text-xs font-black text-white">شرح المستويات</span>
+                    <span class="text-xs font-black text-white" data-i18n="levels_explanation">شرح المستويات</span>
+                </button>
+                <button onclick="forceRefresh()" class="glass-card px-6 py-3 flex items-center gap-2 hover:border-[#d4af37] transition">
+                    <i class="fa-solid fa-rotate-right text-[#d4af37]"></i>
+                    <span class="text-xs font-black text-white" data-i18n="refresh_now">تحديث فوري</span>
                 </button>
             </div>
         </div>
@@ -230,11 +341,11 @@
                 <div class="flex justify-between items-start">
                     <div>
                         <div class="flex items-center gap-2 mb-4">
-                            <span class="px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-[10px] font-black rounded-full border border-[#d4af37]/20 uppercase">الحساب النشط</span>
+                            <span class="px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-[10px] font-black rounded-full border border-[#d4af37]/20 uppercase" data-i18n="active_account">الحساب النشط</span>
                         </div>
-                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">إجمالي الرصيد المتاح للسحب</p>
+                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2" data-i18n="total_withdrawable">إجمالي الرصيد المتاح للسحب</p>
                         <h3 id="user-balance" class="balance-text text-7xl font-black text-white number-glow tracking-tighter">$0.00</h3>
-                        <p class="text-xs text-slate-400 mt-2">منها <span id="withdrawable-amount" class="text-green-400 font-bold">0.00 $</span> قابل للسحب فوراً</p>
+                        <p class="text-xs text-slate-400 mt-2"><span data-i18n="of_which">منها</span> <span id="withdrawable-amount" class="text-green-400 font-bold">0.00 $</span> <span data-i18n="immediately_withdrawable">قابل للسحب فوراً</span></p>
                     </div>
                     <div class="p-5 bg-green-500/10 rounded-3xl border border-green-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
                         <i class="fa-solid fa-wallet text-3xl text-green-500"></i>
@@ -243,10 +354,10 @@
 
                 <div class="mt-10 grid grid-cols-2 gap-6">
                     <button onclick="window.location.href='deposit.html'" class="action-btn-gold py-5 rounded-2xl flex items-center justify-center gap-3 text-xl">
-                        <i class="fa-solid fa-plus-circle"></i> إيداع سريع
+                        <i class="fa-solid fa-plus-circle"></i> <span data-i18n="quick_deposit">إيداع سريع</span>
                     </button>
                     <button onclick="window.location.href='withdraw.html'" class="bg-white/5 hover:bg-white/10 text-white font-black py-5 rounded-2xl border border-white/10 transition-all text-xl flex items-center justify-center gap-3">
-                        <i class="fa-solid fa-receipt"></i> طلب سحب
+                        <i class="fa-solid fa-receipt"></i> <span data-i18n="withdraw_request">طلب سحب</span>
                     </button>
                 </div>
             </div>
@@ -254,19 +365,25 @@
             <div class="md:col-span-4 space-y-8">
                 <div class="glass-card p-8 border-b-4 border-green-500/40">
                     <div class="flex justify-between items-center mb-4">
-                        <p class="text-[10px] font-black text-slate-500 uppercase">الأرباح الصافية</p>
-                        <i class="fa-solid fa-arrow-trend-up text-green-500"></i>
+                        <p class="text-[10px] font-black text-slate-500 uppercase" data-i18n="net_profit">الأرباح الصافية (غير المسحوبة)</p>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-up text-green-500"></i>
+                            <button id="quickWithdrawProfitBtn" class="text-[10px] bg-green-600/30 hover:bg-green-600 text-green-300 hover:text-white px-2 py-1 rounded-lg transition">
+                                <i class="fa-regular fa-hand-holding-usd ml-1"></i> <span data-i18n="withdraw_all">سحب الكل</span>
+                            </button>
+                        </div>
                     </div>
                     <h3 id="user-profit" class="text-4xl font-black text-white mb-2">$0.00</h3>
                     <div class="w-full bg-slate-800 h-1 rounded-full mt-4">
-                        <div class="bg-green-500 h-full w-[45%] shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                        <div id="profit-progress" class="bg-green-500 h-full w-0 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                     </div>
+                    <p class="text-[9px] text-slate-400 mt-3 text-center" data-i18n="auto_update_every_15">يتم تحديث الأرباح تلقائياً كل 15 ثانية</p>
                 </div>
 
                 <div class="glass-card p-8 border-b-4 border-[#d4af37]/40 text-center">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-4">حالة العضوية</p>
+                    <p class="text-[10px] font-black text-slate-500 uppercase mb-4" data-i18n="membership_status">حالة العضوية</p>
                     <h3 id="user-level" class="text-3xl font-black gold-gradient-text uppercase">برونزي</h3>
-                    <p class="text-[10px] text-slate-400 mt-4 italic">ارتقِ للمستوى التالي لتحصل على جوائز فورية</p>
+                    <p class="text-[10px] text-slate-400 mt-4 italic" data-i18n="level_up_hint">ارتقِ للمستوى التالي لتحصل على جوائز فورية</p>
                 </div>
             </div>
 
@@ -275,7 +392,7 @@
         <div class="mb-16">
             <h3 class="text-2xl font-black text-white mb-8 italic flex items-center gap-4">
                 <span class="w-10 h-1 bg-[#d4af37] rounded"></span>
-                مركز الخدمات والترفيه
+                <span data-i18n="services_center">مركز الخدمات والترفيه</span>
             </h3>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
                 
@@ -283,38 +400,38 @@
                     <div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <i class="fa-solid fa-chart-line text-4xl text-blue-500"></i>
                     </div>
-                    <span class="text-lg font-black block text-white">المشاريع</span>
-                    <p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest">استثمر واربح يومياً</p>
+                    <span class="text-lg font-black block text-white" data-i18n="investment">المشاريع</span>
+                    <p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="invest_and_earn">استثمر واربح يومياً</p>
                 </div>
 
                 <div onclick="window.location.href='referrals.html'" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50">
                     <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <i class="fa-solid fa-gift text-4xl text-purple-500"></i>
                     </div>
-                    <span class="text-lg font-black block text-white">الإحالات</span>
-                    <p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest">ادعُ أصدقاءك واربح</p>
+                    <span class="text-lg font-black block text-white" data-i18n="referrals">الإحالات</span>
+                    <p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="invite_and_earn">ادعُ أصدقاءك واربح</p>
                 </div>
 
                 <div onclick="window.open('https://t.me/Bestdeal468', '_blank')" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50">
                     <div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <i class="fa-brands fa-telegram text-4xl text-purple-500"></i>
                     </div>
-                    <span class="text-lg font-black block text-white">الدعم الفني</span>
-                    <p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest">تواصل معنا عبر تليغرام</p>
+                    <span class="text-lg font-black block text-white" data-i18n="support">الدعم الفني</span>
+                    <p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="contact_telegram">تواصل معنا عبر تليغرام</p>
                 </div>
             </div>
         </div>
 
         <div class="mb-24">
             <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-black text-white italic">أحدث سجل العمليات</h3>
+                <h3 class="text-2xl font-black text-white italic" data-i18n="recent_activities">أحدث سجل العمليات</h3>
                 <button id="refresh-activities" class="text-xs font-black text-slate-500 hover:text-[#d4af37] transition-all uppercase tracking-widest">
-                    تحديث <i class="fa-solid fa-rotate-left mr-2"></i>
+                    <span data-i18n="refresh">تحديث</span> <i class="fa-solid fa-rotate-left mr-2"></i>
                 </button>
             </div>
             
             <div id="recent-activities-container" class="glass-card p-4 space-y-4">
-                <div class="text-center text-slate-500 py-6">جاري تحميل النشاطات...</div>
+                <div class="text-center text-slate-500 py-6" data-i18n="loading_activities">جاري تحميل النشاطات...</div>
             </div>
         </div>
 
@@ -323,81 +440,154 @@
     <div class="bottom-nav">
         <div onclick="window.location.href='dashboard.html'" class="nav-link active">
             <i class="fa-solid fa-house-chimney"></i>
-            <span>الرئيسية</span>
+            <span data-i18n="home">الرئيسية</span>
         </div>
         <div onclick="window.location.href='deposit.html'" class="nav-link">
             <i class="fa-solid fa-wallet"></i>
-            <span>الإيداع</span>
+            <span data-i18n="deposit">الإيداع</span>
         </div>
         <div onclick="window.location.href='investments.html'" class="nav-link">
             <i class="fa-solid fa-chart-line"></i>
-            <span>المشاريع</span>
+            <span data-i18n="investments">المشاريع</span>
         </div>
         <div onclick="window.location.href='referrals.html'" class="nav-link">
             <i class="fa-solid fa-gift"></i>
-            <span>الإحالات</span>
+            <span data-i18n="referrals_nav">الإحالات</span>
         </div>
         <div onclick="logout()" class="nav-link text-red-500">
             <i class="fa-solid fa-power-off"></i>
-            <span>خروج</span>
+            <span data-i18n="logout">خروج</span>
         </div>
     </div>
 
-    <!-- نافذة شرح المستويات -->
+    <!-- نافذة شرح المستويات (محدثة) -->
     <div id="levelsModal" class="modal-levels">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-black gold-gradient-text">المستويات والجوائز</h2>
+                <h2 class="text-2xl font-black gold-gradient-text" data-i18n="levels_rewards">المستويات والمكافآت</h2>
                 <button onclick="closeLevelsModal()" class="text-white text-2xl">&times;</button>
             </div>
             <div class="level-item">
-                <h3 class="text-xl font-bold text-[#cd7f32]">🥉 المستوى البرونزي</h3>
-                <p>الرصيد: 0$ - 199$</p>
-                <p class="text-slate-400">🎁 لا توجد جوائز</p>
+                <h3 class="text-xl font-bold text-[#cd7f32]">🥉 <span data-i18n="bronze">المستوى البرونزي</span></h3>
+                <p data-i18n="bronze_desc">الرصيد: أقل من 300$</p>
+                <p class="text-green-400" data-i18n="bronze_bonus">🎁 مكافأة فورية: لا توجد</p>
+                <p class="text-blue-400" data-i18n="bronze_referral">👥 الإحالات: 2$ ثابت لكل مدعو يودع 50$ فأكثر</p>
             </div>
             <div class="level-item">
-                <h3 class="text-xl font-bold text-[#c0c0c0]">🥈 المستوى الفضي</h3>
-                <p>الرصيد: 200$ - 999$</p>
-                <p class="text-green-400">🎁 مكافأة فورية: 20$ تضاف إلى رصيدك فوراً</p>
-                <p class="text-green-400">👥 لكل صديق تدعوه ويشحن 100$، تحصل على 10$</p>
+                <h3 class="text-xl font-bold text-[#c0c0c0]">🥈 <span data-i18n="silver">المستوى الفضي</span></h3>
+                <p data-i18n="silver_desc">الرصيد: 300$ - 999$</p>
+                <p class="text-green-400" data-i18n="silver_bonus">🎁 مكافأة فورية: 25$ فور بلوغ المستوى</p>
+                <p class="text-blue-400" data-i18n="silver_referral">👥 الإحالات: 10% من أول إيداع للمدعو</p>
             </div>
             <div class="level-item">
-                <h3 class="text-xl font-bold text-[#ffd700]">🥇 المستوى الذهبي</h3>
-                <p>الرصيد: 1000$ - 4999$</p>
-                <p class="text-green-400">🎁 مكافأة فورية: 150$ تضاف إلى رصيدك فوراً</p>
-                <p class="text-green-400">👥 لكل صديق تدعوه ويشحن 50$، تحصل على 20$</p>
+                <h3 class="text-xl font-bold text-[#ffd700]">🥇 <span data-i18n="gold">المستوى الذهبي</span></h3>
+                <p data-i18n="gold_desc">الرصيد: 1000$ - 4999$</p>
+                <p class="text-green-400" data-i18n="gold_bonus">🎁 مكافأة فورية: 50$ فور بلوغ المستوى</p>
+                <p class="text-blue-400" data-i18n="gold_referral">👥 الإحالات: 15% من أول إيداع للمدعو</p>
             </div>
             <div class="level-item">
-                <h3 class="text-xl font-bold text-[#00ffff]">💎 المستوى الألماسي</h3>
-                <p>الرصيد: 5000$ فما فوق</p>
-                <p class="text-green-400">🎁 مكافأة فورية: 500$ تضاف إلى رصيدك فوراً</p>
-                <p class="text-green-400">👥 لكل صديق تدعوه ويشحن أي مبلغ، تحصل على 40$</p>
+                <h3 class="text-xl font-bold text-[#00ffff]">💎 <span data-i18n="diamond">المستوى الألماسي</span></h3>
+                <p data-i18n="diamond_desc">الرصيد: 5000$ فما فوق</p>
+                <p class="text-green-400" data-i18n="diamond_bonus">🎁 مكافأة فورية: 500$ فور بلوغ المستوى</p>
+                <p class="text-blue-400" data-i18n="diamond_referral">👥 الإحالات: 25% من أول إيداع للمدعو</p>
             </div>
-            <button onclick="closeLevelsModal()" class="bg-gradient-to-r from-[#d4af37] to-[#8a6d3b] text-black font-black py-3 rounded-xl w-full mt-4">إغلاق</button>
+            <button onclick="closeLevelsModal()" class="bg-gradient-to-r from-[#d4af37] to-[#8a6d3b] text-black font-black py-3 rounded-xl w-full mt-4" data-i18n="close">إغلاق</button>
         </div>
     </div>
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (استخدام المسارات النسبية)
+        // الإعدادات العامة (مسارات نسبية)
         // ============================================================
-        const API_BASE_URL = '';  // فارغة لاستخدام المسار النسبي (يعمل محلياً وعلى Railway)
+        const API_BASE_URL = '';
         const URL_ME = `${API_BASE_URL}/api/users/me`;
         const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
         const URL_GATEWAY = `${API_BASE_URL}/api/auth/verify-admin-gateway`;
         const URL_ACTIVITY_LOGS = `${API_BASE_URL}/api/activity-logs/recent`;
+        const URL_NOTIFICATIONS = `${API_BASE_URL}/api/notifications`;
+        const URL_MARK_ALL_READ = `${API_BASE_URL}/api/notifications/read-all`;
+        const URL_MARK_READ = (id) => `${API_BASE_URL}/api/notifications/${id}/read`;
 
         // ============================================================
-        // 2. دوال مساعدة (لا نحتاج CSRF)
+        // Language management (i18n)
+        // ============================================================
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                return {};
+            }
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    // preserve HTML if needed? we use textContent
+                    el.textContent = t[key];
+                }
+            });
+            // Update direction for RTL/LTR (Arabic RTL, others LTR)
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+            }
+            // Also update placeholder for search if any? Not needed now.
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            // Update active class on language selector
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) {
+                    opt.classList.add('active');
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+            // Set cookie for server-side detection
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) {
+                await loadTranslations(lang);
+            }
+            applyTranslations(lang);
+            // Reload user data to update any dynamic content (like level names if needed)
+            await fetchUserData();
+        }
+
+        // Language selector event listeners
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // fetch مع تجديد التوكن
         // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
             let response = await fetch(url, options);
             if (response.status === 401 || response.status === 403) {
-                const refreshRes = await fetch(URL_REFRESH, {
-                    method: 'POST',
-                    credentials: 'include'
-                });
+                const refreshRes = await fetch(URL_REFRESH, { method: 'POST', credentials: 'include' });
                 if (refreshRes.ok) {
                     response = await fetch(url, options);
                 } else {
@@ -410,7 +600,7 @@
         }
 
         // ============================================================
-        // 3. جلب بيانات المستخدم وتحديث الواجهة (مع دعم الرتبة الجديدة)
+        // جلب بيانات المستخدم وتحديث الواجهة
         // ============================================================
         async function fetchUserData() {
             try {
@@ -420,29 +610,18 @@
                 localStorage.setItem('currentUser', JSON.stringify(user));
                 updateUI(user);
                 
-                // ✅ التحقق من أن المستخدم هو freeze لإظهار أيقونة الباب السري
                 const crownIcon = document.getElementById('crownIcon');
                 if (crownIcon) {
                     if (user.username === 'freeze') {
                         crownIcon.style.display = 'flex';
-                        setupAdminGateway(); // إعادة تفعيل الباب السري
+                        setupAdminGateway();
                     } else {
                         crownIcon.style.display = 'none';
                     }
                 }
-                
                 return user;
             } catch (err) {
                 console.error(err);
-                Swal.fire({
-                    title: 'خطأ',
-                    text: 'فشل الاتصال بالخادم أو انتهت الجلسة',
-                    icon: 'error',
-                    background: '#05070a',
-                    color: '#fff'
-                }).then(() => {
-                    window.location.href = 'login.html';
-                });
                 return null;
             }
         }
@@ -467,7 +646,6 @@
             const level = user.level || "برونزي";
 
             if (userLevel) userLevel.innerText = level;
-            // تحديث النص الإنجليزي للشارة
             let badgeText = 'Bronze Member';
             if (level === 'فضي') badgeText = 'Silver Member';
             else if (level === 'ذهبي') badgeText = 'Gold Member';
@@ -476,7 +654,14 @@
 
             if (userBalance) userBalance.innerText = `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             if (withdrawableSpan) withdrawableSpan.innerText = withdrawable.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
-            if (userProfit) userProfit.innerText = `$${profit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            
+            if (userProfit) {
+                const profitValue = profit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                userProfit.innerText = `$${profitValue}`;
+                const progressPercent = balance > 0 ? (profit / balance) * 100 : 0;
+                const progressBar = document.getElementById('profit-progress');
+                if (progressBar) progressBar.style.width = Math.min(progressPercent, 100) + '%';
+            }
 
             if (userAvatar) {
                 userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || 'U')}&background=0f172a&color=d4af37&bold=true&rounded=true&size=128`;
@@ -489,7 +674,48 @@
         }
 
         // ============================================================
-        // 4. الباب السري (يعمل فقط لحساب freeze)
+        // تحديث يدوي
+        // ============================================================
+        async function forceRefresh() {
+            Swal.fire({
+                title: (translations[currentLang]?.refresh_title || 'جاري التحديث'),
+                text: (translations[currentLang]?.refresh_text || 'يتم تحديث البيانات...'),
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+            try {
+                await fetchUserData();
+                await loadRecentActivities();
+                await loadNotifications();
+                Swal.fire({
+                    icon: 'success',
+                    title: (translations[currentLang]?.refresh_success || 'تم التحديث'),
+                    text: (translations[currentLang]?.refresh_success_text || 'تم تحديث جميع البيانات بنجاح'),
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } catch (err) {
+                Swal.fire('خطأ', (translations[currentLang]?.refresh_failed || 'فشل تحديث البيانات'), 'error');
+            }
+        }
+
+        // ============================================================
+        // زر السحب السريع للأرباح الصافية
+        // ============================================================
+        document.getElementById('quickWithdrawProfitBtn')?.addEventListener('click', async () => {
+            const user = await fetchUserData();
+            if (!user) return;
+            const profitAmount = user.profit || 0;
+            if (profitAmount <= 0) {
+                Swal.fire('تنبيه', (translations[currentLang]?.no_profit || 'لا توجد أرباح صافية للسحب حالياً'), 'info');
+                return;
+            }
+            localStorage.setItem('quickWithdrawAmount', profitAmount);
+            window.location.href = 'withdraw.html?amount=' + profitAmount + '&type=profit';
+        });
+
+        // ============================================================
+        // الباب السري للمدير
         // ============================================================
         let clickCount = 0;
         let timer;
@@ -497,8 +723,6 @@
         function setupAdminGateway() {
             const crownIcon = document.getElementById('crownIcon');
             if (!crownIcon) return;
-            
-            // إزالة أي مستمع سابق (لتجنب التكرار)
             crownIcon.removeEventListener('click', crownClickHandler);
             crownIcon.addEventListener('click', crownClickHandler);
         }
@@ -509,13 +733,13 @@
                 clearTimeout(timer);
                 clickCount = 0;
                 Swal.fire({
-                    title: 'الباب السري للمدير',
+                    title: (translations[currentLang]?.admin_gateway_title || 'الباب السري للمدير'),
                     input: 'password',
-                    inputLabel: 'أدخل كلمة المرور السري',
+                    inputLabel: (translations[currentLang]?.admin_gateway_label || 'أدخل كلمة المرور السري'),
                     inputPlaceholder: '••••••••',
                     showCancelButton: true,
-                    confirmButtonText: 'دخول',
-                    cancelButtonText: 'إلغاء',
+                    confirmButtonText: (translations[currentLang]?.enter || 'دخول'),
+                    cancelButtonText: (translations[currentLang]?.cancel || 'إلغاء'),
                     background: '#05070a',
                     color: '#fff',
                     confirmButtonColor: '#d4af37'
@@ -532,11 +756,11 @@
                             if (data.success) {
                                 window.location.href = 'admin.html';
                             } else {
-                                Swal.fire('خطأ', 'كلمة المرور السري غير صحيحة', 'error');
+                                Swal.fire('خطأ', (translations[currentLang]?.invalid_gateway_password || 'كلمة المرور السري غير صحيحة'), 'error');
                             }
                         } catch (err) {
                             console.error(err);
-                            Swal.fire('خطأ', 'فشل الاتصال بالخادم', 'error');
+                            Swal.fire('خطأ', (translations[currentLang]?.connection_error || 'فشل الاتصال بالخادم'), 'error');
                         }
                     }
                 });
@@ -546,7 +770,7 @@
         }
 
         // ============================================================
-        // 5. جلب آخر النشاطات (اختياري – قد لا يكون المسار موجوداً)
+        // آخر النشاطات
         // ============================================================
         async function loadRecentActivities() {
             const container = document.getElementById('recent-activities-container');
@@ -555,7 +779,12 @@
                 if (response.ok) {
                     const activities = await response.json();
                     if (activities.length === 0) {
-                        container.innerHTML = '<div class="text-center text-slate-500 py-6">لا توجد نشاطات حديثة</div>';
+                        container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
+                        // apply translation to this new element
+                        if (translations[currentLang]) {
+                            const el = container.querySelector('[data-i18n]');
+                            if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
+                        }
                         return;
                     }
                     container.innerHTML = '';
@@ -568,8 +797,8 @@
                                     <i class="fa-solid fa-clock"></i>
                                 </div>
                                 <div>
-                                    <p class="text-base font-black text-white">${act.action || 'عملية'}</p>
-                                    <p class="text-[10px] text-slate-500 font-bold uppercase">${act.details || ''}</p>
+                                    <p class="text-base font-black text-white">${escapeHtml(act.action || 'عملية')}</p>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase">${escapeHtml(act.details || '')}</p>
                                 </div>
                             </div>
                             <div class="text-left font-black">
@@ -579,16 +808,86 @@
                         container.appendChild(div);
                     });
                 } else {
-                    container.innerHTML = '<div class="text-center text-slate-500 py-6">لا توجد نشاطات حديثة</div>';
+                    container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
+                    if (translations[currentLang]) {
+                        const el = container.querySelector('[data-i18n]');
+                        if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
+                    }
                 }
             } catch (err) {
                 console.warn('Could not load activities', err);
-                container.innerHTML = '<div class="text-center text-slate-500 py-6">لا توجد نشاطات حديثة</div>';
+                container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
+                if (translations[currentLang]) {
+                    const el = container.querySelector('[data-i18n]');
+                    if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
+                }
             }
         }
 
         // ============================================================
-        // 6. نافذة شرح المستويات
+        // الإشعارات
+        // ============================================================
+        let notifications = [];
+        async function loadNotifications() {
+            try {
+                const res = await fetchWithAuth(URL_NOTIFICATIONS);
+                if (res.ok) {
+                    notifications = await res.json();
+                    updateNotificationUI();
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function updateNotificationUI() {
+            const unreadCount = notifications.filter(n => !n.isRead).length;
+            const countSpan = document.getElementById('notificationCount');
+            if (unreadCount > 0) {
+                countSpan.style.display = 'flex';
+                countSpan.innerText = unreadCount > 9 ? '9+' : unreadCount;
+            } else {
+                countSpan.style.display = 'none';
+            }
+            const listContainer = document.getElementById('notificationsList');
+            if (!notifications.length) {
+                listContainer.innerHTML = '<div class="p-3 text-center text-slate-500 text-xs" data-i18n="no_notifications">لا توجد إشعارات</div>';
+                if (translations[currentLang]) {
+                    const el = listContainer.querySelector('[data-i18n]');
+                    if (el) el.textContent = translations[currentLang].no_notifications || 'لا توجد إشعارات';
+                }
+                return;
+            }
+            listContainer.innerHTML = '';
+            notifications.forEach(notif => {
+                const item = document.createElement('div');
+                item.className = `notification-item ${!notif.isRead ? 'unread' : ''}`;
+                item.innerHTML = `
+                    <div class="notification-title">${escapeHtml(notif.title)}</div>
+                    <div class="notification-message">${escapeHtml(notif.message)}</div>
+                    <div class="notification-time">${new Date(notif.createdAt).toLocaleString()}</div>
+                `;
+                if (!notif.isRead) {
+                    item.addEventListener('click', () => markAsRead(notif.id));
+                }
+                listContainer.appendChild(item);
+            });
+        }
+
+        async function markAsRead(notifId) {
+            try {
+                await fetchWithAuth(URL_MARK_READ(notifId), { method: 'PUT' });
+                await loadNotifications();
+            } catch(e) { console.error(e); }
+        }
+
+        async function markAllAsRead() {
+            try {
+                await fetchWithAuth(URL_MARK_ALL_READ, { method: 'PUT' });
+                await loadNotifications();
+            } catch(e) { console.error(e); }
+        }
+
+        // ============================================================
+        // نافذة شرح المستويات
         // ============================================================
         function showLevelsModal() {
             document.getElementById('levelsModal').style.display = 'flex';
@@ -598,69 +897,86 @@
         }
 
         // ============================================================
-        // 7. تسجيل الخروج (حذف الكوكيز والتخزين المحلي)
+        // تسجيل الخروج
         // ============================================================
         async function logout() {
             const result = await Swal.fire({
-                title: 'تسجيل الخروج',
-                text: 'هل أنت متأكد من رغبتك في تسجيل الخروج من النظام الملكي؟',
+                title: (translations[currentLang]?.logout_title || 'تسجيل الخروج'),
+                text: (translations[currentLang]?.logout_confirm || 'هل أنت متأكد من رغبتك في تسجيل الخروج من النظام الملكي؟'),
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#d4af37',
-                confirmButtonText: 'نعم، تسجيل خروج',
-                cancelButtonText: 'إلغاء',
+                confirmButtonText: (translations[currentLang]?.yes_logout || 'نعم، تسجيل خروج'),
+                cancelButtonText: (translations[currentLang]?.cancel || 'إلغاء'),
                 background: '#05070a',
                 color: '#fff'
             });
             if (result.isConfirmed) {
-                // محاولة إرسال طلب تسجيل خروج إلى الخادم (اختياري)
                 try {
-                    await fetch('/api/auth/logout', {
-                        method: 'POST',
-                        credentials: 'include'
-                    });
+                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
                 } catch(e) {}
-                
-                // حذف الكوكيز من المتصفح
                 document.cookie.split(";").forEach((c) => {
                     document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
                 });
                 localStorage.removeItem('currentUser');
-                localStorage.removeItem('token');
-                localStorage.removeItem('refreshToken');
-                localStorage.removeItem('admin_gateway_token');
-                
                 window.location.href = 'login.html';
             }
         }
 
         // ============================================================
-        // 8. التحميل الأولي والتحديث الدوري
+        // مساعدة
         // ============================================================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // ============================================================
+        // الإشعارات dropdown
+        // ============================================================
+        let dropdownVisible = false;
+        const bell = document.getElementById('notificationBell');
+        const dropdown = document.getElementById('notificationsDropdown');
+        bell.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownVisible = !dropdownVisible;
+            dropdown.style.display = dropdownVisible ? 'block' : 'none';
+            if (dropdownVisible) loadNotifications();
+        });
+        document.addEventListener('click', (e) => {
+            if (!bell.contains(e.target)) {
+                dropdownVisible = false;
+                dropdown.style.display = 'none';
+            }
+        });
+        document.getElementById('markAllReadBtn').addEventListener('click', () => markAllAsRead());
+
+        // ============================================================
+        // التحميل الأولي والتحديث الدوري
+        // ============================================================
+        let autoRefreshInterval;
         window.onload = async () => {
+            // Load initial translations
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
             const user = await fetchUserData();
             if (user) {
-                loadRecentActivities();
-                document.querySelectorAll('.glass-card').forEach((card, index) => {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-                    setTimeout(() => {
-                        card.style.transition = 'all 0.6s ease';
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, 100 * index);
-                });
+                await loadRecentActivities();
+                await loadNotifications();
+                autoRefreshInterval = setInterval(async () => {
+                    if (document.visibilityState === 'visible') {
+                        const newUser = await fetchUserData();
+                        if (newUser) updateUI(newUser);
+                        await loadNotifications();
+                    }
+                }, 15000);
             }
 
-            // تحديث الرصيد كل 30 ثانية (اختياري)
-            setInterval(async () => {
-                if (document.visibilityState === 'visible') {
-                    const user = await fetchUserData();
-                    if (user) updateUI(user);
-                }
-            }, 30000);
-
-            // زر تحديث النشاطات
             const refreshBtn = document.getElementById('refresh-activities');
             if (refreshBtn) {
                 refreshBtn.addEventListener('click', () => {

@@ -97,11 +97,32 @@
             font-size: 0.7rem;
             font-weight: bold;
         }
-        .reward-info {
-            background: rgba(212,175,55,0.1);
-            border-radius: 0.75rem;
-            padding: 0.5rem;
-            text-align: center;
+
+        /* Language Switcher */
+        .lang-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
         }
     </style>
 </head>
@@ -111,109 +132,128 @@
         <button onclick="window.location.href='dashboard.html'" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-white/10">
             <i class="fa-solid fa-arrow-right text-xl text-[#d4af37]"></i>
         </button>
-        <h1 class="text-2xl font-black gold-gradient-text italic">نظام الإحالات الملكي</h1>
+        <h1 class="text-2xl font-black gold-gradient-text italic" data-i18n="referrals_title">نظام الإحالات الملكي</h1>
         <div class="bg-black/60 px-4 py-2 rounded-2xl">
-            <p class="text-[10px] text-slate-500">رصيدك</p>
+            <p class="text-[10px] text-slate-500" data-i18n="your_balance">رصيدك</p>
             <p id="user-balance" class="text-xl font-bold text-white">0.00 $</p>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-6 pb-24">
+        <!-- Language selector inside main for consistency -->
+        <div class="flex justify-end mb-4">
+            <div class="lang-selector">
+                <div class="lang-option active" data-lang="ar">العربية</div>
+                <div class="lang-option" data-lang="en">English</div>
+                <div class="lang-option" data-lang="zh">中文</div>
+                <div class="lang-option" data-lang="de">Deutsch</div>
+            </div>
+        </div>
+
         <!-- بطاقة رابط الإحالة -->
         <div class="glass-card p-6 mb-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex-1">
-                    <h3 class="text-lg font-black text-white mb-2"><i class="fa-solid fa-link text-[#d4af37] ml-2"></i> رابط الإحالة الخاص بك</h3>
+                    <h3 class="text-lg font-black text-white mb-2"><i class="fa-solid fa-link text-[#d4af37] ml-2"></i> <span data-i18n="your_referral_link">رابط الإحالة الخاص بك</span></h3>
                     <div class="referral-link-box" id="referralLinkBox">جاري التحميل...</div>
                 </div>
                 <button onclick="copyReferralLink()" class="btn-gold px-6 py-3 rounded-xl font-bold whitespace-nowrap">
-                    <i class="fa-regular fa-copy ml-2"></i> نسخ الرابط
+                    <i class="fa-regular fa-copy ml-2"></i> <span data-i18n="copy_link">نسخ الرابط</span>
                 </button>
             </div>
-            <p class="text-xs text-slate-400 mt-4 text-center">🔗 كل صديق يسجل عبر هذا الرابط ويقوم بإيداع يصبح ضمن شبكة إحالاتك، وتربح عمولة حسب مستواك الحالي.</p>
+            <p class="text-xs text-slate-400 mt-4 text-center" data-i18n="referral_info">🔗 كل صديق يسجل عبر هذا الرابط ويقوم بإيداع يصبح ضمن شبكة إحالاتك، وتربح عمولة حسب مستواك الحالي (نسبة مئوية أو مبلغ ثابت للبرونزي).</p>
         </div>
 
         <!-- إحصائيات سريعة -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div class="stat-card">
                 <i class="fa-solid fa-users text-2xl text-[#d4af37] mb-2"></i>
-                <p class="text-xs text-slate-400">إجمالي المدعوين</p>
+                <p class="text-xs text-slate-400" data-i18n="total_referred">إجمالي المدعوين</p>
                 <p id="total-referrals" class="text-3xl font-bold text-white">0</p>
             </div>
             <div class="stat-card">
                 <i class="fa-solid fa-dollar-sign text-2xl text-[#d4af37] mb-2"></i>
-                <p class="text-xs text-slate-400">إجمالي الأرباح من الإحالات</p>
+                <p class="text-xs text-slate-400" data-i18n="total_earned">إجمالي الأرباح من الإحالات</p>
                 <p id="total-earned" class="text-3xl font-bold text-green-400">0 $</p>
             </div>
             <div class="stat-card">
                 <i class="fa-solid fa-chart-line text-2xl text-[#d4af37] mb-2"></i>
-                <p class="text-xs text-slate-400">مستواك الحالي</p>
+                <p class="text-xs text-slate-400" data-i18n="your_level">مستواك الحالي</p>
                 <p id="user-level" class="text-2xl font-bold gold-gradient-text">برونزي</p>
             </div>
         </div>
 
-        <!-- جدول تفصيل المدعوين -->
+        <!-- جدول تفصيل المدعوين (يظهر جميع المسجلين عبر الرابط حتى بدون إيداع) -->
         <div class="glass-card p-6">
             <h3 class="text-xl font-black gold-gradient-text mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-table-list"></i> قائمة المدعوين
+                <i class="fa-solid fa-table-list"></i> <span data-i18n="referred_list">قائمة المدعوين</span>
             </h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-right">
                     <thead>
                         <tr class="border-b border-white/10">
-                            <th class="p-3">اسم المستخدم</th>
-                            <th class="p-3">البريد الإلكتروني</th>
-                            <th class="p-3">تاريخ التسجيل</th>
-                            <th class="p-3">أول إيداع</th>
-                            <th class="p-3">المكافأة</th>
-                            <th class="p-3">الحالة</th>
+                            <th class="p-3" data-i18n="username">اسم المستخدم</th>
+                            <th class="p-3" data-i18n="email">البريد الإلكتروني</th>
+                            <th class="p-3" data-i18n="registration_date">تاريخ التسجيل</th>
+                            <th class="p-3" data-i18n="first_deposit">أول إيداع</th>
+                            <th class="p-3" data-i18n="reward">المكافأة</th>
+                            <th class="p-3" data-i18n="status">الحالة</th>
                         </tr>
                     </thead>
                     <tbody id="referrals-table-body">
-                        <tr><td colspan="6" class="text-center py-8 text-slate-500">لا يوجد مدعوون حتى الآن</td></tr>
+                        <tr><td colspan="6" class="text-center py-8 text-slate-500" data-i18n="no_referrals">لا يوجد مدعوون حتى الآن</td></tr>
                     </tbody>
                 </table>
             </div>
+            <div class="mt-4 text-xs text-slate-400 text-center" data-i18n="referral_note">
+                ✅ يتم عرض جميع الأشخاص الذين سجلوا عبر رابطك مباشرة، حتى لو لم يقوموا بإيداع بعد. المكافأة تُمنح بعد أول إيداع معتمد.
+            </div>
         </div>
 
-        <!-- شرح نظام المكافآت حسب المستوى (محدث حسب الرتب الجديدة) -->
+        <!-- شرح نظام المكافآت حسب المستوى (محدث) -->
         <div class="glass-card p-6 mt-8">
-            <h3 class="text-xl font-black gold-gradient-text mb-4"><i class="fa-solid fa-gift"></i> كيف تعمل المكافآت؟</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <h3 class="text-xl font-black gold-gradient-text mb-4"><i class="fa-solid fa-gift"></i> <span data-i18n="how_rewards_work">كيف تعمل المكافآت حسب المستوى؟</span></h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
                 <div class="bg-white/5 p-4 rounded-2xl">
-                    <span class="level-badge bg-silver/20 text-silver">🥈 فضي</span>
-                    <p class="mt-2 text-sm">لكل مدعو يودع <strong>100$</strong> أو أكثر</p>
-                    <p class="text-green-400 font-bold text-lg">10$</p>
+                    <span class="level-badge bg-bronze/20 text-bronze">🥉 <span data-i18n="bronze">برونزي</span></span>
+                    <p class="mt-2 text-sm" data-i18n="bronze_reward_desc">لكل مدعو يودع <strong>50$ فأكثر</strong></p>
+                    <p class="text-green-400 font-bold text-lg">2$</p>
+                    <p class="text-xs text-slate-400" data-i18n="fixed_amount">(مبلغ ثابت)</p>
                 </div>
                 <div class="bg-white/5 p-4 rounded-2xl">
-                    <span class="level-badge bg-gold/20 text-gold">🥇 ذهبي</span>
-                    <p class="mt-2 text-sm">لكل مدعو يودع <strong>50$</strong> أو أكثر</p>
-                    <p class="text-green-400 font-bold text-lg">20$</p>
+                    <span class="level-badge bg-silver/20 text-silver">🥈 <span data-i18n="silver">فضي</span></span>
+                    <p class="mt-2 text-sm" data-i18n="silver_reward_desc">نسبة من أول إيداع للمدعو</p>
+                    <p class="text-green-400 font-bold text-lg">10%</p>
                 </div>
                 <div class="bg-white/5 p-4 rounded-2xl">
-                    <span class="level-badge bg-diamond/20 text-diamond">💎 ألماسي</span>
-                    <p class="mt-2 text-sm">لكل مدعو يودع <strong>أي مبلغ</strong></p>
-                    <p class="text-green-400 font-bold text-lg">40$</p>
+                    <span class="level-badge bg-gold/20 text-gold">🥇 <span data-i18n="gold">ذهبي</span></span>
+                    <p class="mt-2 text-sm" data-i18n="gold_reward_desc">نسبة من أول إيداع للمدعو</p>
+                    <p class="text-green-400 font-bold text-lg">15%</p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-2xl">
+                    <span class="level-badge bg-diamond/20 text-diamond">💎 <span data-i18n="diamond">ألماسي</span></span>
+                    <p class="mt-2 text-sm" data-i18n="diamond_reward_desc">نسبة من أول إيداع للمدعو</p>
+                    <p class="text-green-400 font-bold text-lg">25%</p>
                 </div>
             </div>
-            <p class="text-xs text-slate-400 mt-4 text-center">⭐ ملاحظة: المكافأة تُمنح تلقائياً بعد أول إيداع للمدعو، وتُضاف إلى رصيدك القابل للسحب فوراً. مكافآت المستوى البرونزي: لا توجد مكافآت إحالة.</p>
+            <p class="text-xs text-slate-400 mt-4 text-center" data-i18n="reward_note">⭐ ملاحظة: المكافأة تُمنح تلقائياً بعد قبول أول إيداع للمدعو، وتُضاف إلى رصيدك القابل للسحب فوراً <strong>دون أي خصم من المدعو</strong>. مكافآت المستوى البرونزي: 2$ ثابت بشرط إيداع المدعو 50$ فأكثر.</p>
         </div>
     </main>
 
-    <!-- القائمة السفلية -->
+    <!-- القائمة السفلية (بدون عجلة) -->
     <div class="bottom-nav">
-        <div onclick="window.location.href='dashboard.html'" class="nav-link"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
-        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span>الإيداع</span></div>
-        <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>المشاريع</span></div>
-        <div onclick="window.location.href='referrals.html'" class="nav-link active"><i class="fa-solid fa-gift"></i><span>الإحالات</span></div>
-        <div onclick="logout()" class="nav-link text-red-500"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
+        <div onclick="window.location.href='dashboard.html'" class="nav-link"><i class="fa-solid fa-house-chimney"></i><span data-i18n="home">الرئيسية</span></div>
+        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span data-i18n="deposit">الإيداع</span></div>
+        <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span data-i18n="investments">المشاريع</span></div>
+        <div onclick="window.location.href='referrals.html'" class="nav-link active"><i class="fa-solid fa-gift"></i><span data-i18n="referrals">الإحالات</span></div>
+        <div onclick="logout()" class="nav-link text-red-500"><i class="fa-solid fa-power-off"></i><span data-i18n="logout">خروج</span></div>
     </div>
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (استخدام المسارات النسبية)
+        // 1. الإعدادات العامة - مسارات نسبية
         // ============================================================
-        const API_BASE_URL = '';  // فارغة لاستخدام المسار النسبي
+        const API_BASE_URL = '';
         const URL_ME = `${API_BASE_URL}/api/users/me`;
         const URL_REFERRALS_MY = `${API_BASE_URL}/api/referrals/my`;
         const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
@@ -222,7 +262,78 @@
         let referralLink = '';
 
         // ============================================================
-        // 2. دوال المصادقة (لا نحتاج CSRF)
+        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // ============================================================
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                return {};
+            }
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            // Update direction
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+            }
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            // Update active class on language selector
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) {
+                    opt.classList.add('active');
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+            // Set cookie for server-side detection
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) {
+                await loadTranslations(lang);
+            }
+            applyTranslations(lang);
+            // Reload referral data to update table texts (status, etc.)
+            if (currentUser) {
+                await loadReferralsData();
+            }
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // 3. دوال المصادقة مع تجديد التوكن
         // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
@@ -241,7 +352,7 @@
         }
 
         // ============================================================
-        // 3. جلب بيانات المستخدم الحالي
+        // 4. جلب بيانات المستخدم الحالي وتحديث الرصيد
         // ============================================================
         async function fetchUser() {
             try {
@@ -256,16 +367,23 @@
         async function checkAuth() {
             const user = await fetchUser();
             if (!user) {
-                Swal.fire('غير مصرح', 'الرجاء تسجيل الدخول أولاً', 'warning').then(() => window.location.href='login.html');
+                Swal.fire({
+                    title: translations[currentLang]?.unauthorized || 'غير مصرح',
+                    text: translations[currentLang]?.login_required || 'الرجاء تسجيل الدخول أولاً',
+                    icon: 'warning',
+                    background: '#05070a',
+                    color: '#fff',
+                    confirmButtonColor: '#d4af37'
+                }).then(() => window.location.href = 'login.html');
                 return false;
             }
             currentUser = user;
-            document.getElementById('user-balance').innerText = currentUser.balance.toLocaleString() + ' $';
+            document.getElementById('user-balance').innerText = (currentUser.balance || 0).toLocaleString() + ' $';
             return true;
         }
 
         // ============================================================
-        // 4. تحميل بيانات الإحالات
+        // 5. تحميل بيانات الإحالات (تظهر جميع المدعوين حتى بدون إيداع)
         // ============================================================
         async function loadReferralsData() {
             if (!await checkAuth()) return;
@@ -274,7 +392,7 @@
                 const data = await response.json();
                 if (!data.success) throw new Error(data.message);
                 
-                // عرض رابط الإحالة
+                // رابط الإحالة
                 const linkBox = document.getElementById('referralLinkBox');
                 if (linkBox) {
                     linkBox.innerText = data.referralLink;
@@ -286,34 +404,37 @@
                 document.getElementById('total-earned').innerText = (data.totalEarned || 0).toFixed(2) + ' $';
                 document.getElementById('user-level').innerText = currentUser.level || 'برونزي';
                 
-                // جدول المدعوين
+                // جدول المدعوين (يظهر جميع المسجلين، حتى لو depositAmount = 0 والمكافأة = 0)
                 const tbody = document.getElementById('referrals-table-body');
                 tbody.innerHTML = '';
+                const t = translations[currentLang] || {};
                 if (data.referrals && data.referrals.length > 0) {
                     data.referrals.forEach(ref => {
+                        const statusText = (ref.status === 'مؤهل' || ref.status === 'Eligible') ? (t.eligible || 'مؤهل') : (t.pending || 'قيد الانتظار');
+                        const statusClass = ref.status === 'مؤهل' || ref.status === 'Eligible' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400';
                         const row = document.createElement('tr');
                         row.className = 'border-b border-white/5';
                         row.innerHTML = `
                             <td class="p-3">${escapeHtml(ref.username)}</td>
                             <td class="p-3">${escapeHtml(ref.email)}</td>
-                            <td class="p-3">${new Date(ref.registeredAt).toLocaleDateString('ar-EG')}</td>
+                            <td class="p-3">${new Date(ref.registeredAt).toLocaleDateString()}</td>
                             <td class="p-3">${ref.depositAmount} $</td>
-                            <td class="p-3 text-green-400">${ref.reward} $</td>
-                            <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${ref.status === 'مؤهل' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}">${ref.status}</span></td>
+                            <td class="p-3 text-green-400">${ref.reward.toFixed(2)} $</td>
+                            <td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${statusClass}">${statusText}</span></td>
                         `;
                         tbody.appendChild(row);
                     });
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-500">لا يوجد مدعوون حتى الآن</td></tr>';
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-500">${t.no_referrals || 'لا يوجد مدعوون حتى الآن'}</td></tr>`;
                 }
             } catch(err) {
                 console.error(err);
-                Swal.fire('خطأ', 'فشل تحميل بيانات الإحالات', 'error');
+                Swal.fire('خطأ', t.load_failed || 'فشل تحميل بيانات الإحالات', 'error');
             }
         }
 
         // ============================================================
-        // 5. نسخ رابط الإحالة
+        // 6. نسخ رابط الإحالة إلى الحافظة
         // ============================================================
         function copyReferralLink() {
             if (referralLink) {
@@ -322,24 +443,24 @@
                     toast: true,
                     position: 'top-end',
                     icon: 'success',
-                    title: 'تم نسخ الرابط',
+                    title: translations[currentLang]?.copied || 'تم نسخ الرابط',
                     showConfirmButton: false,
                     timer: 2000,
                     background: '#05070a',
                     color: '#fff'
                 });
             } else {
-                Swal.fire('خطأ', 'لم يتم تحميل الرابط بعد', 'error');
+                Swal.fire('خطأ', translations[currentLang]?.link_not_loaded || 'لم يتم تحميل الرابط بعد', 'error');
             }
         }
 
         // ============================================================
-        // 6. تسجيل الخروج
+        // 7. تسجيل الخروج
         // ============================================================
         function logout() {
             Swal.fire({
-                title: 'تسجيل الخروج',
-                text: 'هل أنت متأكد؟',
+                title: translations[currentLang]?.logout_title || 'تسجيل الخروج',
+                text: translations[currentLang]?.logout_confirm || 'هل أنت متأكد؟',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#d4af37'
@@ -355,7 +476,7 @@
         }
 
         // ============================================================
-        // 7. دالة ترميز HTML (أمان)
+        // 8. ترميز HTML
         // ============================================================
         function escapeHtml(str) {
             if (!str) return '';
@@ -368,11 +489,13 @@
         }
 
         // ============================================================
-        // 8. التحميل الأولي
+        // 9. التحميل الأولي
         // ============================================================
         window.onload = async () => {
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
             if (await checkAuth()) {
-                loadReferralsData();
+                await loadReferralsData();
             }
         };
     </script>

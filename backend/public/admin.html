@@ -271,11 +271,12 @@
         }
 
         .screenshot-thumb {
-            max-width: 60px;
-            max-height: 60px;
+            max-width: 70px;
+            max-height: 70px;
             border-radius: 8px;
             border: 1px solid var(--gold-main);
             cursor: pointer;
+            object-fit: cover;
         }
 
         #loading-screen {
@@ -311,6 +312,33 @@
             overflow-y: auto;
             text-align: right;
         }
+
+        /* Language Switcher */
+        .lang-selector {
+            background: rgba(0,0,0,0.4);
+            border-radius: 2rem;
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+        .lang-option {
+            padding: 0.3rem 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #94a3b8;
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, #d4af37, #8a6d3b);
+            color: #000;
+        }
+        .lang-option:hover:not(.active) {
+            background: rgba(212,175,55,0.2);
+            color: #f7e08a;
+        }
     </style>
 </head>
 <body>
@@ -329,41 +357,49 @@
                     <p class="text-slate-400 font-bold text-xs tracking-widest">SERVER STATUS: AUTHORIZED ACCESS ONLY</p>
                 </div>
             </div>
-            <button onclick="loadEverything()" class="bg-gradient-to-r from-[var(--gold-main)] to-[var(--gold-dark)] text-black font-black px-6 py-3 rounded-2xl hover:scale-105 transition-all shadow-xl text-sm">
-                <i class="fa-solid fa-rotate ml-2"></i> تحديث البيانات
-            </button>
+            <div class="flex items-center gap-3">
+                <div class="lang-selector">
+                    <div class="lang-option active" data-lang="ar">العربية</div>
+                    <div class="lang-option" data-lang="en">English</div>
+                    <div class="lang-option" data-lang="zh">中文</div>
+                    <div class="lang-option" data-lang="de">Deutsch</div>
+                </div>
+                <button onclick="loadEverything()" class="bg-gradient-to-r from-[var(--gold-main)] to-[var(--gold-dark)] text-black font-black px-6 py-3 rounded-2xl hover:scale-105 transition-all shadow-xl text-sm">
+                    <i class="fa-solid fa-rotate ml-2"></i> <span data-i18n="refresh_data">تحديث البيانات</span>
+                </button>
+            </div>
         </header>
 
         <div class="stats-container">
             <div class="stat-card">
-                <h3>إجمالي المستخدمين</h3>
+                <h3 data-i18n="total_users">إجمالي المستخدمين</h3>
                 <p id="stat-users">0</p>
             </div>
             <div class="stat-card">
-                <h3>طلبات الإيداع المعلقة</h3>
+                <h3 data-i18n="pending_deposits">طلبات الإيداع المعلقة</h3>
                 <p id="stat-pending-deposits">0</p>
             </div>
             <div class="stat-card">
-                <h3>طلبات السحب المعلقة</h3>
+                <h3 data-i18n="pending_withdrawals">طلبات السحب المعلقة</h3>
                 <p id="stat-pending-withdrawals">0</p>
             </div>
             <div class="stat-card">
-                <h3>إجمالي الرصيد في النظام</h3>
+                <h3 data-i18n="total_system_balance">إجمالي الرصيد في النظام</h3>
                 <p id="stat-balance">0 $</p>
             </div>
         </div>
 
         <div class="tabs-container">
-            <button class="tab-btn active" data-tab="users-tab">👥 المستخدمين</button>
-            <button class="tab-btn" data-tab="deposits-tab">💰 طلبات الإيداع</button>
-            <button class="tab-btn" data-tab="withdrawals-tab">💸 طلبات السحب</button>
-            <button class="tab-btn" data-tab="admin-actions-tab">📋 سجل الإجراءات</button>
+            <button class="tab-btn active" data-tab="users-tab" data-i18n="users_tab">👥 المستخدمين</button>
+            <button class="tab-btn" data-tab="deposits-tab" data-i18n="deposits_tab">💰 طلبات الإيداع</button>
+            <button class="tab-btn" data-tab="withdrawals-tab" data-i18n="withdrawals_tab">💸 طلبات السحب</button>
+            <button class="tab-btn" data-tab="admin-actions-tab" data-i18n="admin_actions_tab">📋 سجل الإجراءات</button>
         </div>
 
-        <!-- تبويب المستخدمين (جميع الأعمدة) -->
+        <!-- تبويب المستخدمين -->
         <div id="users-tab" class="tab-pane active-pane">
             <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold gold-gradient-text">📋 قائمة المستخدمين</h2>
+                <h2 class="text-xl font-bold gold-gradient-text" data-i18n="users_list">📋 قائمة المستخدمين</h2>
                 <div class="flex gap-2">
                     <input type="text" id="searchUsers" placeholder="بحث باسم المستخدم أو البريد" class="bg-black/50 border border-gold/30 rounded-xl px-4 py-2 text-sm text-white w-64">
                 </div>
@@ -372,18 +408,18 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>اسم المستخدم</th>
-                            <th>الاسم الكامل</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>بلد المنشأ</th>
-                            <th>السكن الحالي</th>
-                            <th>العمل الحالي</th>
-                            <th>المهنة</th>
-                            <th>الرصيد</th>
-                            <th>المستوى</th>
-                            <th>موثق</th>
-                            <th>تاريخ التسجيل</th>
-                            <th>الإجراءات</th>
+                            <th data-i18n="username">اسم المستخدم</th>
+                            <th data-i18n="full_name">الاسم الكامل</th>
+                            <th data-i18n="email">البريد الإلكتروني</th>
+                            <th data-i18n="origin">بلد المنشأ</th>
+                            <th data-i18n="current_location">السكن الحالي</th>
+                            <th data-i18n="current_job">العمل الحالي</th>
+                            <th data-i18n="profession">المهنة</th>
+                            <th data-i18n="balance">الرصيد</th>
+                            <th data-i18n="level">المستوى</th>
+                            <th data-i18n="verified">موثق</th>
+                            <th data-i18n="reg_date">تاريخ التسجيل</th>
+                            <th data-i18n="actions">الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="usersTableBody"></tbody>
@@ -393,18 +429,18 @@
 
         <!-- تبويب طلبات الإيداع -->
         <div id="deposits-tab" class="tab-pane">
-            <h2 class="text-xl font-bold gold-gradient-text mb-4">💰 طلبات الإيداع المعلقة</h2>
+            <h2 class="text-xl font-bold gold-gradient-text mb-4" data-i18n="pending_deposits_title">💰 طلبات الإيداع المعلقة</h2>
             <div class="table-responsive-box">
                 <table>
                     <thead>
                         <tr>
-                            <th>المستخدم</th>
-                            <th>المبلغ</th>
-                            <th>الطريقة</th>
-                            <th>التاريخ</th>
-                            <th>الصورة</th>
-                            <th>الحالة</th>
-                            <th>إجراء</th>
+                            <th data-i18n="user">المستخدم</th>
+                            <th data-i18n="amount">المبلغ</th>
+                            <th data-i18n="method">الطريقة</th>
+                            <th data-i18n="date">التاريخ</th>
+                            <th data-i18n="screenshot">الصورة</th>
+                            <th data-i18n="status">الحالة</th>
+                            <th data-i18n="action">إجراء</th>
                         </tr>
                     </thead>
                     <tbody id="depositsTableBody"></tbody>
@@ -414,17 +450,18 @@
 
         <!-- تبويب طلبات السحب -->
         <div id="withdrawals-tab" class="tab-pane">
-            <h2 class="text-xl font-bold gold-gradient-text mb-4">💸 طلبات السحب المعلقة</h2>
+            <h2 class="text-xl font-bold gold-gradient-text mb-4" data-i18n="pending_withdrawals_title">💸 طلبات السحب المعلقة</h2>
             <div class="table-responsive-box">
-                </table>
+                <table>
                     <thead>
                         <tr>
-                            <th>المستخدم</th>
-                            <th>المبلغ</th>
-                            <th>عنوان المحفظة</th>
-                            <th>التاريخ</th>
-                            <th>الحالة</th>
-                            <th>إجراء</th>
+                            <th data-i18n="user">المستخدم</th>
+                            <th data-i18n="amount">المبلغ</th>
+                            <th data-i18n="type">النوع</th>
+                            <th data-i18n="wallet_address">عنوان المحفظة</th>
+                            <th data-i18n="date">التاريخ</th>
+                            <th data-i18n="status">الحالة</th>
+                            <th data-i18n="action">إجراء</th>
                         </tr>
                     </thead>
                     <tbody id="withdrawalsTableBody"></tbody>
@@ -434,17 +471,17 @@
 
         <!-- تبويب سجل إجراءات الأدمن -->
         <div id="admin-actions-tab" class="tab-pane">
-            <h2 class="text-xl font-bold gold-gradient-text mb-4">📋 سجل إجراءات الإدارة</h2>
+            <h2 class="text-xl font-bold gold-gradient-text mb-4" data-i18n="admin_actions_log">📋 سجل إجراءات الإدارة</h2>
             <div class="table-responsive-box">
                 <table>
                     <thead>
                         <tr>
-                            <th>المسؤول</th>
-                            <th>نوع الإجراء</th>
-                            <th>المستخدم المستهدف</th>
-                            <th>التفاصيل</th>
-                            <th>IP</th>
-                            <th>التاريخ والوقت</th>
+                            <th data-i18n="admin">المسؤول</th>
+                            <th data-i18n="action_type">نوع الإجراء</th>
+                            <th data-i18n="target_user">المستخدم المستهدف</th>
+                            <th data-i18n="details">التفاصيل</th>
+                            <th data-i18n="ip">IP</th>
+                            <th data-i18n="datetime">التاريخ والوقت</th>
                         </tr>
                     </thead>
                     <tbody id="adminActionsTableBody"></tbody>
@@ -455,9 +492,9 @@
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (استخدام المسارات النسبية لتعمل على Railway محلياً)
+        // 1. الإعدادات العامة - مسارات نسبية
         // ============================================================
-        const API_BASE = '';  // فارغة لاستخدام المسار النسبي (يعمل محلياً وعلى Railway)
+        const API_BASE = '';
         const endpoints = {
             users: `${API_BASE}/api/admin/users`,
             deposits: `${API_BASE}/api/admin/deposits`,
@@ -471,16 +508,89 @@
         };
 
         // ============================================================
-        // 2. دوال المصادقة (باستخدام الكوكيز، لا نحتاج CSRF)
+        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // ============================================================
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch(`/locales/${lang}/translation.json`);
+                if (!response.ok) throw new Error();
+                const data = await response.json();
+                translations[lang] = data;
+                return data;
+            } catch (err) {
+                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
+                if (lang !== 'ar') return loadTranslations('ar');
+                return {};
+            }
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+            // Also update placeholder of search input
+            const searchInput = document.getElementById('searchUsers');
+            if (searchInput && t.search_placeholder) {
+                searchInput.placeholder = t.search_placeholder;
+            }
+            // Update direction
+            const htmlEl = document.documentElement;
+            if (lang === 'ar') {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+            } else {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', lang);
+            }
+            localStorage.setItem('preferredLanguage', lang);
+            currentLang = lang;
+            // Update active class on language selector
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                if (opt.getAttribute('data-lang') === lang) {
+                    opt.classList.add('active');
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+            // Set cookie for server-side detection
+            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
+        }
+
+        async function setLanguage(lang) {
+            if (!translations[lang]) {
+                await loadTranslations(lang);
+            }
+            applyTranslations(lang);
+            // Optionally reload data to update any translated dynamic content
+            await loadEverything();
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', async () => {
+                const lang = opt.getAttribute('data-lang');
+                if (lang === currentLang) return;
+                await setLanguage(lang);
+            });
+        });
+
+        // ============================================================
+        // 3. دالة fetch مع تجديد التوكن
         // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
-            const response = await fetch(url, options);
+            let response = await fetch(url, options);
             if (response.status === 401 || response.status === 403) {
-                // محاولة تجديد التوكن
                 const refreshRes = await fetch(`${API_BASE}/api/auth/refresh`, { method: 'POST', credentials: 'include' });
                 if (refreshRes.ok) {
-                    return fetch(url, options);
+                    response = await fetch(url, options);
                 } else {
                     localStorage.clear();
                     window.location.href = 'login.html';
@@ -490,7 +600,9 @@
             return response;
         }
 
-        // التحقق من صلاحية المدير
+        // ============================================================
+        // 4. التحقق من صلاحية المدير
+        // ============================================================
         async function checkAdminAccess() {
             try {
                 const res = await fetchWithAuth(endpoints.verify);
@@ -498,8 +610,8 @@
                 return true;
             } catch (err) {
                 Swal.fire({
-                    title: 'غير مصرح',
-                    text: 'ليس لديك صلاحية للوصول إلى لوحة التحكم',
+                    title: translations[currentLang]?.unauthorized || 'غير مصرح',
+                    text: translations[currentLang]?.no_admin_access || 'ليس لديك صلاحية للوصول إلى لوحة التحكم',
                     icon: 'error',
                     background: '#05070a',
                     color: '#fff'
@@ -509,7 +621,7 @@
         }
 
         // ============================================================
-        // 3. تحميل جميع البيانات (المستخدمين، الإيداعات، السحوبات، سجل الإجراءات)
+        // 5. تحميل جميع البيانات
         // ============================================================
         async function loadEverything() {
             const loader = document.getElementById('loading-screen');
@@ -533,19 +645,20 @@
                 updateStats(usersData.users || [], deposits, withdrawals);
             } catch (err) {
                 console.error(err);
-                Swal.fire('خطأ', 'فشل تحميل البيانات: ' + err.message, 'error');
+                Swal.fire('خطأ', translations[currentLang]?.load_failed || 'فشل تحميل البيانات: ' + err.message, 'error');
             } finally {
                 loader.style.display = 'none';
             }
         }
 
         // ============================================================
-        // 4. عرض المستخدمين (جميع الأعمدة + أزرار الإجراءات بما فيها تعديل الرتبة)
+        // 6. عرض المستخدمين
         // ============================================================
         function renderUsers(users) {
             const tbody = document.getElementById('usersTableBody');
+            if (!tbody) return;
             if (!users.length) {
-                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-8">لا يوجد مستخدمون</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="13" class="text-center py-8">${translations[currentLang]?.no_users || 'لا يوجد مستخدمون'}</td></tr>`;
                 return;
             }
             tbody.innerHTML = users.map(user => `
@@ -574,7 +687,7 @@
         }
 
         // ============================================================
-        // 5. تعديل الرتبة (نقطة النهاية الجديدة في السيرفر)
+        // 7. تعديل الرتبة
         // ============================================================
         window.changeUserLevel = async (userId, username, currentLevel) => {
             const levels = ['برونزي', 'فضي', 'ذهبي', 'ألماسي'];
@@ -598,7 +711,7 @@
                 const data = await res.json();
                 if (data.success) {
                     Swal.fire('تم', data.message, 'success');
-                    loadEverything(); // إعادة تحميل البيانات
+                    loadEverything();
                 } else {
                     Swal.fire('خطأ', data.message, 'error');
                 }
@@ -608,7 +721,7 @@
         };
 
         // ============================================================
-        // 6. تعديل الرصيد
+        // 8. تعديل الرصيد (بدون إشعار للمستخدم)
         // ============================================================
         window.editBalance = async (userId, username, currentBalance) => {
             const { value: newBalance } = await Swal.fire({
@@ -641,7 +754,7 @@
         };
 
         // ============================================================
-        // 7. إعادة تعيين كلمة المرور
+        // 9. إعادة تعيين كلمة المرور
         // ============================================================
         window.resetUserPassword = async (userId, username) => {
             const { value: newPassword } = await Swal.fire({
@@ -673,7 +786,7 @@
         };
 
         // ============================================================
-        // 8. عرض تفاصيل المستخدم (جميع البيانات)
+        // 10. عرض تفاصيل المستخدم
         // ============================================================
         window.viewUserDetails = async (userId) => {
             try {
@@ -714,67 +827,79 @@
         };
 
         // ============================================================
-        // 9. عرض طلبات الإيداع (مع دعم Cloudinary URLs)
+        // 11. عرض طلبات الإيداع (مع صور Cloudinary)
         // ============================================================
         function renderDeposits(deposits) {
             const tbody = document.getElementById('depositsTableBody');
+            if (!tbody) return;
             if (!deposits.length) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8">لا توجد طلبات إيداع معلقة</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8">${translations[currentLang]?.no_deposits || 'لا توجد طلبات إيداع معلقة'}</td></tr>`;
                 return;
             }
             tbody.innerHTML = deposits.map(req => {
-                const imageUrl = req.screenshotPath && (req.screenshotPath.startsWith('http') ? req.screenshotPath : `${API_BASE}${req.screenshotPath}`);
+                let imageUrl = req.screenshotPath;
+                if (imageUrl && !imageUrl.startsWith('http')) {
+                    imageUrl = window.location.origin + imageUrl;
+                }
                 return `
-                <tr>
-                    <td>${escapeHtml(req.username)}</td>
-                    <td class="text-green-400">${req.amount} $</td>
-                    <td>${req.method || 'USDT'}</td>
-                    <td>${new Date(req.date).toLocaleString()}</td>
-                    <td>${imageUrl ? `<img src="${imageUrl}" class="screenshot-thumb" onclick="window.open('${imageUrl}','_blank')">` : '—'}</td>
-                    <td><span class="status-badge badge-pending">قيد الانتظار</span></td>
-                    <td>
-                        <div class="action-btns">
-                            <button onclick="handleDeposit('${req.id}', 'approve')" class="btn-base btn-approve">قبول</button>
-                            <button onclick="handleDeposit('${req.id}', 'reject')" class="btn-base btn-reject">رفض</button>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
+                    <tr>
+                        <td>${escapeHtml(req.username)}</td>
+                        <td class="text-green-400">${req.amount} $</td>
+                        <td>${req.method || 'USDT'}</td>
+                        <td>${new Date(req.date).toLocaleString()}</td>
+                        <td>${imageUrl ? `<img src="${imageUrl}" class="screenshot-thumb" onclick="window.open('${imageUrl}','_blank')">` : '—'}</td>
+                        <td><span class="status-badge badge-pending">${translations[currentLang]?.pending || 'قيد الانتظار'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button onclick="handleDeposit('${req.id}', 'approve')" class="btn-base btn-approve">${translations[currentLang]?.approve || 'قبول'}</button>
+                                <button onclick="handleDeposit('${req.id}', 'reject')" class="btn-base btn-reject">${translations[currentLang]?.reject || 'رفض'}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         // ============================================================
-        // 10. عرض طلبات السحب
+        // 12. عرض طلبات السحب (مع نوع السحب)
         // ============================================================
         function renderWithdrawals(withdrawals) {
             const tbody = document.getElementById('withdrawalsTableBody');
+            if (!tbody) return;
             if (!withdrawals.length) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8">لا توجد طلبات سحب معلقة</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8">${translations[currentLang]?.no_withdrawals || 'لا توجد طلبات سحب معلقة'}</td></tr>`;
                 return;
             }
-            tbody.innerHTML = withdrawals.map(w => `
-                <tr>
-                    <td>${escapeHtml(w.username)}</td>
-                    <td class="text-yellow-400">${w.amount} $</td>
-                    <td class="break-all">${escapeHtml(w.walletAddress)}</td>
-                    <td>${new Date(w.date).toLocaleString()}</td>
-                    <td><span class="status-badge badge-pending">${w.status === 'pending' ? 'قيد المراجعة' : w.status}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            <button onclick="handleWithdrawal('${w.id}', 'approve')" class="btn-base btn-approve">قبول</button>
-                            <button onclick="handleWithdrawal('${w.id}', 'reject')" class="btn-base btn-reject">رفض</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = withdrawals.map(w => {
+                let typeText = w.type === 'profit' ? (translations[currentLang]?.profit_withdrawal || 'أرباح') : (translations[currentLang]?.principal_withdrawal || 'رصيد أساسي');
+                let typeClass = w.type === 'profit' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400';
+                return `
+                    <tr>
+                        <td>${escapeHtml(w.username)}</td>
+                        <td class="text-yellow-400">${w.amount} $</td>
+                        <td><span class="px-2 py-1 rounded-full text-xs ${typeClass}">${typeText}</span></td>
+                        <td class="break-all">${escapeHtml(w.walletAddress)}</td>
+                        <td>${new Date(w.date).toLocaleString()}</td>
+                        <td><span class="status-badge badge-pending">${w.status === 'pending' ? (translations[currentLang]?.pending_review || 'قيد المراجعة') : w.status}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button onclick="handleWithdrawal('${w.id}', 'approve')" class="btn-base btn-approve">${translations[currentLang]?.approve || 'قبول'}</button>
+                                <button onclick="handleWithdrawal('${w.id}', 'reject')" class="btn-base btn-reject">${translations[currentLang]?.reject || 'رفض'}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         // ============================================================
-        // 11. عرض سجل إجراءات الأدمن
+        // 13. عرض سجل إجراءات الأدمن
         // ============================================================
         function renderAdminActions(actions) {
             const tbody = document.getElementById('adminActionsTableBody');
+            if (!tbody) return;
             if (!actions.length) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8">لا توجد إجراءات مسجلة</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8">${translations[currentLang]?.no_actions || 'لا توجد إجراءات مسجلة'}</td></tr>`;
                 return;
             }
             tbody.innerHTML = actions.map(a => `
@@ -790,23 +915,29 @@
         }
 
         // ============================================================
-        // 12. تحديث الإحصائيات
+        // 14. تحديث الإحصائيات
         // ============================================================
         function updateStats(users, deposits, withdrawals) {
-            document.getElementById('stat-users').innerText = users.length;
-            document.getElementById('stat-pending-deposits').innerText = deposits.length;
-            document.getElementById('stat-pending-withdrawals').innerText = withdrawals.filter(w => w.status === 'pending').length;
-            const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
-            document.getElementById('stat-balance').innerText = totalBalance.toLocaleString() + ' $';
+            const usersEl = document.getElementById('stat-users');
+            const pendingDepositsEl = document.getElementById('stat-pending-deposits');
+            const pendingWithdrawalsEl = document.getElementById('stat-pending-withdrawals');
+            const totalBalanceEl = document.getElementById('stat-balance');
+            if (usersEl) usersEl.innerText = users.length;
+            if (pendingDepositsEl) pendingDepositsEl.innerText = deposits.length;
+            if (pendingWithdrawalsEl) pendingWithdrawalsEl.innerText = withdrawals.filter(w => w.status === 'pending').length;
+            if (totalBalanceEl) {
+                const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
+                totalBalanceEl.innerText = totalBalance.toLocaleString() + ' $';
+            }
         }
 
         // ============================================================
-        // 13. معالجة قبول/رفض الإيداع
+        // 15. معالجة قبول/رفض الإيداع
         // ============================================================
         window.handleDeposit = async (id, action) => {
             const confirm = await Swal.fire({
-                title: 'تأكيد',
-                text: `هل أنت متأكد من ${action === 'approve' ? 'قبول' : 'رفض'} هذا الإيداع؟`,
+                title: translations[currentLang]?.confirm || 'تأكيد',
+                text: `${translations[currentLang]?.confirm_deposit_action || 'هل أنت متأكد من'} ${action === 'approve' ? (translations[currentLang]?.approve || 'قبول') : (translations[currentLang]?.reject || 'رفض')} ${translations[currentLang]?.this_deposit || 'هذا الإيداع'}?`,
                 icon: 'warning',
                 showCancelButton: true,
                 background: '#05070a',
@@ -828,12 +959,12 @@
         };
 
         // ============================================================
-        // 14. معالجة قبول/رفض السحب
+        // 16. معالجة قبول/رفض السحب
         // ============================================================
         window.handleWithdrawal = async (id, action) => {
             const confirm = await Swal.fire({
-                title: 'تأكيد',
-                text: `هل أنت متأكد من ${action === 'approve' ? 'قبول' : 'رفض'} طلب السحب؟`,
+                title: translations[currentLang]?.confirm || 'تأكيد',
+                text: `${translations[currentLang]?.confirm_withdrawal_action || 'هل أنت متأكد من'} ${action === 'approve' ? (translations[currentLang]?.approve || 'قبول') : (translations[currentLang]?.reject || 'رفض')} ${translations[currentLang]?.this_withdrawal || 'طلب السحب'}?`,
                 icon: 'warning',
                 showCancelButton: true,
                 background: '#05070a',
@@ -855,25 +986,28 @@
         };
 
         // ============================================================
-        // 15. البحث في المستخدمين
+        // 17. البحث في المستخدمين
         // ============================================================
         let searchTimeout;
-        document.getElementById('searchUsers')?.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(async () => {
-                const search = e.target.value;
-                try {
-                    const res = await fetchWithAuth(`${endpoints.users}?search=${encodeURIComponent(search)}`);
-                    const data = await res.json();
-                    renderUsers(data.users || []);
-                } catch (err) {
-                    console.error(err);
-                }
-            }, 500);
-        });
+        const searchInput = document.getElementById('searchUsers');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(async () => {
+                    const search = e.target.value;
+                    try {
+                        const res = await fetchWithAuth(`${endpoints.users}?search=${encodeURIComponent(search)}`);
+                        const data = await res.json();
+                        renderUsers(data.users || []);
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }, 500);
+            });
+        }
 
         // ============================================================
-        // 16. تبديل التبويبات
+        // 18. تبديل التبويبات
         // ============================================================
         function initTabs() {
             const tabs = document.querySelectorAll('.tab-btn');
@@ -884,13 +1018,14 @@
                     tabs.forEach(b => b.classList.remove('active'));
                     panes.forEach(p => p.classList.remove('active-pane'));
                     btn.classList.add('active');
-                    document.getElementById(tabId).classList.add('active-pane');
+                    const activePane = document.getElementById(tabId);
+                    if (activePane) activePane.classList.add('active-pane');
                 });
             });
         }
 
         // ============================================================
-        // 17. دالة ترميز HTML (لأغراض الأمان)
+        // 19. ترميز HTML للحماية
         // ============================================================
         function escapeHtml(str) {
             if (!str) return '';
@@ -903,9 +1038,11 @@
         }
 
         // ============================================================
-        // 18. تشغيل الصفحة
+        // 20. التشغيل
         // ============================================================
         window.onload = async () => {
+            await loadTranslations(currentLang);
+            applyTranslations(currentLang);
             const isAdmin = await checkAdminAccess();
             if (isAdmin) {
                 await loadEverything();
