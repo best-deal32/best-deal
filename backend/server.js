@@ -1,5 +1,6 @@
 // ============================================================
 // server.js - النسخة النهائية مع دعم اللغات (العربية، الإنجليزية، الصينية، الألمانية)
+// مع إضافة المسار الثابت لمجلد locales
 // ============================================================
 
 const express = require('express');
@@ -25,8 +26,8 @@ const middleware = require('i18next-http-middleware');
 
 // تهيئة i18next
 i18next.use(Backend).use(middleware.LanguageDetector).init({
-    fallbackLng: 'ar', // اللغة الافتراضية (العربية)
-    preload: ['ar', 'en', 'zh', 'de'], // تحميل اللغات مسبقاً
+    fallbackLng: 'ar',
+    preload: ['ar', 'en', 'zh', 'de'],
     backend: {
         loadPath: path.join(__dirname, 'locales/{{lng}}/translation.json')
     },
@@ -34,7 +35,7 @@ i18next.use(Backend).use(middleware.LanguageDetector).init({
         order: ['querystring', 'cookie', 'header'],
         lookupQuerystring: 'lang',
         lookupCookie: 'i18n',
-        caches: ['cookie'] // تخزين اللغة المختارة في الكوكيز
+        caches: ['cookie']
     }
 });
 
@@ -1176,6 +1177,7 @@ async function backupDatabase() {
 }
 cron.schedule('0 2 * * *', () => { backupDatabase(); });
 
+// ====================== SERVE STATIC FRONTEND ======================
 const publicPath = path.join(__dirname, 'public');
 if (fs.existsSync(publicPath)) {
     app.use(express.static(publicPath));
@@ -1184,6 +1186,11 @@ if (fs.existsSync(publicPath)) {
     console.warn(`⚠️ public folder not found at ${publicPath}`);
 }
 
+// ====================== خدمة ملفات الترجمة (locales) كملفات ثابتة ======================
+app.use('/locales', express.static(path.join(__dirname, 'locales')));
+console.log(`✅ Locales folder served from ${path.join(__dirname, 'locales')}`);
+
+// ====================== ERROR HANDLER ======================
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ success: false, message: req.t('server_error') });
@@ -1200,6 +1207,6 @@ process.on('unhandledRejection', (reason, promise) => { console.error('⚠️ Un
         console.log(`👑 Admin: freeze / MHDFREEZE0619`);
         console.log(`🔑 Gateway secret: ${ADMIN_GATEWAY_SECRET}`);
         console.log(`📸 Cloudinary configured: ${process.env.CLOUDINARY_CLOUD_NAME ? '✅' : '❌'}`);
-        console.log(`🌍 Multi-language support: ar, en, zh, de (create locales folders)`);
+        console.log(`🌍 Multi-language support: ar, en, zh, de`);
     });
 })();
