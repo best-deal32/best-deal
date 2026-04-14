@@ -6,6 +6,7 @@
     <title>Best Deal | المنصة الذهبية للتداول</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
@@ -361,7 +362,7 @@
             <div class="feature-card" onclick="showDailyBonusModal()">
                 <i class="fa-solid fa-gift"></i>
                 <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="daily_bonus">المكافأة اليومية</h4>
-                <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="daily_bonus_desc">0.5$ يومياً بعد أول إيداع</p>
+                <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="daily_bonus_desc">حتى 1$ يومياً مع السلسلة</p>
             </div>
         </div>
 
@@ -431,7 +432,7 @@
                 <span data-i18n="profit_withdraw_label">✅ سحب الأرباح والأصل:</span> <span class="highlight">بعد 30 يوماً معاً</span>.</p>
             </div>
             <div class="info-section">
-                <h3><i class="fa-solid fa-gem"></i> <span data-i18n="vip_project">مشروع VIP (جديد)</span></h3>
+                <h3><i class="fa-solid fa-gem"></i> <span data-i18n="vip_project">مشروع VIP</span></h3>
                 <p><span data-i18n="min_amount_label">💰 الحد الأدنى:</span> <span class="highlight">5000$</span><br>
                 <span data-i18n="return_label">📈 العائد:</span> <span class="highlight">400%</span> <span data-i18n="vip_return_desc">ربح 400% بعد 30 يوماً (500% من الأصل)</span>.<br>
                 <span data-i18n="lock_period_label">🔒 قفل المبلغ الأصلي + الربح:</span> <span class="highlight">30 يوم</span>.<br>
@@ -472,37 +473,47 @@
         </div>
     </div>
 
-    <!-- ========== نافذة شرح نظام الإحالات ========== -->
+    <!-- ========== نافذة شرح نظام الإحالات (متدرجة 3 مستويات) ========== -->
     <div id="referralModal" class="info-modal">
         <div class="info-modal-content">
             <button class="close-modal" onclick="closeReferralModal()"><i class="fa-solid fa-xmark"></i></button>
-            <h2 class="text-2xl font-black gold-gradient-text mb-4 text-center" data-i18n="referral_system_title">نظام الإحالات (دع الأصدقاء)</h2>
+            <h2 class="text-2xl font-black gold-gradient-text mb-4 text-center" data-i18n="referral_system_title">نظام الإحالات المتدرج (3 مستويات)</h2>
             <div class="info-section">
                 <h3><i class="fa-solid fa-link"></i> <span data-i18n="how_it_works">كيف يعمل؟</span></h3>
-                <p data-i18n="referral_how_desc">احصل على رابط إحالة خاص بك من لوحة التحكم. شاركه مع أصدقائك. عندما يسجل صديق عبر رابطك ويقوم بأول إيداع (يتم قبوله من الإدارة)، تحصل أنت على مكافأة إحالة حسب مستواك الحالي:</p>
+                <p data-i18n="referral_how_desc">احصل على رابط إحالة خاص بك من لوحة التحكم. عندما يسجل صديق عبر رابطك ويقوم بأول إيداع (يتم قبوله من الإدارة)، تحصل أنت على مكافأة إحالة حسب مستواك الحالي:</p>
                 <ul class="mr-5 mt-2">
                     <li>▪️ <span data-i18n="bronze">برونزي:</span> <span data-i18n="bronze_referral_detail">2$ ثابت (بشرط أن يودع المدعو 50$ فأكثر).</span></li>
                     <li>▪️ <span data-i18n="silver">فضي:</span> <span data-i18n="silver_referral_detail">10% من قيمة أول إيداع للمدعو.</span></li>
                     <li>▪️ <span data-i18n="gold">ذهبي:</span> <span data-i18n="gold_referral_detail">15% من قيمة أول إيداع.</span></li>
                     <li>▪️ <span data-i18n="diamond">ألماسي:</span> <span data-i18n="diamond_referral_detail">25% من قيمة أول إيداع.</span></li>
                 </ul>
+                <p class="mt-2 font-bold text-gold">🔹 <span data-i18n="multi_level_info">مكافآت إضافية على الإحالات المتدرجة:</span></p>
+                <ul class="mr-5">
+                    <li>▪️ <span data-i18n="level2_reward">المستوى الثاني (أصدقاء أصدقائك): 5% من قيمة إيداعهم الأول.</span></li>
+                    <li>▪️ <span data-i18n="level3_reward">المستوى الثالث: 2.5% من قيمة إيداعهم الأول.</span></li>
+                </ul>
                 <p class="mt-2" data-i18n="referral_no_deduction">⚠️ المكافأة تُضاف إلى رصيدك القابل للسحب فور قبول إيداع المدعو، <span class="highlight">دون أي خصم من رصيد المدعو</span>.</p>
             </div>
             <div class="info-section">
                 <h3><i class="fa-solid fa-chart-line"></i> <span data-i18n="why_referrals">لماذا تستخدم الإحالات؟</span></h3>
-                <p data-i18n="why_referrals_desc">تعتبر الإحالات مصدر دخل سلبي ممتاز. كلما زاد مستواك، زادت نسبة المكافأة. ادعُ المزيد من الأصدقاء واربح ما يصل إلى 25% من إيداعاتهم الأولى. بالإضافة إلى مسابقة شهرية بجوائز قيمة!</p>
+                <p data-i18n="why_referrals_desc">تعتبر الإحالات مصدر دخل سلبي ممتاز. كلما زاد مستواك، زادت نسبة المكافأة. مع المكافآت المتدرجة، يمكنك الربح من 3 مستويات تحتك. بالإضافة إلى مسابقة شهرية بجوائز قيمة!</p>
             </div>
         </div>
     </div>
 
-    <!-- ========== نافذة شرح المكافأة اليومية ========== -->
+    <!-- ========== نافذة شرح المكافأة اليومية (Streak) ========== -->
     <div id="dailyBonusModal" class="info-modal">
         <div class="info-modal-content">
             <button class="close-modal" onclick="closeDailyBonusModal()"><i class="fa-solid fa-xmark"></i></button>
-            <h2 class="text-2xl font-black gold-gradient-text mb-4 text-center" data-i18n="daily_bonus_title">المكافأة اليومية</h2>
+            <h2 class="text-2xl font-black gold-gradient-text mb-4 text-center" data-i18n="daily_bonus_title">المكافأة اليومية التصاعدية</h2>
             <div class="info-section">
-                <p data-i18n="daily_bonus_explain">احصل على 0.50 $ (50 سنت) يومياً مجاناً! الشرط الوحيد: أن تكون قد قمت بأول إيداع في حسابك (أي مبلغ). بعد ذلك، يمكنك استلام المكافأة كل يوم بمجرد الضغط على زر "استلام المكافأة" في لوحة التحكم.</p>
-                <p class="mt-2 text-green-400" data-i18n="daily_bonus_how">💡 كيف تعمل؟ بعد قبول أول إيداع لك، تصبح مؤهلاً للمكافأة اليومية. يمكنك استلامها مرة واحدة كل 24 ساعة. المكافأة تضاف إلى رصيد الأرباح (profit) ويمكن سحبها فوراً.</p>
+                <p data-i18n="daily_bonus_explain">احصل على مكافأة يومية مجانية تزداد كلما واصلت تسجيل الدخول يومياً! الشرط الوحيد: أن تكون قد قمت بأول إيداع في حسابك (أي مبلغ).</p>
+                <ul class="mr-5 mt-2">
+                    <li>▪️ <span data-i18n="streak_days_1_7">الأيام 1-7: 0.50$ يومياً</span></li>
+                    <li>▪️ <span data-i18n="streak_days_8_14">الأيام 8-14: 0.75$ يومياً</span></li>
+                    <li>▪️ <span data-i18n="streak_days_15_plus">اليوم 15 وما بعده: 1.00$ يومياً</span></li>
+                </ul>
+                <p class="mt-2 text-green-400" data-i18n="daily_bonus_how">💡 كيف تعمل؟ بعد قبول أول إيداع لك، تصبح مؤهلاً للمكافأة اليومية. يمكنك استلامها مرة واحدة كل 24 ساعة. إذا فاتك يوم، تعود السلسلة إلى البداية. المكافأة تضاف إلى رصيد الأرباح (profit) ويمكن سحبها فوراً.</p>
                 <p class="mt-2 text-yellow-400" data-i18n="daily_bonus_note">⭐ ملاحظة: لا يمكن استلام المكافأة دون وجود إيداع سابق. ابدأ بإيداع صغير لتفعيل الميزة.</p>
             </div>
         </div>
@@ -531,6 +542,8 @@
         const API_BASE_URL = '';
         const USER_ME_ENDPOINT = `${API_BASE_URL}/api/users/me`;
         const REFRESH_ENDPOINT = `${API_BASE_URL}/api/auth/refresh`;
+
+        let socket = null;
 
         // ============================================================
         // نظام الترجمة متعدد اللغات (i18n)
@@ -590,6 +603,18 @@
                 await setLanguage(lang);
             });
         });
+
+        // ============================================================
+        // WebSocket (للتوافق مع النظام)
+        // ============================================================
+        function initSocket() {
+            if (!socket) {
+                socket = io(window.location.origin, { withCredentials: true });
+                socket.on('connect', () => {
+                    console.log('Socket connected on index page');
+                });
+            }
+        }
 
         // ============================================================
         // وظائف التحكم في الـ Modal والتحقق من تسجيل الدخول
@@ -670,6 +695,7 @@
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
+            initSocket(); // تهيئة WebSocket
         };
     </script>
 </body>

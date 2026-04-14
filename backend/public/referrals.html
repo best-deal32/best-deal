@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         :root {
@@ -295,6 +296,7 @@
 
         let currentUser = null;
         let referralLink = '';
+        let socket = null;
 
         // ============================================================
         // 2. الترجمة
@@ -358,6 +360,33 @@
         });
 
         // ============================================================
+        // WebSocket (للإشعارات الفورية)
+        // ============================================================
+        function initSocket() {
+            if (!socket) {
+                socket = io(window.location.origin, { withCredentials: true });
+                socket.on('connect', () => {
+                    if (currentUser && currentUser.id) {
+                        socket.emit('register-user', currentUser.id);
+                    }
+                });
+                socket.on('notification', (data) => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: data.type || 'info',
+                        title: data.title,
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 5000,
+                        background: '#05070a',
+                        color: '#fff'
+                    });
+                });
+            }
+        }
+
+        // ============================================================
         // 3. Auth
         // ============================================================
         async function fetchWithAuth(url, options = {}) {
@@ -400,6 +429,7 @@
                 return false;
             }
             currentUser = user;
+            initSocket(); // تهيئة WebSocket بعد تسجيل الدخول
             document.getElementById('user-balance')?.setAttribute('data-balance', currentUser.balance);
             return true;
         }

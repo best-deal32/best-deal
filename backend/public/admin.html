@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
@@ -206,17 +208,12 @@
             display: inline-block;
         }
 
-        .badge-pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        .badge-user {
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--gold-main);
-            border: 1px solid var(--gold-main);
-        }
+        .badge-pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-approved { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-rejected { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-open { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-in_progress { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-closed { background: rgba(107, 114, 128, 0.1); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.3); }
 
         .action-btns {
             display: flex;
@@ -235,40 +232,14 @@
             outline: none;
         }
 
-        .btn-approve {
-            background-color: var(--green-success);
-            color: #fff;
-        }
-
-        .btn-reject {
-            background-color: var(--red-danger);
-            color: #fff;
-        }
-
-        .btn-edit-balance {
-            background-color: var(--blue-accent);
-            color: #000;
-        }
-
-        .btn-reset-password {
-            background-color: #f59e0b;
-            color: #000;
-        }
-
-        .btn-view-user {
-            background-color: #8b5cf6;
-            color: #fff;
-        }
-
-        .btn-change-level {
-            background-color: #9b59b6;
-            color: #fff;
-        }
-
-        .btn-base:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
+        .btn-approve { background-color: var(--green-success); color: #fff; }
+        .btn-reject { background-color: var(--red-danger); color: #fff; }
+        .btn-edit-balance { background-color: var(--blue-accent); color: #000; }
+        .btn-reset-password { background-color: #f59e0b; color: #000; }
+        .btn-view-user { background-color: #8b5cf6; color: #fff; }
+        .btn-change-level { background-color: #9b59b6; color: #fff; }
+        .btn-reply { background-color: #3b82f6; color: #fff; }
+        .btn-base:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
         .screenshot-thumb {
             max-width: 70px;
@@ -334,26 +305,27 @@
             background: linear-gradient(135deg, #d4af37, #8a6d3b);
             color: #000;
         }
-        .lang-option:hover:not(.active) {
-            background: rgba(212,175,55,0.2);
-            color: #f7e08a;
-        }
+        .chart-container { background: rgba(0,0,0,0.3); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; }
+        .ticket-reply { background: rgba(255,255,255,0.03); border-radius: 1rem; padding: 0.8rem; margin-bottom: 0.8rem; }
+        .priority-high { color: #ef4444; font-weight: bold; }
+        .priority-normal { color: #f59e0b; }
+        .priority-low { color: #10b981; }
     </style>
 </head>
 <body>
 
     <div id="loading-screen">
         <div class="giant-spinner"></div>
-        <h2 class="mt-6 text-xl font-bold gold-gradient-text" data-i18n="loading_data">جاري تحميل البيانات...</h2>
+        <h2 class="mt-6 text-xl font-bold gold-gradient-text">جاري تحميل البيانات...</h2>
     </div>
 
     <div class="admin-main-wrapper">
         <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
             <div>
-                <h1 class="imperial-title italic uppercase" data-i18n="control_center">مركز السيطرة المركزي</h1>
+                <h1 class="imperial-title italic uppercase">مركز السيطرة المركزي</h1>
                 <div class="flex items-center gap-2 mt-2">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-                    <p class="text-slate-400 font-bold text-xs tracking-widest" data-i18n="server_status">SERVER STATUS: AUTHORIZED ACCESS ONLY</p>
+                    <p class="text-slate-400 font-bold text-xs tracking-widest">SERVER STATUS: AUTHORIZED ACCESS ONLY</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -364,62 +336,38 @@
                     <div class="lang-option" data-lang="de">Deutsch</div>
                 </div>
                 <button onclick="loadEverything()" class="bg-gradient-to-r from-[var(--gold-main)] to-[var(--gold-dark)] text-black font-black px-6 py-3 rounded-2xl hover:scale-105 transition-all shadow-xl text-sm">
-                    <i class="fa-solid fa-rotate ml-2"></i> <span data-i18n="refresh_data">تحديث البيانات</span>
+                    <i class="fa-solid fa-rotate ml-2"></i> تحديث البيانات
                 </button>
             </div>
         </header>
 
         <div class="stats-container">
-            <div class="stat-card">
-                <h3 data-i18n="total_users">إجمالي المستخدمين</h3>
-                <p id="stat-users">0</p>
-            </div>
-            <div class="stat-card">
-                <h3 data-i18n="pending_deposits">طلبات الإيداع المعلقة</h3>
-                <p id="stat-pending-deposits">0</p>
-            </div>
-            <div class="stat-card">
-                <h3 data-i18n="pending_withdrawals">طلبات السحب المعلقة</h3>
-                <p id="stat-pending-withdrawals">0</p>
-            </div>
-            <div class="stat-card">
-                <h3 data-i18n="total_system_balance">إجمالي الرصيد في النظام</h3>
-                <p id="stat-balance">0 $</p>
-            </div>
+            <div class="stat-card"><h3>إجمالي المستخدمين</h3><p id="stat-users">0</p></div>
+            <div class="stat-card"><h3>طلبات الإيداع المعلقة</h3><p id="stat-pending-deposits">0</p></div>
+            <div class="stat-card"><h3>طلبات السحب المعلقة</h3><p id="stat-pending-withdrawals">0</p></div>
+            <div class="stat-card"><h3>إجمالي الرصيد في النظام</h3><p id="stat-balance">0 $</p></div>
         </div>
 
         <div class="tabs-container">
-            <button class="tab-btn active" data-tab="users-tab" data-i18n="users_tab">👥 المستخدمين</button>
-            <button class="tab-btn" data-tab="deposits-tab" data-i18n="deposits_tab">💰 طلبات الإيداع</button>
-            <button class="tab-btn" data-tab="withdrawals-tab" data-i18n="withdrawals_tab">💸 طلبات السحب</button>
-            <button class="tab-btn" data-tab="contest-tab" data-i18n="contest_tab">🏆 مسابقة الشهر</button>
-            <button class="tab-btn" data-tab="admin-actions-tab" data-i18n="admin_actions_tab">📋 سجل الإجراءات</button>
+            <button class="tab-btn active" data-tab="users-tab">👥 المستخدمين</button>
+            <button class="tab-btn" data-tab="deposits-tab">💰 طلبات الإيداع</button>
+            <button class="tab-btn" data-tab="withdrawals-tab">💸 طلبات السحب</button>
+            <button class="tab-btn" data-tab="tickets-tab">🎫 التذاكر</button>
+            <button class="tab-btn" data-tab="analytics-tab">📊 التحليلات</button>
+            <button class="tab-btn" data-tab="admin-actions-tab">📋 سجل الإجراءات</button>
         </div>
 
-        <!-- تبويب المستخدمين (مع إضافة totalDeposits) -->
+        <!-- تبويب المستخدمين -->
         <div id="users-tab" class="tab-pane active-pane">
             <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold gold-gradient-text" data-i18n="users_list">📋 قائمة المستخدمين</h2>
+                <h2 class="text-xl font-bold gold-gradient-text">📋 قائمة المستخدمين</h2>
                 <div class="flex gap-2">
-                    <input type="text" id="searchUsers" data-i18n-placeholder="search_users" placeholder="بحث باسم المستخدم أو البريد" class="bg-black/50 border border-gold/30 rounded-xl px-4 py-2 text-sm text-white w-64">
+                    <input type="text" id="searchUsers" placeholder="بحث باسم المستخدم أو البريد" class="bg-black/50 border border-gold/30 rounded-xl px-4 py-2 text-sm text-white w-64">
                 </div>
             </div>
             <div class="table-responsive-box">
                 <table>
-                    <thead>
-                        <tr>
-                            <th data-i18n="username">اسم المستخدم</th>
-                            <th data-i18n="full_name">الاسم الكامل</th>
-                            <th data-i18n="email">البريد الإلكتروني</th>
-                            <th data-i18n="balance">الرصيد</th>
-                            <th data-i18n="profit">الأرباح</th>
-                            <th data-i18n="total_deposits">إجمالي الإيداعات</th>
-                            <th data-i18n="level">المستوى</th>
-                            <th data-i18n="verified">موثق</th>
-                            <th data-i18n="reg_date">تاريخ التسجيل</th>
-                            <th data-i18n="actions">الإجراءات</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>اسم المستخدم</th><th>الاسم الكامل</th><th>البريد الإلكتروني</th><th>الرصيد</th><th>الأرباح</th><th>إجمالي الإيداعات</th><th>المستوى</th><th>موثق</th><th>تاريخ التسجيل</th><th>الإجراءات</th></tr></thead>
                     <tbody id="usersTableBody"></tbody>
                 </table>
             </div>
@@ -427,20 +375,10 @@
 
         <!-- تبويب طلبات الإيداع -->
         <div id="deposits-tab" class="tab-pane">
-            <h2 class="text-xl font-bold gold-gradient-text mb-4" data-i18n="pending_deposits_title">💰 طلبات الإيداع المعلقة</h2>
+            <h2 class="text-xl font-bold gold-gradient-text mb-4">💰 طلبات الإيداع المعلقة</h2>
             <div class="table-responsive-box">
                 <table>
-                    <thead>
-                        <tr>
-                            <th data-i18n="user">المستخدم</th>
-                            <th data-i18n="amount">المبلغ</th>
-                            <th data-i18n="method">الطريقة</th>
-                            <th data-i18n="date">التاريخ</th>
-                            <th data-i18n="screenshot">الصورة</th>
-                            <th data-i18n="status">الحالة</th>
-                            <th data-i18n="action">إجراء</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>المستخدم</th><th>المبلغ</th><th>الطريقة</th><th>التاريخ</th><th>الصورة</th><th>الحالة</th><th>إجراء</th></tr></thead>
                     <tbody id="depositsTableBody"></tbody>
                 </table>
             </div>
@@ -448,58 +386,70 @@
 
         <!-- تبويب طلبات السحب -->
         <div id="withdrawals-tab" class="tab-pane">
-            <h2 class="text-xl font-bold gold-gradient-text mb-4" data-i18n="pending_withdrawals_title">💸 طلبات السحب المعلقة</h2>
+            <h2 class="text-xl font-bold gold-gradient-text mb-4">💸 طلبات السحب المعلقة</h2>
             <div class="table-responsive-box">
                 <table>
-                    <thead>
-                        <tr>
-                            <th data-i18n="user">المستخدم</th>
-                            <th data-i18n="amount">المبلغ</th>
-                            <th data-i18n="type">النوع</th>
-                            <th data-i18n="wallet_address">عنوان المحفظة</th>
-                            <th data-i18n="date">التاريخ</th>
-                            <th data-i18n="status">الحالة</th>
-                            <th data-i18n="action">إجراء</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>المستخدم</th><th>المبلغ</th><th>النوع</th><th>عنوان المحفظة</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr></thead>
                     <tbody id="withdrawalsTableBody"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- تبويب مسابقة الشهر -->
-        <div id="contest-tab" class="tab-pane">
-            <div class="glass-card p-6 mb-6">
-                <h2 class="text-xl font-black gold-gradient-text mb-4" data-i18n="monthly_contest_leaderboard">🏆 ترتيب مسابقة الشهر</h2>
-                <div id="contestLeaderboardContainer" class="space-y-2">
-                    <div class="text-center text-slate-500 py-4" data-i18n="loading_contest">جاري تحميل الترتيب...</div>
+        <!-- تبويب التذاكر -->
+        <div id="tickets-tab" class="tab-pane">
+            <h2 class="text-xl font-bold gold-gradient-text mb-4">🎫 تذاكر الدعم</h2>
+            <div class="table-responsive-box">
+                <table>
+                    <thead><tr><th>المستخدم</th><th>الموضوع</th><th>الأولوية</th><th>الحالة</th><th>التاريخ</th><th>الإجراءات</th></tr></thead>
+                    <tbody id="ticketsTableBody"></tbody>
+                </table>
+            </div>
+            <div id="ticketDetailsContainer" class="mt-6" style="display: none;">
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold gold-gradient-text">تفاصيل التذكرة</h3>
+                        <button onclick="closeTicketDetails()" class="text-slate-400 hover:text-white">✖️ إغلاق</button>
+                    </div>
+                    <div id="ticketDetailsContent"></div>
+                    <div class="mt-4">
+                        <textarea id="replyMessage" rows="3" class="w-full bg-black/50 border border-gold/30 rounded-xl p-3 text-white" placeholder="اكتب ردك هنا..."></textarea>
+                        <input type="file" id="replyAttachment" accept="image/*" class="mt-2 text-sm text-slate-400">
+                        <button onclick="sendTicketReply()" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl">إرسال الرد</button>
+                        <select id="ticketStatusSelect" class="mt-3 mr-2 bg-black/50 border border-gold/30 rounded-xl p-2 text-white">
+                            <option value="open">مفتوحة</option>
+                            <option value="in_progress">قيد المعالجة</option>
+                            <option value="closed">مغلقة</option>
+                        </select>
+                        <button onclick="updateTicketStatus()" class="mt-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-xl">تغيير الحالة</button>
+                    </div>
                 </div>
             </div>
-            <div class="glass-card p-6">
-                <h3 class="text-lg font-black gold-gradient-text mb-3" data-i18n="contest_rewards">جوائز المسابقة</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-black/30 rounded-xl p-3 text-center"><i class="fa-solid fa-crown text-yellow-500"></i> <span data-i18n="first_place">المركز الأول</span> – 500 $</div>
-                    <div class="bg-black/30 rounded-xl p-3 text-center"><i class="fa-solid fa-medal text-slate-400"></i> <span data-i18n="second_place">المركز الثاني</span> – 250 $</div>
-                    <div class="bg-black/30 rounded-xl p-3 text-center"><i class="fa-solid fa-medal text-amber-700"></i> <span data-i18n="third_place">المركز الثالث</span> – 100 $</div>
-                </div>
+        </div>
+
+        <!-- تبويب التحليلات المتقدمة -->
+        <div id="analytics-tab" class="tab-pane">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="stat-card"><h3>إجمالي الإيداعات</h3><p id="analytics-total-deposits">0 $</p></div>
+                <div class="stat-card"><h3>إجمالي السحوبات</h3><p id="analytics-total-withdrawals">0 $</p></div>
+                <div class="stat-card"><h3>أرباح المنصة</h3><p id="analytics-platform-profit">0 $</p></div>
+                <div class="stat-card"><h3>عمولات الإحالات</h3><p id="analytics-referral-commissions">0 $</p></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-4"><canvas id="userGrowthChart"></canvas><p class="text-center mt-2">تطور عدد المستخدمين (آخر 30 يوم)</p></div>
+                <div class="glass-card p-4"><canvas id="dailyDepositsChart"></canvas><p class="text-center mt-2">الإيداعات اليومية (آخر 30 يوم)</p></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="glass-card p-4"><h3 class="text-lg font-bold gold-gradient-text mb-3">🏆 أعلى 10 مستخدمين حسب الرصيد</h3><div id="topBalanceUsers" class="space-y-2"></div></div>
+                <div class="glass-card p-4"><h3 class="text-lg font-bold gold-gradient-text mb-3">👥 أعلى 10 مستخدمين حسب الإحالات</h3><div id="topReferrers" class="space-y-2"></div></div>
             </div>
         </div>
 
         <!-- تبويب سجل إجراءات الأدمن -->
         <div id="admin-actions-tab" class="tab-pane">
-            <h2 class="text-xl font-bold gold-gradient-text mb-4" data-i18n="admin_actions_log">📋 سجل إجراءات الإدارة</h2>
+            <h2 class="text-xl font-bold gold-gradient-text mb-4">📋 سجل إجراءات الإدارة</h2>
             <div class="table-responsive-box">
                 <table>
-                    <thead>
-                        <tr>
-                            <th data-i18n="admin">المسؤول</th>
-                            <th data-i18n="action_type">نوع الإجراء</th>
-                            <th data-i18n="target_user">المستخدم المستهدف</th>
-                            <th data-i18n="details">التفاصيل</th>
-                            <th data-i18n="ip">IP</th>
-                            <th data-i18n="datetime">التاريخ والوقت</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>المسؤول</th><th>نوع الإجراء</th><th>المستخدم المستهدف</th><th>التفاصيل</th><th>IP</th><th>التاريخ والوقت</th></tr></thead>
                     <tbody id="adminActionsTableBody"></tbody>
                 </table>
             </div>
@@ -507,9 +457,6 @@
     </div>
 
     <script>
-        // ============================================================
-        // 1. الإعدادات العامة - مسارات نسبية
-        // ============================================================
         const API_BASE = '';
         const endpoints = {
             users: `${API_BASE}/api/admin/users`,
@@ -521,27 +468,26 @@
             userDetails: `${API_BASE}/api/admin/user`,
             adminActions: `${API_BASE}/api/admin/admin-actions`,
             verify: `${API_BASE}/api/admin/verify`,
-            contest: `${API_BASE}/api/referrals/contest`
+            contest: `${API_BASE}/api/referrals/contest`,
+            analytics: `${API_BASE}/api/admin/analytics`,
+            tickets: `${API_BASE}/api/admin/support/tickets`,
+            ticketReply: (id) => `${API_BASE}/api/support/tickets/${id}/reply`,
+            ticketStatus: (id) => `${API_BASE}/api/admin/support/tickets/${id}/status`
         };
 
-        // ============================================================
-        // 2. i18n Translations
-        // ============================================================
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
+        let adminSocket = null;
+        let currentTicketId = null;
 
         async function loadTranslations(lang) {
             try {
-                const response = await fetch(`/locales/${lang}/translation.json`);
-                if (!response.ok) throw new Error();
-                const data = await response.json();
+                const res = await fetch(`/locales/${lang}/translation.json`);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
                 translations[lang] = data;
                 return data;
-            } catch (err) {
-                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
-                if (lang !== 'ar') return loadTranslations('ar');
-                return {};
-            }
+            } catch { return {}; }
         }
 
         function applyTranslations(lang) {
@@ -551,18 +497,9 @@
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.textContent = t[key];
             });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) el.placeholder = t[key];
-            });
             const htmlEl = document.documentElement;
-            if (lang === 'ar') {
-                htmlEl.setAttribute('dir', 'rtl');
-                htmlEl.setAttribute('lang', 'ar');
-            } else {
-                htmlEl.setAttribute('dir', 'ltr');
-                htmlEl.setAttribute('lang', lang);
-            }
+            if (lang === 'ar') { htmlEl.setAttribute('dir', 'rtl'); htmlEl.setAttribute('lang', 'ar'); }
+            else { htmlEl.setAttribute('dir', 'ltr'); htmlEl.setAttribute('lang', lang); }
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
             document.querySelectorAll('.lang-option').forEach(opt => {
@@ -575,8 +512,7 @@
         async function setLanguage(lang) {
             if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
-            await loadEverything(); // refresh data
-            await loadContestData(); // refresh contest tab
+            loadEverything();
         }
 
         document.querySelectorAll('.lang-option').forEach(opt => {
@@ -587,21 +523,13 @@
             });
         });
 
-        // ============================================================
-        // 3. Auth helper
-        // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
             let response = await fetch(url, options);
             if (response.status === 401 || response.status === 403) {
                 const refreshRes = await fetch(`${API_BASE}/api/auth/refresh`, { method: 'POST', credentials: 'include' });
-                if (refreshRes.ok) {
-                    response = await fetch(url, options);
-                } else {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                    throw new Error('Session expired');
-                }
+                if (refreshRes.ok) response = await fetch(url, options);
+                else { localStorage.clear(); window.location.href = 'login.html'; throw new Error('Session expired'); }
             }
             return response;
         }
@@ -611,398 +539,261 @@
                 const res = await fetchWithAuth(endpoints.verify);
                 if (!res.ok) throw new Error();
                 return true;
-            } catch (err) {
-                Swal.fire({
-                    title: translations[currentLang]?.unauthorized || 'غير مصرح',
-                    text: translations[currentLang]?.no_admin_access || 'ليس لديك صلاحية للوصول إلى لوحة التحكم',
-                    icon: 'error',
-                    background: '#05070a',
-                    color: '#fff'
-                }).then(() => window.location.href = 'dashboard.html');
+            } catch {
+                Swal.fire({ title: 'غير مصرح', text: 'ليس لديك صلاحية للوصول إلى لوحة التحكم', icon: 'error' }).then(() => window.location.href = 'dashboard.html');
                 return false;
             }
         }
 
-        // ============================================================
-        // 4. Load all data
-        // ============================================================
         async function loadEverything() {
             const loader = document.getElementById('loading-screen');
             loader.style.display = 'flex';
             try {
-                const [usersRes, depositsRes, withdrawalsRes, adminActionsRes] = await Promise.all([
+                const [usersRes, depositsRes, withdrawalsRes, adminActionsRes, analyticsRes, ticketsRes] = await Promise.all([
                     fetchWithAuth(endpoints.users),
                     fetchWithAuth(endpoints.deposits),
                     fetchWithAuth(endpoints.withdrawals),
-                    fetchWithAuth(endpoints.adminActions)
+                    fetchWithAuth(endpoints.adminActions),
+                    fetchWithAuth(endpoints.analytics),
+                    fetchWithAuth(endpoints.tickets)
                 ]);
                 const usersData = await usersRes.json();
                 const deposits = await depositsRes.json();
                 const withdrawals = await withdrawalsRes.json();
                 const adminActions = await adminActionsRes.json();
+                const analytics = await analyticsRes.json();
+                const tickets = await ticketsRes.json();
 
                 renderUsers(usersData.users || []);
                 renderDeposits(deposits);
                 renderWithdrawals(withdrawals);
                 renderAdminActions(adminActions);
+                renderTickets(tickets);
+                renderAnalytics(analytics);
                 updateStats(usersData.users || [], deposits, withdrawals);
-            } catch (err) {
-                console.error(err);
-                Swal.fire('خطأ', translations[currentLang]?.load_failed || 'فشل تحميل البيانات: ' + err.message, 'error');
-            } finally {
-                loader.style.display = 'none';
-            }
+            } catch (err) { console.error(err); Swal.fire('خطأ', 'فشل تحميل البيانات: ' + err.message, 'error'); }
+            finally { loader.style.display = 'none'; }
         }
 
-        // ============================================================
-        // 5. Render users (including totalDeposits)
-        // ============================================================
         function renderUsers(users) {
             const tbody = document.getElementById('usersTableBody');
-            if (!tbody) return;
-            if (!users.length) {
-                tbody.innerHTML = `<td><td colspan="10" class="text-center py-8">${translations[currentLang]?.no_users || 'لا يوجد مستخدمون'}</td></tr>`;
-                return;
-            }
+            if (!users.length) { tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8">لا يوجد مستخدمون</td></tr>'; return; }
             tbody.innerHTML = users.map(user => `
                 <tr>
                     <td class="font-bold">${escapeHtml(user.username)}</td>
                     <td>${escapeHtml(user.fullName || '—')}</td>
                     <td>${escapeHtml(user.email)}</td>
-                    <td class="text-green-400 font-bold">${(user.balance || 0).toLocaleString()} $</td>
+                    <td class="text-green-400">${(user.balance || 0).toLocaleString()} $</td>
                     <td class="text-blue-400">${(user.profit || 0).toLocaleString()} $</td>
                     <td class="text-yellow-400">${(user.totalDeposits || 0).toLocaleString()} $</td>
                     <td>${user.level || 'برونزي'}</td>
                     <td>${user.isVerified ? '✅ نعم' : '❌ لا'}</td>
                     <td class="text-xs">${user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-EG') : '—'}</td>
-                    <td>
-                        <div class="action-btns">
-                            <button onclick="editBalance('${user.id}', '${escapeHtml(user.username)}', ${user.balance})" class="btn-base btn-edit-balance">💰 تعديل</button>
-                            <button onclick="resetUserPassword('${user.id}', '${escapeHtml(user.username)}')" class="btn-base btn-reset-password">🔑 إعادة تعيين</button>
-                            <button onclick="viewUserDetails('${user.id}')" class="btn-base btn-view-user">👁️ تفاصيل</button>
-                            <button onclick="changeUserLevel('${user.id}', '${escapeHtml(user.username)}', '${user.level}')" class="btn-base btn-change-level">🎚️ تعديل الرتبة</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+                    <td><div class="action-btns"><button onclick="editBalance('${user.id}', '${escapeHtml(user.username)}', ${user.balance})" class="btn-base btn-edit-balance">💰 تعديل</button><button onclick="resetUserPassword('${user.id}', '${escapeHtml(user.username)}')" class="btn-base btn-reset-password">🔑 إعادة تعيين</button><button onclick="viewUserDetails('${user.id}')" class="btn-base btn-view-user">👁️ تفاصيل</button><button onclick="changeUserLevel('${user.id}', '${escapeHtml(user.username)}', '${user.level}')" class="btn-base btn-change-level">🎚️ تعديل الرتبة</button></div></td>
+                </tr>`).join('');
         }
 
         window.changeUserLevel = async (userId, username, currentLevel) => {
             const levels = ['برونزي', 'فضي', 'ذهبي', 'ألماسي'];
-            const { value: newLevel } = await Swal.fire({
-                title: `تغيير رتبة المستخدم ${username}`,
-                input: 'select',
-                inputOptions: levels.reduce((acc, lvl) => { acc[lvl] = lvl; return acc; }, {}),
-                inputValue: currentLevel,
-                showCancelButton: true,
-                background: '#05070a',
-                color: '#fff',
-                confirmButtonColor: '#d4af37'
-            });
+            const { value: newLevel } = await Swal.fire({ title: `تغيير رتبة المستخدم ${username}`, input: 'select', inputOptions: levels.reduce((a,v)=>(a[v]=v,a),{}), inputValue: currentLevel, showCancelButton: true, background: '#05070a', color: '#fff' });
             if (!newLevel || newLevel === currentLevel) return;
             try {
-                const res = await fetchWithAuth(endpoints.setLevel, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, newLevel })
-                });
+                const res = await fetchWithAuth(endpoints.setLevel, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, newLevel }) });
                 const data = await res.json();
-                if (data.success) {
-                    Swal.fire('تم', data.message, 'success');
-                    loadEverything();
-                } else {
-                    Swal.fire('خطأ', data.message, 'error');
-                }
-            } catch (err) {
-                Swal.fire('خطأ', 'فشل الاتصال', 'error');
-            }
+                if (data.success) { Swal.fire('تم', data.message, 'success'); loadEverything(); }
+                else Swal.fire('خطأ', data.message, 'error');
+            } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
         };
 
         window.editBalance = async (userId, username, currentBalance) => {
-            const { value: newBalance } = await Swal.fire({
-                title: `تعديل رصيد المستخدم ${username}`,
-                input: 'number',
-                inputLabel: 'الرصيد الجديد (دولار)',
-                inputValue: currentBalance,
-                showCancelButton: true,
-                background: '#05070a',
-                color: '#fff',
-                confirmButtonColor: '#d4af37'
-            });
+            const { value: newBalance } = await Swal.fire({ title: `تعديل رصيد المستخدم ${username}`, input: 'number', inputLabel: 'الرصيد الجديد (دولار)', inputValue: currentBalance, showCancelButton: true });
             if (newBalance === undefined) return;
             try {
-                const res = await fetchWithAuth(endpoints.setBalance, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, newBalance: parseFloat(newBalance) })
-                });
+                const res = await fetchWithAuth(endpoints.setBalance, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, newBalance: parseFloat(newBalance) }) });
                 const data = await res.json();
-                if (data.success) {
-                    Swal.fire('تم', data.message, 'success');
-                    loadEverything();
-                } else {
-                    Swal.fire('خطأ', data.message, 'error');
-                }
-            } catch (err) {
-                Swal.fire('خطأ', 'فشل الاتصال', 'error');
-            }
+                if (data.success) { Swal.fire('تم', data.message, 'success'); loadEverything(); }
+                else Swal.fire('خطأ', data.message, 'error');
+            } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
         };
 
         window.resetUserPassword = async (userId, username) => {
-            const { value: newPassword } = await Swal.fire({
-                title: `إعادة تعيين كلمة مرور المستخدم ${username}`,
-                input: 'password',
-                inputLabel: 'كلمة المرور الجديدة',
-                inputPlaceholder: 'أدخل كلمة مرور قوية',
-                showCancelButton: true,
-                background: '#05070a',
-                color: '#fff',
-                confirmButtonColor: '#d4af37'
-            });
+            const { value: newPassword } = await Swal.fire({ title: `إعادة تعيين كلمة مرور المستخدم ${username}`, input: 'password', inputLabel: 'كلمة المرور الجديدة', showCancelButton: true });
             if (!newPassword) return;
             try {
-                const res = await fetchWithAuth(endpoints.resetPassword, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, newPassword })
-                });
+                const res = await fetchWithAuth(endpoints.resetPassword, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, newPassword }) });
                 const data = await res.json();
-                if (data.success) {
-                    Swal.fire('تم', `تم تغيير كلمة مرور المستخدم ${username}`, 'success');
-                } else {
-                    Swal.fire('خطأ', data.message, 'error');
-                }
-            } catch (err) {
-                Swal.fire('خطأ', 'فشل الاتصال', 'error');
-            }
+                if (data.success) Swal.fire('تم', `تم تغيير كلمة مرور المستخدم ${username}`, 'success');
+                else Swal.fire('خطأ', data.message, 'error');
+            } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
         };
 
         window.viewUserDetails = async (userId) => {
             try {
                 const res = await fetchWithAuth(`${endpoints.userDetails}/${userId}`);
                 const data = await res.json();
-                if (!data.success) throw new Error(data.message);
+                if (!data.success) throw new Error();
                 const user = data.user;
-                let detailsHtml = `
-                    <div dir="rtl" class="modal-details space-y-2">
-                        <p><strong>اسم المستخدم:</strong> ${escapeHtml(user.username)}</p>
-                        <p><strong>الاسم الكامل:</strong> ${escapeHtml(user.fullName || '—')}</p>
-                        <p><strong>البريد الإلكتروني:</strong> ${escapeHtml(user.email)}</p>
-                        <p><strong>الرصيد:</strong> ${(user.balance || 0).toLocaleString()} $</p>
-                        <p><strong>الأرباح:</strong> ${(user.profit || 0).toLocaleString()} $</p>
-                        <p><strong>إجمالي الإيداعات:</strong> ${(user.totalDeposits || 0).toLocaleString()} $</p>
-                        <p><strong>المستوى:</strong> ${user.level || 'برونزي'}</p>
-                        <p><strong>تاريخ التسجيل:</strong> ${new Date(user.createdAt).toLocaleString()}</p>
-                        <p><strong>كود الإحالة:</strong> ${escapeHtml(user.referralCode || '—')}</p>
-                    </div>
-                `;
-                Swal.fire({
-                    title: `معلومات المستخدم: ${user.username}`,
-                    html: detailsHtml,
-                    width: '650px',
-                    background: '#05070a',
-                    color: '#fff',
-                    confirmButtonColor: '#d4af37'
-                });
-            } catch (err) {
-                Swal.fire('خطأ', 'فشل تحميل بيانات المستخدم', 'error');
-            }
+                let html = `<div dir="rtl"><p><strong>اسم المستخدم:</strong> ${escapeHtml(user.username)}</p><p><strong>الاسم الكامل:</strong> ${escapeHtml(user.fullName)}</p><p><strong>البريد:</strong> ${escapeHtml(user.email)}</p><p><strong>الرصيد:</strong> ${user.balance} $</p><p><strong>الأرباح:</strong> ${user.profit} $</p><p><strong>إجمالي الإيداعات:</strong> ${user.totalDeposits || 0} $</p><p><strong>المستوى:</strong> ${user.level}</p><p><strong>تاريخ التسجيل:</strong> ${new Date(user.createdAt).toLocaleString()}</p><p><strong>كود الإحالة:</strong> ${escapeHtml(user.referralCode)}</p></div>`;
+                Swal.fire({ title: `معلومات المستخدم: ${user.username}`, html, width: '600px', background: '#05070a', color: '#fff' });
+            } catch { Swal.fire('خطأ', 'فشل تحميل بيانات المستخدم', 'error'); }
         };
 
-        // ============================================================
-        // 6. Deposits & Withdrawals render (same as before but using translations)
-        // ============================================================
         function renderDeposits(deposits) {
             const tbody = document.getElementById('depositsTableBody');
-            if (!tbody) return;
-            if (!deposits.length) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8">${translations[currentLang]?.no_deposits || 'لا توجد طلبات إيداع معلقة'}</td></tr>`;
-                return;
-            }
+            if (!deposits.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8">لا توجد طلبات إيداع معلقة</td></tr>'; return; }
             tbody.innerHTML = deposits.map(req => {
-                let imageUrl = req.screenshotPath;
-                if (imageUrl && !imageUrl.startsWith('http')) {
-                    imageUrl = window.location.origin + imageUrl;
-                }
-                return `
-                    <tr>
-                        <td>${escapeHtml(req.username)}</td>
-                        <td class="text-green-400">${req.amount} $</td>
-                        <td>${req.method || 'USDT'}</td>
-                        <td>${new Date(req.date).toLocaleString()}</td>
-                        <td>${imageUrl ? `<img src="${imageUrl}" class="screenshot-thumb" onclick="window.open('${imageUrl}','_blank')">` : '—'}</td>
-                        <td><span class="status-badge badge-pending">${translations[currentLang]?.pending || 'قيد الانتظار'}</span></td>
-                        <td>
-                            <div class="action-btns">
-                                <button onclick="handleDeposit('${req.id}', 'approve')" class="btn-base btn-approve">${translations[currentLang]?.approve || 'قبول'}</button>
-                                <button onclick="handleDeposit('${req.id}', 'reject')" class="btn-base btn-reject">${translations[currentLang]?.reject || 'رفض'}</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                let img = req.screenshotPath;
+                if (img && !img.startsWith('http')) img = window.location.origin + img;
+                return `<tr><td>${escapeHtml(req.username)}</td><td class="text-green-400">${req.amount} $</td><td>${req.method || 'USDT'}</td><td>${new Date(req.date).toLocaleString()}</td><td>${img ? `<img src="${img}" class="screenshot-thumb" onclick="window.open('${img}','_blank')">` : '—'}</td><td><span class="status-badge badge-pending">قيد الانتظار</span></td><td><div class="action-btns"><button onclick="handleDeposit('${req.id}', 'approve')" class="btn-base btn-approve">قبول</button><button onclick="handleDeposit('${req.id}', 'reject')" class="btn-base btn-reject">رفض</button></div></td></tr>`;
             }).join('');
         }
 
         function renderWithdrawals(withdrawals) {
             const tbody = document.getElementById('withdrawalsTableBody');
-            if (!tbody) return;
-            if (!withdrawals.length) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8">${translations[currentLang]?.no_withdrawals || 'لا توجد طلبات سحب معلقة'}</td></tr>`;
-                return;
-            }
+            if (!withdrawals.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8">لا توجد طلبات سحب معلقة</td></tr>'; return; }
             tbody.innerHTML = withdrawals.map(w => {
-                let typeText = w.type === 'profit' ? (translations[currentLang]?.profit_withdrawal || 'أرباح') : (translations[currentLang]?.principal_withdrawal || 'رصيد أساسي');
-                let typeClass = w.type === 'profit' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400';
-                return `
-                    <tr>
-                        <td>${escapeHtml(w.username)}</td>
-                        <td class="text-yellow-400">${w.amount} $</td>
-                        <td><span class="px-2 py-1 rounded-full text-xs ${typeClass}">${typeText}</span></td>
-                        <td class="break-all">${escapeHtml(w.walletAddress)}</td>
-                        <td>${new Date(w.date).toLocaleString()}</td>
-                        <td><span class="status-badge badge-pending">${w.status === 'pending' ? (translations[currentLang]?.pending_review || 'قيد المراجعة') : w.status}</span></td>
-                        <td>
-                            <div class="action-btns">
-                                <button onclick="handleWithdrawal('${w.id}', 'approve')" class="btn-base btn-approve">${translations[currentLang]?.approve || 'قبول'}</button>
-                                <button onclick="handleWithdrawal('${w.id}', 'reject')" class="btn-base btn-reject">${translations[currentLang]?.reject || 'رفض'}</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                let typeText = w.type === 'profit' ? 'أرباح' : 'أصل';
+                return `<tr><td>${escapeHtml(w.username)}</td><td class="text-yellow-400">${w.amount} $</td><td>${typeText}</td><td class="break-all">${escapeHtml(w.walletAddress)}</td><td>${new Date(w.date).toLocaleString()}</td><td><span class="status-badge badge-pending">قيد المراجعة</span></td><td><div class="action-btns"><button onclick="handleWithdrawal('${w.id}', 'approve')" class="btn-base btn-approve">قبول</button><button onclick="handleWithdrawal('${w.id}', 'reject')" class="btn-base btn-reject">رفض</button></div></td></tr>`;
             }).join('');
         }
 
         function renderAdminActions(actions) {
             const tbody = document.getElementById('adminActionsTableBody');
-            if (!tbody) return;
-            if (!actions.length) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8">${translations[currentLang]?.no_actions || 'لا توجد إجراءات مسجلة'}</td></tr>`;
-                return;
+            if (!actions.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8">لا توجد إجراءات مسجلة</td></tr>'; return; }
+            tbody.innerHTML = actions.map(a => `<tr><td>${escapeHtml(a.adminUsername)}</td><td>${escapeHtml(a.actionType)}</td><td>${escapeHtml(a.targetUsername || '—')}</td><td>${escapeHtml(a.details)}</td><td>${escapeHtml(a.ip || '—')}</td><td>${new Date(a.timestamp).toLocaleString()}</td></tr>`).join('');
+        }
+
+        function renderTickets(tickets) {
+            const tbody = document.getElementById('ticketsTableBody');
+            if (!tickets.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8">لا توجد تذاكر</td></tr>'; return; }
+            tbody.innerHTML = tickets.map(t => {
+                let priorityClass = t.priority === 'high' ? 'priority-high' : (t.priority === 'normal' ? 'priority-normal' : 'priority-low');
+                let statusClass = `badge-${t.status}`;
+                return `<tr><td>${escapeHtml(t.username)}</td><td>${escapeHtml(t.subject)}</td><td class="${priorityClass}">${t.priority === 'high' ? 'عاجل' : (t.priority === 'normal' ? 'عادي' : 'منخفض')}</td><td><span class="status-badge ${statusClass}">${t.status === 'open' ? 'مفتوحة' : (t.status === 'in_progress' ? 'قيد المعالجة' : 'مغلقة')}</span></td><td>${new Date(t.createdAt).toLocaleString()}</td><td><button onclick="viewTicket('${t.id}')" class="btn-base btn-view-user">عرض</button></td></tr>`;
+            }).join('');
+        }
+
+        window.viewTicket = async (ticketId) => {
+            currentTicketId = ticketId;
+            try {
+                const res = await fetchWithAuth(`${API_BASE}/api/support/tickets/${ticketId}`);
+                const data = await res.json();
+                const ticket = data.ticket;
+                const replies = data.replies;
+                let html = `<div><p><strong>الموضوع:</strong> ${escapeHtml(ticket.subject)}</p><p><strong>الرسالة:</strong> ${escapeHtml(ticket.message)}</p><p><strong>الأولوية:</strong> ${ticket.priority}</p><p><strong>الحالة:</strong> ${ticket.status}</p>`;
+                if (ticket.attachmentPath) html += `<p><strong>المرفق:</strong> <a href="${ticket.attachmentPath}" target="_blank" class="text-gold">عرض المرفق</a></p>`;
+                html += `<hr class="my-3"><h4 class="font-bold">الردود:</h4>`;
+                replies.forEach(r => {
+                    html += `<div class="ticket-reply"><p><strong>${escapeHtml(r.username)}</strong> (${new Date(r.createdAt).toLocaleString()}):</p><p>${escapeHtml(r.message)}</p>${r.attachmentPath ? `<a href="${r.attachmentPath}" target="_blank" class="text-gold text-sm">مرفق</a>` : ''}</div>`;
+                });
+                html += `</div>`;
+                document.getElementById('ticketDetailsContent').innerHTML = html;
+                document.getElementById('ticketDetailsContainer').style.display = 'block';
+                document.getElementById('ticketStatusSelect').value = ticket.status;
+            } catch(e) { console.error(e); Swal.fire('خطأ', 'فشل تحميل تفاصيل التذكرة', 'error'); }
+        };
+
+        window.closeTicketDetails = () => {
+            document.getElementById('ticketDetailsContainer').style.display = 'none';
+            currentTicketId = null;
+        };
+
+        window.sendTicketReply = async () => {
+            const message = document.getElementById('replyMessage').value;
+            const fileInput = document.getElementById('replyAttachment');
+            if (!message) { Swal.fire('خطأ', 'الرجاء إدخال نص الرد', 'error'); return; }
+            const formData = new FormData();
+            formData.append('message', message);
+            if (fileInput.files[0]) formData.append('attachment', fileInput.files[0]);
+            try {
+                const res = await fetchWithAuth(endpoints.ticketReply(currentTicketId), { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('تم', 'تم إرسال الرد', 'success');
+                    document.getElementById('replyMessage').value = '';
+                    document.getElementById('replyAttachment').value = '';
+                    viewTicket(currentTicketId);
+                    loadEverything();
+                } else Swal.fire('خطأ', data.message, 'error');
+            } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
+        };
+
+        window.updateTicketStatus = async () => {
+            const newStatus = document.getElementById('ticketStatusSelect').value;
+            try {
+                const res = await fetchWithAuth(endpoints.ticketStatus(currentTicketId), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('تم', 'تم تحديث حالة التذكرة', 'success');
+                    viewTicket(currentTicketId);
+                    loadEverything();
+                } else Swal.fire('خطأ', data.message, 'error');
+            } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
+        };
+
+        function renderAnalytics(analytics) {
+            document.getElementById('analytics-total-deposits').innerText = (analytics.totalDeposits || 0).toLocaleString() + ' $';
+            document.getElementById('analytics-total-withdrawals').innerText = (analytics.totalWithdrawals || 0).toLocaleString() + ' $';
+            document.getElementById('analytics-platform-profit').innerText = (analytics.platformProfit || 0).toLocaleString() + ' $';
+            document.getElementById('analytics-referral-commissions').innerText = (analytics.referralCommissions || 0).toLocaleString() + ' $';
+            if (analytics.userGrowth && analytics.userGrowth.length) {
+                const labels = analytics.userGrowth.map(d => d.date);
+                const data = analytics.userGrowth.map(d => d.count);
+                new Chart(document.getElementById('userGrowthChart'), { type: 'line', data: { labels, datasets: [{ label: 'عدد المستخدمين', data, borderColor: '#d4af37', fill: false }] }, options: { responsive: true } });
             }
-            tbody.innerHTML = actions.map(a => `
-                <tr>
-                    <td>${escapeHtml(a.adminUsername)}</td>
-                    <td>${escapeHtml(a.actionType)}</td>
-                    <td>${escapeHtml(a.targetUsername || '—')}</td>
-                    <td>${escapeHtml(a.details)}</td>
-                    <td>${escapeHtml(a.ip || '—')}</td>
-                    <td>${new Date(a.timestamp).toLocaleString()}</td>
-                </tr>
-            `).join('');
+            if (analytics.dailyDeposits && analytics.dailyDeposits.length) {
+                const labels = analytics.dailyDeposits.map(d => d.date);
+                const data = analytics.dailyDeposits.map(d => d.total);
+                new Chart(document.getElementById('dailyDepositsChart'), { type: 'bar', data: { labels, datasets: [{ label: 'إجمالي الإيداعات ($)', data, backgroundColor: '#d4af37' }] }, options: { responsive: true } });
+            }
+            const topBalanceDiv = document.getElementById('topBalanceUsers');
+            topBalanceDiv.innerHTML = (analytics.topBalanceUsers || []).map((u, i) => `<div class="flex justify-between items-center p-2 border-b border-white/10"><span>${i+1}. ${escapeHtml(u.username)}</span><span class="text-gold">${u.balance} $</span></div>`).join('');
+            const topReferrersDiv = document.getElementById('topReferrers');
+            topReferrersDiv.innerHTML = (analytics.topReferrers || []).map((u, i) => `<div class="flex justify-between items-center p-2 border-b border-white/10"><span>${i+1}. ${escapeHtml(u.username)}</span><span class="text-gold">${u.referralCount} مدعو</span></div>`).join('');
         }
 
         function updateStats(users, deposits, withdrawals) {
-            const usersEl = document.getElementById('stat-users');
-            const pendingDepositsEl = document.getElementById('stat-pending-deposits');
-            const pendingWithdrawalsEl = document.getElementById('stat-pending-withdrawals');
-            const totalBalanceEl = document.getElementById('stat-balance');
-            if (usersEl) usersEl.innerText = users.length;
-            if (pendingDepositsEl) pendingDepositsEl.innerText = deposits.length;
-            if (pendingWithdrawalsEl) pendingWithdrawalsEl.innerText = withdrawals.filter(w => w.status === 'pending').length;
-            if (totalBalanceEl) {
-                const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
-                totalBalanceEl.innerText = totalBalance.toLocaleString() + ' $';
-            }
+            document.getElementById('stat-users').innerText = users.length;
+            document.getElementById('stat-pending-deposits').innerText = deposits.length;
+            document.getElementById('stat-pending-withdrawals').innerText = withdrawals.filter(w => w.status === 'pending').length;
+            const totalBalance = users.reduce((s,u) => s + (u.balance || 0), 0);
+            document.getElementById('stat-balance').innerText = totalBalance.toLocaleString() + ' $';
         }
 
         window.handleDeposit = async (id, action) => {
-            const confirm = await Swal.fire({
-                title: translations[currentLang]?.confirm || 'تأكيد',
-                text: `${translations[currentLang]?.confirm_deposit_action || 'هل أنت متأكد من'} ${action === 'approve' ? (translations[currentLang]?.approve || 'قبول') : (translations[currentLang]?.reject || 'رفض')} ${translations[currentLang]?.this_deposit || 'هذا الإيداع'}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                background: '#05070a',
-                color: '#fff'
-            });
+            const confirm = await Swal.fire({ title: 'تأكيد', text: `هل أنت متأكد من ${action === 'approve' ? 'قبول' : 'رفض'} هذا الإيداع؟`, icon: 'warning', showCancelButton: true });
             if (!confirm.isConfirmed) return;
             try {
                 const res = await fetchWithAuth(`${API_BASE}/api/admin/deposits/${id}/${action}`, { method: 'POST' });
                 const data = await res.json();
-                if (data.success) {
-                    Swal.fire('تم', data.message, 'success');
-                    loadEverything();
-                } else {
-                    Swal.fire('خطأ', data.message, 'error');
-                }
-            } catch (err) {
-                Swal.fire('خطأ', 'فشل الاتصال', 'error');
-            }
+                if (data.success) { Swal.fire('تم', data.message, 'success'); loadEverything(); }
+                else Swal.fire('خطأ', data.message, 'error');
+            } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
         };
 
         window.handleWithdrawal = async (id, action) => {
-            const confirm = await Swal.fire({
-                title: translations[currentLang]?.confirm || 'تأكيد',
-                text: `${translations[currentLang]?.confirm_withdrawal_action || 'هل أنت متأكد من'} ${action === 'approve' ? (translations[currentLang]?.approve || 'قبول') : (translations[currentLang]?.reject || 'رفض')} ${translations[currentLang]?.this_withdrawal || 'طلب السحب'}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                background: '#05070a',
-                color: '#fff'
-            });
+            const confirm = await Swal.fire({ title: 'تأكيد', text: `هل أنت متأكد من ${action === 'approve' ? 'قبول' : 'رفض'} طلب السحب؟`, icon: 'warning', showCancelButton: true });
             if (!confirm.isConfirmed) return;
             try {
                 const res = await fetchWithAuth(`${API_BASE}/api/admin/withdrawals/${id}/${action}`, { method: 'POST' });
                 const data = await res.json();
-                if (data.success) {
-                    Swal.fire('تم', data.message, 'success');
-                    loadEverything();
-                } else {
-                    Swal.fire('خطأ', data.message, 'error');
-                }
-            } catch (err) {
-                Swal.fire('خطأ', 'فشل الاتصال', 'error');
-            }
+                if (data.success) { Swal.fire('تم', data.message, 'success'); loadEverything(); }
+                else Swal.fire('خطأ', data.message, 'error');
+            } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
         };
 
-        // ============================================================
-        // 7. Contest leaderboard
-        // ============================================================
-        async function loadContestData() {
-            const container = document.getElementById('contestLeaderboardContainer');
-            if (!container) return;
-            try {
-                const res = await fetchWithAuth(endpoints.contest);
-                const data = await res.json();
-                if (data.leaderboard && data.leaderboard.length) {
-                    container.innerHTML = '';
-                    data.leaderboard.forEach((item, idx) => {
-                        const rankIcon = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `${idx+1}.`));
-                        const div = document.createElement('div');
-                        div.className = 'rank-item flex justify-between items-center p-2 border-b border-white/10';
-                        div.innerHTML = `<span class="font-bold">${rankIcon} ${escapeHtml(item.username)}</span><span class="text-gold">${item.referralsCount} ${translations[currentLang]?.new_referrals || 'مدعو جديد'}</span>`;
-                        container.appendChild(div);
-                    });
-                } else {
-                    container.innerHTML = `<div class="text-center text-slate-500 py-4" data-i18n="no_contest_data">لا توجد بيانات مسابقة حتى الآن</div>`;
-                    if (translations[currentLang]) {
-                        const el = container.querySelector('[data-i18n]');
-                        if (el) el.textContent = translations[currentLang].no_contest_data || 'لا توجد بيانات مسابقة حتى الآن';
-                    }
-                }
-            } catch (err) {
-                container.innerHTML = `<div class="text-center text-slate-500 py-4" data-i18n="contest_error">تعذر تحميل ترتيب المسابقة</div>`;
-            }
-        }
-
-        // ============================================================
-        // 8. Search and tabs
-        // ============================================================
         let searchTimeout;
-        const searchInput = document.getElementById('searchUsers');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(async () => {
-                    const search = e.target.value;
-                    try {
-                        const res = await fetchWithAuth(`${endpoints.users}?search=${encodeURIComponent(search)}`);
-                        const data = await res.json();
-                        renderUsers(data.users || []);
-                    } catch (err) {
-                        console.error(err);
-                    }
-                }, 500);
-            });
-        }
+        document.getElementById('searchUsers')?.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(async () => {
+                const search = e.target.value;
+                try {
+                    const res = await fetchWithAuth(`${endpoints.users}?search=${encodeURIComponent(search)}`);
+                    const data = await res.json();
+                    renderUsers(data.users || []);
+                } catch {}
+            }, 500);
+        });
 
         function initTabs() {
             const tabs = document.querySelectorAll('.tab-btn');
@@ -1013,22 +804,34 @@
                     tabs.forEach(b => b.classList.remove('active'));
                     panes.forEach(p => p.classList.remove('active-pane'));
                     btn.classList.add('active');
-                    const activePane = document.getElementById(tabId);
-                    if (activePane) activePane.classList.add('active-pane');
-                    if (tabId === 'contest-tab') loadContestData();
+                    document.getElementById(tabId).classList.add('active-pane');
+                    if (tabId === 'analytics-tab') loadEverything();
+                    if (tabId === 'tickets-tab') loadEverything();
                 });
             });
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
+        function initSocket() {
+            adminSocket = io(window.location.origin, { withCredentials: true });
+            adminSocket.on('connect', () => {
+                const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (user && user.id && user.role === 'admin') adminSocket.emit('register-admin', user.id);
+            });
+            adminSocket.on('new-deposit-request', (data) => {
+                Swal.fire({ title: '📥 طلب إيداع جديد', text: `المستخدم ${data.username} يطلب إيداع ${data.amount}$`, icon: 'info', toast: true, position: 'top-end', showConfirmButton: false, timer: 5000 });
+                loadEverything();
+            });
+            adminSocket.on('new-withdrawal-request', (data) => {
+                Swal.fire({ title: '💸 طلب سحب جديد', text: `المستخدم ${data.username} يطلب سحب ${data.amount}$`, icon: 'info', toast: true, position: 'top-end', showConfirmButton: false, timer: 5000 });
+                loadEverything();
+            });
+            adminSocket.on('new-ticket', (data) => {
+                Swal.fire({ title: '🎫 تذكرة دعم جديدة', text: `المستخدم ${data.username} فتح تذكرة: ${data.subject}`, icon: 'info', toast: true, position: 'top-end', showConfirmButton: false, timer: 5000 });
+                loadEverything();
             });
         }
+
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
 
         window.onload = async () => {
             await loadTranslations(currentLang);
@@ -1037,7 +840,7 @@
             if (isAdmin) {
                 await loadEverything();
                 initTabs();
-                await loadContestData();
+                initSocket();
             }
         };
     </script>

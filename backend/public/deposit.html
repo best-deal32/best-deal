@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
@@ -300,6 +301,9 @@
         const URL_ME = `${API_BASE_URL}/api/users/me`;
         const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
 
+        let socket = null;
+        let currentUser = null;
+
         // ============================================================
         // 2. نظام الترجمة متعدد اللغات (i18n)
         // ============================================================
@@ -364,7 +368,33 @@
         });
 
         // ============================================================
-        // 3. دالة fetch مع إعادة محاولة التجديد التلقائي
+        // 3. WebSocket للإشعارات الفورية
+        // ============================================================
+        function initSocket() {
+            if (!socket) {
+                socket = io(window.location.origin, { withCredentials: true });
+                socket.on('connect', () => {
+                    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    if (user && user.id) socket.emit('register-user', user.id);
+                });
+                socket.on('notification', (data) => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: data.type === 'error' ? 'error' : (data.type === 'success' ? 'success' : 'info'),
+                        title: data.title,
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 5000,
+                        background: '#05070a',
+                        color: '#fff'
+                    });
+                });
+            }
+        }
+
+        // ============================================================
+        // 4. دالة fetch مع إعادة محاولة التجديد التلقائي
         // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
@@ -383,7 +413,7 @@
         }
 
         // ============================================================
-        // 4. التحقق من الجلسة وجلب بيانات المستخدم (اختياري)
+        // 5. التحقق من الجلسة وجلب بيانات المستخدم
         // ============================================================
         async function checkAuthAndGetUser() {
             try {
@@ -391,6 +421,8 @@
                 if (!response.ok) throw new Error('غير مصرح');
                 const user = await response.json();
                 localStorage.setItem('currentUser', JSON.stringify(user));
+                currentUser = user;
+                initSocket();
                 return user;
             } catch (err) {
                 console.error("Auth check failed:", err);
@@ -409,7 +441,7 @@
         }
 
         // ============================================================
-        // 5. وظائف الصورة
+        // 6. وظائف الصورة
         // ============================================================
         function previewImage(input) {
             const preview = document.getElementById('screenshot-preview');
@@ -442,7 +474,7 @@
         }
 
         // ============================================================
-        // 6. إرسال طلب الإيداع (باستخدام fetchWithAuth و FormData)
+        // 7. إرسال طلب الإيداع (باستخدام fetchWithAuth و FormData)
         // ============================================================
         async function submitDeposit() {
             const user = await checkAuthAndGetUser();
@@ -503,7 +535,7 @@
         }
 
         // ============================================================
-        // 7. التشغيل التلقائي عند فتح الصفحة (التحقق من الجلسة والترجمة)
+        // 8. التشغيل التلقائي عند فتح الصفحة (التحقق من الجلسة والترجمة)
         // ============================================================
         window.onload = async () => {
             await loadTranslations(currentLang);
