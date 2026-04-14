@@ -330,7 +330,7 @@
                     el.textContent = t[key];
                 }
             });
-            // Update placeholders
+            // Update placeholder for amount input
             const amountInput = document.getElementById('deposit-amount');
             if (amountInput && t.amount_placeholder) amountInput.placeholder = t.amount_placeholder;
             // Direction
@@ -384,7 +384,7 @@
         }
 
         // ============================================================
-        // 4. التحقق من الجلسة وجلب بيانات المستخدم (اختياري)
+        // 4. التحقق من الجلسة وجلب بيانات المستخدم
         // ============================================================
         async function checkAuthAndGetUser() {
             try {

@@ -345,16 +345,16 @@
 
     <div id="loading-screen">
         <div class="giant-spinner"></div>
-        <h2 class="mt-6 text-xl font-bold gold-gradient-text">جاري تحميل البيانات...</h2>
+        <h2 class="mt-6 text-xl font-bold gold-gradient-text" data-i18n="loading_data">جاري تحميل البيانات...</h2>
     </div>
 
     <div class="admin-main-wrapper">
         <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
             <div>
-                <h1 class="imperial-title italic uppercase">مركز السيطرة المركزي</h1>
+                <h1 class="imperial-title italic uppercase" data-i18n="control_center">مركز السيطرة المركزي</h1>
                 <div class="flex items-center gap-2 mt-2">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-                    <p class="text-slate-400 font-bold text-xs tracking-widest">SERVER STATUS: AUTHORIZED ACCESS ONLY</p>
+                    <p class="text-slate-400 font-bold text-xs tracking-widest" data-i18n="server_status">SERVER STATUS: AUTHORIZED ACCESS ONLY</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -401,7 +401,7 @@
             <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold gold-gradient-text" data-i18n="users_list">📋 قائمة المستخدمين</h2>
                 <div class="flex gap-2">
-                    <input type="text" id="searchUsers" placeholder="بحث باسم المستخدم أو البريد" class="bg-black/50 border border-gold/30 rounded-xl px-4 py-2 text-sm text-white w-64">
+                    <input type="text" id="searchUsers" data-i18n-placeholder="search_users" placeholder="بحث باسم المستخدم أو البريد" class="bg-black/50 border border-gold/30 rounded-xl px-4 py-2 text-sm text-white w-64">
                 </div>
             </div>
             <div class="table-responsive-box">
@@ -452,7 +452,7 @@
         <div id="withdrawals-tab" class="tab-pane">
             <h2 class="text-xl font-bold gold-gradient-text mb-4" data-i18n="pending_withdrawals_title">💸 طلبات السحب المعلقة</h2>
             <div class="table-responsive-box">
-                <table>
+                </table>
                     <thead>
                         <tr>
                             <th data-i18n="user">المستخدم</th>
@@ -532,16 +532,12 @@
             if (!t) return;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    el.textContent = t[key];
-                }
+                if (t[key]) el.textContent = t[key];
             });
-            // Also update placeholder of search input
-            const searchInput = document.getElementById('searchUsers');
-            if (searchInput && t.search_placeholder) {
-                searchInput.placeholder = t.search_placeholder;
-            }
-            // Update direction
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) el.placeholder = t[key];
+            });
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
                 htmlEl.setAttribute('dir', 'rtl');
@@ -552,25 +548,17 @@
             }
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
-            // Update active class on language selector
             document.querySelectorAll('.lang-option').forEach(opt => {
-                if (opt.getAttribute('data-lang') === lang) {
-                    opt.classList.add('active');
-                } else {
-                    opt.classList.remove('active');
-                }
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
             });
-            // Set cookie for server-side detection
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
 
         async function setLanguage(lang) {
-            if (!translations[lang]) {
-                await loadTranslations(lang);
-            }
+            if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
-            // Optionally reload data to update any translated dynamic content
-            await loadEverything();
+            await loadEverything(); // reload data to refresh any dynamic text (like status)
         }
 
         document.querySelectorAll('.lang-option').forEach(opt => {

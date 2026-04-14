@@ -97,13 +97,11 @@
             font-size: 0.7rem;
             font-weight: bold;
         }
-
-        /* Language Switcher */
         .lang-selector {
             background: rgba(0,0,0,0.4);
             border-radius: 2rem;
             padding: 0.25rem;
-            display: flex;
+            display: inline-flex;
             gap: 0.25rem;
             border: 1px solid rgba(212,175,55,0.3);
         }
@@ -140,7 +138,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-6 pb-24">
-        <!-- Language selector inside main for consistency -->
+        <!-- Language selector -->
         <div class="flex justify-end mb-4">
             <div class="lang-selector">
                 <div class="lang-option active" data-lang="ar">العربية</div>
@@ -290,7 +288,7 @@
                     el.textContent = t[key];
                 }
             });
-            // Update direction
+            // Direction
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
                 htmlEl.setAttribute('dir', 'rtl');
@@ -301,22 +299,15 @@
             }
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
-            // Update active class on language selector
             document.querySelectorAll('.lang-option').forEach(opt => {
-                if (opt.getAttribute('data-lang') === lang) {
-                    opt.classList.add('active');
-                } else {
-                    opt.classList.remove('active');
-                }
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
             });
-            // Set cookie for server-side detection
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
 
         async function setLanguage(lang) {
-            if (!translations[lang]) {
-                await loadTranslations(lang);
-            }
+            if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
             // Reload referral data to update table texts (status, etc.)
             if (currentUser) {

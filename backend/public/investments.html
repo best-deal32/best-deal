@@ -90,12 +90,11 @@
             color: #94a3b8;
             margin-top: 0.5rem;
         }
-        /* Language Switcher */
         .lang-selector {
             background: rgba(0,0,0,0.4);
             border-radius: 2rem;
             padding: 0.25rem;
-            display: flex;
+            display: inline-flex;
             gap: 0.25rem;
             border: 1px solid rgba(212,175,55,0.3);
         }
@@ -142,24 +141,24 @@
             </div>
         </div>
 
-        <!-- البطاقات الثلاث (القوانين الجديدة) -->
+        <!-- البطاقات الثلاث -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <!-- مشروع يومي (5% يومياً، حد أدنى 90$) -->
+            <!-- مشروع يومي -->
             <div class="glass-card p-6 text-center">
                 <i class="fa-solid fa-sun text-5xl text-[#d4af37] mb-4"></i>
                 <h3 class="text-2xl font-black text-white" data-i18n="daily_project">مشروع يومي</h3>
                 <p class="text-3xl font-black text-green-400 my-2" data-i18n="daily_return">5% يومياً</p>
                 <p class="text-sm text-slate-400" data-i18n="daily_desc">ربح يومي 5% من المبلغ المستثمر</p>
                 <div class="bg-yellow-900/20 p-3 rounded-xl my-4 text-right">
-                    <p class="text-xs"><span data-i18n="min_amount">💰 الحد الأدنى:</span> <strong class="text-gold">90$</strong></p>
+                    <p class="text-xs"><span data-i18n="min_amount_daily">💰 الحد الأدنى:</span> <strong class="text-gold">90$</strong></p>
                     <p class="text-xs"><span data-i18n="lock_period_daily">🔒 المبلغ الأصلي محجوز لمدة 10 أيام</span></p>
                     <p class="text-xs"><span data-i18n="profit_withdraw_daily">✅ يمكنك سحب الأرباح يومياً فوراً</span></p>
                 </div>
-                <input type="number" id="daily-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <input type="number" id="daily-amount" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white" placeholder="المبلغ ($)">
                 <button onclick="createInvestment(event, 'daily')" class="btn-gold w-full py-3 rounded-xl font-bold" data-i18n="invest_now">استثمر الآن</button>
             </div>
 
-            <!-- مشروع أسبوعي (8% يومياً، حد أدنى 285$) -->
+            <!-- مشروع أسبوعي -->
             <div class="glass-card p-6 text-center">
                 <i class="fa-solid fa-calendar-week text-5xl text-[#d4af37] mb-4"></i>
                 <h3 class="text-2xl font-black text-white" data-i18n="weekly_project">مشروع أسبوعي</h3>
@@ -170,11 +169,11 @@
                     <p class="text-xs"><span data-i18n="lock_period_weekly">🔒 المبلغ الأصلي محجوز لمدة 15 يوم</span></p>
                     <p class="text-xs"><span data-i18n="profit_withdraw_weekly">✅ يمكنك سحب الأرباح كل 7 أيام (مرة واحدة أسبوعياً)</span></p>
                 </div>
-                <input type="number" id="weekly-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <input type="number" id="weekly-amount" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white" placeholder="المبلغ ($)">
                 <button onclick="createInvestment(event, 'weekly')" class="btn-gold w-full py-3 rounded-xl font-bold" data-i18n="invest_now">استثمر الآن</button>
             </div>
 
-            <!-- مشروع شهري (300% شهرياً، حد أدنى 490$) -->
+            <!-- مشروع شهري -->
             <div class="glass-card p-6 text-center">
                 <i class="fa-solid fa-calendar-alt text-5xl text-[#d4af37] mb-4"></i>
                 <h3 class="text-2xl font-black text-white" data-i18n="monthly_project">مشروع شهري</h3>
@@ -185,7 +184,7 @@
                     <p class="text-xs"><span data-i18n="lock_period_monthly">🔒 المبلغ الأصلي + الربح محجوزان لمدة 30 يوم</span></p>
                     <p class="text-xs"><span data-i18n="profit_withdraw_monthly">✅ بعد 30 يوماً يتم سحب الأصل + الربح معاً</span></p>
                 </div>
-                <input type="number" id="monthly-amount" placeholder="المبلغ ($)" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white">
+                <input type="number" id="monthly-amount" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white" placeholder="المبلغ ($)">
                 <button onclick="createInvestment(event, 'monthly')" class="btn-gold w-full py-3 rounded-xl font-bold" data-i18n="invest_now">استثمر الآن</button>
             </div>
         </div>
@@ -273,7 +272,7 @@
                 const inp = document.getElementById(id);
                 if (inp) inp.placeholder = placeholderText;
             });
-            // Update direction
+            // Direction
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
                 htmlEl.setAttribute('dir', 'rtl');
@@ -284,25 +283,17 @@
             }
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
-            // Update active class on language selector
             document.querySelectorAll('.lang-option').forEach(opt => {
-                if (opt.getAttribute('data-lang') === lang) {
-                    opt.classList.add('active');
-                } else {
-                    opt.classList.remove('active');
-                }
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
             });
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
 
         async function setLanguage(lang) {
-            if (!translations[lang]) {
-                await loadTranslations(lang);
-            }
+            if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
-            if (currentUser) {
-                await loadMyInvestments(); // reload table to translate status texts if any
-            }
+            if (currentUser) await loadMyInvestments(); // reload table
         }
 
         document.querySelectorAll('.lang-option').forEach(opt => {
@@ -314,7 +305,7 @@
         });
 
         // ============================================================
-        // fetch مع تجديد التوكن
+        // fetch with auth
         // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
@@ -432,7 +423,7 @@
         }
 
         // ============================================================
-        // حساب الربح المعلق ديناميكياً حسب القوانين الجديدة
+        // حساب الربح المعلق
         // ============================================================
         function calculatePendingProfit(inv, now) {
             const lastProfit = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
@@ -447,7 +438,7 @@
         }
 
         // ============================================================
-        // تحميل الاستثمارات وعرضها مع الأرباح الحية
+        // تحميل الاستثمارات وعرضها
         // ============================================================
         async function loadMyInvestments() {
             if (!await checkAuth()) return;
@@ -513,7 +504,7 @@
         }
 
         // ============================================================
-        // عرض خيارات السحب (الأرباح أو الأصل)
+        // عرض خيارات السحب
         // ============================================================
         window.showWithdrawOptions = async (investmentId, canWithdrawProfit, canWithdrawPrincipal) => {
             const t = translations[currentLang] || {};
@@ -638,7 +629,7 @@
         }
 
         // ============================================================
-        // التحميل الأولي والتحديث الدوري للأرباح (كل 30 ثانية)
+        // التحميل الأولي والتحديث الدوري
         // ============================================================
         window.onload = async () => {
             await loadTranslations(currentLang);

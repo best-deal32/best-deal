@@ -198,7 +198,6 @@
             margin-bottom: 0.5rem;
         }
 
-        /* Modals for explanations */
         .info-modal {
             display: none;
             position: fixed;
@@ -267,7 +266,6 @@
             font-weight: bold;
         }
 
-        /* Language Switcher */
         .lang-selector {
             background: rgba(0,0,0,0.4);
             border-radius: 2rem;
@@ -275,7 +273,6 @@
             display: flex;
             gap: 0.25rem;
             border: 1px solid rgba(212,175,55,0.3);
-            margin-top: 1rem;
         }
         .lang-option {
             padding: 0.3rem 0.7rem;
@@ -310,7 +307,7 @@
             <div class="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#8a6d3b] rounded-xl flex items-center justify-center shadow-lg">
                 <i class="fa-solid fa-crown text-black text-lg"></i>
             </div>
-            <span class="text-xl font-black gold-gradient-text italic uppercase tracking-tighter">Best Deal</span>
+            <span class="text-xl font-black gold-gradient-text italic uppercase tracking-tighter" data-i18n="app_name">Best Deal</span>
         </div>
         <button onclick="checkAccess()" class="btn-gold-outline">
             <i class="fa-regular fa-user mr-1"></i> <span data-i18n="my_account">حسابي</span>
@@ -507,14 +504,14 @@
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (لا نحتاج API base URL ثابت، نستخدم مسارات نسبية)
+        // الإعدادات العامة (لا نحتاج API base URL ثابت، نستخدم مسارات نسبية)
         // ============================================================
         const API_BASE_URL = '';
         const USER_ME_ENDPOINT = `${API_BASE_URL}/api/users/me`;
         const REFRESH_ENDPOINT = `${API_BASE_URL}/api/auth/refresh`;
 
         // ============================================================
-        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // نظام الترجمة متعدد اللغات (i18n)
         // ============================================================
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
@@ -542,7 +539,6 @@
                     el.textContent = t[key];
                 }
             });
-            // Update direction
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
                 htmlEl.setAttribute('dir', 'rtl');
@@ -574,7 +570,7 @@
         });
 
         // ============================================================
-        // 3. وظائف التحكم في الـ Modal والتحقق من تسجيل الدخول
+        // وظائف التحكم في الـ Modal والتحقق من تسجيل الدخول
         // ============================================================
         function openChoice() { document.getElementById('choiceModal').style.display = 'flex'; }
         function closeChoice() { document.getElementById('choiceModal').style.display = 'none'; }
@@ -624,7 +620,7 @@
         }
 
         // ============================================================
-        // 4. نوافذ شرح النظام (Modals)
+        // نوافذ شرح النظام (Modals)
         // ============================================================
         function showInvestModal() { document.getElementById('investModal').style.display = 'flex'; }
         function closeInvestModal() { document.getElementById('investModal').style.display = 'none'; }
@@ -634,7 +630,7 @@
         function closeReferralModal() { document.getElementById('referralModal').style.display = 'none'; }
 
         // ============================================================
-        // 5. تهيئة الموقع عند التحميل (العداد الوهمي)
+        // تهيئة الموقع عند التحميل (العداد الوهمي)
         // ============================================================
         function initSite() {
             setInterval(() => {
@@ -645,7 +641,7 @@
         }
 
         // ============================================================
-        // 6. تحميل الترجمات الأولية
+        // تحميل الترجمات الأولية
         // ============================================================
         window.onload = async () => {
             await loadTranslations(currentLang);

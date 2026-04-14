@@ -276,14 +276,14 @@
             <div class="input-group">
                 <label data-i18n="username_label">اسم المستخدم</label>
                 <div class="input-wrapper">
-                    <input type="text" id="username" class="input-field" placeholder="" required>
+                    <input type="text" id="username" class="input-field" data-i18n-placeholder="username_placeholder" placeholder="" required>
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
             </div>
             <div class="input-group">
                 <label data-i18n="password_label">كلمة المرور</label>
                 <div class="input-wrapper">
-                    <input type="password" id="password" class="input-field" placeholder="" required>
+                    <input type="password" id="password" class="input-field" data-i18n-placeholder="password_placeholder" placeholder="" required>
                     <i class="fa-solid fa-key"></i>
                 </div>
             </div>
@@ -331,7 +331,6 @@
             } catch (err) {
                 console.warn(`Failed to load translations for ${lang}, falling back to ar`);
                 if (lang !== 'ar') return loadTranslations('ar');
-                // fallback empty object
                 return {};
             }
         }
@@ -339,15 +338,20 @@
         function applyTranslations(lang) {
             const t = translations[lang];
             if (!t) return;
+            // Translate elements with data-i18n
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) {
                     el.textContent = t[key];
                 }
             });
-            // Update placeholders for input fields if needed
-            if (t.username_placeholder) document.getElementById('username').placeholder = t.username_placeholder;
-            if (t.password_placeholder) document.getElementById('password').placeholder = t.password_placeholder;
+            // Translate placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) {
+                    el.placeholder = t[key];
+                }
+            });
             // Update direction for RTL/LTR
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
@@ -387,7 +391,6 @@
             applyTranslations(lang);
         }
 
-        // Language selector event listeners
         document.querySelectorAll('.lang-option').forEach(opt => {
             opt.addEventListener('click', async () => {
                 const lang = opt.getAttribute('data-lang');

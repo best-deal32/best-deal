@@ -258,62 +258,62 @@
             <div class="grid-2">
                 <div class="input-wrapper">
                     <i class="fa-solid fa-user"></i>
-                    <input type="text" id="username" class="form-input" placeholder="اسم المستخدم" required>
+                    <input type="text" id="username" class="form-input" data-i18n-placeholder="username_placeholder" placeholder="اسم المستخدم" required>
                     <div class="note-text" data-i18n="username_note">سيكون فريداً للدخول إلى المنصة</div>
                 </div>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-signature"></i>
-                    <input type="text" id="fullName" class="form-input" placeholder="الاسم الكامل" required>
+                    <input type="text" id="fullName" class="form-input" data-i18n-placeholder="fullname_placeholder" placeholder="الاسم الكامل" required>
                 </div>
             </div>
 
             <div class="input-wrapper">
                 <i class="fa-solid fa-envelope"></i>
-                <input type="email" id="email" class="form-input" placeholder="البريد الإلكتروني" required>
+                <input type="email" id="email" class="form-input" data-i18n-placeholder="email_placeholder" placeholder="البريد الإلكتروني" required>
                 <div class="note-text" data-i18n="email_note">سيتم إرسال رمز التحقق إلى هذا البريد</div>
             </div>
 
             <div class="grid-2">
                 <div class="input-wrapper">
                     <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="password" class="form-input" placeholder="كلمة المرور" required>
+                    <input type="password" id="password" class="form-input" data-i18n-placeholder="password_placeholder" placeholder="كلمة المرور" required>
                 </div>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-check-circle"></i>
-                    <input type="password" id="confirmPassword" class="form-input" placeholder="تأكيد كلمة المرور" required>
+                    <input type="password" id="confirmPassword" class="form-input" data-i18n-placeholder="confirm_password_placeholder" placeholder="تأكيد كلمة المرور" required>
                 </div>
             </div>
 
             <div class="grid-2">
                 <div class="input-wrapper">
                     <i class="fa-solid fa-globe"></i>
-                    <input type="text" id="origin" class="form-input" placeholder="بلد المنشأ">
+                    <input type="text" id="origin" class="form-input" data-i18n-placeholder="origin_placeholder" placeholder="بلد المنشأ">
                 </div>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-location-dot"></i>
-                    <input type="text" id="currentLocation" class="form-input" placeholder="السكن الحالي">
+                    <input type="text" id="currentLocation" class="form-input" data-i18n-placeholder="location_placeholder" placeholder="السكن الحالي">
                 </div>
             </div>
 
             <div class="grid-2">
                 <div class="input-wrapper">
                     <i class="fa-solid fa-briefcase"></i>
-                    <input type="text" id="currentJob" class="form-input" placeholder="العمل الحالي">
+                    <input type="text" id="currentJob" class="form-input" data-i18n-placeholder="job_placeholder" placeholder="العمل الحالي">
                 </div>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-chart-line"></i>
-                    <input type="text" id="profession" class="form-input" placeholder="المهنة">
+                    <input type="text" id="profession" class="form-input" data-i18n-placeholder="profession_placeholder" placeholder="المهنة">
                 </div>
             </div>
 
             <div class="input-wrapper">
                 <i class="fa-solid fa-gift"></i>
-                <input type="text" id="referrerCode" class="form-input" placeholder="كود الإحالة (اختياري)">
+                <input type="text" id="referrerCode" class="form-input" data-i18n-placeholder="referral_code_placeholder" placeholder="كود الإحالة (اختياري)">
                 <div class="note-text" data-i18n="referral_note">إذا كان لديك كود دعائي من صديق، أدخله هنا</div>
             </div>
 
             <div class="verification-row">
-                <input type="text" id="verificationCode" class="form-input" placeholder="رمز التحقق (6 أرقام)">
+                <input type="text" id="verificationCode" class="form-input" data-i18n-placeholder="verification_code_placeholder" placeholder="رمز التحقق (6 أرقام)">
                 <button type="button" id="sendCodeBtn" class="btn-outline">
                     <i class="fa-regular fa-paper-plane ml-1"></i> <span data-i18n="send_code">إرسال الرمز</span>
                 </button>
@@ -364,30 +364,16 @@
         function applyTranslations(lang) {
             const t = translations[lang];
             if (!t) return;
+            // Translate elements with data-i18n
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    el.textContent = t[key];
-                }
+                if (t[key]) el.textContent = t[key];
             });
-            // Update placeholders
-            const placeholders = {
-                username: t.username_placeholder || 'اسم المستخدم',
-                fullName: t.fullname_placeholder || 'الاسم الكامل',
-                email: t.email_placeholder || 'البريد الإلكتروني',
-                password: t.password_placeholder || 'كلمة المرور',
-                confirmPassword: t.confirm_password_placeholder || 'تأكيد كلمة المرور',
-                origin: t.origin_placeholder || 'بلد المنشأ',
-                currentLocation: t.current_location_placeholder || 'السكن الحالي',
-                currentJob: t.current_job_placeholder || 'العمل الحالي',
-                profession: t.profession_placeholder || 'المهنة',
-                referrerCode: t.referrer_code_placeholder || 'كود الإحالة (اختياري)',
-                verificationCode: t.verification_code_placeholder || 'رمز التحقق (6 أرقام)'
-            };
-            for (const [id, placeholder] of Object.entries(placeholders)) {
-                const input = document.getElementById(id);
-                if (input) input.placeholder = placeholder;
-            }
+            // Translate placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) el.placeholder = t[key];
+            });
             // Direction
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
@@ -399,6 +385,7 @@
             }
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
+            // Update active class on language selector
             document.querySelectorAll('.lang-option').forEach(opt => {
                 if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
                 else opt.classList.remove('active');
@@ -488,15 +475,41 @@
         });
 
         // ============================================================
-        // 6. إرسال رمز التحقق
+        // 6. إرسال رمز التحقق (محسّن مع رسائل واضحة وإعادة إرسال ذكية)
         // ============================================================
-        document.getElementById('sendCodeBtn').addEventListener('click', async () => {
+        let countdown = 0;
+        let countdownInterval;
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+
+        function startCountdown(seconds) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdown = seconds;
+            sendCodeBtn.disabled = true;
+            const originalText = sendCodeBtn.innerHTML;
+            countdownInterval = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.innerHTML = originalText;
+                } else {
+                    sendCodeBtn.innerHTML = `<i class="fa-regular fa-paper-plane ml-1"></i> ${translations[currentLang]?.resend_code || 'إعادة الإرسال'} (${countdown})`;
+                }
+            }, 1000);
+        }
+
+        sendCodeBtn.addEventListener('click', async () => {
             const email = document.getElementById('email').value.trim();
             if (!email) {
                 Swal.fire('خطأ', translations[currentLang]?.email_required || 'يرجى إدخال البريد الإلكتروني أولاً', 'error');
                 return;
             }
-            const btn = document.getElementById('sendCodeBtn');
+            // Basic email format validation
+            if (!email.includes('@') || !email.includes('.')) {
+                Swal.fire('خطأ', translations[currentLang]?.invalid_email_format || 'صيغة البريد غير صحيحة', 'error');
+                return;
+            }
+            const btn = sendCodeBtn;
             btn.disabled = true;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.sending || 'جاري الإرسال...');
@@ -509,13 +522,18 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    Swal.fire(translations[currentLang]?.code_sent_title || 'تم الإرسال', translations[currentLang]?.code_sent_message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني (تحقق من spam إذا لم يصلك، أو راجع وحدة تحكم الخادم للاطلاع على الرمز في وضع التطوير)', 'success');
+                    Swal.fire(translations[currentLang]?.code_sent_title || 'تم الإرسال', 
+                              translations[currentLang]?.code_sent_message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني (تحقق من spam إذا لم يصلك، أو راجع وحدة تحكم الخادم للاطلاع على الرمز في وضع التطوير)', 
+                              'success');
+                    startCountdown(60); // 60 seconds cooldown
                 } else {
                     Swal.fire('خطأ', data.message || (translations[currentLang]?.send_code_failed || 'فشل إرسال الرمز'), 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
                 }
             } catch (err) {
+                console.error(err);
                 Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالسيرفر', 'error');
-            } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
             }
