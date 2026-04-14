@@ -200,7 +200,7 @@
 <body>
 
     <div class="max-w-2xl mx-auto">
-        <!-- زر الرجوع -->
+        <!-- زر الرجوع ومحدد اللغة -->
         <div class="mb-4 flex justify-between items-center">
             <button onclick="window.location.href='dashboard.html'" class="text-slate-400 hover:text-gold-main transition">
                 <i class="fa-solid fa-arrow-right ml-2"></i> <span data-i18n="back_to_dashboard">العودة إلى لوحة التحكم</span>
@@ -590,6 +590,24 @@
             applyTranslations(currentLang);
             const ok = await checkAuth();
             if (ok) {
+                // Check if there is a quick withdraw amount from dashboard
+                const urlParams = new URLSearchParams(window.location.search);
+                const quickAmount = urlParams.get('amount') || localStorage.getItem('quickWithdrawAmount');
+                const quickType = urlParams.get('type');
+                if (quickAmount && !isNaN(parseFloat(quickAmount))) {
+                    if (quickType === 'profit') {
+                        withdrawType = 'profit';
+                        document.getElementById('toggleProfit').classList.add('active');
+                        document.getElementById('togglePrincipal').classList.remove('active');
+                    } else if (quickType === 'principal') {
+                        withdrawType = 'principal';
+                        document.getElementById('togglePrincipal').classList.add('active');
+                        document.getElementById('toggleProfit').classList.remove('active');
+                    }
+                    updateMaxHint();
+                    document.getElementById('withdrawAmount').value = parseFloat(quickAmount).toFixed(2);
+                    localStorage.removeItem('quickWithdrawAmount');
+                }
                 // تحديث الأرصدة كل 15 ثانية
                 setInterval(async () => {
                     if (document.visibilityState === 'visible') {

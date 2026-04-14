@@ -1,6 +1,12 @@
 // ============================================================
-// server.js - النسخة النهائية مع دعم اللغات (العربية، الإنجليزية، الصينية، الألمانية)
-// مع إضافة المسار الثابت لمجلد locales
+// server.js - النسخة النهائية المتكاملة
+// - دعم اللغات (ar/en/zh/de)
+// - مسار ثابت للمجلد locales
+// - نقاط نهاية جديدة: /api/deposits/my, /api/withdrawals/my, /api/referrals/contest, /api/analytics/user, /api/daily-bonus/status, /api/daily-bonus/claim
+// - نظام المسابقات الشهرية للإحالات
+// - نظام مكافأة يومية (0.5$ بشرط وجود إيداع سابق)
+// - مشروع VIP (حد أدنى 5000$، عائد 400% شهرياً)
+// - سجل المعاملات (Transaction History) عبر نقاط النهاية الجديدة
 // ============================================================
 
 const express = require('express');
@@ -19,18 +25,15 @@ const cron = require('node-cron');
 const { exec } = require('child_process');
 const crypto = require('crypto');
 
-// ====================== i18n متعدد اللغات ======================
+// i18n
 const i18next = require('i18next');
 const Backend = require('i18next-fs-backend');
 const middleware = require('i18next-http-middleware');
 
-// تهيئة i18next
 i18next.use(Backend).use(middleware.LanguageDetector).init({
     fallbackLng: 'ar',
     preload: ['ar', 'en', 'zh', 'de'],
-    backend: {
-        loadPath: path.join(__dirname, 'locales/{{lng}}/translation.json')
-    },
+    backend: { loadPath: path.join(__dirname, 'locales/{{lng}}/translation.json') },
     detection: {
         order: ['querystring', 'cookie', 'header'],
         lookupQuerystring: 'lang',
@@ -49,11 +52,9 @@ const ADMIN_GATEWAY_SECRET = process.env.ADMIN_GATEWAY_SECRET || 'MHDFREEZE2003'
 const isProduction = process.env.NODE_ENV === 'production';
 
 app.set('trust proxy', 1);
-
-// استخدام middleware الترجمة
 app.use(middleware.handle(i18next));
 
-// ====================== Cloudinary ======================
+// Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -120,6 +121,7 @@ async function initDatabase() {
     }
 }
 
+// ====================== Create tables ======================
 async function createTables() {
     await db.execute(`CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(50) PRIMARY KEY,
@@ -142,7 +144,9 @@ async function createTables() {
         referrerId VARCHAR(50) NULL,
         refreshToken VARCHAR(255),
         loginAttempts INT DEFAULT 0,
-        lockUntil DATETIME
+        lockUntil DATETIME,
+        lastDailyBonus DATE NULL,
+        totalDeposits DECIMAL(10,2) DEFAULT 0
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS deposit_requests (
@@ -174,7 +178,7 @@ async function createTables() {
         userId VARCHAR(50) NOT NULL,
         username VARCHAR(50) NOT NULL,
         amount DECIMAL(10,2) NOT NULL,
-        projectType VARCHAR(20) NOT NULL,
+        projectType VARCHAR(20) NOT NULL, -- 'daily', 'weekly', 'monthly', 'vip'
         startDate DATETIME NOT NULL,
         lastProfitDate DATETIME,
         withdrawnProfit DECIMAL(10,2) DEFAULT 0,
@@ -233,7 +237,7 @@ async function createTables() {
         createdAt DATETIME DEFAULT NOW()
     )`);
 
-    // جدول الترجمة (للمحتوى الديناميكي في قاعدة البيانات)
+    // جدول الترجمة (للمحتوى الديناميكي)
     await db.execute(`CREATE TABLE IF NOT EXISTS translations (
         id INT AUTO_INCREMENT PRIMARY KEY,
         entity_type VARCHAR(50) NOT NULL,
@@ -248,10 +252,17 @@ async function createTables() {
         await db.execute(`ALTER TABLE withdrawal_requests ADD COLUMN type ENUM('profit', 'principal') DEFAULT 'profit'`);
         console.log('✅ Added type column to withdrawal_requests');
     } catch (err) {}
-
     try {
         await db.execute(`ALTER TABLE users ADD COLUMN referrerId VARCHAR(50) NULL`);
         console.log('✅ Added referrerId column');
+    } catch (err) {}
+    try {
+        await db.execute(`ALTER TABLE users ADD COLUMN lastDailyBonus DATE NULL`);
+        console.log('✅ Added lastDailyBonus column');
+    } catch (err) {}
+    try {
+        await db.execute(`ALTER TABLE users ADD COLUMN totalDeposits DECIMAL(10,2) DEFAULT 0`);
+        console.log('✅ Added totalDeposits column');
     } catch (err) {}
 
     const [existing] = await db.execute('SELECT id FROM users WHERE username = ?', ['freeze']);
@@ -266,15 +277,13 @@ async function createTables() {
     }
 }
 
-// ====================== Helper functions with error logging ======================
+// ====================== Helper functions ======================
 async function runQuery(sql, params) {
     try {
         const [result] = await db.execute(sql, params);
         return result;
     } catch (err) {
-        console.error('❌ SQL Error in runQuery:', err.message);
-        console.error('   Query:', sql);
-        console.error('   Params:', params);
+        console.error('❌ SQL Error:', err.message, sql);
         throw err;
     }
 }
@@ -283,9 +292,7 @@ async function getQuery(sql, params) {
         const [rows] = await db.execute(sql, params);
         return rows[0];
     } catch (err) {
-        console.error('❌ SQL Error in getQuery:', err.message);
-        console.error('   Query:', sql);
-        console.error('   Params:', params);
+        console.error('❌ SQL Error:', err.message, sql);
         throw err;
     }
 }
@@ -294,9 +301,7 @@ async function allQuery(sql, params) {
         const [rows] = await db.execute(sql, params);
         return rows;
     } catch (err) {
-        console.error('❌ SQL Error in allQuery:', err.message);
-        console.error('   Query:', sql);
-        console.error('   Params:', params);
+        console.error('❌ SQL Error:', err.message, sql);
         throw err;
     }
 }
@@ -387,6 +392,7 @@ async function processReferralBonus(referredUserId, depositAmount) {
     } catch (err) { console.error('Error processing referral bonus:', err); }
 }
 
+// ====================== Middleware ======================
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
@@ -445,14 +451,13 @@ app.post('/api/auth/refresh', async (req, res) => {
         res.cookie('token', newToken, { httpOnly: true, sameSite: 'lax', secure: isProduction, maxAge: 15 * 60 * 1000 });
         res.json({ success: true });
     } catch (err) {
-        console.error('Refresh error:', err);
         res.status(403).json({ success: false });
     }
 });
 
 app.get('/api/users/me', authenticateToken, async (req, res) => {
     try {
-        const user = await getQuery('SELECT id, username, role, fullName, email, balance, profit, level, isVerified, origin, currentLocation, currentJob, work, profession, referralCode FROM users WHERE id = ?', [req.user.id]);
+        const user = await getQuery('SELECT id, username, role, fullName, email, balance, profit, level, isVerified, origin, currentLocation, currentJob, work, profession, referralCode, totalDeposits FROM users WHERE id = ?', [req.user.id]);
         if (!user) return res.status(404).json({ success: false, message: req.t('user_not_found') });
         const withdrawableAmount = (user.balance || 0) + (user.profit || 0);
         res.json({ ...user, withdrawableAmount });
@@ -471,7 +476,6 @@ app.post('/api/users/update-balance', authenticateToken, adminOnly, async (req, 
         await updateUserLevel(req.user.id);
         res.json({ success: true });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ success: false });
     }
 });
@@ -510,6 +514,16 @@ app.get('/api/admin/deposits', authenticateToken, adminOnly, async (req, res) =>
     }
 });
 
+// ✅ New endpoint: Get user's own deposit requests (for transaction history)
+app.get('/api/deposits/my', authenticateToken, async (req, res) => {
+    try {
+        const rows = await allQuery('SELECT * FROM deposit_requests WHERE userId = ? ORDER BY date DESC', [req.user.id]);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json([]);
+    }
+});
+
 app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async (req, res) => {
     try {
         const depositId = req.params.id;
@@ -518,6 +532,7 @@ app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async 
         const { userId, amount, username } = deposit;
         await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
         await db.execute('UPDATE deposit_requests SET status = "approved" WHERE id = ?', [depositId]);
+        await db.execute('UPDATE users SET totalDeposits = totalDeposits + ? WHERE id = ?', [amount, userId]);
         await logAdminAction(req.user.id, req.user.username, 'approve_deposit', userId, username, `قبول إيداع بمبلغ ${amount}$`, req.ip);
         await addNotification(userId, req.t('deposit_approved_title'), req.t('deposit_approved_message', { amount }));
         await processReferralBonus(userId, amount);
@@ -609,6 +624,16 @@ app.get('/api/admin/withdrawals', authenticateToken, adminOnly, async (req, res)
     }
 });
 
+// ✅ New endpoint: Get user's own withdrawal requests (for transaction history)
+app.get('/api/withdrawals/my', authenticateToken, async (req, res) => {
+    try {
+        const rows = await allQuery('SELECT * FROM withdrawal_requests WHERE userId = ? ORDER BY date DESC', [req.user.id]);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json([]);
+    }
+});
+
 app.post('/api/admin/withdrawals/:id/approve', authenticateToken, adminOnly, async (req, res) => {
     try {
         const withdrawalId = req.params.id;
@@ -666,7 +691,7 @@ app.post('/api/admin/withdrawals/:id/:action', authenticateToken, adminOnly, asy
     }
 });
 
-// ====================== INVESTMENT ROUTES ======================
+// ====================== INVESTMENT ROUTES (including VIP) ======================
 app.post('/api/investments/create', authenticateToken, async (req, res) => {
     try {
         const { amount, projectType } = req.body;
@@ -676,6 +701,7 @@ app.post('/api/investments/create', authenticateToken, async (req, res) => {
         if (projectType === 'daily') min = 90;
         else if (projectType === 'weekly') min = 285;
         else if (projectType === 'monthly') min = 490;
+        else if (projectType === 'vip') min = 5000;
         else return res.status(400).json({ success: false });
         const invest = parseFloat(amount);
         if (isNaN(invest) || invest < min) return res.status(400).json({ success: false, message: req.t('min_investment', { min }) });
@@ -688,7 +714,7 @@ app.post('/api/investments/create', authenticateToken, async (req, res) => {
         );
         await runQuery('UPDATE users SET balance = balance - ? WHERE id = ?', [invest, req.user.id]);
         await updateUserLevel(req.user.id);
-        await addNotification(req.user.id, req.t('investment_created_title'), req.t('investment_created_message', { amount: invest, type: projectType === 'daily' ? req.t('daily') : projectType === 'weekly' ? req.t('weekly') : req.t('monthly') }));
+        await addNotification(req.user.id, req.t('investment_created_title'), req.t('investment_created_message', { amount: invest, type: req.t(projectType) }));
         res.json({ success: true, message: req.t('investment_created') });
     } catch (err) {
         console.error(err);
@@ -723,6 +749,8 @@ app.post('/api/investments/withdraw-profit', authenticateToken, async (req, res)
             if (diffDays >= 7) { const weeks = Math.floor(diffDays / 7); profit = inv.amount * 0.08 * 7 * weeks; canWithdraw = true; }
         } else if (inv.projectType === 'monthly') {
             return res.status(400).json({ success: false, message: req.t('monthly_withdraw_profit_disabled') });
+        } else if (inv.projectType === 'vip') {
+            return res.status(400).json({ success: false, message: 'في مشروع VIP، يتم سحب الربح مع الأصل بعد 30 يوم.' });
         }
         if (!canWithdraw || profit <= 0) return res.status(400).json({ success: false, message: req.t('no_profit_to_withdraw') });
         await db.execute('UPDATE users SET profit = profit + ? WHERE id = ?', [profit, req.user.id]);
@@ -751,8 +779,9 @@ app.post('/api/investments/withdraw-principal', authenticateToken, async (req, r
         if (inv.projectType === 'daily' && daysPassed >= 10) canWithdrawPrincipal = true;
         else if (inv.projectType === 'weekly' && daysPassed >= 15) canWithdrawPrincipal = true;
         else if (inv.projectType === 'monthly' && daysPassed >= 30) { canWithdrawPrincipal = true; totalReturn = inv.amount * 4; }
+        else if (inv.projectType === 'vip' && daysPassed >= 30) { canWithdrawPrincipal = true; totalReturn = inv.amount * 5; } // 400% ربح + أصل = 500%
         if (!canWithdrawPrincipal) {
-            let required = inv.projectType === 'monthly' ? 30 : (inv.projectType === 'weekly' ? 15 : 10);
+            let required = (inv.projectType === 'monthly' || inv.projectType === 'vip') ? 30 : (inv.projectType === 'weekly' ? 15 : 10);
             return res.status(400).json({ success: false, message: req.t('cannot_withdraw_principal', { days: required }) });
         }
         await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [totalReturn, req.user.id]);
@@ -798,6 +827,38 @@ app.get('/api/referrals/my', authenticateToken, async (req, res) => {
     }
 });
 
+// ✅ New endpoint: Monthly contest leaderboard
+app.get('/api/referrals/contest', authenticateToken, async (req, res) => {
+    try {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const startOfMonth = `${year}-${month.toString().padStart(2,'0')}-01 00:00:00`;
+        const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+        // Count referrals made in current month per referrer
+        const leaderboard = await allQuery(
+            `SELECT u.username, COUNT(r.id) as referralsCount
+             FROM referrals r
+             JOIN users u ON r.referrerId = u.id
+             WHERE r.createdAt >= ? AND r.createdAt <= ?
+             GROUP BY u.id
+             ORDER BY referralsCount DESC
+             LIMIT 10`,
+            [startOfMonth, endOfMonth]
+        );
+        // Get user's own rank
+        let userRank = null;
+        if (leaderboard.length) {
+            const userIndex = leaderboard.findIndex(entry => entry.username === req.user.username);
+            if (userIndex !== -1) userRank = userIndex + 1;
+        }
+        res.json({ month: `${year}/${month}`, leaderboard, userRank });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ leaderboard: [], userRank: null });
+    }
+});
+
 // ====================== NOTIFICATIONS ======================
 app.get('/api/notifications', authenticateToken, async (req, res) => {
     try {
@@ -823,6 +884,78 @@ app.put('/api/notifications/read-all', authenticateToken, async (req, res) => {
         res.json({ success: true });
     } catch (err) {
         res.status(500).json({ success: false });
+    }
+});
+
+// ====================== DAILY BONUS ======================
+app.get('/api/daily-bonus/status', authenticateToken, async (req, res) => {
+    try {
+        const user = await getQuery('SELECT totalDeposits, lastDailyBonus FROM users WHERE id = ?', [req.user.id]);
+        const hasDeposit = (user.totalDeposits || 0) > 0;
+        if (!hasDeposit) {
+            return res.json({ canClaim: false, reason: 'يجب أن تقوم بإيداع أولاً لتفعيل المكافأة اليومية' });
+        }
+        const today = new Date().toISOString().slice(0,10);
+        const lastBonus = user.lastDailyBonus ? user.lastDailyBonus.toISOString().slice(0,10) : null;
+        const canClaim = (lastBonus !== today);
+        res.json({ canClaim, lastClaimDate: user.lastDailyBonus });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ canClaim: false });
+    }
+});
+
+app.post('/api/daily-bonus/claim', authenticateToken, async (req, res) => {
+    try {
+        const user = await getQuery('SELECT totalDeposits, lastDailyBonus, balance, profit FROM users WHERE id = ?', [req.user.id]);
+        if ((user.totalDeposits || 0) <= 0) {
+            return res.status(400).json({ success: false, message: 'لا يمكنك الحصول على المكافأة اليومية بدون أي إيداع سابق' });
+        }
+        const today = new Date().toISOString().slice(0,10);
+        const lastBonus = user.lastDailyBonus ? user.lastDailyBonus.toISOString().slice(0,10) : null;
+        if (lastBonus === today) {
+            return res.status(400).json({ success: false, message: 'لقد حصلت على مكافأة اليوم بالفعل' });
+        }
+        const bonusAmount = 0.5;
+        await db.execute('UPDATE users SET profit = profit + ?, lastDailyBonus = CURDATE() WHERE id = ?', [bonusAmount, req.user.id]);
+        await addNotification(req.user.id, 'مكافأة يومية', `لقد حصلت على مكافأة يومية بقيمة ${bonusAmount}$`);
+        res.json({ success: true, message: `تم إضافة ${bonusAmount}$ إلى أرباحك`, amount: bonusAmount });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'حدث خطأ' });
+    }
+});
+
+// ====================== ANALYTICS ======================
+app.get('/api/analytics/user', authenticateToken, async (req, res) => {
+    try {
+        // Get daily balance changes (last 30 days)
+        const activities = await allQuery(
+            `SELECT DATE(timestamp) as date, 
+                    SUM(CASE WHEN action LIKE 'إيداع%' OR action LIKE 'ربح%' OR action LIKE 'مكافأة%' THEN 1 ELSE 0 END) as positive_events,
+                    SUM(CASE WHEN action LIKE 'سحب%' OR action LIKE 'استثمار%' THEN 1 ELSE 0 END) as negative_events
+             FROM activity_logs 
+             WHERE userId = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+             GROUP BY DATE(timestamp)`,
+            [req.user.id]
+        );
+        // Investment distribution
+        const investments = await allQuery('SELECT projectType, SUM(amount) as total FROM investments WHERE userId = ? GROUP BY projectType', [req.user.id]);
+        const investmentDistribution = {};
+        investments.forEach(inv => { investmentDistribution[inv.projectType] = parseFloat(inv.total); });
+        // Referral stats
+        const referralStats = await getQuery('SELECT COUNT(*) as totalReferrals, SUM(amount) as totalEarned FROM referrals WHERE referrerId = ?', [req.user.id]);
+        res.json({
+            dailyBalance: activities,
+            investmentDistribution,
+            referralStats: {
+                totalReferrals: referralStats.totalReferrals || 0,
+                totalEarned: referralStats.totalEarned || 0
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({});
     }
 });
 
@@ -905,7 +1038,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
 app.get('/api/admin/users', authenticateToken, adminOnly, async (req, res) => {
     try {
         const { search } = req.query;
-        let query = 'SELECT id, username, fullName, email, balance, profit, level, createdAt, isVerified, origin, currentLocation, currentJob, work, profession FROM users';
+        let query = 'SELECT id, username, fullName, email, balance, profit, level, createdAt, isVerified, origin, currentLocation, currentJob, work, profession, totalDeposits FROM users';
         let params = [];
         if (search) {
             query += ' WHERE username LIKE ? OR email LIKE ? OR fullName LIKE ?';
@@ -930,7 +1063,6 @@ app.get('/api/admin/user/:id', authenticateToken, adminOnly, async (req, res) =>
     }
 });
 
-// تعديل الرصيد بدون إشعار
 app.post('/api/admin/set-user-balance', authenticateToken, adminOnly, async (req, res) => {
     try {
         const { userId, newBalance } = req.body;
@@ -1072,8 +1204,8 @@ app.post('/api/users/register', async (req, res) => {
         const referralCodeGen = username + "_" + Math.random().toString(36).substr(2, 6);
 
         await db.execute(
-            `INSERT INTO users (id, username, password, fullName, email, origin, currentLocation, currentJob, work, profession, createdAt, referrerId, referralCode, isVerified, loginAttempts, lockUntil)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, 0, NULL)`,
+            `INSERT INTO users (id, username, password, fullName, email, origin, currentLocation, currentJob, work, profession, createdAt, referrerId, referralCode, isVerified, loginAttempts, lockUntil, totalDeposits)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, 0, NULL, 0)`,
             [userId, username, hashedPassword, fullName, email, origin || 'غير محدد', currentLocation || 'غير محدد', currentJob || 'غير محدد', work || 'غير محدد', profession || 'غير محدد', referrerId, referralCodeGen, isVerified]
         );
 
@@ -1119,6 +1251,7 @@ app.get('/api/activity-logs/recent', authenticateToken, async (req, res) => {
     }
 });
 
+// ====================== CRON JOBS ======================
 async function distributeDailyProfits() {
     console.log('🔄 بدء توزيع الأرباح التلقائية...');
     const connection = await db.getConnection();
@@ -1136,6 +1269,9 @@ async function distributeDailyProfits() {
             } else if (inv.projectType === 'weekly') {
                 const diffDays = Math.floor((now - lastProfitDate) / (1000 * 60 * 60 * 24));
                 if (diffDays > 0) { profitToAdd = inv.amount * 0.08 * diffDays; updateLastProfit = true; }
+            } else if (inv.projectType === 'monthly' || inv.projectType === 'vip') {
+                // no daily profit, handled at withdrawal
+                continue;
             }
             if (profitToAdd > 0) {
                 await connection.execute('UPDATE users SET profit = profit + ? WHERE id = ?', [profitToAdd, inv.userId]);
@@ -1177,7 +1313,7 @@ async function backupDatabase() {
 }
 cron.schedule('0 2 * * *', () => { backupDatabase(); });
 
-// ====================== SERVE STATIC FRONTEND ======================
+// ====================== SERVE STATIC FRONTEND & LOCALES ======================
 const publicPath = path.join(__dirname, 'public');
 if (fs.existsSync(publicPath)) {
     app.use(express.static(publicPath));
@@ -1185,11 +1321,8 @@ if (fs.existsSync(publicPath)) {
 } else {
     console.warn(`⚠️ public folder not found at ${publicPath}`);
 }
-
-// ====================== خدمة ملفات الترجمة (locales) كملفات ثابتة ======================
 app.use('/locales', express.static(path.join(__dirname, 'locales')));
 console.log(`✅ Locales folder served from ${path.join(__dirname, 'locales')}`);
-
 
 // ====================== ERROR HANDLER ======================
 app.use((err, req, res, next) => {
@@ -1200,6 +1333,7 @@ app.use((err, req, res, next) => {
 process.on('uncaughtException', (err) => { console.error('⚠️ Uncaught Exception:', err); });
 process.on('unhandledRejection', (reason, promise) => { console.error('⚠️ Unhandled Rejection:', reason); });
 
+// ====================== START SERVER ======================
 (async () => {
     await initDatabase();
     await createTables();
@@ -1209,5 +1343,8 @@ process.on('unhandledRejection', (reason, promise) => { console.error('⚠️ Un
         console.log(`🔑 Gateway secret: ${ADMIN_GATEWAY_SECRET}`);
         console.log(`📸 Cloudinary configured: ${process.env.CLOUDINARY_CLOUD_NAME ? '✅' : '❌'}`);
         console.log(`🌍 Multi-language support: ar, en, zh, de`);
+        console.log(`🎁 Daily bonus: 0.5$ per day (requires at least one deposit)`);
+        console.log(`💎 VIP project: min 5000$, 400% monthly return`);
+        console.log(`🏆 Monthly referral contest enabled`);
     });
 })();

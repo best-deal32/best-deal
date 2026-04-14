@@ -270,7 +270,7 @@
             background: rgba(0,0,0,0.4);
             border-radius: 2rem;
             padding: 0.25rem;
-            display: flex;
+            display: inline-flex;
             gap: 0.25rem;
             border: 1px solid rgba(212,175,55,0.3);
         }
@@ -335,14 +335,14 @@
         <div class="exclusive-offer p-8 mb-10 text-center relative z-10">
             <i class="fa-solid fa-chart-line text-5xl text-gold-main mb-4 opacity-80"></i>
             <h2 class="text-2xl font-black text-white italic mb-2" data-i18n="start_journey">ابدأ رحلتك الاستثمارية</h2>
-            <p class="text-white/80 text-[12px] font-bold leading-relaxed max-w-md mx-auto" data-i18n="investment_call">انضم لآلاف المستثمرين وحقق عوائد يومية تصل إلى 5% مع أنظمة إحالات تصل إلى 25% ودعم فني متواصل.</p>
+            <p class="text-white/80 text-[12px] font-bold leading-relaxed max-w-md mx-auto" data-i18n="investment_call">انضم لآلاف المستثمرين وحقق عوائد يومية تصل إلى 5% مع أنظمة إحالات تصل إلى 25% ودعم فني متواصل. استثمر في مشاريعنا المرنة (يومي، أسبوعي، شهري، VIP) واحصل على أرباح حقيقية.</p>
             <button onclick="checkAccess()" class="btn-gold-full w-full mt-8 py-4 rounded-2xl font-black text-sm uppercase italic shadow-2xl transition-all active:scale-95">
                 <i class="fa-solid fa-right-to-bracket ml-2"></i> <span data-i18n="enter_platform">دخول المنصة الآن</span>
             </button>
         </div>
 
-        <!-- ثلاثة أزرار شرح النظام -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+        <!-- أربعة أزرار شرح النظام (أضفنا VIP) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-10">
             <div class="feature-card" onclick="showInvestModal()">
                 <i class="fa-solid fa-chart-simple"></i>
                 <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="investment_system">نظام الاستثمار</h4>
@@ -357,6 +357,11 @@
                 <i class="fa-solid fa-user-plus"></i>
                 <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="referral_system">نظام الإحالات</h4>
                 <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="invite_earn_percent">ادعُ واربح نسباً مئوية</p>
+            </div>
+            <div class="feature-card" onclick="showDailyBonusModal()">
+                <i class="fa-solid fa-gift"></i>
+                <h4 class="text-sm font-black text-white uppercase mt-2" data-i18n="daily_bonus">المكافأة اليومية</h4>
+                <p class="text-[9px] text-slate-400 font-bold mt-1" data-i18n="daily_bonus_desc">0.5$ يومياً بعد أول إيداع</p>
             </div>
         </div>
 
@@ -397,7 +402,7 @@
         </div>
     </div>
 
-    <!-- ========== نافذة شرح نظام الاستثمار ========== -->
+    <!-- ========== نافذة شرح نظام الاستثمار (محدث بمشروع VIP) ========== -->
     <div id="investModal" class="info-modal">
         <div class="info-modal-content">
             <button class="close-modal" onclick="closeInvestModal()"><i class="fa-solid fa-xmark"></i></button>
@@ -424,6 +429,14 @@
                 <span data-i18n="return_label">📈 العائد:</span> <span class="highlight">300%</span> <span data-i18n="monthly_return_desc">ربح إجمالي بعد 30 يوماً (400% من الأصل)</span>.<br>
                 <span data-i18n="lock_period_label">🔒 قفل المبلغ الأصلي + الربح:</span> <span class="highlight">30 يوم</span>.<br>
                 <span data-i18n="profit_withdraw_label">✅ سحب الأرباح والأصل:</span> <span class="highlight">بعد 30 يوماً معاً</span>.</p>
+            </div>
+            <div class="info-section">
+                <h3><i class="fa-solid fa-gem"></i> <span data-i18n="vip_project">مشروع VIP (جديد)</span></h3>
+                <p><span data-i18n="min_amount_label">💰 الحد الأدنى:</span> <span class="highlight">5000$</span><br>
+                <span data-i18n="return_label">📈 العائد:</span> <span class="highlight">400%</span> <span data-i18n="vip_return_desc">ربح 400% بعد 30 يوماً (500% من الأصل)</span>.<br>
+                <span data-i18n="lock_period_label">🔒 قفل المبلغ الأصلي + الربح:</span> <span class="highlight">30 يوم</span>.<br>
+                <span data-i18n="profit_withdraw_label">✅ سحب الأرباح والأصل:</span> <span class="highlight">بعد 30 يوماً معاً</span>.<br>
+                <span class="text-green-400">🎁 مكافأة فورية: 2% إضافية عند الاستثمار (تضاف فوراً).</span></p>
             </div>
             <div class="info-section">
                 <h3><i class="fa-solid fa-chart-line"></i> <span data-i18n="profit_calculation">كيف تُحتسب الأرباح؟</span></h3>
@@ -477,11 +490,20 @@
             </div>
             <div class="info-section">
                 <h3><i class="fa-solid fa-chart-line"></i> <span data-i18n="why_referrals">لماذا تستخدم الإحالات؟</span></h3>
-                <p data-i18n="why_referrals_desc">تعتبر الإحالات مصدر دخل سلبي ممتاز. كلما زاد مستواك، زادت نسبة المكافأة. ادعُ المزيد من الأصدقاء واربح ما يصل إلى 25% من إيداعاتهم الأولى.</p>
+                <p data-i18n="why_referrals_desc">تعتبر الإحالات مصدر دخل سلبي ممتاز. كلما زاد مستواك، زادت نسبة المكافأة. ادعُ المزيد من الأصدقاء واربح ما يصل إلى 25% من إيداعاتهم الأولى. بالإضافة إلى مسابقة شهرية بجوائز قيمة!</p>
             </div>
+        </div>
+    </div>
+
+    <!-- ========== نافذة شرح المكافأة اليومية ========== -->
+    <div id="dailyBonusModal" class="info-modal">
+        <div class="info-modal-content">
+            <button class="close-modal" onclick="closeDailyBonusModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-black gold-gradient-text mb-4 text-center" data-i18n="daily_bonus_title">المكافأة اليومية</h2>
             <div class="info-section">
-                <h3><i class="fa-regular fa-lightbulb"></i> <span data-i18n="golden_tip">نصيحة ذهبية</span></h3>
-                <p data-i18n="golden_tip_desc">ارتقِ بمستواك (عن طريق زيادة رصيدك) لتحصل على نسب إحالة أعلى. المستوى الألماسي يمنحك 25%، مما يعني أنك تربح 250$ إذا أودع صديقك 1000$!</p>
+                <p data-i18n="daily_bonus_explain">احصل على 0.50 $ (50 سنت) يومياً مجاناً! الشرط الوحيد: أن تكون قد قمت بأول إيداع في حسابك (أي مبلغ). بعد ذلك، يمكنك استلام المكافأة كل يوم بمجرد الضغط على زر "استلام المكافأة" في لوحة التحكم.</p>
+                <p class="mt-2 text-green-400" data-i18n="daily_bonus_how">💡 كيف تعمل؟ بعد قبول أول إيداع لك، تصبح مؤهلاً للمكافأة اليومية. يمكنك استلامها مرة واحدة كل 24 ساعة. المكافأة تضاف إلى رصيد الأرباح (profit) ويمكن سحبها فوراً.</p>
+                <p class="mt-2 text-yellow-400" data-i18n="daily_bonus_note">⭐ ملاحظة: لا يمكن استلام المكافأة دون وجود إيداع سابق. ابدأ بإيداع صغير لتفعيل الميزة.</p>
             </div>
         </div>
     </div>
@@ -496,8 +518,8 @@
             <i class="fa-solid fa-wallet"></i>
             <span data-i18n="wallet">المحفظة</span>
         </div>
-        <a href="https://wa.me/639553327014" target="_blank" class="nav-item">
-            <i class="fa-brands fa-whatsapp"></i>
+        <a href="https://t.me/Bestdeal468" target="_blank" class="nav-item">
+            <i class="fa-brands fa-telegram"></i>
             <span data-i18n="support">الدعم</span>
         </a>
     </div>
@@ -628,6 +650,8 @@
         function closeRankModal() { document.getElementById('rankModal').style.display = 'none'; }
         function showReferralModal() { document.getElementById('referralModal').style.display = 'flex'; }
         function closeReferralModal() { document.getElementById('referralModal').style.display = 'none'; }
+        function showDailyBonusModal() { document.getElementById('dailyBonusModal').style.display = 'flex'; }
+        function closeDailyBonusModal() { document.getElementById('dailyBonusModal').style.display = 'none'; }
 
         // ============================================================
         // تهيئة الموقع عند التحميل (العداد الوهمي)

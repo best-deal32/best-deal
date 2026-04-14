@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Best Deal | لوحة التحكم الملكية</title>
+    <title>لوحة التحكم الملكية | Best Deal Gold System</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -341,6 +342,7 @@
                         <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2" data-i18n="total_withdrawable">إجمالي الرصيد المتاح للسحب</p>
                         <h3 id="user-balance" class="balance-text text-7xl font-black text-white number-glow tracking-tighter">$0.00</h3>
                         <p class="text-xs text-slate-400 mt-2"><span data-i18n="of_which">منها</span> <span id="withdrawable-amount" class="text-green-400 font-bold">0.00 $</span> <span data-i18n="immediately_withdrawable">قابل للسحب فوراً</span></p>
+                        <p class="text-xs text-slate-400 mt-1"><span data-i18n="total_deposits_label">إجمالي الإيداعات:</span> <span id="total-deposits" class="text-yellow-400 font-bold">0.00 $</span></p>
                     </div>
                     <div class="p-5 bg-green-500/10 rounded-3xl border border-green-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
                         <i class="fa-solid fa-wallet text-3xl text-green-500"></i>
@@ -358,6 +360,19 @@
             </div>
 
             <div class="md:col-span-4 space-y-8">
+                <!-- Daily Bonus Widget -->
+                <div class="glass-card p-8 border-b-4 border-[#d4af37]/40">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-[10px] font-black text-slate-500 uppercase" data-i18n="daily_bonus">المكافأة اليومية</p>
+                        <i class="fa-solid fa-gift text-[#d4af37]"></i>
+                    </div>
+                    <p class="text-2xl font-black gold-gradient-text" data-i18n="bonus_amount">0.50 $</p>
+                    <button id="claimDailyBonusBtn" class="mt-3 w-full bg-gradient-to-r from-green-600 to-green-800 text-white font-bold py-2 rounded-xl text-sm transition hover:scale-105">
+                        <i class="fa-regular fa-circle-check ml-1"></i> <span data-i18n="claim_bonus">استلام المكافأة</span>
+                    </button>
+                    <p id="bonusStatusMsg" class="text-[9px] text-slate-400 mt-2 text-center"></p>
+                </div>
+
                 <div class="glass-card p-8 border-b-4 border-green-500/40">
                     <div class="flex justify-between items-center mb-4">
                         <p class="text-[10px] font-black text-slate-500 uppercase" data-i18n="net_profit">الأرباح الصافية (غير المسحوبة)</p>
@@ -384,13 +399,18 @@
 
         </div>
 
+        <!-- Analytics Chart Section -->
+        <div class="glass-card p-6 mb-16">
+            <h3 class="text-xl font-black gold-gradient-text mb-4" data-i18n="balance_chart">رسم بياني لتطور الرصيد (آخر 30 يوم)</h3>
+            <canvas id="balanceChart" height="200" class="w-full"></canvas>
+        </div>
+
         <div class="mb-16">
             <h3 class="text-2xl font-black text-white mb-8 italic flex items-center gap-4">
                 <span class="w-10 h-1 bg-[#d4af37] rounded"></span>
                 <span data-i18n="services_center">مركز الخدمات والترفيه</span>
             </h3>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div onclick="window.location.href='investments.html'" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50">
                     <div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <i class="fa-solid fa-chart-line text-4xl text-blue-500"></i>
@@ -405,6 +425,14 @@
                     </div>
                     <span class="text-lg font-black block text-white" data-i18n="referrals">الإحالات</span>
                     <p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="invite_and_earn">ادعُ أصدقاءك واربح</p>
+                </div>
+
+                <div onclick="window.location.href='transactions.html'" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50">
+                    <div class="w-16 h-16 bg-cyan-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-clock-rotate-left text-4xl text-cyan-500"></i>
+                    </div>
+                    <span class="text-lg font-black block text-white" data-i18n="history">سجل المعاملات</span>
+                    <p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="view_history">عرض كل العمليات</p>
                 </div>
 
                 <div onclick="window.open('https://t.me/Bestdeal468', '_blank')" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50">
@@ -455,7 +483,7 @@
         </div>
     </div>
 
-    <!-- نافذة شرح المستويات (محدثة) -->
+    <!-- Modal شرح المستويات (محدث) -->
     <div id="levelsModal" class="modal-levels">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
@@ -486,6 +514,11 @@
                 <p class="text-green-400" data-i18n="diamond_bonus">🎁 مكافأة فورية: 500$ فور بلوغ المستوى</p>
                 <p class="text-blue-400" data-i18n="diamond_referral">👥 الإحالات: 25% من أول إيداع للمدعو</p>
             </div>
+            <div class="level-item">
+                <h3 class="text-xl font-bold text-[#9b59b6]"><span data-i18n="vip_project">💎 مشروع VIP (جديد)</span></h3>
+                <p data-i18n="vip_desc">الحد الأدنى: 5000$ | العائد: 400% شهرياً (يُصرف بعد 30 يوم)</p>
+                <p class="text-green-400" data-i18n="vip_bonus">🎁 مكافأة فورية: عند الاستثمار تحصل على 2% إضافية فوراً</p>
+            </div>
             <button onclick="closeLevelsModal()" class="bg-gradient-to-r from-[#d4af37] to-[#8a6d3b] text-black font-black py-3 rounded-xl w-full mt-4" data-i18n="close">إغلاق</button>
         </div>
     </div>
@@ -502,9 +535,12 @@
         const URL_NOTIFICATIONS = `${API_BASE_URL}/api/notifications`;
         const URL_MARK_ALL_READ = `${API_BASE_URL}/api/notifications/read-all`;
         const URL_MARK_READ = (id) => `${API_BASE_URL}/api/notifications/${id}/read`;
+        const URL_DAILY_BONUS_STATUS = `${API_BASE_URL}/api/daily-bonus/status`;
+        const URL_DAILY_BONUS_CLAIM = `${API_BASE_URL}/api/daily-bonus/claim`;
+        const URL_ANALYTICS = `${API_BASE_URL}/api/analytics/user`;
 
         // ============================================================
-        // Language management (i18n)
+        // i18n
         // ============================================================
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
@@ -528,9 +564,7 @@
             if (!t) return;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    el.textContent = t[key];
-                }
+                if (t[key]) el.textContent = t[key];
             });
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
@@ -550,11 +584,10 @@
         }
 
         async function setLanguage(lang) {
-            if (!translations[lang]) {
-                await loadTranslations(lang);
-            }
+            if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
             await fetchUserData();
+            await loadDailyBonusStatus();
         }
 
         document.querySelectorAll('.lang-option').forEach(opt => {
@@ -585,8 +618,10 @@
         }
 
         // ============================================================
-        // fetch user data
+        // User data & UI updates
         // ============================================================
+        let balanceChart = null;
+
         async function fetchUserData() {
             try {
                 const response = await fetchWithAuth(URL_ME);
@@ -621,6 +656,7 @@
             const userAvatar = document.getElementById('user-avatar');
             const currentDateSpan = document.getElementById('current-date');
             const withdrawableSpan = document.getElementById('withdrawable-amount');
+            const totalDepositsSpan = document.getElementById('total-deposits');
 
             if (navUsername) navUsername.innerText = user.username || "مستخدم";
             if (welcomeName) welcomeName.innerText = user.username || "عزيزي الشريك";
@@ -628,6 +664,7 @@
             const balance = parseFloat(user.balance || 0);
             const profit = parseFloat(user.profit || 0);
             const withdrawable = parseFloat(user.withdrawableAmount || 0);
+            const totalDeposits = parseFloat(user.totalDeposits || 0);
             const level = user.level || "برونزي";
 
             if (userLevel) userLevel.innerText = level;
@@ -639,6 +676,7 @@
 
             if (userBalance) userBalance.innerText = `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             if (withdrawableSpan) withdrawableSpan.innerText = withdrawable.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
+            if (totalDepositsSpan) totalDepositsSpan.innerText = totalDeposits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
             
             if (userProfit) {
                 const profitValue = profit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -658,6 +696,96 @@
             }
         }
 
+        // ============================================================
+        // Analytics Chart
+        // ============================================================
+        async function loadAnalytics() {
+            try {
+                const res = await fetchWithAuth(URL_ANALYTICS);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                if (data.dailyBalance && data.dailyBalance.length) {
+                    const labels = data.dailyBalance.map(d => d.date);
+                    const positiveEvents = data.dailyBalance.map(d => d.positive_events || 0);
+                    if (balanceChart) balanceChart.destroy();
+                    const ctx = document.getElementById('balanceChart').getContext('2d');
+                    balanceChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: translations[currentLang]?.daily_activity || 'النشاط اليومي',
+                                data: positiveEvents,
+                                borderColor: '#d4af37',
+                                backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { labels: { color: '#e2e8f0' } }
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Analytics error', err);
+            }
+        }
+
+        // ============================================================
+        // Daily Bonus
+        // ============================================================
+        async function loadDailyBonusStatus() {
+            try {
+                const res = await fetchWithAuth(URL_DAILY_BONUS_STATUS);
+                const data = await res.json();
+                const btn = document.getElementById('claimDailyBonusBtn');
+                const msgSpan = document.getElementById('bonusStatusMsg');
+                if (data.canClaim) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50');
+                    msgSpan.innerText = translations[currentLang]?.bonus_available || 'المكافأة متاحة الآن! اضغط لاستلامها';
+                    msgSpan.classList.add('text-green-400');
+                } else {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50');
+                    msgSpan.innerText = data.reason || (translations[currentLang]?.bonus_unavailable || 'غير متاحة حالياً');
+                    msgSpan.classList.remove('text-green-400');
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function claimDailyBonus() {
+            const btn = document.getElementById('claimDailyBonusBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري...';
+            try {
+                const res = await fetchWithAuth(URL_DAILY_BONUS_CLAIM, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('تم', data.message, 'success');
+                    await fetchUserData();
+                    await loadDailyBonusStatus();
+                } else {
+                    Swal.fire('فشل', data.message, 'error');
+                    await loadDailyBonusStatus();
+                }
+            } catch(err) {
+                Swal.fire('خطأ', 'فشل الاتصال', 'error');
+                await loadDailyBonusStatus();
+            } finally {
+                btn.innerHTML = '<i class="fa-regular fa-circle-check ml-1"></i> ' + (translations[currentLang]?.claim_bonus || 'استلام المكافأة');
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // Other helpers
+        // ============================================================
         async function forceRefresh() {
             Swal.fire({
                 title: translations[currentLang]?.refresh_title || 'جاري التحديث',
@@ -669,6 +797,8 @@
                 await fetchUserData();
                 await loadRecentActivities();
                 await loadNotifications();
+                await loadDailyBonusStatus();
+                await loadAnalytics();
                 Swal.fire({
                     icon: 'success',
                     title: translations[currentLang]?.refresh_success || 'تم التحديث',
@@ -693,16 +823,13 @@
             window.location.href = 'withdraw.html?amount=' + profitAmount + '&type=profit';
         });
 
-        let clickCount = 0;
-        let timer;
-        
+        let clickCount = 0, timer;
         function setupAdminGateway() {
             const crownIcon = document.getElementById('crownIcon');
             if (!crownIcon) return;
             crownIcon.removeEventListener('click', crownClickHandler);
             crownIcon.addEventListener('click', crownClickHandler);
         }
-        
         function crownClickHandler() {
             clickCount++;
             if (clickCount === 2) {
@@ -729,15 +856,9 @@
                                 credentials: 'include'
                             });
                             const data = await response.json();
-                            if (data.success) {
-                                window.location.href = 'admin.html';
-                            } else {
-                                Swal.fire('خطأ', translations[currentLang]?.invalid_gateway_password || 'كلمة المرور السري غير صحيحة', 'error');
-                            }
-                        } catch (err) {
-                            console.error(err);
-                            Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالخادم', 'error');
-                        }
+                            if (data.success) window.location.href = 'admin.html';
+                            else Swal.fire('خطأ', translations[currentLang]?.invalid_gateway_password || 'كلمة المرور السري غير صحيحة', 'error');
+                        } catch (err) { Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالخادم', 'error'); }
                     }
                 });
             } else {
@@ -752,7 +873,7 @@
                 if (response.ok) {
                     const activities = await response.json();
                     if (activities.length === 0) {
-                        container.innerHTML = `<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>`;
+                        container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
                         if (translations[currentLang]) {
                             const el = container.querySelector('[data-i18n]');
                             if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
@@ -780,20 +901,9 @@
                         container.appendChild(div);
                     });
                 } else {
-                    container.innerHTML = `<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>`;
-                    if (translations[currentLang]) {
-                        const el = container.querySelector('[data-i18n]');
-                        if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
-                    }
+                    container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
                 }
-            } catch (err) {
-                console.warn('Could not load activities', err);
-                container.innerHTML = `<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>`;
-                if (translations[currentLang]) {
-                    const el = container.querySelector('[data-i18n]');
-                    if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
-                }
-            }
+            } catch (err) { container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>'; }
         }
 
         let notifications = [];
@@ -806,19 +916,16 @@
                 }
             } catch(e) { console.error(e); }
         }
-
         function updateNotificationUI() {
             const unreadCount = notifications.filter(n => !n.isRead).length;
             const countSpan = document.getElementById('notificationCount');
             if (unreadCount > 0) {
                 countSpan.style.display = 'flex';
                 countSpan.innerText = unreadCount > 9 ? '9+' : unreadCount;
-            } else {
-                countSpan.style.display = 'none';
-            }
+            } else { countSpan.style.display = 'none'; }
             const listContainer = document.getElementById('notificationsList');
             if (!notifications.length) {
-                listContainer.innerHTML = `<div class="p-3 text-center text-slate-500 text-xs" data-i18n="no_notifications">لا توجد إشعارات</div>`;
+                listContainer.innerHTML = '<div class="p-3 text-center text-slate-500 text-xs" data-i18n="no_notifications">لا توجد إشعارات</div>';
                 if (translations[currentLang]) {
                     const el = listContainer.querySelector('[data-i18n]');
                     if (el) el.textContent = translations[currentLang].no_notifications || 'لا توجد إشعارات';
@@ -829,25 +936,17 @@
             notifications.forEach(notif => {
                 const item = document.createElement('div');
                 item.className = `notification-item ${!notif.isRead ? 'unread' : ''}`;
-                item.innerHTML = `
-                    <div class="notification-title">${escapeHtml(notif.title)}</div>
-                    <div class="notification-message">${escapeHtml(notif.message)}</div>
-                    <div class="notification-time">${new Date(notif.createdAt).toLocaleString()}</div>
-                `;
-                if (!notif.isRead) {
-                    item.addEventListener('click', () => markAsRead(notif.id));
-                }
+                item.innerHTML = `<div class="notification-title">${escapeHtml(notif.title)}</div><div class="notification-message">${escapeHtml(notif.message)}</div><div class="notification-time">${new Date(notif.createdAt).toLocaleString()}</div>`;
+                if (!notif.isRead) item.addEventListener('click', () => markAsRead(notif.id));
                 listContainer.appendChild(item);
             });
         }
-
         async function markAsRead(notifId) {
             try {
                 await fetchWithAuth(URL_MARK_READ(notifId), { method: 'PUT' });
                 await loadNotifications();
             } catch(e) { console.error(e); }
         }
-
         async function markAllAsRead() {
             try {
                 await fetchWithAuth(URL_MARK_ALL_READ, { method: 'PUT' });
@@ -855,12 +954,8 @@
             } catch(e) { console.error(e); }
         }
 
-        function showLevelsModal() {
-            document.getElementById('levelsModal').style.display = 'flex';
-        }
-        function closeLevelsModal() {
-            document.getElementById('levelsModal').style.display = 'none';
-        }
+        function showLevelsModal() { document.getElementById('levelsModal').style.display = 'flex'; }
+        function closeLevelsModal() { document.getElementById('levelsModal').style.display = 'none'; }
 
         async function logout() {
             const result = await Swal.fire({
@@ -875,12 +970,8 @@
                 color: '#fff'
             });
             if (result.isConfirmed) {
-                try {
-                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-                } catch(e) {}
-                document.cookie.split(";").forEach((c) => {
-                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-                });
+                try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch(e) {}
+                document.cookie.split(";").forEach((c) => { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
                 localStorage.removeItem('currentUser');
                 window.location.href = 'login.html';
             }
@@ -906,14 +997,11 @@
             if (dropdownVisible) loadNotifications();
         });
         document.addEventListener('click', (e) => {
-            if (!bell.contains(e.target)) {
-                dropdownVisible = false;
-                dropdown.style.display = 'none';
-            }
+            if (!bell.contains(e.target)) { dropdownVisible = false; dropdown.style.display = 'none'; }
         });
         document.getElementById('markAllReadBtn').addEventListener('click', () => markAllAsRead());
+        document.getElementById('claimDailyBonusBtn')?.addEventListener('click', claimDailyBonus);
 
-        let autoRefreshInterval;
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
@@ -921,7 +1009,9 @@
             if (user) {
                 await loadRecentActivities();
                 await loadNotifications();
-                autoRefreshInterval = setInterval(async () => {
+                await loadDailyBonusStatus();
+                await loadAnalytics();
+                setInterval(async () => {
                     if (document.visibilityState === 'visible') {
                         const newUser = await fetchUserData();
                         if (newUser) updateUI(newUser);
@@ -929,13 +1019,8 @@
                     }
                 }, 15000);
             }
-
             const refreshBtn = document.getElementById('refresh-activities');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', () => {
-                    loadRecentActivities();
-                });
-            }
+            if (refreshBtn) refreshBtn.addEventListener('click', () => { loadRecentActivities(); });
         };
     </script>
 </body>

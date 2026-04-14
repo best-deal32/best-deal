@@ -313,7 +313,6 @@
             text-align: right;
         }
 
-        /* Language Switcher */
         .lang-selector {
             background: rgba(0,0,0,0.4);
             border-radius: 2rem;
@@ -393,10 +392,11 @@
             <button class="tab-btn active" data-tab="users-tab" data-i18n="users_tab">👥 المستخدمين</button>
             <button class="tab-btn" data-tab="deposits-tab" data-i18n="deposits_tab">💰 طلبات الإيداع</button>
             <button class="tab-btn" data-tab="withdrawals-tab" data-i18n="withdrawals_tab">💸 طلبات السحب</button>
+            <button class="tab-btn" data-tab="contest-tab" data-i18n="contest_tab">🏆 مسابقة الشهر</button>
             <button class="tab-btn" data-tab="admin-actions-tab" data-i18n="admin_actions_tab">📋 سجل الإجراءات</button>
         </div>
 
-        <!-- تبويب المستخدمين -->
+        <!-- تبويب المستخدمين (مع إضافة totalDeposits) -->
         <div id="users-tab" class="tab-pane active-pane">
             <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold gold-gradient-text" data-i18n="users_list">📋 قائمة المستخدمين</h2>
@@ -411,11 +411,9 @@
                             <th data-i18n="username">اسم المستخدم</th>
                             <th data-i18n="full_name">الاسم الكامل</th>
                             <th data-i18n="email">البريد الإلكتروني</th>
-                            <th data-i18n="origin">بلد المنشأ</th>
-                            <th data-i18n="current_location">السكن الحالي</th>
-                            <th data-i18n="current_job">العمل الحالي</th>
-                            <th data-i18n="profession">المهنة</th>
                             <th data-i18n="balance">الرصيد</th>
+                            <th data-i18n="profit">الأرباح</th>
+                            <th data-i18n="total_deposits">إجمالي الإيداعات</th>
                             <th data-i18n="level">المستوى</th>
                             <th data-i18n="verified">موثق</th>
                             <th data-i18n="reg_date">تاريخ التسجيل</th>
@@ -452,7 +450,7 @@
         <div id="withdrawals-tab" class="tab-pane">
             <h2 class="text-xl font-bold gold-gradient-text mb-4" data-i18n="pending_withdrawals_title">💸 طلبات السحب المعلقة</h2>
             <div class="table-responsive-box">
-                </table>
+                <table>
                     <thead>
                         <tr>
                             <th data-i18n="user">المستخدم</th>
@@ -466,6 +464,24 @@
                     </thead>
                     <tbody id="withdrawalsTableBody"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- تبويب مسابقة الشهر -->
+        <div id="contest-tab" class="tab-pane">
+            <div class="glass-card p-6 mb-6">
+                <h2 class="text-xl font-black gold-gradient-text mb-4" data-i18n="monthly_contest_leaderboard">🏆 ترتيب مسابقة الشهر</h2>
+                <div id="contestLeaderboardContainer" class="space-y-2">
+                    <div class="text-center text-slate-500 py-4" data-i18n="loading_contest">جاري تحميل الترتيب...</div>
+                </div>
+            </div>
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-black gold-gradient-text mb-3" data-i18n="contest_rewards">جوائز المسابقة</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-black/30 rounded-xl p-3 text-center"><i class="fa-solid fa-crown text-yellow-500"></i> <span data-i18n="first_place">المركز الأول</span> – 500 $</div>
+                    <div class="bg-black/30 rounded-xl p-3 text-center"><i class="fa-solid fa-medal text-slate-400"></i> <span data-i18n="second_place">المركز الثاني</span> – 250 $</div>
+                    <div class="bg-black/30 rounded-xl p-3 text-center"><i class="fa-solid fa-medal text-amber-700"></i> <span data-i18n="third_place">المركز الثالث</span> – 100 $</div>
+                </div>
             </div>
         </div>
 
@@ -504,11 +520,12 @@
             resetPassword: `${API_BASE}/api/admin/reset-user-password`,
             userDetails: `${API_BASE}/api/admin/user`,
             adminActions: `${API_BASE}/api/admin/admin-actions`,
-            verify: `${API_BASE}/api/admin/verify`
+            verify: `${API_BASE}/api/admin/verify`,
+            contest: `${API_BASE}/api/referrals/contest`
         };
 
         // ============================================================
-        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // 2. i18n Translations
         // ============================================================
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
@@ -558,7 +575,8 @@
         async function setLanguage(lang) {
             if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
-            await loadEverything(); // reload data to refresh any dynamic text (like status)
+            await loadEverything(); // refresh data
+            await loadContestData(); // refresh contest tab
         }
 
         document.querySelectorAll('.lang-option').forEach(opt => {
@@ -570,7 +588,7 @@
         });
 
         // ============================================================
-        // 3. دالة fetch مع تجديد التوكن
+        // 3. Auth helper
         // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
@@ -588,9 +606,6 @@
             return response;
         }
 
-        // ============================================================
-        // 4. التحقق من صلاحية المدير
-        // ============================================================
         async function checkAdminAccess() {
             try {
                 const res = await fetchWithAuth(endpoints.verify);
@@ -609,7 +624,7 @@
         }
 
         // ============================================================
-        // 5. تحميل جميع البيانات
+        // 4. Load all data
         // ============================================================
         async function loadEverything() {
             const loader = document.getElementById('loading-screen');
@@ -640,13 +655,13 @@
         }
 
         // ============================================================
-        // 6. عرض المستخدمين
+        // 5. Render users (including totalDeposits)
         // ============================================================
         function renderUsers(users) {
             const tbody = document.getElementById('usersTableBody');
             if (!tbody) return;
             if (!users.length) {
-                tbody.innerHTML = `<tr><td colspan="13" class="text-center py-8">${translations[currentLang]?.no_users || 'لا يوجد مستخدمون'}</td></tr>`;
+                tbody.innerHTML = `<td><td colspan="10" class="text-center py-8">${translations[currentLang]?.no_users || 'لا يوجد مستخدمون'}</td></tr>`;
                 return;
             }
             tbody.innerHTML = users.map(user => `
@@ -654,11 +669,9 @@
                     <td class="font-bold">${escapeHtml(user.username)}</td>
                     <td>${escapeHtml(user.fullName || '—')}</td>
                     <td>${escapeHtml(user.email)}</td>
-                    <td>${escapeHtml(user.origin || '—')}</td>
-                    <td>${escapeHtml(user.currentLocation || '—')}</td>
-                    <td>${escapeHtml(user.currentJob || '—')}</td>
-                    <td>${escapeHtml(user.work || user.profession || '—')}</td>
                     <td class="text-green-400 font-bold">${(user.balance || 0).toLocaleString()} $</td>
+                    <td class="text-blue-400">${(user.profit || 0).toLocaleString()} $</td>
+                    <td class="text-yellow-400">${(user.totalDeposits || 0).toLocaleString()} $</td>
                     <td>${user.level || 'برونزي'}</td>
                     <td>${user.isVerified ? '✅ نعم' : '❌ لا'}</td>
                     <td class="text-xs">${user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-EG') : '—'}</td>
@@ -674,9 +687,6 @@
             `).join('');
         }
 
-        // ============================================================
-        // 7. تعديل الرتبة
-        // ============================================================
         window.changeUserLevel = async (userId, username, currentLevel) => {
             const levels = ['برونزي', 'فضي', 'ذهبي', 'ألماسي'];
             const { value: newLevel } = await Swal.fire({
@@ -708,9 +718,6 @@
             }
         };
 
-        // ============================================================
-        // 8. تعديل الرصيد (بدون إشعار للمستخدم)
-        // ============================================================
         window.editBalance = async (userId, username, currentBalance) => {
             const { value: newBalance } = await Swal.fire({
                 title: `تعديل رصيد المستخدم ${username}`,
@@ -741,9 +748,6 @@
             }
         };
 
-        // ============================================================
-        // 9. إعادة تعيين كلمة المرور
-        // ============================================================
         window.resetUserPassword = async (userId, username) => {
             const { value: newPassword } = await Swal.fire({
                 title: `إعادة تعيين كلمة مرور المستخدم ${username}`,
@@ -773,9 +777,6 @@
             }
         };
 
-        // ============================================================
-        // 10. عرض تفاصيل المستخدم
-        // ============================================================
         window.viewUserDetails = async (userId) => {
             try {
                 const res = await fetchWithAuth(`${endpoints.userDetails}/${userId}`);
@@ -787,18 +788,12 @@
                         <p><strong>اسم المستخدم:</strong> ${escapeHtml(user.username)}</p>
                         <p><strong>الاسم الكامل:</strong> ${escapeHtml(user.fullName || '—')}</p>
                         <p><strong>البريد الإلكتروني:</strong> ${escapeHtml(user.email)}</p>
-                        <p><strong>بلد المنشأ:</strong> ${escapeHtml(user.origin || '—')}</p>
-                        <p><strong>السكن الحالي:</strong> ${escapeHtml(user.currentLocation || '—')}</p>
-                        <p><strong>العمل الحالي:</strong> ${escapeHtml(user.currentJob || '—')}</p>
-                        <p><strong>المسمى الوظيفي (work):</strong> ${escapeHtml(user.work || '—')}</p>
-                        <p><strong>المهنة (profession):</strong> ${escapeHtml(user.profession || '—')}</p>
                         <p><strong>الرصيد:</strong> ${(user.balance || 0).toLocaleString()} $</p>
                         <p><strong>الأرباح:</strong> ${(user.profit || 0).toLocaleString()} $</p>
+                        <p><strong>إجمالي الإيداعات:</strong> ${(user.totalDeposits || 0).toLocaleString()} $</p>
                         <p><strong>المستوى:</strong> ${user.level || 'برونزي'}</p>
                         <p><strong>تاريخ التسجيل:</strong> ${new Date(user.createdAt).toLocaleString()}</p>
-                        <p><strong>البريد موثق:</strong> ${user.isVerified ? 'نعم' : 'لا'}</p>
                         <p><strong>كود الإحالة:</strong> ${escapeHtml(user.referralCode || '—')}</p>
-                        <p><strong>معرف الإحالة (referrerId):</strong> ${escapeHtml(user.referrerId || '—')}</p>
                     </div>
                 `;
                 Swal.fire({
@@ -815,7 +810,7 @@
         };
 
         // ============================================================
-        // 11. عرض طلبات الإيداع (مع صور Cloudinary)
+        // 6. Deposits & Withdrawals render (same as before but using translations)
         // ============================================================
         function renderDeposits(deposits) {
             const tbody = document.getElementById('depositsTableBody');
@@ -848,9 +843,6 @@
             }).join('');
         }
 
-        // ============================================================
-        // 12. عرض طلبات السحب (مع نوع السحب)
-        // ============================================================
         function renderWithdrawals(withdrawals) {
             const tbody = document.getElementById('withdrawalsTableBody');
             if (!tbody) return;
@@ -880,9 +872,6 @@
             }).join('');
         }
 
-        // ============================================================
-        // 13. عرض سجل إجراءات الأدمن
-        // ============================================================
         function renderAdminActions(actions) {
             const tbody = document.getElementById('adminActionsTableBody');
             if (!tbody) return;
@@ -902,9 +891,6 @@
             `).join('');
         }
 
-        // ============================================================
-        // 14. تحديث الإحصائيات
-        // ============================================================
         function updateStats(users, deposits, withdrawals) {
             const usersEl = document.getElementById('stat-users');
             const pendingDepositsEl = document.getElementById('stat-pending-deposits');
@@ -919,9 +905,6 @@
             }
         }
 
-        // ============================================================
-        // 15. معالجة قبول/رفض الإيداع
-        // ============================================================
         window.handleDeposit = async (id, action) => {
             const confirm = await Swal.fire({
                 title: translations[currentLang]?.confirm || 'تأكيد',
@@ -946,9 +929,6 @@
             }
         };
 
-        // ============================================================
-        // 16. معالجة قبول/رفض السحب
-        // ============================================================
         window.handleWithdrawal = async (id, action) => {
             const confirm = await Swal.fire({
                 title: translations[currentLang]?.confirm || 'تأكيد',
@@ -974,7 +954,37 @@
         };
 
         // ============================================================
-        // 17. البحث في المستخدمين
+        // 7. Contest leaderboard
+        // ============================================================
+        async function loadContestData() {
+            const container = document.getElementById('contestLeaderboardContainer');
+            if (!container) return;
+            try {
+                const res = await fetchWithAuth(endpoints.contest);
+                const data = await res.json();
+                if (data.leaderboard && data.leaderboard.length) {
+                    container.innerHTML = '';
+                    data.leaderboard.forEach((item, idx) => {
+                        const rankIcon = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `${idx+1}.`));
+                        const div = document.createElement('div');
+                        div.className = 'rank-item flex justify-between items-center p-2 border-b border-white/10';
+                        div.innerHTML = `<span class="font-bold">${rankIcon} ${escapeHtml(item.username)}</span><span class="text-gold">${item.referralsCount} ${translations[currentLang]?.new_referrals || 'مدعو جديد'}</span>`;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = `<div class="text-center text-slate-500 py-4" data-i18n="no_contest_data">لا توجد بيانات مسابقة حتى الآن</div>`;
+                    if (translations[currentLang]) {
+                        const el = container.querySelector('[data-i18n]');
+                        if (el) el.textContent = translations[currentLang].no_contest_data || 'لا توجد بيانات مسابقة حتى الآن';
+                    }
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="text-center text-slate-500 py-4" data-i18n="contest_error">تعذر تحميل ترتيب المسابقة</div>`;
+            }
+        }
+
+        // ============================================================
+        // 8. Search and tabs
         // ============================================================
         let searchTimeout;
         const searchInput = document.getElementById('searchUsers');
@@ -994,9 +1004,6 @@
             });
         }
 
-        // ============================================================
-        // 18. تبديل التبويبات
-        // ============================================================
         function initTabs() {
             const tabs = document.querySelectorAll('.tab-btn');
             const panes = document.querySelectorAll('.tab-pane');
@@ -1008,13 +1015,11 @@
                     btn.classList.add('active');
                     const activePane = document.getElementById(tabId);
                     if (activePane) activePane.classList.add('active-pane');
+                    if (tabId === 'contest-tab') loadContestData();
                 });
             });
         }
 
-        // ============================================================
-        // 19. ترميز HTML للحماية
-        // ============================================================
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, function(m) {
@@ -1025,9 +1030,6 @@
             });
         }
 
-        // ============================================================
-        // 20. التشغيل
-        // ============================================================
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
@@ -1035,6 +1037,7 @@
             if (isAdmin) {
                 await loadEverything();
                 initTabs();
+                await loadContestData();
             }
         };
     </script>

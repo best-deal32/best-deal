@@ -504,7 +504,6 @@
                 Swal.fire('خطأ', translations[currentLang]?.email_required || 'يرجى إدخال البريد الإلكتروني أولاً', 'error');
                 return;
             }
-            // Basic email format validation
             if (!email.includes('@') || !email.includes('.')) {
                 Swal.fire('خطأ', translations[currentLang]?.invalid_email_format || 'صيغة البريد غير صحيحة', 'error');
                 return;
@@ -525,7 +524,7 @@
                     Swal.fire(translations[currentLang]?.code_sent_title || 'تم الإرسال', 
                               translations[currentLang]?.code_sent_message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني (تحقق من spam إذا لم يصلك، أو راجع وحدة تحكم الخادم للاطلاع على الرمز في وضع التطوير)', 
                               'success');
-                    startCountdown(60); // 60 seconds cooldown
+                    startCountdown(60);
                 } else {
                     Swal.fire('خطأ', data.message || (translations[currentLang]?.send_code_failed || 'فشل إرسال الرمز'), 'error');
                     btn.disabled = false;

@@ -141,8 +141,8 @@
             </div>
         </div>
 
-        <!-- البطاقات الثلاث -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <!-- أربع بطاقات استثمارية (تمت إضافة VIP) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <!-- مشروع يومي -->
             <div class="glass-card p-6 text-center">
                 <i class="fa-solid fa-sun text-5xl text-[#d4af37] mb-4"></i>
@@ -187,6 +187,22 @@
                 <input type="number" id="monthly-amount" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white" placeholder="المبلغ ($)">
                 <button onclick="createInvestment(event, 'monthly')" class="btn-gold w-full py-3 rounded-xl font-bold" data-i18n="invest_now">استثمر الآن</button>
             </div>
+
+            <!-- مشروع VIP (جديد) -->
+            <div class="glass-card p-6 text-center border-2 border-purple-500/40">
+                <i class="fa-solid fa-gem text-5xl text-purple-500 mb-4"></i>
+                <h3 class="text-2xl font-black text-white" data-i18n="vip_project">مشروع VIP</h3>
+                <p class="text-3xl font-black text-green-400 my-2" data-i18n="vip_return">400%</p>
+                <p class="text-sm text-slate-400" data-i18n="vip_desc">ربح 400% بعد 30 يوماً (500% إجمالي)</p>
+                <div class="bg-yellow-900/20 p-3 rounded-xl my-4 text-right">
+                    <p class="text-xs"><span data-i18n="min_amount_vip">💰 الحد الأدنى: <strong class="text-purple-400">5000$</strong></span></p>
+                    <p class="text-xs"><span data-i18n="lock_period_vip">🔒 المبلغ الأصلي + الربح محجوزان لمدة 30 يوم</span></p>
+                    <p class="text-xs"><span data-i18n="profit_withdraw_vip">✅ بعد 30 يوماً يتم سحب الأصل + الربح معاً</span></p>
+                    <p class="text-xs text-green-400"><span data-i18n="vip_bonus_note">🎁 مكافأة فورية: 2% عند الاستثمار</span></p>
+                </div>
+                <input type="number" id="vip-amount" class="w-full bg-black/50 border border-[#d4af37]/30 rounded-xl p-3 text-center my-3 text-white" placeholder="المبلغ ($)">
+                <button onclick="createInvestment(event, 'vip')" class="btn-gold w-full py-3 rounded-xl font-bold bg-gradient-to-r from-purple-700 to-purple-900" data-i18n="invest_now_vip">استثمر VIP الآن</button>
+            </div>
         </div>
 
         <!-- جدول استثماراتي الحالية -->
@@ -201,7 +217,7 @@
                             <th class="p-3" data-i18n="start_date">تاريخ البدء</th>
                             <th class="p-3" data-i18n="profit_due">الربح المستحق</th>
                             <th class="p-3" data-i18n="actions">إجراءات</th>
-                        </tr>
+                        </td>
                     </thead>
                     <tbody id="investments-list">
                         <tr><td colspan="5" class="text-center py-8 text-slate-500" data-i18n="no_investments">لا توجد استثمارات حالية</td></tr>
@@ -209,7 +225,7 @@
                 </table>
             </div>
             <div class="info-note mt-4">
-                <i class="fa-solid fa-lightbulb ml-1"></i> <span data-i18n="update_note">يتم تحديث الأرباح تلقائياً كل ساعة. يمكنك سحب الأرباح المستحقة حسب نوع المشروع.</span>
+                <i class="fa-solid fa-lightbulb ml-1"></i> <span data-i18n="update_note">يتم تحديث الأرباح تلقائياً كل ساعة. يمكنك سحب الأرباح المستحقة حسب نوع المشروع. مشروع VIP يتطلب 5000$ ويقدم 400% ربح بعد 30 يوم.</span>
             </div>
         </div>
     </main>
@@ -266,7 +282,7 @@
                 }
             });
             // Update placeholders for input fields
-            const placeholders = ['daily-amount', 'weekly-amount', 'monthly-amount'];
+            const placeholders = ['daily-amount', 'weekly-amount', 'monthly-amount', 'vip-amount'];
             const placeholderText = t.amount_placeholder || 'المبلغ ($)';
             placeholders.forEach(id => {
                 const inp = document.getElementById(id);
@@ -355,7 +371,7 @@
         }
 
         // ============================================================
-        // إنشاء استثمار جديد
+        // إنشاء استثمار جديد (يدعم VIP)
         // ============================================================
         async function createInvestment(event, type) {
             if (event) event.preventDefault();
@@ -371,10 +387,14 @@
                 amountInput = document.getElementById('weekly-amount');
                 minAmount = 285;
                 typeName = translations[currentLang]?.weekly || 'الأسبوعي';
-            } else {
+            } else if (type === 'monthly') {
                 amountInput = document.getElementById('monthly-amount');
                 minAmount = 490;
                 typeName = translations[currentLang]?.monthly || 'الشهري';
+            } else {
+                amountInput = document.getElementById('vip-amount');
+                minAmount = 5000;
+                typeName = translations[currentLang]?.vip_project || 'VIP';
             }
             
             const amount = parseFloat(amountInput.value);
@@ -423,7 +443,7 @@
         }
 
         // ============================================================
-        // حساب الربح المعلق
+        // حساب الربح المعلق (يومي/أسبوعي فقط، الشهري و VIP يُحتسبان عند السحب)
         // ============================================================
         function calculatePendingProfit(inv, now) {
             const lastProfit = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
@@ -438,7 +458,7 @@
         }
 
         // ============================================================
-        // تحميل الاستثمارات وعرضها
+        // تحميل الاستثمارات وعرضها مع الأرباح الحية (دعم VIP)
         // ============================================================
         async function loadMyInvestments() {
             if (!await checkAuth()) return;
@@ -457,10 +477,12 @@
                     let typeName = '';
                     if (inv.projectType === 'daily') typeName = t.daily || 'يومي';
                     else if (inv.projectType === 'weekly') typeName = t.weekly || 'أسبوعي';
-                    else typeName = t.monthly || 'شهري';
+                    else if (inv.projectType === 'monthly') typeName = t.monthly || 'شهري';
+                    else typeName = t.vip_project || 'VIP';
+                    
                     const startDate = new Date(inv.startDate).toLocaleDateString();
                     const withdrawnProfit = parseFloat(inv.withdrawnProfit) || 0;
-                    const pendingProfit = calculatePendingProfit(inv, now);
+                    const pendingProfit = (inv.projectType === 'daily' || inv.projectType === 'weekly') ? calculatePendingProfit(inv, now) : 0;
                     const totalProfit = withdrawnProfit + pendingProfit;
                     
                     let canWithdrawProfit = false;
@@ -476,6 +498,8 @@
                         canWithdrawProfit = (pendingProfit > 0) && (daysSinceLastProfit >= 7);
                         canWithdrawPrincipal = (!inv.withdrawnPrincipal) && (daysSinceStart >= 15);
                     } else if (inv.projectType === 'monthly') {
+                        canWithdrawPrincipal = (!inv.withdrawnPrincipal) && (daysSinceStart >= 30);
+                    } else if (inv.projectType === 'vip') {
                         canWithdrawPrincipal = (!inv.withdrawnPrincipal) && (daysSinceStart >= 30);
                     }
                     
@@ -504,7 +528,7 @@
         }
 
         // ============================================================
-        // عرض خيارات السحب
+        // عرض خيارات السحب (الأرباح أو الأصل)
         // ============================================================
         window.showWithdrawOptions = async (investmentId, canWithdrawProfit, canWithdrawPrincipal) => {
             const t = translations[currentLang] || {};
@@ -629,7 +653,7 @@
         }
 
         // ============================================================
-        // التحميل الأولي والتحديث الدوري
+        // التحميل الأولي والتحديث الدوري للأرباح
         // ============================================================
         window.onload = async () => {
             await loadTranslations(currentLang);
