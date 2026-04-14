@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>لوحة التحكم الملكية | Best Deal Gold System</title>
+    <title>Best Deal | لوحة التحكم الملكية</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -224,7 +223,6 @@
             margin-top: 5px;
         }
 
-        /* Language Switcher */
         .lang-selector {
             background: rgba(0,0,0,0.4);
             border-radius: 2rem;
@@ -254,10 +252,7 @@
         @media (max-width: 768px) {
             .hide-mobile { display: none; }
             .balance-text { font-size: 3.5rem; }
-            .notifications-dropdown {
-                width: 280px;
-                left: 10px;
-            }
+            .notifications-dropdown { width: 280px; left: 10px; }
         }
     </style>
 </head>
@@ -273,8 +268,8 @@
                     <i class="fa-solid fa-crown text-black text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black italic gold-gradient-text uppercase leading-none">Best Deal</h1>
-                    <p class="text-[10px] text-slate-500 font-bold tracking-[0.3em] uppercase">Premium Investment</p>
+                    <h1 class="text-2xl font-black italic gold-gradient-text uppercase leading-none" data-i18n="app_name">Best Deal</h1>
+                    <p class="text-[10px] text-slate-500 font-bold tracking-[0.3em] uppercase" data-i18n="app_tagline">Premium Investment</p>
                 </div>
             </div>
             
@@ -286,22 +281,22 @@
                     <div class="lang-option" data-lang="de">Deutsch</div>
                 </div>
                 <div class="text-left">
-                    <p id="nav-username" class="text-sm font-black text-white leading-none mb-1">المستثمر الملكي</p>
+                    <p id="nav-username" class="text-sm font-black text-white leading-none mb-1" data-i18n="royal_investor">المستثمر الملكي</p>
                     <div class="flex items-center gap-1">
                         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <p id="user-level-badge" class="text-[9px] text-[#d4af37] font-black uppercase tracking-tighter">Bronze Member</p>
+                        <p id="user-level-badge" class="text-[9px] text-[#d4af37] font-black uppercase tracking-tighter" data-i18n="bronze_member">Bronze Member</p>
                     </div>
                 </div>
                 <div class="relative notification-bell" id="notificationBell">
                     <i class="fa-regular fa-bell text-xl text-[#d4af37]"></i>
                     <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
                     <div id="notificationsDropdown" class="notifications-dropdown">
-                        <div class="p-3 border-b border-white/10 text-center text-xs font-bold text-gold">الإشعارات</div>
+                        <div class="p-3 border-b border-white/10 text-center text-xs font-bold text-gold" data-i18n="notifications">الإشعارات</div>
                         <div id="notificationsList">
-                            <div class="p-3 text-center text-slate-500 text-xs">لا توجد إشعارات</div>
+                            <div class="p-3 text-center text-slate-500 text-xs" data-i18n="no_notifications">لا توجد إشعارات</div>
                         </div>
                         <div class="p-2 border-t border-white/10 text-center">
-                            <button id="markAllReadBtn" class="text-[10px] text-gold hover:underline">تحديد الكل كمقروء</button>
+                            <button id="markAllReadBtn" class="text-[10px] text-gold hover:underline" data-i18n="mark_all_read">تحديد الكل كمقروء</button>
                         </div>
                     </div>
                 </div>
@@ -316,7 +311,7 @@
         
         <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
             <div class="w-full md:w-auto">
-                <h2 class="text-4xl font-black text-white leading-tight"><span data-i18n="welcome">مرحباً بك مجدداً</span>، <br><span id="welcome-name" class="gold-gradient-text italic">عزيزي الشريك</span></h2>
+                <h2 class="text-4xl font-black text-white leading-tight"><span data-i18n="welcome_back">مرحباً بك مجدداً</span><br><span id="welcome-name" class="gold-gradient-text italic" data-i18n="dear_partner">عزيزي الشريك</span></h2>
                 <p class="text-slate-400 text-sm mt-3 font-semibold max-w-md" data-i18n="dashboard_subtitle">نحن هنا لمساعدتك في مراقبة نمو ثروتك وتحديثاتك المالية لحظة بلحظة.</p>
             </div>
             <div class="flex gap-3 w-full md:w-auto">
@@ -468,25 +463,25 @@
                 <button onclick="closeLevelsModal()" class="text-white text-2xl">&times;</button>
             </div>
             <div class="level-item">
-                <h3 class="text-xl font-bold text-[#cd7f32]">🥉 <span data-i18n="bronze">المستوى البرونزي</span></h3>
+                <h3 class="text-xl font-bold text-[#cd7f32]"><span data-i18n="bronze">🥉 المستوى البرونزي</span></h3>
                 <p data-i18n="bronze_desc">الرصيد: أقل من 300$</p>
                 <p class="text-green-400" data-i18n="bronze_bonus">🎁 مكافأة فورية: لا توجد</p>
                 <p class="text-blue-400" data-i18n="bronze_referral">👥 الإحالات: 2$ ثابت لكل مدعو يودع 50$ فأكثر</p>
             </div>
             <div class="level-item">
-                <h3 class="text-xl font-bold text-[#c0c0c0]">🥈 <span data-i18n="silver">المستوى الفضي</span></h3>
+                <h3 class="text-xl font-bold text-[#c0c0c0]"><span data-i18n="silver">🥈 المستوى الفضي</span></h3>
                 <p data-i18n="silver_desc">الرصيد: 300$ - 999$</p>
                 <p class="text-green-400" data-i18n="silver_bonus">🎁 مكافأة فورية: 25$ فور بلوغ المستوى</p>
                 <p class="text-blue-400" data-i18n="silver_referral">👥 الإحالات: 10% من أول إيداع للمدعو</p>
             </div>
             <div class="level-item">
-                <h3 class="text-xl font-bold text-[#ffd700]">🥇 <span data-i18n="gold">المستوى الذهبي</span></h3>
+                <h3 class="text-xl font-bold text-[#ffd700]"><span data-i18n="gold">🥇 المستوى الذهبي</span></h3>
                 <p data-i18n="gold_desc">الرصيد: 1000$ - 4999$</p>
                 <p class="text-green-400" data-i18n="gold_bonus">🎁 مكافأة فورية: 50$ فور بلوغ المستوى</p>
                 <p class="text-blue-400" data-i18n="gold_referral">👥 الإحالات: 15% من أول إيداع للمدعو</p>
             </div>
             <div class="level-item">
-                <h3 class="text-xl font-bold text-[#00ffff]">💎 <span data-i18n="diamond">المستوى الألماسي</span></h3>
+                <h3 class="text-xl font-bold text-[#00ffff]"><span data-i18n="diamond">💎 المستوى الألماسي</span></h3>
                 <p data-i18n="diamond_desc">الرصيد: 5000$ فما فوق</p>
                 <p class="text-green-400" data-i18n="diamond_bonus">🎁 مكافأة فورية: 500$ فور بلوغ المستوى</p>
                 <p class="text-blue-400" data-i18n="diamond_referral">👥 الإحالات: 25% من أول إيداع للمدعو</p>
@@ -534,11 +529,9 @@
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) {
-                    // preserve HTML if needed? we use textContent
                     el.textContent = t[key];
                 }
             });
-            // Update direction for RTL/LTR (Arabic RTL, others LTR)
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
                 htmlEl.setAttribute('dir', 'rtl');
@@ -547,18 +540,12 @@
                 htmlEl.setAttribute('dir', 'ltr');
                 htmlEl.setAttribute('lang', lang);
             }
-            // Also update placeholder for search if any? Not needed now.
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
-            // Update active class on language selector
             document.querySelectorAll('.lang-option').forEach(opt => {
-                if (opt.getAttribute('data-lang') === lang) {
-                    opt.classList.add('active');
-                } else {
-                    opt.classList.remove('active');
-                }
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
             });
-            // Set cookie for server-side detection
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
 
@@ -567,11 +554,9 @@
                 await loadTranslations(lang);
             }
             applyTranslations(lang);
-            // Reload user data to update any dynamic content (like level names if needed)
             await fetchUserData();
         }
 
-        // Language selector event listeners
         document.querySelectorAll('.lang-option').forEach(opt => {
             opt.addEventListener('click', async () => {
                 const lang = opt.getAttribute('data-lang');
@@ -581,7 +566,7 @@
         });
 
         // ============================================================
-        // fetch مع تجديد التوكن
+        // fetch with auth
         // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
@@ -600,7 +585,7 @@
         }
 
         // ============================================================
-        // جلب بيانات المستخدم وتحديث الواجهة
+        // fetch user data
         // ============================================================
         async function fetchUserData() {
             try {
@@ -673,13 +658,10 @@
             }
         }
 
-        // ============================================================
-        // تحديث يدوي
-        // ============================================================
         async function forceRefresh() {
             Swal.fire({
-                title: (translations[currentLang]?.refresh_title || 'جاري التحديث'),
-                text: (translations[currentLang]?.refresh_text || 'يتم تحديث البيانات...'),
+                title: translations[currentLang]?.refresh_title || 'جاري التحديث',
+                text: translations[currentLang]?.refresh_text || 'يتم تحديث البيانات...',
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); }
             });
@@ -689,34 +671,28 @@
                 await loadNotifications();
                 Swal.fire({
                     icon: 'success',
-                    title: (translations[currentLang]?.refresh_success || 'تم التحديث'),
-                    text: (translations[currentLang]?.refresh_success_text || 'تم تحديث جميع البيانات بنجاح'),
+                    title: translations[currentLang]?.refresh_success || 'تم التحديث',
+                    text: translations[currentLang]?.refresh_success_text || 'تم تحديث جميع البيانات بنجاح',
                     timer: 1500,
                     showConfirmButton: false
                 });
             } catch (err) {
-                Swal.fire('خطأ', (translations[currentLang]?.refresh_failed || 'فشل تحديث البيانات'), 'error');
+                Swal.fire('خطأ', translations[currentLang]?.refresh_failed || 'فشل تحديث البيانات', 'error');
             }
         }
 
-        // ============================================================
-        // زر السحب السريع للأرباح الصافية
-        // ============================================================
         document.getElementById('quickWithdrawProfitBtn')?.addEventListener('click', async () => {
             const user = await fetchUserData();
             if (!user) return;
             const profitAmount = user.profit || 0;
             if (profitAmount <= 0) {
-                Swal.fire('تنبيه', (translations[currentLang]?.no_profit || 'لا توجد أرباح صافية للسحب حالياً'), 'info');
+                Swal.fire('تنبيه', translations[currentLang]?.no_profit || 'لا توجد أرباح صافية للسحب حالياً', 'info');
                 return;
             }
             localStorage.setItem('quickWithdrawAmount', profitAmount);
             window.location.href = 'withdraw.html?amount=' + profitAmount + '&type=profit';
         });
 
-        // ============================================================
-        // الباب السري للمدير
-        // ============================================================
         let clickCount = 0;
         let timer;
         
@@ -733,13 +709,13 @@
                 clearTimeout(timer);
                 clickCount = 0;
                 Swal.fire({
-                    title: (translations[currentLang]?.admin_gateway_title || 'الباب السري للمدير'),
+                    title: translations[currentLang]?.admin_gateway_title || 'الباب السري للمدير',
                     input: 'password',
-                    inputLabel: (translations[currentLang]?.admin_gateway_label || 'أدخل كلمة المرور السري'),
+                    inputLabel: translations[currentLang]?.admin_gateway_label || 'أدخل كلمة المرور السري',
                     inputPlaceholder: '••••••••',
                     showCancelButton: true,
-                    confirmButtonText: (translations[currentLang]?.enter || 'دخول'),
-                    cancelButtonText: (translations[currentLang]?.cancel || 'إلغاء'),
+                    confirmButtonText: translations[currentLang]?.enter || 'دخول',
+                    cancelButtonText: translations[currentLang]?.cancel || 'إلغاء',
                     background: '#05070a',
                     color: '#fff',
                     confirmButtonColor: '#d4af37'
@@ -756,11 +732,11 @@
                             if (data.success) {
                                 window.location.href = 'admin.html';
                             } else {
-                                Swal.fire('خطأ', (translations[currentLang]?.invalid_gateway_password || 'كلمة المرور السري غير صحيحة'), 'error');
+                                Swal.fire('خطأ', translations[currentLang]?.invalid_gateway_password || 'كلمة المرور السري غير صحيحة', 'error');
                             }
                         } catch (err) {
                             console.error(err);
-                            Swal.fire('خطأ', (translations[currentLang]?.connection_error || 'فشل الاتصال بالخادم'), 'error');
+                            Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالخادم', 'error');
                         }
                     }
                 });
@@ -769,9 +745,6 @@
             }
         }
 
-        // ============================================================
-        // آخر النشاطات
-        // ============================================================
         async function loadRecentActivities() {
             const container = document.getElementById('recent-activities-container');
             try {
@@ -779,8 +752,7 @@
                 if (response.ok) {
                     const activities = await response.json();
                     if (activities.length === 0) {
-                        container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
-                        // apply translation to this new element
+                        container.innerHTML = `<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>`;
                         if (translations[currentLang]) {
                             const el = container.querySelector('[data-i18n]');
                             if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
@@ -808,7 +780,7 @@
                         container.appendChild(div);
                     });
                 } else {
-                    container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
+                    container.innerHTML = `<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>`;
                     if (translations[currentLang]) {
                         const el = container.querySelector('[data-i18n]');
                         if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
@@ -816,7 +788,7 @@
                 }
             } catch (err) {
                 console.warn('Could not load activities', err);
-                container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
+                container.innerHTML = `<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>`;
                 if (translations[currentLang]) {
                     const el = container.querySelector('[data-i18n]');
                     if (el) el.textContent = translations[currentLang].no_activities || 'لا توجد نشاطات حديثة';
@@ -824,9 +796,6 @@
             }
         }
 
-        // ============================================================
-        // الإشعارات
-        // ============================================================
         let notifications = [];
         async function loadNotifications() {
             try {
@@ -849,7 +818,7 @@
             }
             const listContainer = document.getElementById('notificationsList');
             if (!notifications.length) {
-                listContainer.innerHTML = '<div class="p-3 text-center text-slate-500 text-xs" data-i18n="no_notifications">لا توجد إشعارات</div>';
+                listContainer.innerHTML = `<div class="p-3 text-center text-slate-500 text-xs" data-i18n="no_notifications">لا توجد إشعارات</div>`;
                 if (translations[currentLang]) {
                     const el = listContainer.querySelector('[data-i18n]');
                     if (el) el.textContent = translations[currentLang].no_notifications || 'لا توجد إشعارات';
@@ -886,9 +855,6 @@
             } catch(e) { console.error(e); }
         }
 
-        // ============================================================
-        // نافذة شرح المستويات
-        // ============================================================
         function showLevelsModal() {
             document.getElementById('levelsModal').style.display = 'flex';
         }
@@ -896,18 +862,15 @@
             document.getElementById('levelsModal').style.display = 'none';
         }
 
-        // ============================================================
-        // تسجيل الخروج
-        // ============================================================
         async function logout() {
             const result = await Swal.fire({
-                title: (translations[currentLang]?.logout_title || 'تسجيل الخروج'),
-                text: (translations[currentLang]?.logout_confirm || 'هل أنت متأكد من رغبتك في تسجيل الخروج من النظام الملكي؟'),
+                title: translations[currentLang]?.logout_title || 'تسجيل الخروج',
+                text: translations[currentLang]?.logout_confirm || 'هل أنت متأكد من رغبتك في تسجيل الخروج من النظام الملكي؟',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#d4af37',
-                confirmButtonText: (translations[currentLang]?.yes_logout || 'نعم، تسجيل خروج'),
-                cancelButtonText: (translations[currentLang]?.cancel || 'إلغاء'),
+                confirmButtonText: translations[currentLang]?.yes_logout || 'نعم، تسجيل خروج',
+                cancelButtonText: translations[currentLang]?.cancel || 'إلغاء',
                 background: '#05070a',
                 color: '#fff'
             });
@@ -923,9 +886,6 @@
             }
         }
 
-        // ============================================================
-        // مساعدة
-        // ============================================================
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, function(m) {
@@ -936,9 +896,6 @@
             });
         }
 
-        // ============================================================
-        // الإشعارات dropdown
-        // ============================================================
         let dropdownVisible = false;
         const bell = document.getElementById('notificationBell');
         const dropdown = document.getElementById('notificationsDropdown');
@@ -956,12 +913,8 @@
         });
         document.getElementById('markAllReadBtn').addEventListener('click', () => markAllAsRead());
 
-        // ============================================================
-        // التحميل الأولي والتحديث الدوري
-        // ============================================================
         let autoRefreshInterval;
         window.onload = async () => {
-            // Load initial translations
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
             const user = await fetchUserData();

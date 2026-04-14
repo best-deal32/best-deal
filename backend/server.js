@@ -1190,6 +1190,7 @@ if (fs.existsSync(publicPath)) {
 app.use('/locales', express.static(path.join(__dirname, 'locales')));
 console.log(`✅ Locales folder served from ${path.join(__dirname, 'locales')}`);
 
+
 // ====================== ERROR HANDLER ======================
 app.use((err, req, res, next) => {
     console.error(err.stack);
