@@ -315,6 +315,23 @@ async function createTables() {
         );
         console.log('✅ Admin user "freeze" created');
     }
+
+    // تحديث totalDeposits لجميع المستخدمين بناءً على الإيداعات المعتمدة (إصلاح للبيانات القديمة)
+    try {
+        await db.execute(`
+            UPDATE users u 
+            LEFT JOIN (
+                SELECT userId, SUM(amount) as total 
+                FROM deposit_requests 
+                WHERE status = 'approved' 
+                GROUP BY userId
+            ) d ON u.id = d.userId 
+            SET u.totalDeposits = COALESCE(d.total, 0)
+        `);
+        console.log('✅ Updated totalDeposits for all users based on approved deposits');
+    } catch (err) {
+        console.error('⚠️ Could not update totalDeposits:', err.message);
+    }
 }
 
 // ====================== Helper functions ======================

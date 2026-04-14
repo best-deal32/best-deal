@@ -736,6 +736,13 @@
             document.getElementById('analytics-total-withdrawals').innerText = (analytics.totalWithdrawals || 0).toLocaleString() + ' $';
             document.getElementById('analytics-platform-profit').innerText = (analytics.platformProfit || 0).toLocaleString() + ' $';
             document.getElementById('analytics-referral-commissions').innerText = (analytics.referralCommissions || 0).toLocaleString() + ' $';
+            
+            // --- إصلاح: تدمير المخططات القديمة قبل إنشاء جديدة ---
+            let chartStatus = Chart.getChart('userGrowthChart');
+            if (chartStatus) chartStatus.destroy();
+            chartStatus = Chart.getChart('dailyDepositsChart');
+            if (chartStatus) chartStatus.destroy();
+            
             if (analytics.userGrowth && analytics.userGrowth.length) {
                 const labels = analytics.userGrowth.map(d => d.date);
                 const data = analytics.userGrowth.map(d => d.count);
@@ -746,6 +753,7 @@
                 const data = analytics.dailyDeposits.map(d => d.total);
                 new Chart(document.getElementById('dailyDepositsChart'), { type: 'bar', data: { labels, datasets: [{ label: 'إجمالي الإيداعات ($)', data, backgroundColor: '#d4af37' }] }, options: { responsive: true } });
             }
+            
             const topBalanceDiv = document.getElementById('topBalanceUsers');
             topBalanceDiv.innerHTML = (analytics.topBalanceUsers || []).map((u, i) => `<div class="flex justify-between items-center p-2 border-b border-white/10"><span>${i+1}. ${escapeHtml(u.username)}</span><span class="text-gold">${u.balance} $</span></div>`).join('');
             const topReferrersDiv = document.getElementById('topReferrers');
