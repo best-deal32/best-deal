@@ -159,7 +159,6 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-6 pb-24">
-        <!-- Filter bar -->
         <div class="filter-bar">
             <button class="filter-btn active" data-filter="all" data-i18n="filter_all">الكل</button>
             <button class="filter-btn" data-filter="deposit" data-i18n="filter_deposit">إيداعات</button>
@@ -168,16 +167,12 @@
             <button class="filter-btn" data-filter="referral" data-i18n="filter_referral">إحالات</button>
         </div>
 
-        <!-- Loading indicator -->
         <div id="loadingIndicator" class="text-center py-12">
             <i class="fa-solid fa-spinner fa-spin text-2xl text-gold"></i>
             <p class="mt-2" data-i18n="loading_transactions">جاري تحميل المعاملات...</p>
         </div>
 
-        <!-- Transactions list container -->
         <div id="transactionsList" class="space-y-3" style="display: none;"></div>
-
-        <!-- No data message -->
         <div id="noDataMessage" class="text-center py-12 text-slate-500" style="display: none;" data-i18n="no_transactions">لا توجد معاملات حتى الآن</div>
     </main>
 
@@ -202,7 +197,7 @@
         const URL_REFERRALS = `${API_BASE_URL}/api/referrals/my`;
 
         // ============================================================
-        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // 2. i18n Translations
         // ============================================================
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
@@ -248,7 +243,7 @@
         async function setLanguage(lang) {
             if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
-            loadTransactions(); // refresh data
+            loadTransactions();
         }
 
         document.querySelectorAll('.lang-option').forEach(opt => {
@@ -279,7 +274,7 @@
         }
 
         // ============================================================
-        // 4. Fetch all transactions
+        // 4. Fetch all transactions (مع تحويل الأرقام بشكل آمن)
         // ============================================================
         async function loadTransactions() {
             const loadingDiv = document.getElementById('loadingIndicator');
@@ -290,7 +285,7 @@
             noDataDiv.style.display = 'none';
 
             try {
-                // Fetch all data in parallel
+                // جلب جميع البيانات بشكل متوازٍ
                 const [deposits, withdrawals, investments, referralsRes] = await Promise.all([
                     fetchWithAuth(URL_DEPOSITS).then(r => r.ok ? r.json() : []),
                     fetchWithAuth(URL_WITHDRAWALS).then(r => r.ok ? r.json() : []),
@@ -301,35 +296,35 @@
 
                 let allTransactions = [];
 
-                // Process deposits
-                deposits.forEach(d => {
+                // معالجة الإيداعات (تحويل amount إلى رقم)
+                (deposits || []).forEach(d => {
                     allTransactions.push({
                         id: d.id,
                         type: 'deposit',
-                        amount: d.amount,
-                        status: d.status,
+                        amount: parseFloat(d.amount) || 0,
+                        status: d.status || 'pending',
                         date: new Date(d.date),
                         details: `الطريقة: ${d.method || 'USDT'}`,
                         original: d
                     });
                 });
 
-                // Process withdrawals
-                withdrawals.forEach(w => {
+                // معالجة السحوبات
+                (withdrawals || []).forEach(w => {
                     let typeText = w.type === 'profit' ? 'أرباح' : 'أصل';
                     allTransactions.push({
                         id: w.id,
                         type: 'withdrawal',
-                        amount: w.amount,
-                        status: w.status,
+                        amount: parseFloat(w.amount) || 0,
+                        status: w.status || 'pending',
                         date: new Date(w.date),
-                        details: `${typeText} | محفظة: ${w.walletAddress.substring(0,10)}...`,
+                        details: `${typeText} | محفظة: ${(w.walletAddress || '').substring(0,10)}...`,
                         original: w
                     });
                 });
 
-                // Process investments (creation events)
-                investments.forEach(inv => {
+                // معالجة الاستثمارات
+                (investments || []).forEach(inv => {
                     let projectName = '';
                     if (inv.projectType === 'daily') projectName = 'يومي';
                     else if (inv.projectType === 'weekly') projectName = 'أسبوعي';
@@ -338,7 +333,7 @@
                     allTransactions.push({
                         id: inv.id,
                         type: 'investment',
-                        amount: inv.amount,
+                        amount: parseFloat(inv.amount) || 0,
                         status: 'active',
                         date: new Date(inv.startDate),
                         details: `مشروع ${projectName}`,
@@ -346,13 +341,14 @@
                     });
                 });
 
-                // Process referral rewards (only those with reward > 0)
-                referrals.forEach(ref => {
-                    if (ref.reward > 0) {
+                // معالجة مكافآت الإحالات (فقط التي لها مكافأة > 0)
+                (referrals || []).forEach(ref => {
+                    const reward = parseFloat(ref.reward) || 0;
+                    if (reward > 0) {
                         allTransactions.push({
                             id: `ref_${ref.username}`,
                             type: 'referral',
-                            amount: ref.reward,
+                            amount: reward,
                             status: 'completed',
                             date: new Date(ref.registeredAt),
                             details: `مكافأة من ${ref.username}`,
@@ -361,10 +357,10 @@
                     }
                 });
 
-                // Sort by date descending
+                // ترتيب تنازلي حسب التاريخ
                 allTransactions.sort((a,b) => b.date - a.date);
 
-                // Apply filter
+                // تطبيق الفلتر الحالي
                 const activeFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-filter') || 'all';
                 let filtered = allTransactions;
                 if (activeFilter !== 'all') {
@@ -393,6 +389,8 @@
             const t = translations[currentLang] || {};
             container.innerHTML = '';
             transactions.forEach(tx => {
+                // تأكيد أن amount رقم قبل استخدام toFixed
+                const amountNum = (typeof tx.amount === 'number') ? tx.amount : parseFloat(tx.amount) || 0;
                 const typeClass = `type-${tx.type}`;
                 let typeText = '';
                 if (tx.type === 'deposit') typeText = t.deposit || 'إيداع';
@@ -422,7 +420,7 @@
                             <span class="text-xs mr-2 ${statusClass}">${statusText}</span>
                         </div>
                         <div class="text-left">
-                            <span class="text-lg font-bold ${amountColor}">${amountSign}${tx.amount.toFixed(2)} $</span>
+                            <span class="text-lg font-bold ${amountColor}">${amountSign}${amountNum.toFixed(2)} $</span>
                         </div>
                     </div>
                     <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
@@ -484,7 +482,6 @@
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
-            // Check authentication
             try {
                 const res = await fetchWithAuth(URL_ME);
                 if (!res.ok) throw new Error();
