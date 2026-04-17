@@ -676,6 +676,7 @@ app.get('/api/deposits/my', authenticateToken, async (req, res) => {
     }
 });
 
+// 1. المسارات المخصصة للإيداع (approve, reject) يجب أن تسبق المسار العام
 app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async (req, res) => {
     try {
         const depositId = req.params.id;
@@ -718,6 +719,7 @@ app.post('/api/admin/deposits/:id/reject', authenticateToken, adminOnly, async (
     }
 });
 
+// 2. المسار العام للإيداع (يأتي بعد المسارات المخصصة)
 app.post('/api/admin/deposits/:id/:action', authenticateToken, adminOnly, async (req, res) => {
     const { id, action } = req.params;
     if (action === 'approve') {
@@ -799,6 +801,7 @@ app.get('/api/withdrawals/my', authenticateToken, async (req, res) => {
     }
 });
 
+// 1. المسارات المخصصة للسحب (approve, reject) يجب أن تسبق المسار العام
 app.post('/api/admin/withdrawals/:id/approve', authenticateToken, adminOnly, async (req, res) => {
     try {
         const withdrawalId = req.params.id;
@@ -843,6 +846,7 @@ app.post('/api/admin/withdrawals/:id/reject', authenticateToken, adminOnly, asyn
     }
 });
 
+// 2. المسار العام للسحب (يأتي بعد المسارات المخصصة)
 app.post('/api/admin/withdrawals/:id/:action', authenticateToken, adminOnly, async (req, res) => {
     const { id, action } = req.params;
     if (action === 'approve') {
