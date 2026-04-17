@@ -644,7 +644,8 @@
             tbody.innerHTML = deposits.map(req => {
                 let img = req.screenshotPath;
                 if (img && !img.startsWith('http')) img = window.location.origin + img;
-                return `<tr><td>${escapeHtml(req.username)}</td><td class="text-green-400">${req.amount} $</td><td>${req.method || 'USDT'}</td><td>${new Date(req.date).toLocaleString()}</td><td>${img ? `<img src="${img}" class="screenshot-thumb" onclick="window.open('${img}','_blank')">` : '—'}</td><td><span class="status-badge badge-pending">قيد الانتظار</span></td><td><div class="action-btns"><button onclick="handleDeposit('${req.id}', 'approve')" class="btn-base btn-approve">قبول</button><button onclick="handleDeposit('${req.id}', 'reject')" class="btn-base btn-reject">رفض</button></div></td></tr>`;
+                // إضافة data-id للصف لتسهيل حذفه لاحقاً
+                return `<tr data-id="${req.id}"><td>${escapeHtml(req.username)}</td><td class="text-green-400">${req.amount} $</td><td>${req.method || 'USDT'}</td><td>${new Date(req.date).toLocaleString()}</td><td>${img ? `<img src="${img}" class="screenshot-thumb" onclick="window.open('${img}','_blank')">` : '—'}</td><td><span class="status-badge badge-pending">قيد الانتظار</span></td><td><div class="action-btns"><button onclick="handleDeposit('${req.id}', 'approve')" class="btn-base btn-approve">قبول</button><button onclick="handleDeposit('${req.id}', 'reject')" class="btn-base btn-reject">رفض</button></div></td></tr>`;
             }).join('');
         }
 
@@ -653,7 +654,8 @@
             if (!withdrawals.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8">لا توجد طلبات سحب معلقة</td></tr>'; return; }
             tbody.innerHTML = withdrawals.map(w => {
                 let typeText = w.type === 'profit' ? 'أرباح' : 'أصل';
-                return `<tr><td>${escapeHtml(w.username)}</td><td class="text-yellow-400">${w.amount} $</td><td>${typeText}</td><td class="break-all">${escapeHtml(w.walletAddress)}</td><td>${new Date(w.date).toLocaleString()}</td><td><span class="status-badge badge-pending">قيد المراجعة</span></td><td><div class="action-btns"><button onclick="handleWithdrawal('${w.id}', 'approve')" class="btn-base btn-approve">قبول</button><button onclick="handleWithdrawal('${w.id}', 'reject')" class="btn-base btn-reject">رفض</button></div></td></tr>`;
+                // إضافة data-id للصف لتسهيل حذفه لاحقاً
+                return `<tr data-id="${w.id}"><td>${escapeHtml(w.username)}</td><td class="text-yellow-400">${w.amount} $</td><td>${typeText}</td><td class="break-all">${escapeHtml(w.walletAddress)}</td><td>${new Date(w.date).toLocaleString()}</td><td><span class="status-badge badge-pending">قيد المراجعة</span></td><td><div class="action-btns"><button onclick="handleWithdrawal('${w.id}', 'approve')" class="btn-base btn-approve">قبول</button><button onclick="handleWithdrawal('${w.id}', 'reject')" class="btn-base btn-reject">رفض</button></div></td></tr>`;
             }).join('');
         }
 
@@ -737,7 +739,7 @@
             document.getElementById('analytics-platform-profit').innerText = (analytics.platformProfit || 0).toLocaleString() + ' $';
             document.getElementById('analytics-referral-commissions').innerText = (analytics.referralCommissions || 0).toLocaleString() + ' $';
             
-            // --- إصلاح: تدمير المخططات القديمة قبل إنشاء جديدة ---
+            // تدمير المخططات القديمة قبل إنشاء جديدة
             let chartStatus = Chart.getChart('userGrowthChart');
             if (chartStatus) chartStatus.destroy();
             chartStatus = Chart.getChart('dailyDepositsChart');
@@ -768,13 +770,21 @@
             document.getElementById('stat-balance').innerText = totalBalance.toLocaleString() + ' $';
         }
 
+        // --- تعديل دوال handleDeposit و handleWithdrawal لإخفاء الصف مباشرة ---
         window.handleDeposit = async (id, action) => {
             const confirm = await Swal.fire({ title: 'تأكيد', text: `هل أنت متأكد من ${action === 'approve' ? 'قبول' : 'رفض'} هذا الإيداع؟`, icon: 'warning', showCancelButton: true });
             if (!confirm.isConfirmed) return;
             try {
                 const res = await fetchWithAuth(`${API_BASE}/api/admin/deposits/${id}/${action}`, { method: 'POST' });
                 const data = await res.json();
-                if (data.success) { Swal.fire('تم', data.message, 'success'); loadEverything(); }
+                if (data.success) { 
+                    Swal.fire('تم', data.message, 'success'); 
+                    // إخفاء الصف باستخدام data-id
+                    const row = document.querySelector(`tr[data-id="${id}"]`);
+                    if (row) row.remove();
+                    // تحديث الإحصائيات فقط دون إعادة تحميل كامل
+                    updateStatsAfterAction();
+                }
                 else Swal.fire('خطأ', data.message, 'error');
             } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
         };
@@ -785,10 +795,32 @@
             try {
                 const res = await fetchWithAuth(`${API_BASE}/api/admin/withdrawals/${id}/${action}`, { method: 'POST' });
                 const data = await res.json();
-                if (data.success) { Swal.fire('تم', data.message, 'success'); loadEverything(); }
+                if (data.success) { 
+                    Swal.fire('تم', data.message, 'success'); 
+                    // إخفاء الصف باستخدام data-id
+                    const row = document.querySelector(`tr[data-id="${id}"]`);
+                    if (row) row.remove();
+                    // تحديث الإحصائيات فقط دون إعادة تحميل كامل
+                    updateStatsAfterAction();
+                }
                 else Swal.fire('خطأ', data.message, 'error');
             } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
         };
+
+        // دالة مساعدة لتحديث الإحصائيات بسرعة بعد الموافقة/الرفض
+        async function updateStatsAfterAction() {
+            try {
+                const [usersRes, depositsRes, withdrawalsRes] = await Promise.all([
+                    fetchWithAuth(endpoints.users),
+                    fetchWithAuth(endpoints.deposits),
+                    fetchWithAuth(endpoints.withdrawals)
+                ]);
+                const usersData = await usersRes.json();
+                const deposits = await depositsRes.json();
+                const withdrawals = await withdrawalsRes.json();
+                updateStats(usersData.users || [], deposits, withdrawals);
+            } catch (e) { console.warn('تعذر تحديث الإحصائيات', e); }
+        }
 
         let searchTimeout;
         document.getElementById('searchUsers')?.addEventListener('input', (e) => {
