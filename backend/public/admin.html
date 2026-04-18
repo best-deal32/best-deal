@@ -171,7 +171,7 @@
             width: 100%;
             border-collapse: collapse;
             text-align: right;
-            min-width: 800px;
+            min-width: 1200px;
         }
 
         thead tr {
@@ -179,20 +179,22 @@
         }
 
         th {
-            padding: 12px 10px;
+            padding: 12px 8px;
             color: var(--gold-main);
             font-weight: 800;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            white-space: nowrap;
         }
 
         td {
-            padding: 10px 8px;
+            padding: 8px 6px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: #e2e8f0;
+            white-space: nowrap;
         }
 
         tr:hover td {
@@ -201,9 +203,9 @@
         }
 
         .status-badge {
-            padding: 4px 10px;
+            padding: 4px 8px;
             border-radius: 10px;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 700;
             display: inline-block;
         }
@@ -217,19 +219,20 @@
 
         .action-btns {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             flex-wrap: wrap;
         }
 
         .btn-base {
-            padding: 5px 10px;
-            border-radius: 8px;
+            padding: 4px 8px;
+            border-radius: 6px;
             font-weight: 800;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             cursor: pointer;
             transition: all 0.3s;
             border: none;
             outline: none;
+            white-space: nowrap;
         }
 
         .btn-approve { background-color: var(--green-success); color: #fff; }
@@ -239,12 +242,12 @@
         .btn-view-user { background-color: #8b5cf6; color: #fff; }
         .btn-change-level { background-color: #9b59b6; color: #fff; }
         .btn-reply { background-color: #3b82f6; color: #fff; }
-        .btn-base:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-base:hover { transform: translateY(-1px); filter: brightness(1.1); }
 
         .screenshot-thumb {
-            max-width: 70px;
-            max-height: 70px;
-            border-radius: 8px;
+            max-width: 50px;
+            max-height: 50px;
+            border-radius: 6px;
             border: 1px solid var(--gold-main);
             cursor: pointer;
             object-fit: cover;
@@ -367,7 +370,22 @@
             </div>
             <div class="table-responsive-box">
                 <table>
-                    <thead><tr><th>اسم المستخدم</th><th>الاسم الكامل</th><th>البريد الإلكتروني</th><th>الرصيد</th><th>الأرباح</th><th>إجمالي الإيداعات</th><th>المستوى</th><th>موثق</th><th>تاريخ التسجيل</th><th>الإجراءات</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>اسم المستخدم</th>
+                            <th>الاسم الكامل</th>
+                            <th>البريد</th>
+                            <th>الرصيد</th>
+                            <th>الأرباح</th>
+                            <th>الإيداعات</th>
+                            <th>المستوى</th>
+                            <th>البلد</th>
+                            <th>العمل/المهنة</th>
+                            <th>موثق</th>
+                            <th>التسجيل</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
                     <tbody id="usersTableBody"></tbody>
                 </table>
             </div>
@@ -577,8 +595,10 @@
 
         function renderUsers(users) {
             const tbody = document.getElementById('usersTableBody');
-            if (!users.length) { tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8">لا يوجد مستخدمون</td></tr>'; return; }
-            tbody.innerHTML = users.map(user => `
+            if (!users.length) { tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8">لا يوجد مستخدمون</td></tr>'; return; }
+            tbody.innerHTML = users.map(user => {
+                const workInfo = [user.currentJob, user.profession].filter(Boolean).join(' / ') || '—';
+                return `
                 <tr>
                     <td class="font-bold">${escapeHtml(user.username)}</td>
                     <td>${escapeHtml(user.fullName || '—')}</td>
@@ -587,10 +607,13 @@
                     <td class="text-blue-400">${(user.profit || 0).toLocaleString()} $</td>
                     <td class="text-yellow-400">${(user.totalDeposits || 0).toLocaleString()} $</td>
                     <td>${user.level || 'برونزي'}</td>
-                    <td>${user.isVerified ? '✅ نعم' : '❌ لا'}</td>
+                    <td>${escapeHtml(user.origin || '—')}</td>
+                    <td>${escapeHtml(workInfo)}</td>
+                    <td>${user.isVerified ? '✅' : '❌'}</td>
                     <td class="text-xs">${user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-EG') : '—'}</td>
-                    <td><div class="action-btns"><button onclick="editBalance('${user.id}', '${escapeHtml(user.username)}', ${user.balance})" class="btn-base btn-edit-balance">💰 تعديل</button><button onclick="resetUserPassword('${user.id}', '${escapeHtml(user.username)}')" class="btn-base btn-reset-password">🔑 إعادة تعيين</button><button onclick="viewUserDetails('${user.id}')" class="btn-base btn-view-user">👁️ تفاصيل</button><button onclick="changeUserLevel('${user.id}', '${escapeHtml(user.username)}', '${user.level}')" class="btn-base btn-change-level">🎚️ تعديل الرتبة</button></div></td>
-                </tr>`).join('');
+                    <td><div class="action-btns"><button onclick="editBalance('${user.id}', '${escapeHtml(user.username)}', ${user.balance})" class="btn-base btn-edit-balance">💰</button><button onclick="resetUserPassword('${user.id}', '${escapeHtml(user.username)}')" class="btn-base btn-reset-password">🔑</button><button onclick="viewUserDetails('${user.id}')" class="btn-base btn-view-user">👁️</button><button onclick="changeUserLevel('${user.id}', '${escapeHtml(user.username)}', '${user.level}')" class="btn-base btn-change-level">🎚️</button></div></td>
+                </tr>`;
+            }).join('');
         }
 
         window.changeUserLevel = async (userId, username, currentLevel) => {
@@ -640,21 +663,27 @@
 
         function renderDeposits(deposits) {
             const tbody = document.getElementById('depositsTableBody');
+            // إخفاء الطلبات الأقدم من 30 يومًا
+            const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            deposits = deposits.filter(d => new Date(d.date) > thirtyDaysAgo);
+            
             if (!deposits.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8">لا توجد طلبات إيداع معلقة</td></tr>'; return; }
             tbody.innerHTML = deposits.map(req => {
                 let img = req.screenshotPath;
                 if (img && !img.startsWith('http')) img = window.location.origin + img;
-                // إضافة data-id للصف لتسهيل حذفه لاحقاً
                 return `<tr data-id="${req.id}"><td>${escapeHtml(req.username)}</td><td class="text-green-400">${req.amount} $</td><td>${req.method || 'USDT'}</td><td>${new Date(req.date).toLocaleString()}</td><td>${img ? `<img src="${img}" class="screenshot-thumb" onclick="window.open('${img}','_blank')">` : '—'}</td><td><span class="status-badge badge-pending">قيد الانتظار</span></td><td><div class="action-btns"><button onclick="handleDeposit('${req.id}', 'approve')" class="btn-base btn-approve">قبول</button><button onclick="handleDeposit('${req.id}', 'reject')" class="btn-base btn-reject">رفض</button></div></td></tr>`;
             }).join('');
         }
 
         function renderWithdrawals(withdrawals) {
             const tbody = document.getElementById('withdrawalsTableBody');
+            // إخفاء الطلبات الأقدم من 30 يومًا
+            const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+            withdrawals = withdrawals.filter(w => new Date(w.date) > thirtyDaysAgo);
+            
             if (!withdrawals.length) { tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8">لا توجد طلبات سحب معلقة</td></tr>'; return; }
             tbody.innerHTML = withdrawals.map(w => {
                 let typeText = w.type === 'profit' ? 'أرباح' : 'أصل';
-                // إضافة data-id للصف لتسهيل حذفه لاحقاً
                 return `<tr data-id="${w.id}"><td>${escapeHtml(w.username)}</td><td class="text-yellow-400">${w.amount} $</td><td>${typeText}</td><td class="break-all">${escapeHtml(w.walletAddress)}</td><td>${new Date(w.date).toLocaleString()}</td><td><span class="status-badge badge-pending">قيد المراجعة</span></td><td><div class="action-btns"><button onclick="handleWithdrawal('${w.id}', 'approve')" class="btn-base btn-approve">قبول</button><button onclick="handleWithdrawal('${w.id}', 'reject')" class="btn-base btn-reject">رفض</button></div></td></tr>`;
             }).join('');
         }
@@ -739,7 +768,6 @@
             document.getElementById('analytics-platform-profit').innerText = (analytics.platformProfit || 0).toLocaleString() + ' $';
             document.getElementById('analytics-referral-commissions').innerText = (analytics.referralCommissions || 0).toLocaleString() + ' $';
             
-            // تدمير المخططات القديمة قبل إنشاء جديدة
             let chartStatus = Chart.getChart('userGrowthChart');
             if (chartStatus) chartStatus.destroy();
             chartStatus = Chart.getChart('dailyDepositsChart');
@@ -770,7 +798,6 @@
             document.getElementById('stat-balance').innerText = totalBalance.toLocaleString() + ' $';
         }
 
-        // --- تعديل دوال handleDeposit و handleWithdrawal لإخفاء الصف مباشرة ---
         window.handleDeposit = async (id, action) => {
             const confirm = await Swal.fire({ title: 'تأكيد', text: `هل أنت متأكد من ${action === 'approve' ? 'قبول' : 'رفض'} هذا الإيداع؟`, icon: 'warning', showCancelButton: true });
             if (!confirm.isConfirmed) return;
@@ -779,10 +806,8 @@
                 const data = await res.json();
                 if (data.success) { 
                     Swal.fire('تم', data.message, 'success'); 
-                    // إخفاء الصف باستخدام data-id
                     const row = document.querySelector(`tr[data-id="${id}"]`);
                     if (row) row.remove();
-                    // تحديث الإحصائيات فقط دون إعادة تحميل كامل
                     updateStatsAfterAction();
                 }
                 else Swal.fire('خطأ', data.message, 'error');
@@ -797,17 +822,14 @@
                 const data = await res.json();
                 if (data.success) { 
                     Swal.fire('تم', data.message, 'success'); 
-                    // إخفاء الصف باستخدام data-id
                     const row = document.querySelector(`tr[data-id="${id}"]`);
                     if (row) row.remove();
-                    // تحديث الإحصائيات فقط دون إعادة تحميل كامل
                     updateStatsAfterAction();
                 }
                 else Swal.fire('خطأ', data.message, 'error');
             } catch { Swal.fire('خطأ', 'فشل الاتصال', 'error'); }
         };
 
-        // دالة مساعدة لتحديث الإحصائيات بسرعة بعد الموافقة/الرفض
         async function updateStatsAfterAction() {
             try {
                 const [usersRes, depositsRes, withdrawalsRes] = await Promise.all([
