@@ -1,3 +1,4 @@
+<!-- dashboard.html كامل -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -605,13 +606,18 @@
             } else { timer = setTimeout(() => { clickCount = 0; }, 300); }
         }
 
+        // ---- تعديل دالة تحميل النشاطات لعرضها بشكل صحيح ----
         async function loadRecentActivities() {
             const container = document.getElementById('recent-activities-container');
             try {
                 const response = await fetchWithAuth(URL_ACTIVITY_LOGS);
                 if (response.ok) {
                     const activities = await response.json();
-                    if (!activities.length) { container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>'; if(translations[currentLang]) container.querySelector('[data-i18n]').textContent = translations[currentLang].no_activities; return; }
+                    if (!activities.length) {
+                        container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
+                        if (translations[currentLang]) container.querySelector('[data-i18n]').textContent = translations[currentLang].no_activities;
+                        return;
+                    }
                     container.innerHTML = '';
                     activities.forEach(act => {
                         const div = document.createElement('div');
@@ -619,8 +625,12 @@
                         div.innerHTML = `<div class="flex items-center gap-6"><div class="w-12 h-12 bg-blue-500/20 text-blue-500 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-clock"></i></div><div><p class="text-base font-black text-white">${escapeHtml(act.action || 'عملية')}</p><p class="text-[10px] text-slate-500 font-bold uppercase">${escapeHtml(act.details || '')}</p></div></div><div class="text-left font-black"><p class="text-slate-400 text-xs">${new Date(act.timestamp).toLocaleString()}</p></div>`;
                         container.appendChild(div);
                     });
-                } else { container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>'; }
-            } catch (err) { container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>'; }
+                } else {
+                    container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
+                }
+            } catch (err) {
+                container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>';
+            }
         }
 
         let notifications = [];
