@@ -32,15 +32,19 @@
             padding: 0;
             min-height: 100vh;
             overflow-x: hidden;
-            padding-bottom: 5rem;
         }
 
         .glass-card {
-            background: rgba(11, 31, 59, 0.75);
-            backdrop-filter: blur(16px);
+            background: rgba(11, 31, 59, 0.8);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(43, 80, 150, 0.4);
             border-radius: 2rem;
             transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--blue-accent);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
         }
 
         .btn-blue {
@@ -62,23 +66,39 @@
             transform: translateY(-2px);
         }
 
-        .balance-text {
-            font-size: 3rem;
+        .btn-outline-blue {
+            background: transparent;
+            border: 2px solid var(--blue-accent);
+            color: var(--blue-accent);
+            font-weight: 800;
+            border-radius: 1.2rem;
+            padding: 0.7rem 1.5rem;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-outline-blue:hover {
+            background: rgba(59,108,194,0.15);
+            color: #fff;
+        }
+
+        .balance-value {
+            font-size: 2.8rem;
             font-weight: 900;
             color: var(--blue-accent);
-            text-shadow: 0 0 20px rgba(59,108,194,0.6);
+            text-shadow: 0 0 18px rgba(59,108,194,0.6);
         }
 
         .lang-selector {
-            background: rgba(11,31,59,0.65);
+            background: rgba(11,31,59,0.7);
             border-radius: 3rem;
-            padding: 0.25rem;
+            padding: 0.3rem;
             display: inline-flex;
             gap: 0.2rem;
             border: 1px solid rgba(43,80,150,0.4);
         }
         .lang-option {
-            padding: 0.3rem 0.8rem;
+            padding: 0.4rem 0.9rem;
             border-radius: 3rem;
             font-size: 0.7rem;
             font-weight: bold;
@@ -90,37 +110,71 @@
             background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
             color: #fff;
         }
+        .lang-option:hover:not(.active) {
+            background: rgba(42,82,152,0.2);
+            color: #fff;
+        }
 
         .bottom-nav {
             position: fixed;
-            bottom: 0; left: 0; right: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: rgba(7,20,38,0.96);
             border-top: 1px solid rgba(43,80,150,0.4);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
+            padding: 12px 0;
             z-index: 1000;
         }
-        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); font-size: 10px; font-weight: 800; cursor: pointer; }
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-dim);
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
         .nav-link.active { color: var(--blue-accent); }
-        .nav-link i { font-size: 1.4rem; margin-bottom: 2px; }
+        .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
+        .nav-link span { font-size: 10px; }
 
         .notification-bell { position: relative; cursor: pointer; }
         .notification-badge {
-            position: absolute; top: -6px; right: -6px;
-            background: #ef4444; color: #fff; border-radius: 50%;
-            width: 18px; height: 18px; font-size: 10px;
-            display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ef4444;
+            color: #fff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 1.2rem;
+            transition: 0.2s;
+        }
+        .activity-item:hover {
+            background: rgba(255,255,255,0.06);
         }
     </style>
 </head>
-<body>
+<body class="pb-28">
 
     <!-- شريط علوي -->
-    <header class="px-5 py-4 flex justify-between items-center">
+    <header class="px-5 py-4 flex justify-between items-center border-b border-[#1a3a6b]/40 bg-[#040b14]/50 backdrop-blur-sm sticky top-0 z-50">
         <div class="flex items-center gap-3">
             <i class="fa-solid fa-dragon text-3xl text-blue-400 drop-shadow-xl"></i>
-            <span class="text-2xl font-black text-white italic tracking-wider">VIVOR</span>
+            <span class="text-xl font-black text-white italic tracking-wide hidden sm:inline">VIVOR</span>
         </div>
         <div class="flex items-center gap-3">
             <div class="lang-selector">
@@ -129,46 +183,54 @@
                 <div class="lang-option" data-lang="zh">中文</div>
                 <div class="lang-option" data-lang="de">Deutsch</div>
             </div>
-            <div class="notification-bell" id="notificationBell">
-                <i class="fa-regular fa-bell text-xl text-blue-300"></i>
+            <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
+                <i class="fa-regular fa-bell text-xl text-blue-200"></i>
                 <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
             </div>
-            <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-blue-400" src="" alt="U">
+            <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-blue-400" src="" alt="Avatar">
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4">
+    <!-- لوحة الإشعارات المنسدلة -->
+    <div id="notificationsDropdown" class="fixed top-16 left-4 w-72 max-h-80 overflow-y-auto bg-[#0b1f3b] border border-blue-500/30 rounded-2xl shadow-2xl z-50 hidden p-2">
+        <div class="text-center text-sm text-blue-300 font-bold mb-2">الإشعارات</div>
+        <div id="notificationsList" class="space-y-1 text-xs"></div>
+        <button id="markAllReadBtn" class="text-[10px] text-blue-400 hover:underline mt-2 text-center w-full">تحديد الكل كمقروء</button>
+    </div>
+
+    <main class="max-w-5xl mx-auto px-4 mt-8">
         <!-- بطاقة الترحيب والرصيد -->
         <div class="glass-card p-6 mb-6 text-center">
             <h2 class="text-lg font-bold text-slate-300">مرحباً <span id="welcome-name" class="text-blue-300">.......</span></h2>
-            <div class="mt-2 balance-text" id="user-balance">$0.00</div>
+            <div class="balance-value mt-3" id="user-balance">$0.00</div>
             <p class="text-xs text-slate-400 mt-1">الرصيد المتاح للسحب</p>
-            <div class="flex gap-4 justify-center mt-4">
+            <div class="flex flex-wrap gap-4 justify-center mt-5">
                 <button onclick="window.location.href='deposit.html'" class="btn-blue"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
                 <button onclick="window.location.href='withdraw.html'" class="btn-blue"><i class="fa-solid fa-receipt"></i> سحب</button>
+                <button onclick="window.location.href='support.html'" class="btn-outline-blue"><i class="fa-solid fa-headset"></i> الدعم الفني</button>
             </div>
         </div>
 
         <!-- بطاقات الأرباح والاستثمار -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <!-- الأرباح -->
-            <div class="glass-card p-5">
+            <div class="glass-card p-5 flex flex-col justify-between">
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-slate-400">الأرباح الصافية</span>
                     <i class="fa-solid fa-chart-line text-blue-400"></i>
                 </div>
-                <p class="text-2xl font-black text-green-400 mt-1" id="user-profit">$0.00</p>
-                <button onclick="window.location.href='withdraw.html?type=profit&amount=' + (document.getElementById('user-profit').innerText.replace('$',''))" class="mt-3 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-3 py-1.5 rounded-lg transition">سحب الأرباح</button>
+                <p class="text-2xl font-black text-green-400 mt-2" id="user-profit">$0.00</p>
+                <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-4 py-2 rounded-xl transition w-fit">سحب الأرباح</button>
             </div>
             <!-- استثمار المعادن -->
-            <div class="glass-card p-5">
+            <div class="glass-card p-5 flex flex-col justify-between">
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-slate-400">استثمار المعادن</span>
                     <i class="fa-solid fa-gem text-blue-400"></i>
                 </div>
-                <p class="text-lg font-bold text-white mt-1">3% يومياً</p>
+                <p class="text-lg font-bold text-white mt-2">3% يومياً</p>
                 <p class="text-xs text-slate-400 mt-1">الحد الأدنى 50$ - الأقصى 10,000$</p>
-                <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-3 py-1.5 rounded-lg transition">استثمر الآن</button>
+                <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-4 py-2 rounded-xl transition w-fit">استثمر الآن</button>
             </div>
         </div>
 
@@ -179,7 +241,7 @@
                 <i class="fa-solid fa-gift text-2xl text-blue-400 mb-2"></i>
                 <p class="text-sm text-white font-bold" id="dailyBonusAmount">0.50 $</p>
                 <p class="text-[10px] text-slate-400" id="bonusStreakText"></p>
-                <button id="claimDailyBonusBtn" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded-xl transition">استلام المكافأة</button>
+                <button id="claimDailyBonusBtn" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded-xl transition disabled:opacity-50">استلام المكافأة</button>
             </div>
             <!-- الإحالات -->
             <div class="glass-card p-5 text-center">
@@ -187,34 +249,16 @@
                 <p class="text-sm text-white font-bold">كود الإحالة</p>
                 <p class="text-lg font-mono text-blue-300" id="referralCodeDisplay">------</p>
                 <p class="text-[10px] text-slate-400 mt-1">تربح 15% من أول إيداع للمدعو</p>
-                <button onclick="window.location.href='referrals.html'" class="mt-2 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-3 py-1.5 rounded-lg transition">تفاصيل الإحالات</button>
+                <button onclick="window.location.href='referrals.html'" class="mt-2 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-4 py-2 rounded-xl transition">تفاصيل الإحالات</button>
             </div>
         </div>
 
         <!-- سجل النشاطات -->
-        <div class="glass-card p-5 mb-6">
+        <div class="glass-card p-5 mb-4">
             <h3 class="text-sm font-bold text-blue-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
-            <div id="activity-container" class="space-y-3 text-sm text-slate-300"></div>
-        </div>
-
-        <!-- زر فتح تذكرة دعم -->
-        <div class="text-center mb-10">
-            <button onclick="openTicketModal()" class="btn-blue py-3 px-8"><i class="fa-solid fa-headset"></i> فتح تذكرة دعم</button>
+            <div id="activity-container" class="space-y-2 text-sm text-slate-300"></div>
         </div>
     </main>
-
-    <!-- نافذة إنشاء تذكرة -->
-    <div id="ticketModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#0b1f3b] border border-blue-500/40 rounded-3xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-blue-300 mb-4">تذكرة دعم جديدة</h3>
-            <input type="text" id="ticketSubject" class="w-full bg-black/50 border border-blue-500/30 rounded-xl p-3 mb-3 text-white" placeholder="الموضوع">
-            <textarea id="ticketMessage" rows="4" class="w-full bg-black/50 border border-blue-500/30 rounded-xl p-3 mb-4 text-white" placeholder="اشرح مشكلتك..."></textarea>
-            <div class="flex gap-3">
-                <button onclick="submitTicket()" class="btn-blue flex-1">إرسال</button>
-                <button onclick="closeTicketModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-xl">إلغاء</button>
-            </div>
-        </div>
-    </div>
 
     <!-- القائمة السفلية -->
     <div class="bottom-nav">
@@ -222,6 +266,7 @@
         <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span>إيداع</span></div>
         <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>استثمار</span></div>
         <div onclick="window.location.href='referrals.html'" class="nav-link"><i class="fa-solid fa-users"></i><span>إحالات</span></div>
+        <div onclick="window.location.href='support.html'" class="nav-link"><i class="fa-solid fa-headset"></i><span>دعم</span></div>
         <div onclick="logout()" class="nav-link text-red-400"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
     </div>
 
@@ -231,17 +276,18 @@
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
 
-        // i18n
+        // ---------- i18n ----------
         async function loadTranslations(lang) {
             try {
                 const res = await fetch(`/locales/${lang}/translation.json`);
-                if (!res.ok) throw new Error();
-                translations[lang] = await res.json();
-            } catch (e) { /* fallback */ }
+                if (res.ok) translations[lang] = await res.json();
+            } catch (e) { /* ignore */ }
         }
         function applyTranslations(lang) {
             const t = translations[lang] || {};
-            document.querySelectorAll('[data-i18n]').forEach(el => { if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n]; });
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
+            });
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.documentElement.lang = lang;
             localStorage.setItem('preferredLanguage', lang);
@@ -259,7 +305,7 @@
             opt.addEventListener('click', () => setLanguage(opt.dataset.lang));
         });
 
-        // Socket
+        // ---------- Socket ----------
         function initSocket() {
             socket = io(window.location.origin, { withCredentials: true });
             socket.on('notification', data => {
@@ -268,6 +314,7 @@
             });
         }
 
+        // ---------- Auth ----------
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
             let res = await fetch(url, options);
@@ -298,14 +345,17 @@
             document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username||'U')}&background=1a3a6b&color=fff&bold=true`;
         }
 
+        // ---------- Daily Bonus ----------
         async function loadDailyBonusStatus() {
             const res = await fetchWithAuth(`${API_BASE}/api/daily-bonus/status`);
             const data = await res.json();
             const btn = document.getElementById('claimDailyBonusBtn');
             if (data.canClaim) {
-                btn.disabled = false; btn.classList.remove('opacity-50');
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
             } else {
-                btn.disabled = true; btn.classList.add('opacity-50');
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
             }
             document.getElementById('dailyBonusAmount').innerText = `${(data.nextBonusAmount||0.5).toFixed(2)} $`;
             if (data.currentStreak) document.getElementById('bonusStreakText').innerText = `السلسلة: ${data.currentStreak} يوم`;
@@ -321,51 +371,69 @@
             } else Swal.fire('خطأ', data.message, 'error');
         });
 
-        // الأنشطة
+        // ---------- Quick Withdraw Profit ----------
+        async function quickWithdrawProfit() {
+            const user = await fetchUserData();
+            if (!user) return;
+            const profit = user.profit || 0;
+            if (profit <= 0) { Swal.fire('تنبيه', 'لا توجد أرباح حالياً', 'info'); return; }
+            localStorage.setItem('quickWithdrawAmount', profit);
+            window.location.href = `withdraw.html?amount=${profit}&type=profit`;
+        }
+
+        // ---------- Activities ----------
         async function loadActivities() {
             const res = await fetchWithAuth(`${API_BASE}/api/activity-logs/recent`);
             const activities = await res.json();
             const container = document.getElementById('activity-container');
-            if (!activities.length) { container.innerHTML = '<p class="text-slate-500 text-center">لا توجد نشاطات</p>'; return; }
-            container.innerHTML = activities.slice(0,8).map(a => `
-                <div class="flex justify-between items-center py-1 border-b border-white/5">
-                    <span>${escapeHtml(a.action)} - ${escapeHtml(a.details)}</span>
+            if (!activities.length) {
+                container.innerHTML = '<div class="text-slate-500 text-center py-2">لا توجد نشاطات حديثة</div>';
+                return;
+            }
+            container.innerHTML = activities.slice(0, 6).map(a => `
+                <div class="activity-item p-3 flex justify-between items-center">
+                    <span>${esc(a.action)} - ${esc(a.details)}</span>
                     <span class="text-xs text-slate-500">${new Date(a.timestamp).toLocaleString()}</span>
                 </div>
             `).join('');
         }
 
-        // التذاكر
-        function openTicketModal() { document.getElementById('ticketModal').classList.remove('hidden'); }
-        function closeTicketModal() { document.getElementById('ticketModal').classList.add('hidden'); }
-        async function submitTicket() {
-            const subject = document.getElementById('ticketSubject').value.trim();
-            const message = document.getElementById('ticketMessage').value.trim();
-            if (!subject || !message) { Swal.fire('خطأ', 'يرجى ملء الموضوع والرسالة', 'error'); return; }
-            const res = await fetchWithAuth(`${API_BASE}/api/support/tickets`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ subject, message })
-            });
-            const data = await res.json();
-            if (data.success) {
-                Swal.fire('تم', 'تم فتح التذكرة، سنرد عليك قريباً', 'success');
-                closeTicketModal();
-            } else Swal.fire('خطأ', data.message, 'error');
-        }
-
-        // إشعارات
+        // ---------- Notifications ----------
+        let notifications = [];
         async function loadNotifications() {
             const res = await fetchWithAuth(`${API_BASE}/api/notifications`);
-            const notifs = await res.json();
-            const unread = notifs.filter(n => !n.isRead).length;
+            notifications = await res.json();
+            const unread = notifications.filter(n => !n.isRead).length;
             const badge = document.getElementById('notificationCount');
             badge.style.display = unread > 0 ? 'flex' : 'none';
             badge.innerText = unread;
+            updateNotificationsDropdown();
         }
 
+        function updateNotificationsDropdown() {
+            const list = document.getElementById('notificationsList');
+            list.innerHTML = notifications.map(n => `
+                <div class="py-1 border-b border-white/5 ${!n.isRead ? 'font-bold text-blue-200' : 'text-slate-400'}">
+                    <div>${esc(n.title)}</div>
+                    <div class="text-[10px]">${esc(n.message)}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationsDropdown');
+            dropdown.classList.toggle('hidden');
+            if (!dropdown.classList.contains('hidden')) loadNotifications();
+        }
+
+        document.getElementById('markAllReadBtn').addEventListener('click', async () => {
+            await fetchWithAuth(`${API_BASE}/api/notifications/read-all`, { method: 'PUT' });
+            loadNotifications();
+        });
+
+        // ---------- Logout ----------
         function logout() {
-            Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#3b6cc2' }).then(r => {
+            Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#3b6cc2', background: '#071426', color: '#fff' }).then(r => {
                 if (r.isConfirmed) {
                     fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
                     localStorage.clear();
@@ -374,9 +442,9 @@
             });
         }
 
-        function escapeHtml(s) { return s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+        function esc(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-        // بدء التشغيل
+        // ---------- Init ----------
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
@@ -386,7 +454,11 @@
                 loadDailyBonusStatus();
                 loadActivities();
                 loadNotifications();
-                setInterval(() => { if (document.visibilityState === 'visible') fetchUserData(); }, 15000);
+                setInterval(() => {
+                    if (document.visibilityState === 'visible') {
+                        fetchUserData();
+                    }
+                }, 20000);
             }
         };
     </script>
