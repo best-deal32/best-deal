@@ -146,7 +146,7 @@
         }
     });
 
-    // دالة الطلب الآمن (لا تقرأ الكوكيز)
+    // دالة الطلب الآمن
     async function api(url, opt = {}) {
         opt.credentials = 'include';
         const res = await fetch(url, opt);
@@ -200,12 +200,12 @@
                 <td class="font-bold">${esc(u.username)}</td>
                 <td>${esc(u.fullName||'-')}</td>
                 <td>${esc(u.email)}</td>
-                <td class="text-blue-300">${(u.balance||0).toFixed(2)} $</td>
-                <td class="text-green-400">${(u.profit||0).toFixed(2)} $</td>
-                <td>${(u.totalDeposits||0).toFixed(2)} $</td>
+                <td class="text-blue-300">${Number(u.balance||0).toFixed(2)} $</td>
+                <td class="text-green-400">${Number(u.profit||0).toFixed(2)} $</td>
+                <td>${Number(u.totalDeposits||0).toFixed(2)} $</td>
                 <td class="font-mono text-blue-200">${esc(u.referralCode||'-')}</td>
                 <td>
-                    <button onclick="editBalance('${u.id}','${esc(u.username)}',${u.balance})" class="action-btn btn-view">💰</button>
+                    <button onclick="editBalance('${u.id}','${esc(u.username)}',${Number(u.balance||0)})" class="action-btn btn-view">💰</button>
                     <button onclick="resetPw('${u.id}','${esc(u.username)}')" class="action-btn btn-warn">🔑</button>
                 </td>
             </tr>
@@ -218,7 +218,7 @@
         document.getElementById('depositsBody').innerHTML = filtered.length ? filtered.map(d => `
             <tr>
                 <td>${esc(d.username)}</td>
-                <td class="text-blue-300">${d.amount} $</td>
+                <td class="text-blue-300">${Number(d.amount).toFixed(2)} $</td>
                 <td class="font-mono text-xs">${esc(d.screenshotPath || '-')}</td>
                 <td>${new Date(d.date).toLocaleString()}</td>
                 <td><span class="badge badge-pending">معلق</span></td>
@@ -236,7 +236,7 @@
         document.getElementById('withdrawalsBody').innerHTML = filtered.length ? filtered.map(w => `
             <tr>
                 <td>${esc(w.username)}</td>
-                <td class="text-yellow-400">${w.amount} $</td>
+                <td class="text-yellow-400">${Number(w.amount).toFixed(2)} $</td>
                 <td>${w.type === 'profit' ? 'أرباح' : 'أصل'}</td>
                 <td class="text-xs">${esc(w.walletAddress?.substring(0,15)+'...')}</td>
                 <td>${new Date(w.date).toLocaleString()}</td>
@@ -350,7 +350,7 @@
         document.getElementById('stat-users').innerText = users.length;
         document.getElementById('stat-deposits').innerText = deposits.filter(d => d.status === 'pending').length;
         document.getElementById('stat-withdrawals').innerText = withdrawals.filter(w => w.status === 'pending').length;
-        document.getElementById('stat-balance').innerText = '$' + users.reduce((s,u) => s + (u.balance||0), 0).toFixed(0);
+        document.getElementById('stat-balance').innerText = '$' + users.reduce((s,u) => s + Number(u.balance||0), 0).toFixed(0);
     }
 
     let charts = {};
@@ -367,7 +367,7 @@
                 type: 'bar', data: { labels: data.dailyDeposits.map(d=>d.date), datasets: [{ label: 'إيداعات ($)', data: data.dailyDeposits.map(d=>d.total), backgroundColor: '#2a5298' }] }
             });
         }
-        document.getElementById('topBalance').innerHTML = (data.topBalanceUsers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-blue-300">${u.balance} $</span></div>`).join('');
+        document.getElementById('topBalance').innerHTML = (data.topBalanceUsers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-blue-300">${Number(u.balance)} $</span></div>`).join('');
         document.getElementById('topReferrers').innerHTML = (data.topReferrers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-blue-300">${u.referralCount} مدعو</span></div>`).join('');
     }
 
@@ -381,6 +381,7 @@
     let currentSocket;
     function initSocket() {
         currentSocket = io(window.location.origin, { withCredentials: true });
+        currentSocket.off('new-deposit-request'); currentSocket.off('new-withdrawal-request'); currentSocket.off('new-ticket');
         currentSocket.on('new-deposit-request', d => {
             Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'إيداع جديد', text: `${d.username} - ${d.amount}$`, timer: 4000, background: '#071426', color: '#fff' });
             loadEverything();
