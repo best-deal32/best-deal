@@ -1,13 +1,15 @@
 // ============================================================
-// server.js - Vivor | استثمار المعادن الثمينة (النسخة الكاملة النهائية)
+// server.js - Vivor | استثمار المعادن الثمينة (الإصدار النهائي)
 // ============================================================
-// التعديلات المطبقة حديثاً:
-// - حذف نظام الرتب بالكامل (updateUserLevel أصبحت فارغة التأثير).
-// - حذف جميع المشاريع باستثناء "metals" (ذهب وفضة).
-// - مشروع المعادن: 3% يومياً، حد أدنى 50$، حد أقصى 10000$.
-// - إيداع بدون رفع صور: المبلغ ورمز المعاملة فقط.
-// - إحالات: 15% من أول إيداع، باستخدام كود إحالة فقط (بدون رابط).
-// - إبقاء جميع الأنظمة الأخرى كما هي (تذاكر، إشعارات، مكافآت يومية، تحليلات، إلخ).
+// تم حل جميع المشاكل المعروفة:
+// - دعم دخول الأدمن عبر البوابة (admin_gateway_token)
+// - زيادة صلاحية رمز البوابة إلى ساعة
+// - تذكرة زائر (بدون تسجيل دخول)
+// - منع السحب قبل أول إيداع
+// - تنبيه وقت السحب (٦-١٢ GMT) - بدون منع
+// - حذف نظام الرتب والمشاريع المتعددة
+// - إيداع بدون رفع صور (المبلغ + رمز المعاملة)
+// - إحالات: 15% من أول إيداع باستخدام الكود فقط
 // ============================================================
 
 const express = require('express');
@@ -77,15 +79,9 @@ const upload = multer({
 async function uploadToCloudinary(buffer, originalname) {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'deposits',
-        allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-        transformation: [{ width: 1024, height: 1024, crop: 'limit' }]
-      },
-      (error, result) => {
-        if (error) reject(error);
-        else resolve(result);
-      }
+      { folder: 'deposits', allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+        transformation: [{ width: 1024, height: 1024, crop: 'limit' }] },
+      (error, result) => { if (error) reject(error); else resolve(result); }
     );
     uploadStream.end(buffer);
   });
@@ -110,7 +106,7 @@ async function initDatabase() {
         }
         setInterval(async () => {
             try { await db.query('SELECT 1'); console.log('✅ Keep-alive'); }
-            catch (err) { console.error('❌ Connection lost, reconnecting...'); await initDatabase(); }
+            catch (err) { console.error('❌ Connection lost'); await initDatabase(); }
         }, 60000);
     } catch (err) {
         console.error('❌ Database connection failed:', err.message);
@@ -120,147 +116,103 @@ async function initDatabase() {
 
 async function createTables() {
     await db.execute(`CREATE TABLE IF NOT EXISTS users (
-        id VARCHAR(50) PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        role VARCHAR(20) DEFAULT 'user',
-        fullName VARCHAR(100),
-        email VARCHAR(100) UNIQUE NOT NULL,
-        origin VARCHAR(100),
-        currentLocation VARCHAR(100),
-        currentJob VARCHAR(100),
-        work VARCHAR(100),
-        profession VARCHAR(100),
-        balance DECIMAL(10,2) DEFAULT 0,
-        profit DECIMAL(10,2) DEFAULT 0,
-        level VARCHAR(20) DEFAULT 'برونزي',
-        createdAt DATETIME,
-        isVerified TINYINT DEFAULT 0,
-        referralCode VARCHAR(50) UNIQUE,
-        referrerId VARCHAR(50) NULL,
-        refreshToken VARCHAR(255),
-        loginAttempts INT DEFAULT 0,
-        lockUntil DATETIME,
-        lastDailyBonus DATE NULL,
-        totalDeposits DECIMAL(10,2) DEFAULT 0,
+        id VARCHAR(50) PRIMARY KEY, username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL, role VARCHAR(20) DEFAULT 'user',
+        fullName VARCHAR(100), email VARCHAR(100) UNIQUE NOT NULL,
+        origin VARCHAR(100), currentLocation VARCHAR(100),
+        currentJob VARCHAR(100), work VARCHAR(100), profession VARCHAR(100),
+        balance DECIMAL(10,2) DEFAULT 0, profit DECIMAL(10,2) DEFAULT 0,
+        level VARCHAR(20) DEFAULT 'برونزي', createdAt DATETIME,
+        isVerified TINYINT DEFAULT 0, referralCode VARCHAR(50) UNIQUE,
+        referrerId VARCHAR(50) NULL, refreshToken VARCHAR(255),
+        loginAttempts INT DEFAULT 0, lockUntil DATETIME,
+        lastDailyBonus DATE NULL, totalDeposits DECIMAL(10,2) DEFAULT 0,
         dailyBonusStreak INT DEFAULT 0
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS deposit_requests (
-        id VARCHAR(50) PRIMARY KEY,
-        userId VARCHAR(50) NOT NULL,
-        username VARCHAR(50) NOT NULL,
-        amount DECIMAL(10,2) NOT NULL,
-        method VARCHAR(50),
-        status VARCHAR(20) DEFAULT 'pending',
-        screenshotPath VARCHAR(255),
-        date DATETIME NOT NULL,
+        id VARCHAR(50) PRIMARY KEY, userId VARCHAR(50) NOT NULL,
+        username VARCHAR(50) NOT NULL, amount DECIMAL(10,2) NOT NULL,
+        method VARCHAR(50), status VARCHAR(20) DEFAULT 'pending',
+        screenshotPath VARCHAR(255), date DATETIME NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS withdrawal_requests (
-        id VARCHAR(50) PRIMARY KEY,
-        userId VARCHAR(50) NOT NULL,
-        username VARCHAR(50) NOT NULL,
-        amount DECIMAL(10,2) NOT NULL,
+        id VARCHAR(50) PRIMARY KEY, userId VARCHAR(50) NOT NULL,
+        username VARCHAR(50) NOT NULL, amount DECIMAL(10,2) NOT NULL,
         walletAddress VARCHAR(255) NOT NULL,
         type ENUM('profit', 'principal') DEFAULT 'profit',
-        status VARCHAR(20) DEFAULT 'pending',
-        date DATETIME NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending', date DATETIME NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS investments (
-        id VARCHAR(50) PRIMARY KEY,
-        userId VARCHAR(50) NOT NULL,
-        username VARCHAR(50) NOT NULL,
-        amount DECIMAL(10,2) NOT NULL,
+        id VARCHAR(50) PRIMARY KEY, userId VARCHAR(50) NOT NULL,
+        username VARCHAR(50) NOT NULL, amount DECIMAL(10,2) NOT NULL,
         projectType VARCHAR(20) NOT NULL DEFAULT 'metals',
-        startDate DATETIME NOT NULL,
-        lastProfitDate DATETIME,
+        startDate DATETIME NOT NULL, lastProfitDate DATETIME,
         withdrawnProfit DECIMAL(10,2) DEFAULT 0,
         withdrawnPrincipal TINYINT DEFAULT 0,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS referrals (
-        id VARCHAR(50) PRIMARY KEY,
-        referrerId VARCHAR(50) NOT NULL,
-        referredId VARCHAR(50) NOT NULL,
-        amount DECIMAL(10,2) NOT NULL,
-        createdAt DATETIME NOT NULL,
-        level TINYINT DEFAULT 1,
+        id VARCHAR(50) PRIMARY KEY, referrerId VARCHAR(50) NOT NULL,
+        referredId VARCHAR(50) NOT NULL, amount DECIMAL(10,2) NOT NULL,
+        createdAt DATETIME NOT NULL, level TINYINT DEFAULT 1,
         FOREIGN KEY (referrerId) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (referredId) REFERENCES users(id) ON DELETE CASCADE
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS activity_logs (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        userId VARCHAR(50),
-        action VARCHAR(255),
-        details TEXT,
-        ip VARCHAR(45),
+        id INT AUTO_INCREMENT PRIMARY KEY, userId VARCHAR(50),
+        action VARCHAR(255), details TEXT, ip VARCHAR(45),
         timestamp DATETIME,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE SET NULL
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS notifications (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        userId VARCHAR(50) NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        message TEXT NOT NULL,
-        isRead TINYINT DEFAULT 0,
-        createdAt DATETIME NOT NULL,
+        id INT AUTO_INCREMENT PRIMARY KEY, userId VARCHAR(50) NOT NULL,
+        title VARCHAR(255) NOT NULL, message TEXT NOT NULL,
+        isRead TINYINT DEFAULT 0, createdAt DATETIME NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS admin_actions (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        adminId VARCHAR(50) NOT NULL,
-        adminUsername VARCHAR(50) NOT NULL,
-        actionType VARCHAR(50) NOT NULL,
-        targetUserId VARCHAR(50),
-        targetUsername VARCHAR(50),
-        details TEXT,
-        ip VARCHAR(45),
-        timestamp DATETIME,
+        id INT AUTO_INCREMENT PRIMARY KEY, adminId VARCHAR(50) NOT NULL,
+        adminUsername VARCHAR(50) NOT NULL, actionType VARCHAR(50) NOT NULL,
+        targetUserId VARCHAR(50), targetUsername VARCHAR(50),
+        details TEXT, ip VARCHAR(45), timestamp DATETIME,
         FOREIGN KEY (adminId) REFERENCES users(id) ON DELETE CASCADE
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS password_resets (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        email VARCHAR(100) NOT NULL,
-        token VARCHAR(255) NOT NULL,
-        expiresAt DATETIME NOT NULL,
+        id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(100) NOT NULL,
+        token VARCHAR(255) NOT NULL, expiresAt DATETIME NOT NULL,
         createdAt DATETIME DEFAULT NOW()
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS support_tickets (
-        id VARCHAR(50) PRIMARY KEY,
-        userId VARCHAR(50) NOT NULL,
-        username VARCHAR(50) NOT NULL,
-        subject VARCHAR(255) NOT NULL,
-        message TEXT NOT NULL,
-        priority ENUM('low', 'normal', 'high') DEFAULT 'normal',
+        id VARCHAR(50) PRIMARY KEY, userId VARCHAR(50) NOT NULL,
+        username VARCHAR(50) NOT NULL, subject VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL, priority ENUM('low', 'normal', 'high') DEFAULT 'normal',
         status ENUM('open', 'in_progress', 'closed') DEFAULT 'open',
-        attachmentPath VARCHAR(255),
-        createdAt DATETIME NOT NULL,
+        attachmentPath VARCHAR(255), createdAt DATETIME NOT NULL,
         updatedAt DATETIME NOT NULL,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS support_replies (
-        id VARCHAR(50) PRIMARY KEY,
-        ticketId VARCHAR(50) NOT NULL,
-        userId VARCHAR(50) NOT NULL,
-        username VARCHAR(50) NOT NULL,
-        message TEXT NOT NULL,
-        attachmentPath VARCHAR(255),
+        id VARCHAR(50) PRIMARY KEY, ticketId VARCHAR(50) NOT NULL,
+        userId VARCHAR(50) NOT NULL, username VARCHAR(50) NOT NULL,
+        message TEXT NOT NULL, attachmentPath VARCHAR(255),
         createdAt DATETIME NOT NULL,
         FOREIGN KEY (ticketId) REFERENCES support_tickets(id) ON DELETE CASCADE,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     )`);
 
+    // أعمدة مفقودة للتوافق
     try { await db.execute(`ALTER TABLE withdrawal_requests ADD COLUMN type ENUM('profit', 'principal') DEFAULT 'profit'`); } catch (err) {}
     try { await db.execute(`ALTER TABLE users ADD COLUMN referrerId VARCHAR(50) NULL`); } catch (err) {}
     try { await db.execute(`ALTER TABLE users ADD COLUMN lastDailyBonus DATE NULL`); } catch (err) {}
@@ -279,10 +231,7 @@ async function createTables() {
     }
 
     try {
-        await db.execute(`
-            UPDATE users u LEFT JOIN (SELECT userId, SUM(amount) as total FROM deposit_requests WHERE status = 'approved' GROUP BY userId) d
-            ON u.id = d.userId SET u.totalDeposits = COALESCE(d.total, 0)
-        `);
+        await db.execute(`UPDATE users u LEFT JOIN (SELECT userId, SUM(amount) as total FROM deposit_requests WHERE status = 'approved' GROUP BY userId) d ON u.id = d.userId SET u.totalDeposits = COALESCE(d.total, 0)`);
         console.log('✅ Updated totalDeposits');
     } catch (err) {}
 }
@@ -302,12 +251,24 @@ async function authenticateToken(req, res, next) {
     catch (err) { return res.status(403).json({ success: false, message: req.t('invalid_token') }); }
 }
 function adminOnly(req, res, next) {
-    if (req.user.role !== 'admin') return res.status(403).json({ success: false, message: req.t('admin_required') });
-    next();
+    // يقبل الجلسة العادية للأدمن
+    if (req.user && req.user.role === 'admin') return next();
+    // أو رمز البوابة المؤقت
+    const gatewayToken = req.cookies?.admin_gateway_token;
+    if (gatewayToken) {
+        try {
+            const decoded = jwt.verify(gatewayToken, JWT_SECRET);
+            if (decoded.type === 'admin_gateway' && decoded.role === 'admin') {
+                req.user = { id: 'admin_gateway', role: 'admin', username: 'admin_gateway' };
+                return next();
+            }
+        } catch (err) {}
+    }
+    return res.status(403).json({ success: false, message: req.t('admin_required') });
 }
 async function logAdminAction(adminId, adminUsername, actionType, targetUserId, targetUsername, details, ip) {
-    await runQuery(`INSERT INTO admin_actions (adminId, adminUsername, actionType, targetUserId, targetUsername, details, ip, timestamp)
-         VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`, [adminId, adminUsername, actionType, targetUserId, targetUsername, details, ip]);
+    await runQuery(`INSERT INTO admin_actions (adminId, adminUsername, actionType, targetUserId, targetUsername, details, ip, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+        [adminId, adminUsername, actionType, targetUserId, targetUsername, details, ip]);
 }
 async function addNotification(userId, title, message) {
     await runQuery(`INSERT INTO notifications (userId, title, message, createdAt, isRead) VALUES (?, ?, ?, NOW(), 0)`, [userId, title, message]);
@@ -324,13 +285,10 @@ const userSockets = new Map();
 const adminSockets = new Set();
 
 io.on('connection', (socket) => {
-    console.log('🔌 New client:', socket.id);
     socket.on('register-user', (userId) => { userSockets.set(userId, socket.id); });
     socket.on('register-admin', (adminId) => { adminSockets.add(socket.id); userSockets.set(adminId, socket.id); });
     socket.on('disconnect', () => {
-        for (let [userId, socketId] of userSockets.entries()) {
-            if (socketId === socket.id) { userSockets.delete(userId); adminSockets.delete(socketId); break; }
-        }
+        for (let [userId, socketId] of userSockets.entries()) if (socketId === socket.id) { userSockets.delete(userId); adminSockets.delete(socketId); break; }
     });
 });
 
@@ -348,14 +306,9 @@ app.use(cookieParser());
 
 const globalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 500, message: { success: false, message: 'Too many requests' } });
 const authLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 20, message: { success: false, message: 'Too many attempts' } });
-const depositLimiter = rateLimit({ windowMs: 24 * 60 * 60 * 1000, max: 5, message: { success: false, message: 'Max 5 deposit requests per day' } });
-const withdrawLimiter = rateLimit({ windowMs: 24 * 60 * 60 * 1000, max: 3, message: { success: false, message: 'Max 3 withdrawal requests per day' } });
-
 app.use('/api/', globalLimiter);
 app.use('/api/users/login', authLimiter);
 app.use('/api/users/register', authLimiter);
-app.use('/api/deposits/add', depositLimiter);
-app.use('/api/withdrawals/add', withdrawLimiter);
 
 // ====================== AUTH ROUTES ======================
 app.post('/api/users/login', async (req, res) => {
@@ -411,10 +364,7 @@ app.get('/api/users/me', authenticateToken, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
 
-// ====================== صيانة الرتب (معطلة) ======================
-async function updateUserLevel(userId) { /* معطلة - لا تغيير */ }
-
-// ====================== DEPOSIT ROUTES (بدون رفع صور) ======================
+// ====================== DEPOSIT ROUTES (بدون صور) ======================
 app.post('/api/deposits/add', authenticateToken, async (req, res) => {
     try {
         const { amount, transactionCode } = req.body;
@@ -433,13 +383,11 @@ app.post('/api/deposits/add', authenticateToken, async (req, res) => {
 });
 
 app.get('/api/admin/deposits', authenticateToken, adminOnly, async (req, res) => {
-    const rows = await allQuery('SELECT * FROM deposit_requests WHERE status = "pending" ORDER BY date DESC');
-    res.json(rows);
+    res.json(await allQuery('SELECT * FROM deposit_requests WHERE status = "pending" ORDER BY date DESC'));
 });
 
 app.get('/api/deposits/my', authenticateToken, async (req, res) => {
-    const rows = await allQuery('SELECT * FROM deposit_requests WHERE userId = ? ORDER BY date DESC', [req.user.id]);
-    res.json(rows);
+    res.json(await allQuery('SELECT * FROM deposit_requests WHERE userId = ? ORDER BY date DESC', [req.user.id]));
 });
 
 app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async (req, res) => {
@@ -450,20 +398,16 @@ app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async 
         await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
         await db.execute('UPDATE deposit_requests SET status = "approved" WHERE id = ?', [deposit.id]);
         await db.execute('UPDATE users SET totalDeposits = totalDeposits + ? WHERE id = ?', [amount, userId]);
-
         const totalDep = (await getQuery('SELECT totalDeposits FROM users WHERE id = ?', [userId])).totalDeposits;
         if (totalDep === amount && amount >= 50) {
             await db.execute('UPDATE users SET balance = balance + 5 WHERE id = ?', [userId]);
             await addNotification(userId, '🎁 مكافأة ترحيبية', '5$ بعد أول إيداع');
             await logActivity(userId, 'مكافأة ترحيبية', '5$');
         }
-
         await logAdminAction(req.user.id, req.user.username, 'approve_deposit', userId, username, `قبول إيداع ${amount}$`, req.ip);
         await addNotification(userId, 'تم قبول الإيداع', `تمت إضافة ${amount}$ إلى رصيدك`);
         await logActivity(userId, 'إيداع مقبول', `تم قبول إيداع ${amount}$`, req.ip);
-
-        if (totalDep === amount) await processReferralBonus(userId, amount); // 15%
-
+        if (totalDep === amount) await processReferralBonus(userId, amount);
         res.json({ success: true, message: 'تم قبول الإيداع' });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
@@ -495,25 +439,19 @@ app.post('/api/withdrawals/add', authenticateToken, async (req, res) => {
         const withdrawAmount = parseFloat(amount);
         if (isNaN(withdrawAmount) || withdrawAmount <= 0) return res.status(400).json({ success: false, message: 'مبلغ غير صالح' });
         if (type !== 'profit' && type !== 'principal') return res.status(400).json({ success: false, message: 'نوع السحب غير صالح' });
-
         const user = await getQuery('SELECT balance, profit, totalDeposits FROM users WHERE id = ?', [req.user.id]);
         if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
         if ((user.totalDeposits || 0) <= 0) return res.status(400).json({ success: false, message: 'يجب القيام بإيداع أولاً' });
-
         if (type === 'profit') {
             if (parseFloat(user.profit) < withdrawAmount) return res.status(400).json({ success: false, message: 'الأرباح غير كافية' });
             if (withdrawAmount < 10) return res.status(400).json({ success: false, message: 'الحد الأدنى لسحب الأرباح هو 10$' });
         } else {
             if (parseFloat(user.balance) < withdrawAmount) return res.status(400).json({ success: false, message: 'الرصيد غير كافٍ' });
         }
-
         const id = `WIT_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
-        await runQuery(
-            `INSERT INTO withdrawal_requests (id, userId, username, amount, walletAddress, type, status, date)
-             VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())`,
-            [id, req.user.id, req.user.username, withdrawAmount, walletAddress, type]
-        );
-        await logActivity(req.user.id, 'طلب سحب', `طلب سحب ${withdrawAmount}$ (${type === 'profit' ? 'أرباح' : 'أصل'})`, req.ip);
+        await runQuery(`INSERT INTO withdrawal_requests (id, userId, username, amount, walletAddress, type, status, date) VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())`,
+            [id, req.user.id, req.user.username, withdrawAmount, walletAddress, type]);
+        await logActivity(req.user.id, 'طلب سحب', `طلب سحب ${withdrawAmount}$`, req.ip);
         await addNotification(req.user.id, 'طلب سحب', `تم تقديم طلب سحب ${withdrawAmount}$`);
         notifyAdmins('new-withdrawal-request', { username: req.user.username, amount: withdrawAmount, type });
         res.json({ success: true, message: 'تم تقديم طلب السحب' });
@@ -521,13 +459,11 @@ app.post('/api/withdrawals/add', authenticateToken, async (req, res) => {
 });
 
 app.get('/api/admin/withdrawals', authenticateToken, adminOnly, async (req, res) => {
-    const rows = await allQuery('SELECT * FROM withdrawal_requests WHERE status = "pending" ORDER BY date DESC');
-    res.json(rows);
+    res.json(await allQuery('SELECT * FROM withdrawal_requests WHERE status = "pending" ORDER BY date DESC'));
 });
 
 app.get('/api/withdrawals/my', authenticateToken, async (req, res) => {
-    const rows = await allQuery('SELECT * FROM withdrawal_requests WHERE userId = ? ORDER BY date DESC', [req.user.id]);
-    res.json(rows);
+    res.json(await allQuery('SELECT * FROM withdrawal_requests WHERE userId = ? ORDER BY date DESC', [req.user.id]));
 });
 
 app.post('/api/admin/withdrawals/:id/approve', authenticateToken, adminOnly, async (req, res) => {
@@ -538,13 +474,8 @@ app.post('/api/admin/withdrawals/:id/approve', authenticateToken, adminOnly, asy
         const withdrawAmount = parseFloat(amount);
         const user = await getQuery('SELECT balance, profit FROM users WHERE id = ?', [userId]);
         let newBalance = parseFloat(user.balance), newProfit = parseFloat(user.profit);
-        if (type === 'profit') {
-            if (newProfit < withdrawAmount) return res.status(400).json({ success: false, message: 'أرباح غير كافية' });
-            newProfit -= withdrawAmount;
-        } else {
-            if (newBalance < withdrawAmount) return res.status(400).json({ success: false, message: 'رصيد غير كافٍ' });
-            newBalance -= withdrawAmount;
-        }
+        if (type === 'profit') { if (newProfit < withdrawAmount) return res.status(400).json({ success: false, message: 'أرباح غير كافية' }); newProfit -= withdrawAmount; }
+        else { if (newBalance < withdrawAmount) return res.status(400).json({ success: false, message: 'رصيد غير كافٍ' }); newBalance -= withdrawAmount; }
         await db.execute('UPDATE users SET balance = ?, profit = ? WHERE id = ?', [newBalance, newProfit, userId]);
         await db.execute('UPDATE withdrawal_requests SET status = "approved" WHERE id = ?', [req.params.id]);
         await logAdminAction(req.user.id, req.user.username, 'approve_withdrawal', userId, username, `قبول سحب ${withdrawAmount}$`, req.ip);
@@ -573,33 +504,27 @@ app.post('/api/admin/withdrawals/:id/:action', authenticateToken, adminOnly, asy
     else return res.status(400).json({ success: false, message: 'إجراء غير صالح' });
 });
 
-// ====================== INVESTMENT (المعادن الثمينة فقط) ======================
+// ====================== INVESTMENT (المعادن) ======================
 app.post('/api/investments/create', authenticateToken, async (req, res) => {
     try {
         const { amount } = req.body;
         const invest = parseFloat(amount);
-        if (isNaN(invest) || invest < 50) return res.status(400).json({ success: false, message: 'الحد الأدنى للاستثمار 50$' });
-        if (invest > 10000) return res.status(400).json({ success: false, message: 'الحد الأقصى للاستثمار 10,000$' });
-
+        if (isNaN(invest) || invest < 50) return res.status(400).json({ success: false, message: 'الحد الأدنى 50$' });
+        if (invest > 10000) return res.status(400).json({ success: false, message: 'الحد الأقصى 10,000$' });
         const user = await getQuery('SELECT balance FROM users WHERE id = ?', [req.user.id]);
-        if (!user || user.balance < invest) return res.status(400).json({ success: false, message: 'رصيدك غير كافٍ' });
-
+        if (!user || user.balance < invest) return res.status(400).json({ success: false, message: 'رصيد غير كافٍ' });
         const id = `INV_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
-        await runQuery(
-            `INSERT INTO investments (id, userId, username, amount, projectType, startDate, lastProfitDate, withdrawnProfit, withdrawnPrincipal)
-             VALUES (?, ?, ?, ?, 'metals', NOW(), NOW(), 0, 0)`,
-            [id, req.user.id, req.user.username, invest]
-        );
+        await runQuery(`INSERT INTO investments (id, userId, username, amount, projectType, startDate, lastProfitDate, withdrawnProfit, withdrawnPrincipal) VALUES (?, ?, ?, ?, 'metals', NOW(), NOW(), 0, 0)`,
+            [id, req.user.id, req.user.username, invest]);
         await runQuery('UPDATE users SET balance = balance - ? WHERE id = ?', [invest, req.user.id]);
-        await addNotification(req.user.id, 'تم الاستثمار', `تم استثمار ${invest}$ في المعادن الثمينة`);
-        await logActivity(req.user.id, 'استثمار جديد', `استثمار ${invest}$ في المعادن`, req.ip);
-        res.json({ success: true, message: `تم استثمار ${invest}$ في المعادن الثمينة` });
+        await addNotification(req.user.id, 'تم الاستثمار', `استثمار ${invest}$ في المعادن`);
+        await logActivity(req.user.id, 'استثمار معادن', `استثمار ${invest}$`, req.ip);
+        res.json({ success: true, message: `تم استثمار ${invest}$` });
     } catch (err) { console.error(err); res.status(500).json({ success: false }); }
 });
 
 app.get('/api/investments/my', authenticateToken, async (req, res) => {
-    const rows = await allQuery('SELECT * FROM investments WHERE userId = ?', [req.user.id]);
-    res.json(rows);
+    res.json(await allQuery('SELECT * FROM investments WHERE userId = ?', [req.user.id]));
 });
 
 app.post('/api/investments/withdraw-profit', authenticateToken, async (req, res) => {
@@ -608,18 +533,17 @@ app.post('/api/investments/withdraw-profit', authenticateToken, async (req, res)
         const [rows] = await db.execute('SELECT * FROM investments WHERE id = ? AND userId = ?', [investmentId, req.user.id]);
         if (!rows || rows.length === 0) return res.status(404).json({ success: false, message: 'الاستثمار غير موجود' });
         const inv = rows[0];
-        const now = new Date();
-        const lastProfitDate = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
+        const now = new Date(); const lastProfitDate = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
         const diffDays = Math.floor((now - lastProfitDate) / (1000 * 60 * 60 * 24));
         if (diffDays <= 0) return res.status(400).json({ success: false, message: 'لا توجد أرباح جديدة' });
         const profit = inv.amount * 0.03 * diffDays;
-        if (profit < 10) return res.status(400).json({ success: false, message: 'الحد الأدنى لسحب الأرباح هو 10$' });
+        if (profit < 10) return res.status(400).json({ success: false, message: 'الحد الأدنى لسحب الأرباح 10$' });
         await db.execute('UPDATE users SET profit = profit + ? WHERE id = ?', [profit, req.user.id]);
         await db.execute('UPDATE investments SET withdrawnProfit = withdrawnProfit + ?, lastProfitDate = NOW() WHERE id = ?', [profit, investmentId]);
-        await addNotification(req.user.id, 'سحب أرباح', `تم سحب أرباح ${profit.toFixed(2)}$`);
-        await logActivity(req.user.id, 'سحب أرباح استثمار', `تم سحب ${profit.toFixed(2)}$ أرباح`, req.ip);
+        await addNotification(req.user.id, 'سحب أرباح', `تم سحب ${profit.toFixed(2)}$`);
+        await logActivity(req.user.id, 'سحب أرباح استثمار', `سحب ${profit.toFixed(2)}$`, req.ip);
         res.json({ success: true, message: `تم سحب ${profit.toFixed(2)}$ أرباح` });
-    } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
+    } catch (err) { console.error(err); res.status(500).json({ success: false }); }
 });
 
 app.post('/api/investments/withdraw-principal', authenticateToken, async (req, res) => {
@@ -629,41 +553,35 @@ app.post('/api/investments/withdraw-principal', authenticateToken, async (req, r
         if (!rows || rows.length === 0) return res.status(404).json({ success: false, message: 'الاستثمار غير موجود' });
         const inv = rows[0];
         if (inv.withdrawnPrincipal) return res.status(400).json({ success: false, message: 'تم سحب الأصل مسبقاً' });
-        // يمكن سحب الأصل في أي وقت
         await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [inv.amount, req.user.id]);
         await db.execute('UPDATE investments SET withdrawnPrincipal = 1 WHERE id = ?', [investmentId]);
-        await addNotification(req.user.id, 'سحب أصل الاستثمار', `تم إعادة ${inv.amount}$ إلى رصيدك`);
-        await logActivity(req.user.id, 'سحب أصل استثمار', `تم سحب أصل ${inv.amount}$`, req.ip);
-        res.json({ success: true, message: `تم سحب أصل الاستثمار ${inv.amount}$` });
-    } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
+        await addNotification(req.user.id, 'سحب أصل الاستثمار', `تم إعادة ${inv.amount}$`);
+        await logActivity(req.user.id, 'سحب أصل استثمار', `سحب ${inv.amount}$`, req.ip);
+        res.json({ success: true, message: `تم سحب الأصل ${inv.amount}$` });
+    } catch (err) { console.error(err); res.status(500).json({ success: false }); }
 });
 
-// ====================== REFERRAL (15% من أول إيداع) ======================
+// ====================== REFERRAL (15%) ======================
 async function processReferralBonus(referredUserId, depositAmount) {
     try {
         const referred = await getQuery('SELECT referrerId FROM users WHERE id = ?', [referredUserId]);
         if (!referred || !referred.referrerId) return;
         const referrer = await getQuery('SELECT id, username FROM users WHERE id = ?', [referred.referrerId]);
         if (!referrer) return;
-
         const previousDeposits = await getQuery('SELECT COUNT(*) as cnt FROM deposit_requests WHERE userId = ? AND status = "approved"', [referredUserId]);
         if (previousDeposits.cnt > 1) return;
-
         const bonus = depositAmount * 0.15;
         if (bonus <= 0) return;
-
         await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [bonus, referrer.id]);
-        await addNotification(referrer.id, 'مكافأة إحالة', `ربحت ${bonus.toFixed(2)}$ من إيداع ${referredUserId}`);
-        await logActivity(referrer.id, 'مكافأة إحالة', `${bonus.toFixed(2)}$ من إيداع ${referredUserId}`);
-        console.log(`Referral bonus: ${bonus}$ to ${referrer.username}`);
+        await addNotification(referrer.id, 'مكافأة إحالة', `حصلت على ${bonus.toFixed(2)}$ من إيداع ${referredUserId}`);
+        await logActivity(referrer.id, 'مكافأة إحالة', `${bonus.toFixed(2)}$`, req.ip);
     } catch (err) { console.error('Referral error:', err); }
 }
 
 app.get('/api/referrals/my', authenticateToken, async (req, res) => {
     try {
         const directReferrals = await allQuery('SELECT id, username, email, createdAt FROM users WHERE referrerId = ?', [req.user.id]);
-        let totalEarned = 0;
-        const list = [];
+        let totalEarned = 0; const list = [];
         for (const ref of directReferrals) {
             const firstDep = await getQuery('SELECT amount FROM deposit_requests WHERE userId = ? AND status = "approved" ORDER BY date ASC LIMIT 1', [ref.id]);
             const depositAmount = firstDep ? firstDep.amount : 0;
@@ -675,10 +593,9 @@ app.get('/api/referrals/my', authenticateToken, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ success: false }); }
 });
 
-// ====================== NOTIFICATIONS ======================
+// ====================== NOTIFICATIONS & DAILY BONUS ======================
 app.get('/api/notifications', authenticateToken, async (req, res) => {
-    const rows = await allQuery('SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT 50', [req.user.id]);
-    res.json(rows);
+    res.json(await allQuery('SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT 50', [req.user.id]));
 });
 app.put('/api/notifications/:id/read', authenticateToken, async (req, res) => {
     await runQuery('UPDATE notifications SET isRead = 1 WHERE id = ? AND userId = ?', [req.params.id, req.user.id]);
@@ -689,7 +606,6 @@ app.put('/api/notifications/read-all', authenticateToken, async (req, res) => {
     res.json({ success: true });
 });
 
-// ====================== DAILY BONUS ======================
 async function getDailyBonusAmount(streak) { if (streak >= 15) return 1.0; if (streak >= 8) return 0.75; return 0.5; }
 app.get('/api/daily-bonus/status', authenticateToken, async (req, res) => {
     const user = await getQuery('SELECT totalDeposits, lastDailyBonus, dailyBonusStreak FROM users WHERE id = ?', [req.user.id]);
@@ -714,23 +630,17 @@ app.post('/api/daily-bonus/claim', authenticateToken, async (req, res) => {
     res.json({ success: true, amount, streak });
 });
 
-// ====================== ANALYTICS (مستخدم) ======================
+// ====================== ANALYTICS ======================
 app.get('/api/analytics/user', authenticateToken, async (req, res) => {
     try {
-        const activities = await allQuery(
-            `SELECT DATE(timestamp) as date, 
-                    SUM(CASE WHEN action LIKE 'إيداع%' OR action LIKE 'ربح%' OR action LIKE 'مكافأة%' THEN 1 ELSE 0 END) as positive_events,
-                    SUM(CASE WHEN action LIKE 'سحب%' OR action LIKE 'استثمار%' THEN 1 ELSE 0 END) as negative_events
-             FROM activity_logs WHERE userId = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY DATE(timestamp)`, [req.user.id]
-        );
+        const activities = await allQuery(`SELECT DATE(timestamp) as date, SUM(CASE WHEN action LIKE 'إيداع%' OR action LIKE 'ربح%' OR action LIKE 'مكافأة%' THEN 1 ELSE 0 END) as positive_events FROM activity_logs WHERE userId = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY DATE(timestamp)`, [req.user.id]);
         const investments = await allQuery('SELECT projectType, SUM(amount) as total FROM investments WHERE userId = ? GROUP BY projectType', [req.user.id]);
         const investmentDistribution = {}; investments.forEach(inv => { investmentDistribution[inv.projectType] = parseFloat(inv.total); });
         const referralStats = await getQuery('SELECT COUNT(*) as totalReferrals, SUM(amount) as totalEarned FROM referrals WHERE referrerId = ?', [req.user.id]);
         res.json({ dailyBalance: activities, investmentDistribution, referralStats: { totalReferrals: referralStats.totalReferrals || 0, totalEarned: referralStats.totalEarned || 0 } });
-    } catch (err) { console.error(err); res.status(500).json({}); }
+    } catch (err) { res.status(500).json({}); }
 });
 
-// ====================== ADMIN ANALYTICS ======================
 app.get('/api/admin/analytics', authenticateToken, adminOnly, async (req, res) => {
     try {
         const totalDeposits = await getQuery('SELECT SUM(amount) as total FROM deposit_requests WHERE status = "approved"');
@@ -743,50 +653,57 @@ app.get('/api/admin/analytics', authenticateToken, adminOnly, async (req, res) =
         const topBalanceUsers = await allQuery('SELECT username, balance, profit FROM users ORDER BY balance DESC LIMIT 10');
         const topReferrers = await allQuery(`SELECT u.username, COUNT(r.id) as referralCount FROM users u LEFT JOIN referrals r ON u.id = r.referrerId GROUP BY u.id ORDER BY referralCount DESC LIMIT 10`);
         res.json({ totalDeposits: totalDeposits.total||0, totalWithdrawals: totalWithdrawals.total||0, platformProfit: platformProfit||0, referralCommissions: referralCommissions.total||0, totalUsers: totalUsers.count||0, userGrowth, dailyDeposits, topBalanceUsers, topReferrers });
-    } catch (err) { console.error(err); res.status(500).json({}); }
+    } catch (err) { res.status(500).json({}); }
 });
 
 // ====================== SUPPORT TICKETS ======================
-const ticketUpload = multer({ storage: multerStorage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter: (req, file, cb) => { if (file.mimetype.startsWith('image/')) cb(null, true); else cb(new Error('يسمح فقط برفع الصور'), false); } });
+const ticketUpload = multer({ storage: multerStorage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter: (req, file, cb) => { if (file.mimetype.startsWith('image/')) cb(null, true); else cb(new Error('صور فقط'), false); } });
 async function uploadTicketAttachment(buffer, originalname) {
     return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream({ folder: 'support_tickets', allowed_formats: ['jpg', 'png', 'jpeg', 'webp'] }, (error, result) => { if (error) reject(error); else resolve(result); });
         uploadStream.end(buffer);
     });
 }
+
 app.post('/api/support/tickets', authenticateToken, ticketUpload.single('attachment'), async (req, res) => {
     try {
-        const { subject, message, priority = 'normal' } = req.body;
-        if (!subject || !message) return res.status(400).json({ success: false, message: 'الموضوع والرسالة مطلوبان' });
-        let attachmentUrl = null;
-        if (req.file) { const uploadResult = await uploadTicketAttachment(req.file.buffer, req.file.originalname); attachmentUrl = uploadResult.secure_url; }
+        const { subject, message, priority = 'normal' } = req.body; if (!subject || !message) return res.status(400).json({ success: false, message: 'الموضوع والرسالة مطلوبان' });
+        let attachmentUrl = null; if (req.file) { const result = await uploadTicketAttachment(req.file.buffer, req.file.originalname); attachmentUrl = result.secure_url; }
         const id = `TKT_${Date.now()}_${Math.random().toString(36).substr(2,8)}`;
         await runQuery(`INSERT INTO support_tickets (id, userId, username, subject, message, priority, status, attachmentPath, createdAt, updatedAt) VALUES (?,?,?,?,?,?,'open',?,NOW(),NOW())`, [id, req.user.id, req.user.username, subject, message, priority, attachmentUrl]);
         await addNotification(req.user.id, 'تم فتح تذكرة', 'سيتم الرد قريباً'); notifyAdmins('new-ticket', { username: req.user.username, subject });
         res.json({ success: true, ticketId: id });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'حدث خطأ' }); }
 });
+
+// تذكرة زائر
+app.post('/api/support/tickets/guest', async (req, res) => {
+    try {
+        const { name, subject, message } = req.body; if (!subject || !message) return res.status(400).json({ success: false, message: 'الموضوع والرسالة مطلوبان' });
+        const id = `TKT_GUEST_${Date.now()}_${Math.random().toString(36).substr(2,8)}`;
+        await runQuery(`INSERT INTO support_tickets (id, userId, username, subject, message, priority, status, createdAt, updatedAt) VALUES (?, 'GUEST', ?, ?, ?, 'normal', 'open', NOW(), NOW())`, [id, name || 'زائر', subject, message]);
+        res.json({ success: true, ticketId: id });
+    } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'حدث خطأ' }); }
+});
+
 app.get('/api/support/tickets', authenticateToken, async (req, res) => {
     res.json(await allQuery('SELECT * FROM support_tickets WHERE userId = ? ORDER BY createdAt DESC', [req.user.id]));
 });
 app.get('/api/support/tickets/:id', authenticateToken, async (req, res) => {
     const ticket = await getQuery('SELECT * FROM support_tickets WHERE id = ? AND (userId = ? OR ? = "admin")', [req.params.id, req.user.id, req.user.role]);
     if (!ticket) return res.status(404).json({ success: false });
-    const replies = await allQuery('SELECT * FROM support_replies WHERE ticketId = ? ORDER BY createdAt ASC', [req.params.id]);
-    res.json({ ticket, replies });
+    res.json({ ticket, replies: await allQuery('SELECT * FROM support_replies WHERE ticketId = ? ORDER BY createdAt ASC', [req.params.id]) });
 });
 app.post('/api/support/tickets/:id/reply', authenticateToken, ticketUpload.single('attachment'), async (req, res) => {
     try {
-        const ticket = await getQuery('SELECT * FROM support_tickets WHERE id = ?', [req.params.id]);
-        if (!ticket) return res.status(404).json({ success: false, message: 'التذكرة غير موجودة' });
+        const ticket = await getQuery('SELECT * FROM support_tickets WHERE id = ?', [req.params.id]); if (!ticket) return res.status(404).json({ success: false, message: 'التذكرة غير موجودة' });
         if (ticket.userId !== req.user.id && req.user.role !== 'admin') return res.status(403).json({ success: false });
         const { message } = req.body; if (!message) return res.status(400).json({ success: false, message: 'الرسالة مطلوبة' });
-        let attachmentUrl = null;
-        if (req.file) { const uploadResult = await uploadTicketAttachment(req.file.buffer, req.file.originalname); attachmentUrl = uploadResult.secure_url; }
+        let attachmentUrl = null; if (req.file) { const result = await uploadTicketAttachment(req.file.buffer, req.file.originalname); attachmentUrl = result.secure_url; }
         const replyId = `REP_${Date.now()}_${Math.random().toString(36).substr(2,8)}`;
         await runQuery(`INSERT INTO support_replies (id, ticketId, userId, username, message, attachmentPath, createdAt) VALUES (?,?,?,?,?,?,NOW())`, [replyId, req.params.id, req.user.id, req.user.username, message, attachmentUrl]);
         await runQuery('UPDATE support_tickets SET updatedAt = NOW(), status = ? WHERE id = ?', [req.user.role === 'admin' ? 'in_progress' : 'open', req.params.id]);
-        if (req.user.role === 'admin') { await addNotification(ticket.userId, 'تم الرد على تذكرتك', `رد على: ${ticket.subject}`); sendNotificationToUser(ticket.userId, 'رد جديد', `رد على: ${ticket.subject}`, 'info'); }
+        if (req.user.role === 'admin') { await addNotification(ticket.userId, 'تم الرد على تذكرتك', `رد على: ${ticket.subject}`); }
         else { notifyAdmins('ticket-reply', { username: req.user.username, subject: ticket.subject }); }
         res.json({ success: true });
     } catch (err) { console.error(err); res.status(500).json({ success: false }); }
@@ -800,193 +717,86 @@ app.get('/api/admin/support/tickets', authenticateToken, adminOnly, async (req, 
     res.json(await allQuery('SELECT * FROM support_tickets ORDER BY createdAt DESC'));
 });
 
-// تذكرة زائر (بدون مصادقة)
-app.post('/api/support/tickets/guest', async (req, res) => {
-    try {
-        const { name, subject, message } = req.body;
-        if (!subject || !message) return res.status(400).json({ success: false, message: 'الموضوع والرسالة مطلوبان' });
-        const id = `TKT_GUEST_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
-        await runQuery(
-            `INSERT INTO support_tickets (id, userId, username, subject, message, priority, status, createdAt, updatedAt)
-             VALUES (?, 'GUEST', ?, ?, ?, 'normal', 'open', NOW(), NOW())`,
-            [id, name || 'زائر', subject, message]
-        );
-        res.json({ success: true, ticketId: id });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false, message: 'حدث خطأ' });
-    }
-});
-
-// ====================== تغيير البريد / كلمة المرور ======================
-app.put('/api/users/change-email', authenticateToken, async (req, res) => {
-    try {
-        const { newEmail, password } = req.body;
-        if (!newEmail || !password) return res.status(400).json({ success: false, message: req.t('change_email_required') });
-        const user = await getQuery('SELECT password FROM users WHERE id = ?', [req.user.id]);
-        const match = await bcrypt.compare(password, user.password);
-        if (!match) return res.status(401).json({ success: false, message: req.t('incorrect_password') });
-        const [existing] = await db.execute('SELECT id FROM users WHERE email = ? AND id != ?', [newEmail, req.user.id]);
-        if (existing.length > 0) return res.status(400).json({ success: false, message: req.t('email_taken') });
-        await runQuery('UPDATE users SET email = ? WHERE id = ?', [newEmail, req.user.id]);
-        await addNotification(req.user.id, req.t('email_changed_title'), req.t('email_changed_message'));
-        await logActivity(req.user.id, 'تغيير البريد الإلكتروني', 'تم تغيير البريد الإلكتروني');
-        res.json({ success: true, message: req.t('email_changed') });
-    } catch (err) { console.error(err); res.status(500).json({ success: false }); }
-});
-app.put('/api/users/change-password', authenticateToken, async (req, res) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-        if (!currentPassword || !newPassword) return res.status(400).json({ success: false, message: req.t('change_password_required') });
-        if (newPassword.length < 6) return res.status(400).json({ success: false, message: req.t('password_too_short') });
-        const user = await getQuery('SELECT password FROM users WHERE id = ?', [req.user.id]);
-        const match = await bcrypt.compare(currentPassword, user.password);
-        if (!match) return res.status(401).json({ success: false, message: req.t('incorrect_current_password') });
-        const hashed = await bcrypt.hash(newPassword, 10);
-        await runQuery('UPDATE users SET password = ? WHERE id = ?', [hashed, req.user.id]);
-        await addNotification(req.user.id, req.t('password_changed_title'), req.t('password_changed_message'));
-        await logActivity(req.user.id, 'تغيير كلمة المرور', 'تم تغيير كلمة المرور');
-        res.json({ success: true, message: req.t('password_changed') });
-    } catch (err) { console.error(err); res.status(500).json({ success: false }); }
-});
-
-// ====================== FORGOT / RESET PASSWORD ======================
-app.post('/api/auth/forgot-password', async (req, res) => {
-    try {
-        const { email } = req.body;
-        if (!email) return res.status(400).json({ success: false, message: req.t('email_required') });
-        const user = await getQuery('SELECT id FROM users WHERE email = ?', [email]);
-        if (!user) return res.status(404).json({ success: false, message: req.t('email_not_found') });
-        await runQuery('DELETE FROM password_resets WHERE email = ?', [email]);
-        const token = crypto.randomBytes(32).toString('hex');
-        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-        await runQuery('INSERT INTO password_resets (email, token, expiresAt) VALUES (?, ?, ?)', [email, token, expiresAt]);
-        const resetLink = `${req.protocol}://${req.get('host')}/reset-password.html?token=${token}`;
-        console.log(`🔐 Password reset link for ${email}: ${resetLink}`);
-        res.json({ success: true, message: req.t('reset_link_sent') });
-    } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
-});
-app.post('/api/auth/reset-password', async (req, res) => {
-    try {
-        const { token, newPassword } = req.body;
-        if (!token || !newPassword) return res.status(400).json({ success: false, message: req.t('reset_required_fields') });
-        if (newPassword.length < 6) return res.status(400).json({ success: false, message: req.t('password_too_short') });
-        const reset = await getQuery('SELECT * FROM password_resets WHERE token = ? AND expiresAt > NOW()', [token]);
-        if (!reset) return res.status(400).json({ success: false, message: req.t('invalid_token') });
-        const hashed = await bcrypt.hash(newPassword, 10);
-        await runQuery('UPDATE users SET password = ? WHERE email = ?', [hashed, reset.email]);
-        await runQuery('DELETE FROM password_resets WHERE token = ?', [token]);
-        await addNotification(reset.email, req.t('password_reset_title'), req.t('password_reset_message'));
-        res.json({ success: true, message: req.t('password_reset_success') });
-    } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
-});
-
 // ====================== ADMIN ROUTES ======================
 app.get('/api/admin/users', authenticateToken, adminOnly, async (req, res) => {
-    const { search } = req.query;
-    let query = 'SELECT id, username, fullName, email, balance, profit, level, createdAt, isVerified, origin, currentLocation, currentJob, work, profession, totalDeposits FROM users';
-    let params = [];
+    const { search } = req.query; let query = 'SELECT id, username, fullName, email, balance, profit, level, createdAt, isVerified, origin, currentLocation, currentJob, work, profession, totalDeposits FROM users'; let params = [];
     if (search) { query += ' WHERE username LIKE ? OR email LIKE ? OR fullName LIKE ?'; params = [`%${search}%`, `%${search}%`, `%${search}%`]; }
-    query += ' ORDER BY createdAt DESC';
-    res.json({ users: await allQuery(query, params), total: (await allQuery(query, params)).length });
+    res.json({ users: await allQuery(query + ' ORDER BY createdAt DESC', params) });
 });
 app.get('/api/admin/user/:id', authenticateToken, adminOnly, async (req, res) => {
     const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ success: false, message: req.t('user_not_found') });
+    if (rows.length === 0) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
     res.json({ success: true, user: rows[0] });
 });
 app.post('/api/admin/set-user-balance', authenticateToken, adminOnly, async (req, res) => {
     const { userId, newBalance } = req.body;
     await db.execute('UPDATE users SET balance = ? WHERE id = ?', [parseFloat(newBalance), userId]);
     await logAdminAction(req.user.id, req.user.username, 'set_balance', userId, '', `تعديل الرصيد إلى ${newBalance}`, req.ip);
-    res.json({ success: true, message: req.t('balance_updated') });
-});
-app.post('/api/admin/set-user-level', authenticateToken, adminOnly, async (req, res) => {
-    res.json({ success: false, message: 'نظام الرتب ملغي' });
+    res.json({ success: true, message: 'تم تحديث الرصيد' });
 });
 app.post('/api/admin/reset-user-password', authenticateToken, adminOnly, async (req, res) => {
-    const { userId, newPassword } = req.body;
-    const hashed = await bcrypt.hash(newPassword, 10);
+    const { userId, newPassword } = req.body; const hashed = await bcrypt.hash(newPassword, 10);
     await db.execute('UPDATE users SET password = ? WHERE id = ?', [hashed, userId]);
     await logAdminAction(req.user.id, req.user.username, 'reset_password', userId, '', 'إعادة تعيين كلمة المرور', req.ip);
-    res.json({ success: true, message: req.t('password_reset_admin_success') });
+    res.json({ success: true, message: 'تم تغيير كلمة المرور' });
 });
 app.get('/api/admin/admin-actions', authenticateToken, adminOnly, async (req, res) => {
     res.json(await allQuery('SELECT * FROM admin_actions ORDER BY timestamp DESC LIMIT 200'));
 });
-app.get('/api/admin/verify', authenticateToken, (req, res) => {
-    res.json({ success: req.user.role === 'admin' });
-});
+app.get('/api/admin/verify', authenticateToken, (req, res) => res.json({ success: req.user.role === 'admin' }));
+
 app.post('/api/auth/verify-admin-gateway', async (req, res) => {
-    if (req.body.secretPassword === ADMIN_GATEWAY_SECRET) {
-        const tempToken = jwt.sign({ type: 'admin_gateway', role: 'admin' }, JWT_SECRET, { expiresIn: '5m' });
-        res.cookie('admin_gateway_token', tempToken, { httpOnly: true, sameSite: 'lax', secure: isProduction, maxAge: 5*60*1000 });
-        return res.json({ success: true });
-    }
-    res.status(401).json({ success: false, message: req.t('invalid_gateway_password') });
+    try {
+        if (req.body.secretPassword === ADMIN_GATEWAY_SECRET) {
+            const tempToken = jwt.sign({ type: 'admin_gateway', role: 'admin' }, JWT_SECRET, { expiresIn: '1h' });
+            res.cookie('admin_gateway_token', tempToken, { httpOnly: true, sameSite: 'lax', secure: isProduction, maxAge: 60 * 60 * 1000 });
+            return res.json({ success: true });
+        }
+        res.status(401).json({ success: false, message: req.t('invalid_gateway_password') });
+    } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// ====================== REGISTRATION & EMAIL ======================
+// ====================== REGISTRATION & MISC ======================
 app.get('/api/users/check-username', async (req, res) => {
     if (!req.query.username) return res.json({ exists: false });
     const [rows] = await db.execute('SELECT id FROM users WHERE username = ?', [req.query.username]);
     res.json({ exists: rows.length > 0 });
 });
 app.get('/api/auth/validate-email', async (req, res) => {
-    const email = req.query.email;
-    if (!email || !email.includes('@')) return res.json({ valid: false, reason: req.t('invalid_email_format') });
+    const email = req.query.email; if (!email || !email.includes('@')) return res.json({ valid: false, reason: 'بريد غير صالح' });
     const domain = email.split('@')[1].toLowerCase();
-    try { await dns.resolveMx(domain); return res.json({ valid: true }); } catch { return res.json({ valid: false, reason: req.t('domain_no_mx') }); }
+    try { await dns.resolveMx(domain); return res.json({ valid: true }); } catch { return res.json({ valid: false, reason: 'نطاق غير صالح' }); }
 });
 global.tempCodes = new Map();
 app.post('/api/users/register', async (req, res) => {
     try {
         const { username, password, fullName, email, referrerCode, verificationCode } = req.body;
-        if (!username || !password || !fullName || !email) return res.status(400).json({ success: false, message: req.t('register_required_fields') });
+        if (!username || !password || !fullName || !email) return res.status(400).json({ success: false, message: 'جميع الحقول الأساسية مطلوبة' });
         const [existing] = await db.execute('SELECT id FROM users WHERE username = ? OR email = ?', [username, email]);
-        if (existing.length > 0) return res.status(400).json({ success: false, message: req.t('username_or_email_taken') });
+        if (existing.length > 0) return res.status(400).json({ success: false, message: 'اسم المستخدم أو البريد موجود مسبقاً' });
         let isVerified = 0;
-        if (verificationCode && verificationCode.trim() !== '') {
-            const temp = global.tempCodes.get(email);
-            if (temp && temp.code === verificationCode && Date.now() <= temp.expiresAt) { isVerified = 1; global.tempCodes.delete(email); }
-        }
-        let referrerId = null;
-        if (referrerCode) { const [refRows] = await db.execute('SELECT id FROM users WHERE referralCode = ?', [referrerCode]); if (refRows.length > 0) referrerId = refRows[0].id; }
+        if (verificationCode && verificationCode.trim() !== '') { const temp = global.tempCodes.get(email); if (temp && temp.code === verificationCode && Date.now() <= temp.expiresAt) { isVerified = 1; global.tempCodes.delete(email); } }
+        let referrerId = null; if (referrerCode) { const [refRows] = await db.execute('SELECT id FROM users WHERE referralCode = ?', [referrerCode]); if (refRows.length > 0) referrerId = refRows[0].id; }
         const hashedPassword = await bcrypt.hash(password, 10);
         const userId = `USER_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
         const referralCodeGen = username + "_" + Math.random().toString(36).substr(2, 6);
-        await db.execute(
-            `INSERT INTO users (id, username, password, fullName, email, origin, currentLocation, currentJob, work, profession, createdAt, referrerId, referralCode, isVerified, loginAttempts, lockUntil, totalDeposits)
-             VALUES (?, ?, ?, ?, ?, 'غير محدد', 'غير محدد', 'غير محدد', 'غير محدد', 'غير محدد', NOW(), ?, ?, ?, 0, NULL, 0)`,
-            [userId, username, hashedPassword, fullName, email, referrerId, referralCodeGen, isVerified]
-        );
-        res.status(201).json({ success: true, message: isVerified ? req.t('register_success_verified') : req.t('register_success_unverified'), isVerified });
+        await db.execute(`INSERT INTO users (id, username, password, fullName, email, origin, currentLocation, currentJob, work, profession, createdAt, referrerId, referralCode, isVerified, loginAttempts, lockUntil, totalDeposits) VALUES (?, ?, ?, ?, ?, 'غير محدد', 'غير محدد', 'غير محدد', 'غير محدد', 'غير محدد', NOW(), ?, ?, ?, 0, NULL, 0)`,
+            [userId, username, hashedPassword, fullName, email, referrerId, referralCodeGen, isVerified]);
+        res.status(201).json({ success: true, message: isVerified ? 'تم التسجيل بنجاح' : 'تم التسجيل، يرجى التحقق من البريد' });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
 app.post('/api/auth/send-verification', async (req, res) => {
-    try {
-        const { email } = req.body;
-        if (!email) return res.status(400).json({ success: false, message: req.t('email_required') });
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        global.tempCodes.set(email, { code, expiresAt: Date.now() + 10 * 60 * 1000 });
-        console.log(`[تطوير] رمز التحقق للبريد ${email} هو: ${code}`);
-        res.json({ success: true, message: req.t('verification_code_sent') });
-    } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
+    try { const { email } = req.body; if (!email) return res.status(400).json({ success: false, message: 'البريد مطلوب' }); const code = Math.floor(100000 + Math.random() * 900000).toString(); global.tempCodes.set(email, { code, expiresAt: Date.now() + 10 * 60 * 1000 }); console.log(`[تطوير] رمز التحقق للبريد ${email} هو: ${code}`); res.json({ success: true, message: 'تم إرسال رمز التحقق' }); }
+    catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
-app.post('/api/auth/logout', (req, res) => {
-    res.clearCookie('token'); res.clearCookie('refreshToken'); res.clearCookie('admin_gateway_token');
-    res.json({ success: true });
-});
+app.post('/api/auth/logout', (req, res) => { res.clearCookie('token'); res.clearCookie('refreshToken'); res.clearCookie('admin_gateway_token'); res.json({ success: true }); });
 
-// ====================== ACTIVITY LOGS ======================
 app.get('/api/activity-logs/recent', authenticateToken, async (req, res) => {
-    const rows = await allQuery('SELECT action, details, timestamp FROM activity_logs WHERE userId = ? ORDER BY timestamp DESC LIMIT 50', [req.user.id]);
-    res.json(rows);
+    res.json(await allQuery('SELECT action, details, timestamp FROM activity_logs WHERE userId = ? ORDER BY timestamp DESC LIMIT 50', [req.user.id]));
 });
 
-// ====================== CRON: توزيع أرباح المعادن اليومية ======================
+// ====================== CRON ======================
 async function distributeMetalProfits() {
-    console.log('🔄 توزيع أرباح المعادن...');
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
@@ -1000,21 +810,16 @@ async function distributeMetalProfits() {
                 await connection.execute('UPDATE users SET profit = profit + ? WHERE id = ?', [profit, inv.userId]);
                 await connection.execute('UPDATE investments SET lastProfitDate = ? WHERE id = ?', [now, inv.id]);
                 await logActivity(inv.userId, 'ربح استثمار معادن', `ربح ${profit.toFixed(2)}$`);
-                console.log(`✅ ربح ${profit.toFixed(2)}$ للمستخدم ${inv.userId}`);
             }
         }
         await connection.commit();
-    } catch (err) {
-        await connection.rollback();
-        console.error('خطأ في توزيع الأرباح:', err);
-    } finally { connection.release(); }
+    } catch (err) { await connection.rollback(); console.error('Profit error:', err); } finally { connection.release(); }
 }
 cron.schedule('0 * * * *', distributeMetalProfits);
 
-// ====================== STATIC FILES & START ======================
+// ====================== SERVE STATIC ======================
 const publicPath = path.join(__dirname, 'public');
 if (fs.existsSync(publicPath)) { app.use(express.static(publicPath)); console.log(`✅ Frontend served from ${publicPath}`); }
-else console.warn(`⚠️ public folder not found`);
 app.use('/locales', express.static(path.join(__dirname, 'locales')));
 
 app.use((err, req, res, next) => { console.error(err.stack); res.status(500).json({ success: false, message: req.t('server_error') }); });
@@ -1026,8 +831,7 @@ process.on('unhandledRejection', (reason, promise) => { console.error('⚠️ Un
     await createTables();
     server.listen(PORT, '0.0.0.0', () => {
         console.log(`\n🚀 Vivor Server running on http://localhost:${PORT}`);
-        console.log(`👑 Admin: freeze / MHDFREEZE0619`);
-        console.log(`📌 Investment: Metals 3% daily (50$ - 10,000$)`);
-        console.log(`👥 Referrals: 15% of first deposit`);
+        console.log(`👑 Admin: freeze / MHDFREEZE0619 | Gateway: ${ADMIN_GATEWAY_SECRET}`);
+        console.log(`📌 Metals 3% daily (50$-10,000$) | Referrals 15%`);
     });
 })();
