@@ -13,53 +13,33 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         :root {
             --bg-deep: #040b14;
-            --bg-card: #071426;
             --blue-mid: #1a3a6b;
             --blue-light: #2a5298;
             --blue-accent: #3b6cc2;
-            --border-light: rgba(43,80,150,0.45);
+            --border-light: rgba(43, 80, 150, 0.4);
             --text-primary: #e0e6f0;
             --text-dim: #99a8c0;
-            --green: #10b981;
-            --red: #ef4444;
-            --orange: #f59e0b;
         }
-        body {
-            font-family: 'Cairo', sans-serif;
-            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .glass-panel {
-            background: rgba(11,31,59,0.8);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border-light);
-            border-radius: 2rem;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-        }
-        .btn-approve { background: var(--green); color: #fff; }
-        .btn-reject { background: var(--red); color: #fff; }
-        .btn-view { background: var(--blue-accent); color: #fff; }
-        .btn-warning { background: var(--orange); color: #000; }
-        .btn-purple { background: #8b5cf6; color: #fff; }
-        .action-btn {
-            padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800;
-            cursor: pointer; border: none; transition: 0.2s; margin: 2px;
-        }
-        .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .table-container { overflow-x: auto; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 0.5rem; }
-        table { width: 100%; border-collapse: collapse; text-align: right; min-width: 1000px; }
-        th { padding: 10px 8px; color: var(--blue-accent); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; border-bottom: 1px solid rgba(59,108,194,0.3); }
-        td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: #ddd; }
-        tr:hover td { background: rgba(59,108,194,0.08); }
-        .badge { padding: 3px 8px; border-radius: 10px; font-size: 0.65rem; font-weight: bold; }
+        body { font-family: 'Cairo', sans-serif; background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%); color: var(--text-primary); min-height: 100vh; padding: 20px; }
+        .glass-panel { background: rgba(11,31,59,0.8); backdrop-filter: blur(15px); border: 1px solid var(--border-light); border-radius: 2rem; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+        .btn-blue { background: linear-gradient(135deg, var(--blue-mid), var(--blue-light)); color: #fff; font-weight: 800; border-radius: 1.5rem; padding: 0.7rem 1.5rem; transition: 0.3s; cursor: pointer; border: none; }
+        .btn-blue:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .action-btn { padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-approve { background: #10b981; color: #fff; } .btn-reject { background: #ef4444; color: #fff; } .btn-view { background: var(--blue-accent); color: #fff; } .btn-warn { background: #f59e0b; color: #000; }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
         .badge-pending { background: rgba(245,158,11,0.2); color: #f59e0b; }
         .badge-approved { background: rgba(16,185,129,0.2); color: #10b981; }
         .badge-rejected { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .badge-open { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .badge-in_progress { background: rgba(245,158,11,0.2); color: #f59e0b; }
         .tab-btn { background: transparent; border: none; padding: 0.6rem 1.2rem; border-radius: 2rem; font-weight: 800; color: var(--text-dim); cursor: pointer; transition: 0.2s; }
         .tab-btn.active { background: linear-gradient(135deg, var(--blue-mid), var(--blue-light)); color: #fff; }
-        .lang-selector { background: rgba(11,31,59,0.6); border-radius: 2rem; padding: 0.3rem; display: inline-flex; border: 1px solid var(--border-light); }
+        .table-container { overflow-x: auto; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 0.5rem; }
+        table { width: 100%; border-collapse: collapse; text-align: right; min-width: 900px; }
+        th { padding: 10px 8px; color: var(--blue-accent); font-weight: 800; font-size: 0.75rem; border-bottom: 1px solid rgba(59,108,194,0.3); }
+        td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
+        tr:hover td { background: rgba(59,108,194,0.08); }
+        .lang-selector { background: rgba(11,31,59,0.6); border-radius: 2rem; padding: 0.25rem; display: inline-flex; border: 1px solid var(--border-light); }
         .lang-option { padding: 0.3rem 0.8rem; border-radius: 2rem; font-size: 0.7rem; font-weight: bold; cursor: pointer; color: #94a3b8; }
         .lang-option.active { background: linear-gradient(135deg, var(--blue-mid), var(--blue-light)); color: #fff; }
     </style>
@@ -68,7 +48,7 @@
 
 <div id="loading-screen" style="display:none; position:fixed; inset:0; background:var(--bg-deep); z-index:9999; align-items:center; justify-content:center;">
     <div style="border:5px solid rgba(59,108,194,0.2); border-top-color:var(--blue-accent); border-radius:50%; width:60px; height:60px; animation:spin 1s linear infinite;"></div>
-    <p class="text-blue-300 mt-4 font-bold">جاري التحميل...</p>
+    <p class="text-blue-300 mt-4 font-bold">جاري تحميل البيانات...</p>
 </div>
 
 <div class="max-w-7xl mx-auto glass-panel p-6">
@@ -76,14 +56,15 @@
     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <div class="flex items-center gap-3">
             <i class="fa-solid fa-dragon text-4xl text-blue-400 drop-shadow-xl"></i>
-            <h1 class="text-2xl md:text-3xl font-black text-blue-300 tracking-wide">VIVOR - لوحة التحكم</h1>
+            <h1 class="text-2xl font-black text-blue-300 tracking-wide">VIVOR - لوحة التحكم</h1>
         </div>
         <div class="flex items-center gap-3">
             <div class="lang-selector">
                 <div class="lang-option active" data-lang="ar">AR</div>
                 <div class="lang-option" data-lang="en">EN</div>
             </div>
-            <button onclick="loadEverything()" class="btn-blue bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-sm"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
+            <button onclick="loadEverything()" class="btn-blue"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
+            <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-bold text-sm">خروج</button>
         </div>
     </div>
 
@@ -92,7 +73,7 @@
         <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center"><p class="text-xs text-slate-400">المستخدمين</p><p id="stat-users" class="text-2xl font-black text-blue-300">0</p></div>
         <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center"><p class="text-xs text-slate-400">إيداعات معلقة</p><p id="stat-deposits" class="text-2xl font-black text-yellow-400">0</p></div>
         <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center"><p class="text-xs text-slate-400">سحوبات معلقة</p><p id="stat-withdrawals" class="text-2xl font-black text-yellow-400">0</p></div>
-        <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center"><p class="text-xs text-slate-400">إجمالي الأرصدة</p><p id="stat-balance" class="text-2xl font-black text-blue-300">0</p></div>
+        <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center"><p class="text-xs text-slate-400">إجمالي الأرصدة</p><p id="stat-balance" class="text-2xl font-black text-blue-300">$0</p></div>
     </div>
 
     <!-- تبويبات -->
@@ -138,7 +119,6 @@
 <script>
     const API = '';
     let currentSocket;
-    let charts = {};
 
     // تبديل التبويبات
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -151,13 +131,13 @@
         });
     });
 
-    // Fetch مع تجديد التوكن
+    // دالة api مبسطة (لا تحاول تجديد التوكن)
     async function api(url, opt = {}) {
         opt.credentials = 'include';
-        let res = await fetch(url, opt);
-        if (res.status === 401 || res.status === 403) {
-            await fetch(API + '/api/auth/refresh', { method: 'POST', credentials: 'include' });
-            res = await fetch(url, opt);
+        const res = await fetch(url, opt);
+        if (res.status === 401) {
+            Swal.fire({ icon: 'warning', title: 'انتهت الجلسة', text: 'يُرجى إعادة إدخال كلمة مرور البوابة', background: '#071426', color: '#fff' }).then(() => { window.location.href = 'admin.html'; });
+            throw new Error('Unauthorized');
         }
         return res;
     }
@@ -184,13 +164,12 @@
             renderTickets(tickets);
             renderStats(users, deposits, withdrawals);
             if (!document.getElementById('tab-analytics').classList.contains('hidden')) loadAnalyticsChart(analytics);
-        } catch (e) { Swal.fire('خطأ', 'فشل التحميل', 'error'); }
+        } catch (e) { console.error(e); Swal.fire('خطأ', 'فشل تحميل البيانات', 'error'); }
         document.getElementById('loading-screen').style.display = 'none';
     }
 
     function renderUsers(users) {
-        const tbody = document.getElementById('usersBody');
-        tbody.innerHTML = users.map(u => `
+        document.getElementById('usersBody').innerHTML = users.map(u => `
             <tr>
                 <td class="font-bold">${esc(u.username)}</td>
                 <td>${esc(u.fullName||'-')}</td>
@@ -198,10 +177,10 @@
                 <td class="text-blue-300">${(u.balance||0).toFixed(2)} $</td>
                 <td class="text-green-400">${(u.profit||0).toFixed(2)} $</td>
                 <td>${(u.totalDeposits||0).toFixed(2)} $</td>
-                <td class="font-mono text-blue-200 text-sm">${esc(u.referralCode||'-')}</td>
+                <td class="font-mono text-blue-200">${esc(u.referralCode||'-')}</td>
                 <td>
-                    <button onclick="editBalance('${u.id}','${esc(u.username)}',${u.balance})" class="action-btn btn-view">💰 رصيد</button>
-                    <button onclick="resetPassword('${u.id}','${esc(u.username)}')" class="action-btn btn-warning">🔑 كلمة</button>
+                    <button onclick="editBalance('${u.id}','${esc(u.username)}',${u.balance})" class="action-btn btn-view">💰</button>
+                    <button onclick="resetPw('${u.id}','${esc(u.username)}')" class="action-btn btn-warn">🔑</button>
                 </td>
             </tr>
         `).join('');
@@ -214,7 +193,7 @@
             <tr>
                 <td>${esc(d.username)}</td>
                 <td class="text-blue-300">${d.amount} $</td>
-                <td class="font-mono text-xs text-blue-200">${esc(d.screenshotPath || '-')}</td>
+                <td class="font-mono text-xs">${esc(d.screenshotPath || '-')}</td>
                 <td>${new Date(d.date).toLocaleString()}</td>
                 <td><span class="badge badge-pending">معلق</span></td>
                 <td>
@@ -245,24 +224,59 @@
     }
 
     function renderTickets(tickets) {
-        document.getElementById('ticketsBody').innerHTML = tickets.length ? tickets.map(t => `
-            <tr>
+        document.getElementById('ticketsBody').innerHTML = tickets.length ? tickets.map(t => {
+            let statusBadge = '';
+            if (t.status === 'open') statusBadge = '<span class="badge badge-pending">مفتوحة</span>';
+            else if (t.status === 'in_progress') statusBadge = '<span class="badge badge-in_progress">قيد التنفيذ</span>';
+            else statusBadge = '<span class="badge badge-rejected">مغلقة</span>';
+            return `<tr>
                 <td>${esc(t.username)}</td>
                 <td>${esc(t.subject)}</td>
                 <td>${t.priority}</td>
-                <td><span class="badge badge-${t.status==='open'?'pending':t.status==='in_progress'?'approved':'rejected'}">${t.status}</span></td>
+                <td>${statusBadge}</td>
                 <td>${new Date(t.createdAt).toLocaleString()}</td>
-                <td><button onclick="viewTicket('${t.id}')" class="action-btn btn-purple">عرض</button></td>
-            </tr>
-        `).join('') : '<tr><td colspan="6" class="text-center py-4">لا توجد تذاكر</td></tr>';
+                <td><button onclick="viewTicket('${t.id}')" class="action-btn btn-view">عرض</button></td>
+            </tr>`;
+        }).join('') : '<tr><td colspan="6" class="text-center py-4">لا توجد تذاكر</td></tr>';
     }
 
-    function renderStats(users, deposits, withdrawals) {
-        document.getElementById('stat-users').innerText = users.length;
-        document.getElementById('stat-deposits').innerText = deposits.filter(d => d.status === 'pending').length;
-        document.getElementById('stat-withdrawals').innerText = withdrawals.filter(w => w.status === 'pending').length;
-        document.getElementById('stat-balance').innerText = '$' + users.reduce((s,u) => s + (u.balance||0), 0).toFixed(0);
-    }
+    window.viewTicket = async (ticketId) => {
+        const res = await api(`${API}/api/support/tickets/${ticketId}`);
+        const data = await res.json();
+        const panel = document.getElementById('ticketDetailPanel');
+        panel.classList.remove('hidden');
+        panel.innerHTML = `
+            <h3 class="text-lg font-bold text-blue-300 mb-2">${esc(data.ticket.subject)}</h3>
+            <p class="text-slate-300 mb-1">${esc(data.ticket.message)}</p>
+            <div class="text-xs text-slate-500 mb-4">${new Date(data.ticket.createdAt).toLocaleString()}</div>
+            <div class="space-y-2">${data.replies.map(r => `<div class="bg-black/20 p-2 rounded-lg"><strong>${esc(r.username)}:</strong> ${esc(r.message)}</div>`).join('')}</div>
+            <div class="mt-4 flex gap-2">
+                <input type="text" id="replyInput" class="bg-black/50 border border-blue-500/30 rounded-lg p-2 flex-1 text-white" placeholder="اكتب رداً...">
+                <button onclick="replyTicket('${ticketId}')" class="btn-blue">رد</button>
+                <button onclick="closeTicket('${ticketId}')" class="bg-gray-600 px-4 py-2 rounded-lg text-white">إغلاق</button>
+            </div>
+        `;
+    };
+
+    window.replyTicket = async (ticketId) => {
+        const msg = document.getElementById('replyInput').value.trim();
+        if (!msg) return;
+        await api(`${API}/api/support/tickets/${ticketId}/reply`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+        viewTicket(ticketId);
+        loadEverything();
+    };
+
+    window.closeTicket = async (ticketId) => {
+        await api(`${API}/api/admin/support/tickets/${ticketId}/status`, {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'closed' })
+        });
+        document.getElementById('ticketDetailPanel').classList.add('hidden');
+        loadEverything();
+    };
 
     window.editBalance = async (userId, username, currentBalance) => {
         const { value: newBal } = await Swal.fire({
@@ -272,13 +286,13 @@
         });
         if (!newBal) return;
         await api(API + '/api/admin/set-user-balance', {
-            method: 'POST', headers: {'Content-Type':'application/json'},
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, newBalance: parseFloat(newBal) })
         });
         loadEverything();
     };
 
-    window.resetPassword = async (userId, username) => {
+    window.resetPw = async (userId, username) => {
         const { value: pass } = await Swal.fire({
             title: `كلمة مرور جديدة لـ ${username}`,
             input: 'password', inputPlaceholder: 'كلمة المرور الجديدة',
@@ -286,7 +300,7 @@
         });
         if (!pass) return;
         await api(API + '/api/admin/reset-user-password', {
-            method: 'POST', headers: {'Content-Type':'application/json'},
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, newPassword: pass })
         });
         Swal.fire('تم', 'تم تغيير كلمة المرور', 'success');
@@ -306,69 +320,38 @@
         loadEverything();
     };
 
-    window.viewTicket = async (ticketId) => {
-        const res = await api(`${API}/api/support/tickets/${ticketId}`);
-        const data = await res.json();
-        const panel = document.getElementById('ticketDetailPanel');
-        panel.classList.remove('hidden');
-        panel.innerHTML = `
-            <h3 class="text-lg font-bold text-blue-300 mb-2">${esc(data.ticket.subject)}</h3>
-            <p class="text-slate-300 mb-1">${esc(data.ticket.message)}</p>
-            <div class="text-xs text-slate-500 mb-4">${new Date(data.ticket.createdAt).toLocaleString()}</div>
-            <div class="space-y-2">${data.replies.map(r => `<div class="bg-black/20 p-2 rounded-lg"><strong>${esc(r.username)}:</strong> ${esc(r.message)}</div>`).join('')}</div>
-            <div class="mt-4 flex gap-2">
-                <input type="text" id="replyInput" class="bg-black/50 border border-blue-500/30 rounded-lg p-2 flex-1 text-white" placeholder="اكتب رداً...">
-                <button onclick="replyTicket('${ticketId}')" class="btn-blue bg-blue-600 px-4 py-2 rounded-lg">رد</button>
-                <button onclick="closeTicket('${ticketId}')" class="bg-gray-600 px-4 py-2 rounded-lg text-white">إغلاق التذكرة</button>
-            </div>
-        `;
-    };
-
-    window.replyTicket = async (ticketId) => {
-        const msg = document.getElementById('replyInput').value.trim();
-        if (!msg) return;
-        await api(`${API}/api/support/tickets/${ticketId}/reply`, {
-            method: 'POST', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ message: msg })
-        });
-        viewTicket(ticketId);
-        loadEverything();
-    };
-
-    window.closeTicket = async (ticketId) => {
-        await api(`${API}/api/admin/support/tickets/${ticketId}/status`, {
-            method: 'PUT', headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({ status: 'closed' })
-        });
-        document.getElementById('ticketDetailPanel').classList.add('hidden');
-        loadEverything();
-    };
-
-    async function loadAnalytics() {
-        const res = await api(API + '/api/admin/analytics');
-        loadAnalyticsChart(await res.json());
+    function renderStats(users, deposits, withdrawals) {
+        document.getElementById('stat-users').innerText = users.length;
+        document.getElementById('stat-deposits').innerText = deposits.filter(d => d.status === 'pending').length;
+        document.getElementById('stat-withdrawals').innerText = withdrawals.filter(w => w.status === 'pending').length;
+        document.getElementById('stat-balance').innerText = '$' + users.reduce((s,u) => s + (u.balance||0), 0).toFixed(0);
     }
 
+    let charts = {};
     function loadAnalyticsChart(data) {
         if (charts.user) charts.user.destroy();
         if (charts.dep) charts.dep.destroy();
         if (data.userGrowth?.length) {
             charts.user = new Chart(document.getElementById('userChart'), {
-                type: 'line', data: { labels: data.userGrowth.map(d=>d.date), datasets:[{ label:'مستخدمين جدد', data: data.userGrowth.map(d=>d.count), borderColor:'#3b6cc2' }] }
+                type: 'line', data: { labels: data.userGrowth.map(d=>d.date), datasets: [{ label: 'مستخدمين جدد', data: data.userGrowth.map(d=>d.count), borderColor: '#3b6cc2' }] }
             });
         }
         if (data.dailyDeposits?.length) {
             charts.dep = new Chart(document.getElementById('depositChart'), {
-                type: 'bar', data: { labels: data.dailyDeposits.map(d=>d.date), datasets:[{ label:'إيداعات ($)', data: data.dailyDeposits.map(d=>d.total), backgroundColor:'#2a5298' }] }
+                type: 'bar', data: { labels: data.dailyDeposits.map(d=>d.date), datasets: [{ label: 'إيداعات ($)', data: data.dailyDeposits.map(d=>d.total), backgroundColor: '#2a5298' }] }
             });
         }
         document.getElementById('topBalance').innerHTML = (data.topBalanceUsers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-blue-300">${u.balance} $</span></div>`).join('');
         document.getElementById('topReferrers').innerHTML = (data.topReferrers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-blue-300">${u.referralCount} مدعو</span></div>`).join('');
     }
 
+    async function loadAnalytics() {
+        const res = await api(API + '/api/admin/analytics');
+        loadAnalyticsChart(await res.json());
+    }
+
     function esc(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-    // WebSocket للإشعارات
     function initSocket() {
         currentSocket = io(window.location.origin, { withCredentials: true });
         currentSocket.on('new-deposit-request', d => {
@@ -385,25 +368,30 @@
         });
     }
 
-    // إعدادات اللغة المبسطة
     document.querySelectorAll('.lang-option').forEach(opt => {
         opt.addEventListener('click', () => {
             document.querySelectorAll('.lang-option').forEach(o => o.classList.remove('active'));
             opt.classList.add('active');
-            // تغيير الاتجاه بسيط
             document.documentElement.dir = opt.dataset.lang === 'ar' ? 'rtl' : 'ltr';
         });
     });
 
-    // بحث المستخدمين
     document.getElementById('userSearch')?.addEventListener('input', debounce(async function() {
         const q = this.value;
         const res = await api(`${API}/api/admin/users?search=${q}`);
-        const data = await res.json();
-        renderUsers(data.users || []);
+        renderUsers(((await res.json()).users || []));
     }, 300));
 
     function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), ms); }; }
+
+    function logout() {
+        Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#3b6cc2', background: '#071426', color: '#fff' }).then(r => {
+            if (r.isConfirmed) {
+                fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                window.location.href = 'admin.html';
+            }
+        });
+    }
 
     window.onload = () => {
         initSocket();
