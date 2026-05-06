@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>لوحة التحكم الملكية | Best Deal Gold System</title>
+    <title>لوحة التحكم | Vivor</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -15,747 +15,379 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
         :root {
-            --gold: #d4af37;
-            --gold-dark: #8a6d3b;
-            --dark-bg: #06090f;
-            --card-bg: rgba(15, 23, 42, 0.9);
-            --green-glow: rgba(16, 185, 129, 0.2);
+            --bg-deep: #040b14;
+            --bg-card: #071426;
+            --blue-mid: #1a3a6b;
+            --blue-light: #2a5298;
+            --blue-accent: #3b6cc2;
+            --text-primary: #e0e6f0;
+            --text-dim: #99a8c0;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: var(--dark-bg);
-            color: #e2e8f0;
+            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            color: var(--text-primary);
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
             min-height: 100vh;
-        }
-
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #d4af37 0%, #f7e08a 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            overflow-x: hidden;
+            padding-bottom: 5rem;
         }
 
         .glass-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(212, 175, 55, 0.15);
+            background: rgba(11, 31, 59, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(43, 80, 150, 0.4);
             border-radius: 2rem;
-            backdrop-filter: blur(20px);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .glass-card:hover {
-            border-color: var(--gold);
-            transform: translateY(-10px) scale(1.01);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-        }
-
-        .number-glow {
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-        }
-
-        .top-nav {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .action-btn-gold {
-            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-            color: #000;
-            font-weight: 900;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 20px -5px rgba(212, 175, 55, 0.3);
         }
 
-        .action-btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 25px -5px rgba(212, 175, 55, 0.5);
+        .btn-blue {
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff;
+            font-weight: 800;
+            border-radius: 1.2rem;
+            padding: 0.7rem 1.5rem;
+            transition: 0.3s;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-blue:hover {
+            background: linear-gradient(135deg, #204080, #3265b0);
+            transform: translateY(-2px);
+        }
+
+        .balance-text {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--blue-accent);
+            text-shadow: 0 0 20px rgba(59,108,194,0.6);
+        }
+
+        .lang-selector {
+            background: rgba(11,31,59,0.65);
+            border-radius: 3rem;
+            padding: 0.25rem;
+            display: inline-flex;
+            gap: 0.2rem;
+            border: 1px solid rgba(43,80,150,0.4);
+        }
+        .lang-option {
+            padding: 0.3rem 0.8rem;
+            border-radius: 3rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-dim);
+        }
+        .lang-option.active {
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff;
         }
 
         .bottom-nav {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10, 15, 26, 0.98);
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            bottom: 0; left: 0; right: 0;
+            background: rgba(7,20,38,0.96);
+            border-top: 1px solid rgba(43,80,150,0.4);
             display: flex;
             justify-content: space-around;
-            padding: 15px 0;
-            z-index: 2000;
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            padding: 10px 0;
+            z-index: 1000;
         }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); font-size: 10px; font-weight: 800; cursor: pointer; }
+        .nav-link.active { color: var(--blue-accent); }
+        .nav-link i { font-size: 1.4rem; margin-bottom: 2px; }
 
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #94a3b8;
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .nav-link.active {
-            color: var(--gold);
-        }
-
-        .nav-link i {
-            font-size: 22px;
-            margin-bottom: 5px;
-        }
-
-        .ambient-light {
-            position: fixed;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .activity-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 1.25rem;
-            transition: 0.3s;
-        }
-
-        .activity-item:hover {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(212, 175, 55, 0.2);
-        }
-
-        .modal-levels {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-content {
-            background: var(--card-bg);
-            border: 2px solid var(--gold);
-            border-radius: 2rem;
-            max-width: 700px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 2rem;
-        }
-        .level-item {
-            background: rgba(255,255,255,0.05);
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-right: 4px solid var(--gold);
-        }
-
-        .notification-bell {
-            position: relative;
-            cursor: pointer;
-        }
+        .notification-bell { position: relative; cursor: pointer; }
         .notification-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background-color: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        .notifications-dropdown {
-            position: absolute;
-            top: 60px;
-            left: 20px;
-            width: 320px;
-            max-height: 400px;
-            overflow-y: auto;
-            background: var(--card-bg);
-            border: 1px solid rgba(212,175,55,0.3);
-            border-radius: 1rem;
-            backdrop-filter: blur(20px);
-            z-index: 1100;
-            display: none;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
-        }
-        .notification-item {
-            padding: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .notification-item.unread {
-            background: rgba(212,175,55,0.05);
-            border-right: 3px solid var(--gold);
-        }
-        .notification-title {
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        .notification-message {
-            font-size: 0.7rem;
-            color: #94a3b8;
-        }
-        .notification-time {
-            font-size: 0.6rem;
-            color: #64748b;
-            margin-top: 5px;
-        }
-
-        .lang-selector {
-            background: rgba(0,0,0,0.4);
-            border-radius: 2rem;
-            padding: 0.25rem;
-            display: flex;
-            gap: 0.25rem;
-            border: 1px solid rgba(212,175,55,0.3);
-        }
-        .lang-option {
-            padding: 0.3rem 0.7rem;
-            border-radius: 2rem;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #94a3b8;
-        }
-        .lang-option.active {
-            background: linear-gradient(135deg, #d4af37, #8a6d3b);
-            color: #000;
-        }
-        .lang-option:hover:not(.active) {
-            background: rgba(212,175,55,0.2);
-            color: #f7e08a;
-        }
-
-        @media (max-width: 768px) {
-            .hide-mobile { display: none; }
-            .balance-text { font-size: 3.5rem; }
-            .notifications-dropdown { width: 280px; left: 10px; }
+            position: absolute; top: -6px; right: -6px;
+            background: #ef4444; color: #fff; border-radius: 50%;
+            width: 18px; height: 18px; font-size: 10px;
+            display: flex; align-items: center; justify-content: center;
         }
     </style>
 </head>
-<body class="pb-32">
+<body>
 
-    <div class="ambient-light top-0 left-0"></div>
-    <div class="ambient-light bottom-0 right-0"></div>
-
-    <nav class="top-nav px-6 py-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <div id="crownIcon" class="w-12 h-12 bg-gradient-to-br from-[#d4af37] to-[#8a6d3b] rounded-2xl flex items-center justify-center shadow-2xl rotate-3 hover:rotate-0 transition-transform cursor-pointer" style="display: none;">
-                    <i class="fa-solid fa-crown text-black text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-black italic gold-gradient-text uppercase leading-none" data-i18n="app_name">Best Deal</h1>
-                    <p class="text-[10px] text-slate-500 font-bold tracking-[0.3em] uppercase" data-i18n="app_tagline">Premium Investment</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-4 bg-white/5 p-2 pr-5 rounded-3xl border border-white/10">
-                <div class="lang-selector">
-                    <div class="lang-option active" data-lang="ar">العربية</div>
-                    <div class="lang-option" data-lang="en">English</div>
-                    <div class="lang-option" data-lang="zh">中文</div>
-                    <div class="lang-option" data-lang="de">Deutsch</div>
-                </div>
-                <div class="text-left">
-                    <p id="nav-username" class="text-sm font-black text-white leading-none mb-1" data-i18n="royal_investor">المستثمر الملكي</p>
-                    <div class="flex items-center gap-1">
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <p id="user-level-badge" class="text-[9px] text-[#d4af37] font-black uppercase tracking-tighter" data-i18n="bronze_member">Bronze Member</p>
-                    </div>
-                </div>
-                <div class="relative notification-bell" id="notificationBell">
-                    <i class="fa-regular fa-bell text-xl text-[#d4af37]"></i>
-                    <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
-                    <div id="notificationsDropdown" class="notifications-dropdown">
-                        <div class="p-3 border-b border-white/10 text-center text-xs font-bold text-gold" data-i18n="notifications">الإشعارات</div>
-                        <div id="notificationsList"><div class="p-3 text-center text-slate-500 text-xs" data-i18n="no_notifications">لا توجد إشعارات</div></div>
-                        <div class="p-2 border-t border-white/10 text-center"><button id="markAllReadBtn" class="text-[10px] text-gold hover:underline" data-i18n="mark_all_read">تحديد الكل كمقروء</button></div>
-                    </div>
-                </div>
-                <div class="w-12 h-12 rounded-2xl border-2 border-[#d4af37]/40 overflow-hidden shadow-2xl">
-                    <img id="user-avatar" src="" alt="Profile">
-                </div>
-            </div>
+    <!-- شريط علوي -->
+    <header class="px-5 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-dragon text-3xl text-blue-400 drop-shadow-xl"></i>
+            <span class="text-2xl font-black text-white italic tracking-wider">VIVOR</span>
         </div>
-    </nav>
-
-    <main class="max-w-7xl mx-auto px-6 pt-10">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div class="w-full md:w-auto">
-                <h2 class="text-4xl font-black text-white leading-tight"><span data-i18n="welcome_back">مرحباً بك مجدداً</span><br><span id="welcome-name" class="gold-gradient-text italic" data-i18n="dear_partner">عزيزي الشريك</span></h2>
-                <p class="text-slate-400 text-sm mt-3 font-semibold max-w-md" data-i18n="dashboard_subtitle">نحن هنا لمساعدتك في مراقبة نمو ثروتك وتحديثاتك المالية لحظة بلحظة.</p>
+        <div class="flex items-center gap-3">
+            <div class="lang-selector">
+                <div class="lang-option active" data-lang="ar">العربية</div>
+                <div class="lang-option" data-lang="en">English</div>
+                <div class="lang-option" data-lang="zh">中文</div>
+                <div class="lang-option" data-lang="de">Deutsch</div>
             </div>
-            <div class="flex gap-3 w-full md:w-auto">
-                <div class="glass-card px-6 py-3 flex items-center gap-3">
-                    <i class="fa-solid fa-calendar-day text-[#d4af37]"></i>
-                    <span id="current-date" class="text-xs font-black text-white uppercase"></span>
-                </div>
-                <button onclick="showLevelsModal()" class="glass-card px-6 py-3 flex items-center gap-2 hover:border-[#d4af37] transition">
-                    <i class="fa-solid fa-chart-simple text-[#d4af37]"></i>
-                    <span class="text-xs font-black text-white" data-i18n="levels_explanation">شرح المستويات</span>
-                </button>
-                <button onclick="forceRefresh()" class="glass-card px-6 py-3 flex items-center gap-2 hover:border-[#d4af37] transition">
-                    <i class="fa-solid fa-rotate-right text-[#d4af37]"></i>
-                    <span class="text-xs font-black text-white" data-i18n="refresh_now">تحديث فوري</span>
-                </button>
+            <div class="notification-bell" id="notificationBell">
+                <i class="fa-regular fa-bell text-xl text-blue-300"></i>
+                <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
+            </div>
+            <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-blue-400" src="" alt="U">
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4">
+        <!-- بطاقة الترحيب والرصيد -->
+        <div class="glass-card p-6 mb-6 text-center">
+            <h2 class="text-lg font-bold text-slate-300">مرحباً <span id="welcome-name" class="text-blue-300">.......</span></h2>
+            <div class="mt-2 balance-text" id="user-balance">$0.00</div>
+            <p class="text-xs text-slate-400 mt-1">الرصيد المتاح للسحب</p>
+            <div class="flex gap-4 justify-center mt-4">
+                <button onclick="window.location.href='deposit.html'" class="btn-blue"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
+                <button onclick="window.location.href='withdraw.html'" class="btn-blue"><i class="fa-solid fa-receipt"></i> سحب</button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-16">
-            <div class="md:col-span-8 glass-card p-10 flex flex-col justify-between min-h-[320px] bg-gradient-to-br from-white/[0.02] to-transparent">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <div class="flex items-center gap-2 mb-4"><span class="px-3 py-1 bg-[#d4af37]/10 text-[#d4af37] text-[10px] font-black rounded-full border border-[#d4af37]/20 uppercase" data-i18n="active_account">الحساب النشط</span></div>
-                        <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2" data-i18n="total_withdrawable">إجمالي الرصيد المتاح للسحب</p>
-                        <h3 id="user-balance" class="balance-text text-7xl font-black text-white number-glow tracking-tighter">$0.00</h3>
-                        <p class="text-xs text-slate-400 mt-2"><span data-i18n="of_which">منها</span> <span id="withdrawable-amount" class="text-green-400 font-bold">0.00 $</span> <span data-i18n="immediately_withdrawable">قابل للسحب فوراً</span></p>
-                        <p class="text-xs text-slate-400 mt-1"><span data-i18n="total_deposits_label">إجمالي الإيداعات:</span> <span id="total-deposits" class="text-yellow-400 font-bold">0.00 $</span></p>
-                    </div>
-                    <div class="p-5 bg-green-500/10 rounded-3xl border border-green-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-                        <i class="fa-solid fa-wallet text-3xl text-green-500"></i>
-                    </div>
+        <!-- بطاقات الأرباح والاستثمار -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- الأرباح -->
+            <div class="glass-card p-5">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">الأرباح الصافية</span>
+                    <i class="fa-solid fa-chart-line text-blue-400"></i>
                 </div>
-                <div class="mt-10 grid grid-cols-2 gap-6">
-                    <button onclick="window.location.href='deposit.html'" class="action-btn-gold py-5 rounded-2xl flex items-center justify-center gap-3 text-xl"><i class="fa-solid fa-plus-circle"></i> <span data-i18n="quick_deposit">إيداع سريع</span></button>
-                    <button onclick="window.location.href='withdraw.html'" class="bg-white/5 hover:bg-white/10 text-white font-black py-5 rounded-2xl border border-white/10 transition-all text-xl flex items-center justify-center gap-3"><i class="fa-solid fa-receipt"></i> <span data-i18n="withdraw_request">طلب سحب</span></button>
-                </div>
+                <p class="text-2xl font-black text-green-400 mt-1" id="user-profit">$0.00</p>
+                <button onclick="window.location.href='withdraw.html?type=profit&amount=' + (document.getElementById('user-profit').innerText.replace('$',''))" class="mt-3 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-3 py-1.5 rounded-lg transition">سحب الأرباح</button>
             </div>
-
-            <div class="md:col-span-4 space-y-8">
-                <!-- Daily Bonus Widget -->
-                <div class="glass-card p-8 border-b-4 border-[#d4af37]/40">
-                    <div class="flex justify-between items-center mb-2"><p class="text-[10px] font-black text-slate-500 uppercase" data-i18n="daily_bonus">المكافأة اليومية</p><i class="fa-solid fa-gift text-[#d4af37]"></i></div>
-                    <p class="text-2xl font-black gold-gradient-text" id="dailyBonusAmount">0.50 $</p>
-                    <p class="text-[10px] text-slate-400 mb-2" id="bonusStreakText"></p>
-                    <button id="claimDailyBonusBtn" class="mt-2 w-full bg-gradient-to-r from-green-600 to-green-800 text-white font-bold py-2 rounded-xl text-sm transition hover:scale-105"><i class="fa-regular fa-circle-check ml-1"></i> <span data-i18n="claim_bonus">استلام المكافأة</span></button>
-                    <p id="bonusStatusMsg" class="text-[9px] text-slate-400 mt-2 text-center"></p>
+            <!-- استثمار المعادن -->
+            <div class="glass-card p-5">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-slate-400">استثمار المعادن</span>
+                    <i class="fa-solid fa-gem text-blue-400"></i>
                 </div>
-
-                <div class="glass-card p-8 border-b-4 border-green-500/40">
-                    <div class="flex justify-between items-center mb-4"><p class="text-[10px] font-black text-slate-500 uppercase" data-i18n="net_profit">الأرباح الصافية (غير المسحوبة)</p><div class="flex items-center gap-2"><i class="fa-solid fa-arrow-trend-up text-green-500"></i><button id="quickWithdrawProfitBtn" class="text-[10px] bg-green-600/30 hover:bg-green-600 text-green-300 hover:text-white px-2 py-1 rounded-lg transition"><i class="fa-regular fa-hand-holding-usd ml-1"></i> <span data-i18n="withdraw_all">سحب الكل</span></button></div></div>
-                    <h3 id="user-profit" class="text-4xl font-black text-white mb-2">$0.00</h3>
-                    <div class="w-full bg-slate-800 h-1 rounded-full mt-4"><div id="profit-progress" class="bg-green-500 h-full w-0 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div></div>
-                    <p class="text-[9px] text-slate-400 mt-3 text-center" data-i18n="auto_update_every_15">يتم تحديث الأرباح تلقائياً كل 15 ثانية</p>
-                </div>
-
-                <div class="glass-card p-8 border-b-4 border-[#d4af37]/40 text-center">
-                    <p class="text-[10px] font-black text-slate-500 uppercase mb-4" data-i18n="membership_status">حالة العضوية</p>
-                    <h3 id="user-level" class="text-3xl font-black gold-gradient-text uppercase">برونزي</h3>
-                    <p class="text-[10px] text-slate-400 mt-4 italic" data-i18n="level_up_hint">ارتقِ للمستوى التالي لتحصل على جوائز فورية</p>
-                </div>
+                <p class="text-lg font-bold text-white mt-1">3% يومياً</p>
+                <p class="text-xs text-slate-400 mt-1">الحد الأدنى 50$ - الأقصى 10,000$</p>
+                <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-3 py-1.5 rounded-lg transition">استثمر الآن</button>
             </div>
         </div>
 
-        <!-- Analytics Chart Section -->
-        <div class="glass-card p-6 mb-16">
-            <h3 class="text-xl font-black gold-gradient-text mb-4" data-i18n="balance_chart">رسم بياني لتطور الرصيد (آخر 30 يوم)</h3>
-            <canvas id="balanceChart" height="200" class="w-full"></canvas>
-        </div>
-
-        <div class="mb-16">
-            <h3 class="text-2xl font-black text-white mb-8 italic flex items-center gap-4"><span class="w-10 h-1 bg-[#d4af37] rounded"></span><span data-i18n="services_center">مركز الخدمات والترفيه</span></h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div onclick="window.location.href='investments.html'" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50"><div class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-chart-line text-4xl text-blue-500"></i></div><span class="text-lg font-black block text-white" data-i18n="investment">المشاريع</span><p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="invest_and_earn">استثمر واربح يومياً</p></div>
-                <div onclick="window.location.href='referrals.html'" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50"><div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-gift text-4xl text-purple-500"></i></div><span class="text-lg font-black block text-white" data-i18n="referrals">الإحالات</span><p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="invite_and_earn">ادعُ أصدقاءك واربح</p></div>
-                <div onclick="window.location.href='transactions.html'" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50"><div class="w-16 h-16 bg-cyan-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-clock-rotate-left text-4xl text-cyan-500"></i></div><span class="text-lg font-black block text-white" data-i18n="history">سجل المعاملات</span><p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="view_history">عرض كل العمليات</p></div>
-                <div onclick="window.open('https://t.me/Bestdeal468', '_blank')" class="glass-card p-8 text-center cursor-pointer group border-2 border-transparent hover:border-green-500/50"><div class="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fa-brands fa-telegram text-4xl text-purple-500"></i></div><span class="text-lg font-black block text-white" data-i18n="support">الدعم الفني</span><p class="text-[10px] text-slate-500 mt-2 uppercase font-bold tracking-widest" data-i18n="contact_telegram">تواصل معنا عبر تليغرام</p></div>
+        <!-- المكافأة اليومية والإحالات -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <!-- المكافأة اليومية -->
+            <div class="glass-card p-5 text-center">
+                <i class="fa-solid fa-gift text-2xl text-blue-400 mb-2"></i>
+                <p class="text-sm text-white font-bold" id="dailyBonusAmount">0.50 $</p>
+                <p class="text-[10px] text-slate-400" id="bonusStreakText"></p>
+                <button id="claimDailyBonusBtn" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded-xl transition">استلام المكافأة</button>
+            </div>
+            <!-- الإحالات -->
+            <div class="glass-card p-5 text-center">
+                <i class="fa-solid fa-user-group text-2xl text-blue-400 mb-2"></i>
+                <p class="text-sm text-white font-bold">كود الإحالة</p>
+                <p class="text-lg font-mono text-blue-300" id="referralCodeDisplay">------</p>
+                <p class="text-[10px] text-slate-400 mt-1">تربح 15% من أول إيداع للمدعو</p>
+                <button onclick="window.location.href='referrals.html'" class="mt-2 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-3 py-1.5 rounded-lg transition">تفاصيل الإحالات</button>
             </div>
         </div>
 
-        <div class="mb-24">
-            <div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-black text-white italic" data-i18n="recent_activities">أحدث سجل العمليات</h3><button id="refresh-activities" class="text-xs font-black text-slate-500 hover:text-[#d4af37] transition-all uppercase tracking-widest"><span data-i18n="refresh">تحديث</span> <i class="fa-solid fa-rotate-left mr-2"></i></button></div>
-            <div id="recent-activities-container" class="glass-card p-4 space-y-4"><div class="text-center text-slate-500 py-6" data-i18n="loading_activities">جاري تحميل النشاطات...</div></div>
+        <!-- سجل النشاطات -->
+        <div class="glass-card p-5 mb-6">
+            <h3 class="text-sm font-bold text-blue-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
+            <div id="activity-container" class="space-y-3 text-sm text-slate-300"></div>
+        </div>
+
+        <!-- زر فتح تذكرة دعم -->
+        <div class="text-center mb-10">
+            <button onclick="openTicketModal()" class="btn-blue py-3 px-8"><i class="fa-solid fa-headset"></i> فتح تذكرة دعم</button>
         </div>
     </main>
 
-    <div class="bottom-nav">
-        <div onclick="window.location.href='dashboard.html'" class="nav-link active"><i class="fa-solid fa-house-chimney"></i><span data-i18n="home">الرئيسية</span></div>
-        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span data-i18n="deposit">الإيداع</span></div>
-        <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span data-i18n="investments">المشاريع</span></div>
-        <div onclick="window.location.href='referrals.html'" class="nav-link"><i class="fa-solid fa-gift"></i><span data-i18n="referrals_nav">الإحالات</span></div>
-        <div onclick="logout()" class="nav-link text-red-500"><i class="fa-solid fa-power-off"></i><span data-i18n="logout">خروج</span></div>
-    </div>
-
-    <!-- Modal شرح المستويات (محدث) -->
-    <div id="levelsModal" class="modal-levels">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-black gold-gradient-text" data-i18n="levels_rewards">المستويات والمكافآت</h2><button onclick="closeLevelsModal()" class="text-white text-2xl">&times;</button></div>
-            <div class="level-item"><h3 class="text-xl font-bold text-[#cd7f32]"><span data-i18n="bronze">🥉 المستوى البرونزي</span></h3><p data-i18n="bronze_desc">الرصيد: أقل من 300$</p><p class="text-green-400" data-i18n="bronze_bonus">🎁 مكافأة فورية: لا توجد</p><p class="text-blue-400" data-i18n="bronze_referral">👥 الإحالات: 2$ ثابت لكل مدعو يودع 50$ فأكثر</p></div>
-            <div class="level-item"><h3 class="text-xl font-bold text-[#c0c0c0]"><span data-i18n="silver">🥈 المستوى الفضي</span></h3><p data-i18n="silver_desc">الرصيد: 300$ - 999$</p><p class="text-green-400" data-i18n="silver_bonus">🎁 مكافأة فورية: 25$ فور بلوغ المستوى</p><p class="text-blue-400" data-i18n="silver_referral">👥 الإحالات: 10% من أول إيداع للمدعو</p></div>
-            <div class="level-item"><h3 class="text-xl font-bold text-[#ffd700]"><span data-i18n="gold">🥇 المستوى الذهبي</span></h3><p data-i18n="gold_desc">الرصيد: 1000$ - 4999$</p><p class="text-green-400" data-i18n="gold_bonus">🎁 مكافأة فورية: 50$ فور بلوغ المستوى</p><p class="text-blue-400" data-i18n="gold_referral">👥 الإحالات: 15% من أول إيداع للمدعو</p></div>
-            <div class="level-item"><h3 class="text-xl font-bold text-[#00ffff]"><span data-i18n="diamond">💎 المستوى الألماسي</span></h3><p data-i18n="diamond_desc">الرصيد: 5000$ فما فوق</p><p class="text-green-400" data-i18n="diamond_bonus">🎁 مكافأة فورية: 500$ فور بلوغ المستوى</p><p class="text-blue-400" data-i18n="diamond_referral">👥 الإحالات: 25% من أول إيداع للمدعو</p></div>
-            <div class="level-item"><h3 class="text-xl font-bold text-[#9b59b6]"><span data-i18n="vip_project">💎 مشروع VIP (جديد)</span></h3><p data-i18n="vip_desc">الحد الأدنى: 5000$ | العائد: 400% شهرياً (يُصرف بعد 30 يوم)</p><p class="text-green-400" data-i18n="vip_bonus">🎁 مكافأة فورية: عند الاستثمار تحصل على 2% إضافية فوراً</p></div>
-            <button onclick="closeLevelsModal()" class="bg-gradient-to-r from-[#d4af37] to-[#8a6d3b] text-black font-black py-3 rounded-xl w-full mt-4" data-i18n="close">إغلاق</button>
+    <!-- نافذة إنشاء تذكرة -->
+    <div id="ticketModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#0b1f3b] border border-blue-500/40 rounded-3xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold text-blue-300 mb-4">تذكرة دعم جديدة</h3>
+            <input type="text" id="ticketSubject" class="w-full bg-black/50 border border-blue-500/30 rounded-xl p-3 mb-3 text-white" placeholder="الموضوع">
+            <textarea id="ticketMessage" rows="4" class="w-full bg-black/50 border border-blue-500/30 rounded-xl p-3 mb-4 text-white" placeholder="اشرح مشكلتك..."></textarea>
+            <div class="flex gap-3">
+                <button onclick="submitTicket()" class="btn-blue flex-1">إرسال</button>
+                <button onclick="closeTicketModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-xl">إلغاء</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        // ============================================================
-        // الإعدادات العامة (مسارات نسبية)
-        // ============================================================
-        const API_BASE_URL = '';
-        const URL_ME = `${API_BASE_URL}/api/users/me`;
-        const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
-        const URL_GATEWAY = `${API_BASE_URL}/api/auth/verify-admin-gateway`;
-        const URL_ACTIVITY_LOGS = `${API_BASE_URL}/api/activity-logs/recent`;
-        const URL_NOTIFICATIONS = `${API_BASE_URL}/api/notifications`;
-        const URL_MARK_ALL_READ = `${API_BASE_URL}/api/notifications/read-all`;
-        const URL_MARK_READ = (id) => `${API_BASE_URL}/api/notifications/${id}/read`;
-        const URL_DAILY_BONUS_STATUS = `${API_BASE_URL}/api/daily-bonus/status`;
-        const URL_DAILY_BONUS_CLAIM = `${API_BASE_URL}/api/daily-bonus/claim`;
-        const URL_ANALYTICS = `${API_BASE_URL}/api/analytics/user`;
+    <!-- القائمة السفلية -->
+    <div class="bottom-nav">
+        <div class="nav-link active"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
+        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span>إيداع</span></div>
+        <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>استثمار</span></div>
+        <div onclick="window.location.href='referrals.html'" class="nav-link"><i class="fa-solid fa-users"></i><span>إحالات</span></div>
+        <div onclick="logout()" class="nav-link text-red-400"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
+    </div>
 
-        // ============================================================
-        // i18n
-        // ============================================================
+    <script>
+        const API_BASE = '';
+        let socket;
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
 
+        // i18n
         async function loadTranslations(lang) {
             try {
-                const response = await fetch(`/locales/${lang}/translation.json`);
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-                translations[lang] = data;
-                return data;
-            } catch (err) {
-                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
-                if (lang !== 'ar') return loadTranslations('ar');
-                return {};
-            }
+                const res = await fetch(`/locales/${lang}/translation.json`);
+                if (!res.ok) throw new Error();
+                translations[lang] = await res.json();
+            } catch (e) { /* fallback */ }
         }
-
         function applyTranslations(lang) {
-            const t = translations[lang];
-            if (!t) return;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) el.textContent = t[key];
-            });
-            const htmlEl = document.documentElement;
-            if (lang === 'ar') { htmlEl.setAttribute('dir', 'rtl'); htmlEl.setAttribute('lang', 'ar'); }
-            else { htmlEl.setAttribute('dir', 'ltr'); htmlEl.setAttribute('lang', lang); }
+            const t = translations[lang] || {};
+            document.querySelectorAll('[data-i18n]').forEach(el => { if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n]; });
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang;
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
-            document.querySelectorAll('.lang-option').forEach(opt => {
-                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
-                else opt.classList.remove('active');
-            });
+            document.querySelectorAll('.lang-option').forEach(o => o.classList.toggle('active', o.dataset.lang === lang));
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
-
         async function setLanguage(lang) {
             if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
-            await fetchUserData();
-            await loadDailyBonusStatus();
+            fetchUserData();
+            loadDailyBonusStatus();
         }
-
         document.querySelectorAll('.lang-option').forEach(opt => {
-            opt.addEventListener('click', async () => {
-                const lang = opt.getAttribute('data-lang');
-                if (lang === currentLang) return;
-                await setLanguage(lang);
-            });
+            opt.addEventListener('click', () => setLanguage(opt.dataset.lang));
         });
 
-        // ============================================================
-        // fetch with auth & socket
-        // ============================================================
-        let socket = null;
-        async function fetchWithAuth(url, options = {}) {
-            options.credentials = 'include';
-            let response = await fetch(url, options);
-            if (response.status === 401 || response.status === 403) {
-                const refreshRes = await fetch(URL_REFRESH, { method: 'POST', credentials: 'include' });
-                if (refreshRes.ok) response = await fetch(url, options);
-                else { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; throw new Error('Session expired'); }
-            }
-            return response;
-        }
-
+        // Socket
         function initSocket() {
             socket = io(window.location.origin, { withCredentials: true });
-            socket.on('connect', () => {
-                const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-                if (user && user.id) socket.emit('register-user', user.id);
-            });
-            socket.on('notification', (data) => {
-                Swal.fire({ toast: true, position: 'top-end', icon: data.type === 'error' ? 'error' : (data.type === 'success' ? 'success' : 'info'), title: data.title, text: data.message, showConfirmButton: false, timer: 5000, background: '#05070a', color: '#fff' });
+            socket.on('notification', data => {
+                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: data.title, text: data.message, timer: 5000, background: '#071426', color: '#fff' });
                 loadNotifications();
             });
         }
 
-        // ============================================================
-        // User data & UI
-        // ============================================================
-        let balanceChart = null;
+        async function fetchWithAuth(url, options = {}) {
+            options.credentials = 'include';
+            let res = await fetch(url, options);
+            if (res.status === 401 || res.status === 403) {
+                const refresh = await fetch(`${API_BASE}/api/auth/refresh`, { method: 'POST', credentials: 'include' });
+                if (refresh.ok) res = await fetch(url, options);
+                else { localStorage.clear(); window.location.href = 'login.html'; }
+            }
+            return res;
+        }
+
         async function fetchUserData() {
             try {
-                const response = await fetchWithAuth(URL_ME);
-                if (!response.ok) throw new Error('فشل جلب البيانات');
-                const user = await response.json();
+                const res = await fetchWithAuth(`${API_BASE}/api/users/me`);
+                if (!res.ok) throw new Error();
+                const user = await res.json();
                 localStorage.setItem('currentUser', JSON.stringify(user));
                 updateUI(user);
-                const crownIcon = document.getElementById('crownIcon');
-                if (crownIcon) {
-                    if (user.username === 'freeze') { crownIcon.style.display = 'flex'; setupAdminGateway(); }
-                    else crownIcon.style.display = 'none';
-                }
                 return user;
-            } catch (err) { return null; }
+            } catch (e) { return null; }
         }
 
         function updateUI(user) {
-            document.getElementById('nav-username').innerText = user.username || "مستخدم";
-            document.getElementById('welcome-name').innerText = user.username || "عزيزي الشريك";
-            const balance = parseFloat(user.balance || 0);
-            const profit = parseFloat(user.profit || 0);
-            const withdrawable = parseFloat(user.withdrawableAmount || 0);
-            const totalDeposits = parseFloat(user.totalDeposits || 0);
-            const level = user.level || "برونزي";
-            document.getElementById('user-level').innerText = level;
-            let badgeText = 'Bronze Member';
-            if (level === 'فضي') badgeText = 'Silver Member';
-            else if (level === 'ذهبي') badgeText = 'Gold Member';
-            else if (level === 'ألماسي') badgeText = 'Diamond Member';
-            document.getElementById('user-level-badge').innerText = badgeText;
-            document.getElementById('user-balance').innerText = `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('withdrawable-amount').innerText = withdrawable.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
-            document.getElementById('total-deposits').innerText = totalDeposits.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
-            if (profit !== undefined) {
-                document.getElementById('user-profit').innerText = `$${profit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                const progressPercent = balance > 0 ? (profit / balance) * 100 : 0;
-                const progressBar = document.getElementById('profit-progress');
-                if (progressBar) progressBar.style.width = Math.min(progressPercent, 100) + '%';
+            document.getElementById('welcome-name').innerText = user.fullName || user.username;
+            document.getElementById('user-balance').innerText = `$${(user.withdrawableAmount || (user.balance||0)+(user.profit||0)).toLocaleString()}`;
+            document.getElementById('user-profit').innerText = `$${(user.profit||0).toLocaleString()}`;
+            document.getElementById('referralCodeDisplay').innerText = user.referralCode || '------';
+            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username||'U')}&background=1a3a6b&color=fff&bold=true`;
+        }
+
+        async function loadDailyBonusStatus() {
+            const res = await fetchWithAuth(`${API_BASE}/api/daily-bonus/status`);
+            const data = await res.json();
+            const btn = document.getElementById('claimDailyBonusBtn');
+            if (data.canClaim) {
+                btn.disabled = false; btn.classList.remove('opacity-50');
+            } else {
+                btn.disabled = true; btn.classList.add('opacity-50');
             }
-            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username || 'U')}&background=0f172a&color=d4af37&bold=true&rounded=true&size=128`;
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('current-date').innerText = new Date().toLocaleDateString('ar-EG', options);
+            document.getElementById('dailyBonusAmount').innerText = `${(data.nextBonusAmount||0.5).toFixed(2)} $`;
+            if (data.currentStreak) document.getElementById('bonusStreakText').innerText = `السلسلة: ${data.currentStreak} يوم`;
         }
 
-        async function forceRefresh() {
-            Swal.fire({ title: translations[currentLang]?.refresh_title || 'جاري التحديث', text: translations[currentLang]?.refresh_text || 'يتم تحديث البيانات...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-            try {
-                await fetchUserData();
-                await loadRecentActivities();
-                await loadNotifications();
-                await loadDailyBonusStatus();
-                await loadAnalytics();
-                Swal.fire({ icon: 'success', title: translations[currentLang]?.refresh_success || 'تم التحديث', text: translations[currentLang]?.refresh_success_text || 'تم تحديث جميع البيانات بنجاح', timer: 1500, showConfirmButton: false });
-            } catch (err) { Swal.fire('خطأ', translations[currentLang]?.refresh_failed || 'فشل تحديث البيانات', 'error'); }
-        }
-
-        document.getElementById('quickWithdrawProfitBtn')?.addEventListener('click', async () => {
-            const user = await fetchUserData();
-            if (!user) return;
-            const profitAmount = user.profit || 0;
-            if (profitAmount <= 0) { Swal.fire('تنبيه', translations[currentLang]?.no_profit || 'لا توجد أرباح صافية للسحب حالياً', 'info'); return; }
-            localStorage.setItem('quickWithdrawAmount', profitAmount);
-            window.location.href = 'withdraw.html?amount=' + profitAmount + '&type=profit';
+        document.getElementById('claimDailyBonusBtn').addEventListener('click', async () => {
+            const res = await fetchWithAuth(`${API_BASE}/api/daily-bonus/claim`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                Swal.fire('تم', data.message, 'success');
+                fetchUserData();
+                loadDailyBonusStatus();
+            } else Swal.fire('خطأ', data.message, 'error');
         });
 
-        let clickCount = 0, timer;
-        function setupAdminGateway() {
-            const crownIcon = document.getElementById('crownIcon');
-            if (!crownIcon) return;
-            crownIcon.removeEventListener('click', crownClickHandler);
-            crownIcon.addEventListener('click', crownClickHandler);
-        }
-        function crownClickHandler() {
-            clickCount++;
-            if (clickCount === 2) {
-                clearTimeout(timer); clickCount = 0;
-                Swal.fire({ title: translations[currentLang]?.admin_gateway_title || 'الباب السري للمدير', input: 'password', inputLabel: translations[currentLang]?.admin_gateway_label || 'أدخل كلمة المرور السري', inputPlaceholder: '••••••••', showCancelButton: true, confirmButtonText: translations[currentLang]?.enter || 'دخول', cancelButtonText: translations[currentLang]?.cancel || 'إلغاء', background: '#05070a', color: '#fff' }).then(async (result) => {
-                    if (result.isConfirmed && result.value) {
-                        try {
-                            const response = await fetch(URL_GATEWAY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ secretPassword: result.value }), credentials: 'include' });
-                            const data = await response.json();
-                            if (data.success) window.location.href = 'admin.html';
-                            else Swal.fire('خطأ', translations[currentLang]?.invalid_gateway_password || 'كلمة المرور السري غير صحيحة', 'error');
-                        } catch (err) { Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالخادم', 'error'); }
-                    }
-                });
-            } else { timer = setTimeout(() => { clickCount = 0; }, 300); }
+        // الأنشطة
+        async function loadActivities() {
+            const res = await fetchWithAuth(`${API_BASE}/api/activity-logs/recent`);
+            const activities = await res.json();
+            const container = document.getElementById('activity-container');
+            if (!activities.length) { container.innerHTML = '<p class="text-slate-500 text-center">لا توجد نشاطات</p>'; return; }
+            container.innerHTML = activities.slice(0,8).map(a => `
+                <div class="flex justify-between items-center py-1 border-b border-white/5">
+                    <span>${escapeHtml(a.action)} - ${escapeHtml(a.details)}</span>
+                    <span class="text-xs text-slate-500">${new Date(a.timestamp).toLocaleString()}</span>
+                </div>
+            `).join('');
         }
 
-        async function loadRecentActivities() {
-            const container = document.getElementById('recent-activities-container');
-            try {
-                const response = await fetchWithAuth(URL_ACTIVITY_LOGS);
-                if (response.ok) {
-                    const activities = await response.json();
-                    if (!activities.length) { container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>'; if(translations[currentLang]) container.querySelector('[data-i18n]').textContent = translations[currentLang].no_activities; return; }
-                    container.innerHTML = '';
-                    activities.forEach(act => {
-                        const div = document.createElement('div');
-                        div.className = 'activity-item p-6 flex justify-between items-center';
-                        div.innerHTML = `<div class="flex items-center gap-6"><div class="w-12 h-12 bg-blue-500/20 text-blue-500 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-clock"></i></div><div><p class="text-base font-black text-white">${escapeHtml(act.action || 'عملية')}</p><p class="text-[10px] text-slate-500 font-bold uppercase">${escapeHtml(act.details || '')}</p></div></div><div class="text-left font-black"><p class="text-slate-400 text-xs">${new Date(act.timestamp).toLocaleString()}</p></div>`;
-                        container.appendChild(div);
-                    });
-                } else { container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>'; }
-            } catch (err) { container.innerHTML = '<div class="text-center text-slate-500 py-6" data-i18n="no_activities">لا توجد نشاطات حديثة</div>'; }
+        // التذاكر
+        function openTicketModal() { document.getElementById('ticketModal').classList.remove('hidden'); }
+        function closeTicketModal() { document.getElementById('ticketModal').classList.add('hidden'); }
+        async function submitTicket() {
+            const subject = document.getElementById('ticketSubject').value.trim();
+            const message = document.getElementById('ticketMessage').value.trim();
+            if (!subject || !message) { Swal.fire('خطأ', 'يرجى ملء الموضوع والرسالة', 'error'); return; }
+            const res = await fetchWithAuth(`${API_BASE}/api/support/tickets`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject, message })
+            });
+            const data = await res.json();
+            if (data.success) {
+                Swal.fire('تم', 'تم فتح التذكرة، سنرد عليك قريباً', 'success');
+                closeTicketModal();
+            } else Swal.fire('خطأ', data.message, 'error');
         }
 
-        let notifications = [];
+        // إشعارات
         async function loadNotifications() {
-            try {
-                const res = await fetchWithAuth(URL_NOTIFICATIONS);
-                if (res.ok) { notifications = await res.json(); updateNotificationUI(); }
-            } catch(e) { console.error(e); }
+            const res = await fetchWithAuth(`${API_BASE}/api/notifications`);
+            const notifs = await res.json();
+            const unread = notifs.filter(n => !n.isRead).length;
+            const badge = document.getElementById('notificationCount');
+            badge.style.display = unread > 0 ? 'flex' : 'none';
+            badge.innerText = unread;
         }
-        function updateNotificationUI() {
-            const unreadCount = notifications.filter(n => !n.isRead).length;
-            const countSpan = document.getElementById('notificationCount');
-            if (unreadCount > 0) { countSpan.style.display = 'flex'; countSpan.innerText = unreadCount > 9 ? '9+' : unreadCount; }
-            else { countSpan.style.display = 'none'; }
-            const listContainer = document.getElementById('notificationsList');
-            if (!notifications.length) { listContainer.innerHTML = '<div class="p-3 text-center text-slate-500 text-xs" data-i18n="no_notifications">لا توجد إشعارات</div>'; return; }
-            listContainer.innerHTML = '';
-            notifications.forEach(notif => {
-                const item = document.createElement('div');
-                item.className = `notification-item ${!notif.isRead ? 'unread' : ''}`;
-                item.innerHTML = `<div class="notification-title">${escapeHtml(notif.title)}</div><div class="notification-message">${escapeHtml(notif.message)}</div><div class="notification-time">${new Date(notif.createdAt).toLocaleString()}</div>`;
-                if (!notif.isRead) item.addEventListener('click', () => markAsRead(notif.id));
-                listContainer.appendChild(item);
+
+        function logout() {
+            Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#3b6cc2' }).then(r => {
+                if (r.isConfirmed) {
+                    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }
             });
         }
-        async function markAsRead(notifId) {
-            try { await fetchWithAuth(URL_MARK_READ(notifId), { method: 'PUT' }); await loadNotifications(); } catch(e) { console.error(e); } }
-        async function markAllAsRead() {
-            try { await fetchWithAuth(URL_MARK_ALL_READ, { method: 'PUT' }); await loadNotifications(); } catch(e) { console.error(e); } }
 
-        // ============================================================
-        // Daily Bonus Streak
-        // ============================================================
-        async function loadDailyBonusStatus() {
-            try {
-                const res = await fetchWithAuth(URL_DAILY_BONUS_STATUS);
-                const data = await res.json();
-                const btn = document.getElementById('claimDailyBonusBtn');
-                const msgSpan = document.getElementById('bonusStatusMsg');
-                const streakSpan = document.getElementById('bonusStreakText');
-                if (data.canClaim) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50');
-                    msgSpan.innerText = translations[currentLang]?.bonus_available || 'المكافأة متاحة الآن! اضغط لاستلامها';
-                    msgSpan.classList.add('text-green-400');
-                } else {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50');
-                    msgSpan.innerText = data.reason || (translations[currentLang]?.bonus_unavailable || 'غير متاحة حالياً');
-                    msgSpan.classList.remove('text-green-400');
-                }
-                const nextAmount = data.nextBonusAmount || 0.5;
-                document.getElementById('dailyBonusAmount').innerText = nextAmount.toFixed(2) + ' $';
-                if (data.currentStreak !== undefined) {
-                    streakSpan.innerText = `🔥 السلسلة: ${data.currentStreak} يوم | المكافأة القادمة: ${nextAmount.toFixed(2)}$`;
-                }
-            } catch(e) { console.error(e); }
-        }
-        async function claimDailyBonus() {
-            const btn = document.getElementById('claimDailyBonusBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري...';
-            try {
-                const res = await fetchWithAuth(URL_DAILY_BONUS_CLAIM, { method: 'POST' });
-                const data = await res.json();
-                if (data.success) {
-                    Swal.fire('تم', data.message, 'success');
-                    await fetchUserData();
-                    await loadDailyBonusStatus();
-                } else { Swal.fire('فشل', data.message, 'error'); await loadDailyBonusStatus(); }
-            } catch(err) { Swal.fire('خطأ', 'فشل الاتصال', 'error'); await loadDailyBonusStatus(); }
-            finally { btn.innerHTML = '<i class="fa-regular fa-circle-check ml-1"></i> ' + (translations[currentLang]?.claim_bonus || 'استلام المكافأة'); btn.disabled = false; }
-        }
-        document.getElementById('claimDailyBonusBtn')?.addEventListener('click', claimDailyBonus);
+        function escapeHtml(s) { return s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-        // ============================================================
-        // Analytics Chart
-        // ============================================================
-        async function loadAnalytics() {
-            try {
-                const res = await fetchWithAuth(URL_ANALYTICS);
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                if (data.dailyBalance && data.dailyBalance.length) {
-                    const labels = data.dailyBalance.map(d => d.date);
-                    const positiveEvents = data.dailyBalance.map(d => d.positive_events || 0);
-                    if (balanceChart) balanceChart.destroy();
-                    const ctx = document.getElementById('balanceChart').getContext('2d');
-                    balanceChart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label: translations[currentLang]?.daily_activity || 'النشاط اليومي', data: positiveEvents, borderColor: '#d4af37', backgroundColor: 'rgba(212, 175, 55, 0.1)', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { color: '#e2e8f0' } } } } });
-                }
-            } catch (err) { console.error('Analytics error', err); }
-        }
-
-        function showLevelsModal() { document.getElementById('levelsModal').style.display = 'flex'; }
-        function closeLevelsModal() { document.getElementById('levelsModal').style.display = 'none'; }
-
-        async function logout() {
-            const result = await Swal.fire({ title: translations[currentLang]?.logout_title || 'تسجيل الخروج', text: translations[currentLang]?.logout_confirm || 'هل أنت متأكد من رغبتك في تسجيل الخروج من النظام الملكي؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#d4af37', confirmButtonText: translations[currentLang]?.yes_logout || 'نعم، تسجيل خروج', cancelButtonText: translations[currentLang]?.cancel || 'إلغاء', background: '#05070a', color: '#fff' });
-            if (result.isConfirmed) {
-                try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch(e) {}
-                document.cookie.split(";").forEach((c) => { document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); });
-                localStorage.removeItem('currentUser');
-                window.location.href = 'login.html';
-            }
-        }
-
-        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
-
-        let dropdownVisible = false;
-        const bell = document.getElementById('notificationBell');
-        const dropdown = document.getElementById('notificationsDropdown');
-        bell.addEventListener('click', (e) => { e.stopPropagation(); dropdownVisible = !dropdownVisible; dropdown.style.display = dropdownVisible ? 'block' : 'none'; if (dropdownVisible) loadNotifications(); });
-        document.addEventListener('click', (e) => { if (!bell.contains(e.target)) { dropdownVisible = false; dropdown.style.display = 'none'; } });
-        document.getElementById('markAllReadBtn').addEventListener('click', () => markAllAsRead());
-
+        // بدء التشغيل
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
             const user = await fetchUserData();
             if (user) {
-                await loadRecentActivities();
-                await loadNotifications();
-                await loadDailyBonusStatus();
-                await loadAnalytics();
                 initSocket();
-                setInterval(async () => {
-                    if (document.visibilityState === 'visible') {
-                        const newUser = await fetchUserData();
-                        if (newUser) updateUI(newUser);
-                        await loadNotifications();
-                    }
-                }, 15000);
+                loadDailyBonusStatus();
+                loadActivities();
+                loadNotifications();
+                setInterval(() => { if (document.visibilityState === 'visible') fetchUserData(); }, 15000);
             }
-            const refreshBtn = document.getElementById('refresh-activities');
-            if (refreshBtn) refreshBtn.addEventListener('click', () => { loadRecentActivities(); });
         };
     </script>
 </body>

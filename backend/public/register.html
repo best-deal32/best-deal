@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>إنشاء حساب | النظام الملكي - Best Deal</title>
+    <title>إنشاء حساب | Vivor</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -14,12 +14,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
         
         :root {
-            --gold-light: #f7e08a;
-            --gold-main: #d4af37;
-            --gold-dark: #8a6d3b;
-            --black-bg: #05070a;
-            --card-glass: rgba(15, 23, 42, 0.95);
-            --border-gold: rgba(212, 175, 55, 0.25);
+            --bg-deep: #040b14;
+            --bg-card: #071426;
+            --blue-mid: #1a3a6b;
+            --blue-light: #2a5298;
+            --blue-accent: #3b6cc2;
+            --text-primary: #e0e6f0;
         }
 
         * {
@@ -30,305 +30,340 @@
         }
 
         body {
-            background-color: var(--black-bg);
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(212, 175, 55, 0.08) 0%, transparent 50%);
+            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
-            color: #ffffff;
+            padding: 1.5rem;
             overflow-x: hidden;
+            position: relative;
         }
 
-        .registration-card {
-            background: var(--card-glass);
-            border: 2px solid rgba(212, 175, 55, 0.25);
-            padding: 2rem;
+        .bg-glow-1 {
+            position: absolute;
+            top: -120px;
+            right: -120px;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(59, 108, 194, 0.12) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(70px);
+            z-index: 0;
+        }
+        .bg-glow-2 {
+            position: absolute;
+            bottom: -120px;
+            left: -120px;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(42, 82, 152, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(70px);
+            z-index: 0;
+        }
+
+        .register-card {
+            background: rgba(11, 31, 59, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(59, 108, 194, 0.3);
             border-radius: 3rem;
             width: 100%;
-            max-width: 950px;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.9), 0 0 40px rgba(212, 175, 55, 0.1);
-            backdrop-filter: blur(20px);
-            animation: slideUpFade 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+            max-width: 520px;
+            padding: 2.5rem 2.2rem;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.7s ease;
         }
 
-        @media (min-width: 768px) {
-            .registration-card {
-                padding: 3rem;
-            }
-        }
-
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(50px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .gold-title {
-            background: linear-gradient(135deg, var(--gold-light), var(--gold-main), var(--gold-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
+        .dragon-icon-large {
+            display: block;
+            font-size: 4.5rem;
+            color: var(--blue-accent);
+            filter: drop-shadow(0 0 20px rgba(59, 108, 194, 0.6));
+            text-align: center;
+            margin-bottom: 0.3rem;
         }
 
-        label {
+        .register-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 2px;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+
+        .register-subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: var(--gold-main);
-            text-transform: uppercase;
-            margin-right: 0.5rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #93b4f5;
         }
 
         .input-wrapper {
             position: relative;
-            margin-bottom: 1.2rem;
         }
 
         .input-wrapper i {
             position: absolute;
-            right: 1rem;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--gold-main);
+            color: var(--blue-accent);
             font-size: 1rem;
-            z-index: 2;
         }
 
-        .form-input {
+        .input-field {
             width: 100%;
-            padding: 0.9rem 2.8rem 0.9rem 1rem;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            padding: 0.9rem 2.8rem 0.9rem 1.2rem;
+            background: rgba(4, 11, 20, 0.7);
+            border: 1.5px solid rgba(59, 108, 194, 0.3);
             border-radius: 1rem;
             color: #fff;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             outline: none;
-            transition: all 0.4s;
+            transition: all 0.3s;
         }
 
-        .form-input:focus {
-            border-color: var(--gold-main);
-            background: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        .input-field:focus {
+            border-color: var(--blue-accent);
+            background: rgba(7, 20, 38, 0.8);
+            box-shadow: 0 0 12px rgba(59, 108, 194, 0.15);
         }
 
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 0 1.2rem;
+            gap: 0 1rem;
         }
-        @media (min-width: 640px) {
+
+        @media (min-width: 500px) {
             .grid-2 {
                 grid-template-columns: 1fr 1fr;
             }
         }
 
-        .btn-gold {
+        .register-btn {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, var(--gold-main), var(--gold-dark));
+            background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-light) 100%);
             border: none;
-            border-radius: 1.2rem;
-            color: #000;
-            font-size: 1rem;
+            border-radius: 1rem;
+            color: #fff;
             font-weight: 900;
+            font-size: 1.05rem;
             cursor: pointer;
-            transition: all 0.4s;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            margin-top: 0.5rem;
+            gap: 10px;
+            margin-top: 0.8rem;
+            box-shadow: 0 10px 25px rgba(26, 58, 107, 0.5);
         }
 
-        .btn-gold:hover:not(:disabled) {
-            transform: translateY(-3px);
-            filter: brightness(1.1);
+        .register-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #204080 0%, #3265b0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(42, 82, 152, 0.6);
         }
 
-        .btn-gold:disabled {
-            opacity: 0.6;
+        .register-btn:disabled {
+            background: #1e2a3a;
+            color: #556;
             cursor: not-allowed;
         }
 
-        .btn-outline {
+        .btn-outline-blue {
             background: transparent;
-            border: 1px solid var(--gold-main);
-            color: var(--gold-main);
-            padding: 0.7rem 1rem;
+            border: 1.5px solid var(--blue-accent);
+            color: var(--blue-accent);
+            font-weight: 700;
+            padding: 0.7rem 1.2rem;
             border-radius: 1rem;
-            font-weight: bold;
-            font-size: 0.8rem;
             cursor: pointer;
             transition: 0.3s;
             white-space: nowrap;
+            font-size: 0.85rem;
         }
-        .btn-outline:hover {
-            background: rgba(212,175,55,0.1);
+
+        .btn-outline-blue:hover {
+            background: rgba(59, 108, 194, 0.15);
         }
 
         .verification-row {
             display: flex;
             gap: 0.5rem;
             align-items: center;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.5rem;
         }
+
         .verification-row input {
             flex: 1;
             margin-bottom: 0;
-        }
-        .verification-row button {
-            width: auto;
-            padding: 0.9rem 1.2rem;
         }
 
         .back-link {
             display: inline-block;
             margin-top: 1.5rem;
-            color: var(--gold-main);
+            color: var(--blue-accent);
             text-decoration: none;
-            font-weight: bold;
-            font-size: 0.85rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
         }
+
         .back-link:hover {
             text-decoration: underline;
         }
 
-        .note-text {
-            font-size: 0.7rem;
-            color: #64748b;
-            margin-top: 0.2rem;
-            margin-right: 0.5rem;
+        .lang-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 1.8rem;
+            background: rgba(11, 31, 59, 0.6);
+            border-radius: 3rem;
+            padding: 0.3rem;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid rgba(59, 108, 194, 0.25);
         }
 
-        /* Language Switcher */
-        .lang-selector {
-            background: rgba(0,0,0,0.4);
-            border-radius: 2rem;
-            padding: 0.25rem;
-            display: inline-flex;
-            gap: 0.25rem;
-            border: 1px solid rgba(212,175,55,0.3);
-            margin-bottom: 1rem;
-        }
         .lang-option {
-            padding: 0.3rem 0.7rem;
-            border-radius: 2rem;
-            font-size: 0.7rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 3rem;
+            font-size: 0.75rem;
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
-            color: #94a3b8;
+            color: #99a8c0;
         }
+
         .lang-option.active {
-            background: linear-gradient(135deg, #d4af37, #8a6d3b);
-            color: #000;
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff;
         }
+
         .lang-option:hover:not(.active) {
-            background: rgba(212,175,55,0.2);
-            color: #f7e08a;
+            background: rgba(42, 82, 152, 0.2);
+            color: #fff;
+        }
+
+        @media (max-width: 500px) {
+            .register-card {
+                padding: 2rem 1.5rem;
+                border-radius: 2.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="registration-card">
-        <div class="flex justify-between items-center mb-4">
-            <div></div>
-            <div class="lang-selector">
-                <div class="lang-option active" data-lang="ar">العربية</div>
-                <div class="lang-option" data-lang="en">English</div>
-                <div class="lang-option" data-lang="zh">中文</div>
-                <div class="lang-option" data-lang="de">Deutsch</div>
-            </div>
-        </div>
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
 
-        <div class="text-center mb-6">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gold-main/10 border-2 border-gold-main mb-4">
-                <i class="fa-solid fa-crown text-3xl text-gold-main"></i>
-            </div>
-            <h1 class="text-3xl font-black gold-title italic" data-i18n="register_title">حساب جديد</h1>
-            <p class="text-slate-400 text-xs mt-2" data-i18n="register_subtitle">انضم إلى منصة Best Deal الذهبية واستثمر بذكاء</p>
+    <div class="register-card">
+        <div class="dragon-icon-large">
+            <i class="fa-solid fa-dragon"></i>
         </div>
+        <h1 class="register-title">VIVOR</h1>
+        <p class="register-subtitle">انضم إلى منصة الاستثمار الذكي – أنشئ حسابك الآن</p>
 
         <form id="registerForm">
             <div class="grid-2">
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-user"></i>
-                    <input type="text" id="username" class="form-input" data-i18n-placeholder="username_placeholder" placeholder="اسم المستخدم" required>
-                    <div class="note-text" data-i18n="username_note">سيكون فريداً للدخول إلى المنصة</div>
+                <div class="input-group">
+                    <label class="input-label">اسم المستخدم</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="username" class="input-field" placeholder="اسم المستخدم" required>
+                    </div>
                 </div>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-signature"></i>
-                    <input type="text" id="fullName" class="form-input" data-i18n-placeholder="fullname_placeholder" placeholder="الاسم الكامل" required>
+                <div class="input-group">
+                    <label class="input-label">الاسم الكامل</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-signature"></i>
+                        <input type="text" id="fullName" class="input-field" placeholder="الاسم الكامل" required>
+                    </div>
                 </div>
             </div>
 
-            <div class="input-wrapper">
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" id="email" class="form-input" data-i18n-placeholder="email_placeholder" placeholder="البريد الإلكتروني" required>
-                <div class="note-text" data-i18n="email_note">سيتم إرسال رمز التحقق إلى هذا البريد</div>
-            </div>
-
-            <div class="grid-2">
+            <div class="input-group">
+                <label class="input-label">البريد الإلكتروني</label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" id="password" class="form-input" data-i18n-placeholder="password_placeholder" placeholder="كلمة المرور" required>
-                </div>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-check-circle"></i>
-                    <input type="password" id="confirmPassword" class="form-input" data-i18n-placeholder="confirm_password_placeholder" placeholder="تأكيد كلمة المرور" required>
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="email" class="input-field" placeholder="بريدك الإلكتروني" required>
                 </div>
             </div>
 
             <div class="grid-2">
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-globe"></i>
-                    <input type="text" id="origin" class="form-input" data-i18n-placeholder="origin_placeholder" placeholder="بلد المنشأ">
+                <div class="input-group">
+                    <label class="input-label">كلمة المرور</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password" class="input-field" placeholder="••••••••" required>
+                    </div>
                 </div>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-location-dot"></i>
-                    <input type="text" id="currentLocation" class="form-input" data-i18n-placeholder="location_placeholder" placeholder="السكن الحالي">
-                </div>
-            </div>
-
-            <div class="grid-2">
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-briefcase"></i>
-                    <input type="text" id="currentJob" class="form-input" data-i18n-placeholder="job_placeholder" placeholder="العمل الحالي">
-                </div>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <input type="text" id="profession" class="form-input" data-i18n-placeholder="profession_placeholder" placeholder="المهنة">
+                <div class="input-group">
+                    <label class="input-label">تأكيد كلمة المرور</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-check-circle"></i>
+                        <input type="password" id="confirmPassword" class="input-field" placeholder="••••••••" required>
+                    </div>
                 </div>
             </div>
 
-            <div class="input-wrapper">
-                <i class="fa-solid fa-gift"></i>
-                <input type="text" id="referrerCode" class="form-input" data-i18n-placeholder="referral_code_placeholder" placeholder="كود الإحالة (اختياري)">
-                <div class="note-text" data-i18n="referral_note">إذا كان لديك كود دعائي من صديق، أدخله هنا</div>
+            <div class="input-group">
+                <label class="input-label">كود الإحالة (اختياري)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-gift"></i>
+                    <input type="text" id="referrerCode" class="input-field" placeholder="أدخل كود الإحالة إن وجد">
+                </div>
             </div>
 
             <div class="verification-row">
-                <input type="text" id="verificationCode" class="form-input" data-i18n-placeholder="verification_code_placeholder" placeholder="رمز التحقق (6 أرقام)">
-                <button type="button" id="sendCodeBtn" class="btn-outline">
-                    <i class="fa-regular fa-paper-plane ml-1"></i> <span data-i18n="send_code">إرسال الرمز</span>
+                <input type="text" id="verificationCode" class="input-field" placeholder="رمز التحقق (6 أرقام)">
+                <button type="button" id="sendCodeBtn" class="btn-outline-blue">
+                    <i class="fa-regular fa-paper-plane ml-1"></i> إرسال الرمز
                 </button>
             </div>
 
-            <button type="submit" id="registerBtn" class="btn-gold">
-                <i class="fa-regular fa-circle-check"></i> <span data-i18n="create_account_btn">إنشاء الحساب</span>
+            <button type="submit" id="registerBtn" class="register-btn">
+                <i class="fa-solid fa-user-plus"></i> إنشاء الحساب
             </button>
         </form>
 
-        <div class="text-center mt-6">
-            <a href="login.html" class="back-link">
-                <i class="fa-solid fa-arrow-right ml-1"></i> <span data-i18n="have_account">لديك حساب بالفعل؟ سجل دخول الآن</span>
-            </a>
+        <a href="login.html" class="back-link">
+            <i class="fa-solid fa-arrow-right ml-1"></i> لديك حساب بالفعل؟ سجل دخول الآن
+        </a>
+
+        <div class="lang-selector">
+            <div class="lang-option active" data-lang="ar">العربية</div>
+            <div class="lang-option" data-lang="en">English</div>
+            <div class="lang-option" data-lang="zh">中文</div>
+            <div class="lang-option" data-lang="de">Deutsch</div>
         </div>
     </div>
 
@@ -367,17 +402,14 @@
         function applyTranslations(lang) {
             const t = translations[lang];
             if (!t) return;
-            // Translate elements with data-i18n
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) el.textContent = t[key];
             });
-            // Translate placeholders
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
                 if (t[key]) el.placeholder = t[key];
             });
-            // Direction
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
                 htmlEl.setAttribute('dir', 'rtl');
@@ -388,7 +420,6 @@
             }
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
-            // Update active class on language selector
             document.querySelectorAll('.lang-option').forEach(opt => {
                 if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
                 else opt.classList.remove('active');
@@ -410,7 +441,7 @@
         });
 
         // ============================================================
-        // WebSocket (للتوافق مع النظام)
+        // WebSocket
         // ============================================================
         function initSocket() {
             if (!socket) {
@@ -490,7 +521,7 @@
         });
 
         // ============================================================
-        // 6. إرسال رمز التحقق (محسّن مع رسائل واضحة وإعادة إرسال ذكية)
+        // 6. إرسال رمز التحقق
         // ============================================================
         let countdown = 0;
         let countdownInterval;
@@ -508,7 +539,7 @@
                     sendCodeBtn.disabled = false;
                     sendCodeBtn.innerHTML = originalText;
                 } else {
-                    sendCodeBtn.innerHTML = `<i class="fa-regular fa-paper-plane ml-1"></i> ${translations[currentLang]?.resend_code || 'إعادة الإرسال'} (${countdown})`;
+                    sendCodeBtn.innerHTML = `<i class="fa-regular fa-paper-plane ml-1"></i> إعادة الإرسال (${countdown})`;
                 }
             }, 1000);
         }
@@ -526,7 +557,7 @@
             const btn = sendCodeBtn;
             btn.disabled = true;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.sending || 'جاري الإرسال...');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
             try {
                 const response = await fetch(URL_SEND_VERIFICATION, {
                     method: 'POST',
@@ -537,7 +568,7 @@
                 const data = await response.json();
                 if (data.success) {
                     Swal.fire(translations[currentLang]?.code_sent_title || 'تم الإرسال', 
-                              translations[currentLang]?.code_sent_message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني (تحقق من spam إذا لم يصلك، أو راجع وحدة تحكم الخادم للاطلاع على الرمز في وضع التطوير)', 
+                              translations[currentLang]?.code_sent_message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني', 
                               'success');
                     startCountdown(60);
                 } else {
@@ -564,10 +595,6 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const origin = document.getElementById('origin').value.trim() || 'غير محدد';
-            const currentLocation = document.getElementById('currentLocation').value.trim() || 'غير محدد';
-            const currentJob = document.getElementById('currentJob').value.trim() || 'غير محدد';
-            const profession = document.getElementById('profession').value.trim() || 'غير محدد';
             let referrerCode = document.getElementById('referrerCode').value.trim();
             const verificationCode = document.getElementById('verificationCode').value.trim();
 
@@ -580,7 +607,7 @@
 
             // التحقق من الحقول الأساسية
             if (!username || !fullName || !email || !password) {
-                Swal.fire('خطأ', translations[currentLang]?.required_fields || 'جميع الحقول الأساسية مطلوبة (اسم المستخدم، الاسم الكامل، البريد، كلمة المرور)', 'error');
+                Swal.fire('خطأ', translations[currentLang]?.required_fields || 'جميع الحقول الأساسية مطلوبة', 'error');
                 return;
             }
             if (password !== confirmPassword) {
@@ -598,7 +625,7 @@
 
             const btn = document.getElementById('registerBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.creating_account || 'جاري إنشاء الحساب...');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري إنشاء الحساب...';
 
             try {
                 const response = await fetch(URL_REGISTER, {
@@ -609,11 +636,11 @@
                         password,
                         fullName,
                         email,
-                        origin,
-                        currentLocation,
-                        currentJob,
-                        work: currentJob,
-                        profession,
+                        origin: 'غير محدد',
+                        currentLocation: 'غير محدد',
+                        currentJob: 'غير محدد',
+                        work: 'غير محدد',
+                        profession: 'غير محدد',
                         verificationCode,
                         referrerCode
                     }),
@@ -625,9 +652,9 @@
                         title: translations[currentLang]?.register_success_title || 'تم التسجيل بنجاح',
                         text: data.message || (translations[currentLang]?.register_success_text || 'يمكنك الآن تسجيل الدخول إلى المنصة'),
                         icon: 'success',
-                        background: '#05070a',
+                        background: '#071426',
                         color: '#fff',
-                        confirmButtonColor: '#d4af37'
+                        confirmButtonColor: '#3b6cc2'
                     }).then(() => {
                         window.location.href = 'login.html';
                     });
@@ -639,7 +666,7 @@
                 Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالسيرفر، تأكد من تشغيل الخادم', 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-regular fa-circle-check"></i> ' + (translations[currentLang]?.create_account_btn || 'إنشاء الحساب');
+                btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> إنشاء الحساب';
             }
         });
 
@@ -649,7 +676,7 @@
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
-            initSocket(); // تهيئة WebSocket
+            initSocket();
         };
     </script>
 </body>

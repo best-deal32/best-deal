@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>سجل المعاملات | Best Deal</title>
+    <title>سجل المعاملات | Vivor</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -14,42 +14,169 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
         :root {
-            --gold: #d4af37;
-            --gold-dark: #8a6d3b;
-            --dark-bg: #06090f;
-            --card-bg: rgba(15, 23, 42, 0.9);
+            --bg-deep: #040b14;
+            --bg-card: #071426;
+            --blue-mid: #1a3a6b;
+            --blue-light: #2a5298;
+            --blue-accent: #3b6cc2;
+            --border-light: rgba(43, 80, 150, 0.45);
+            --text-primary: #e0e6f0;
+            --text-dim: #99a8c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--dark-bg);
-            color: #e2e8f0;
-            margin: 0;
-            padding: 0;
+            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            color: var(--text-primary);
             min-height: 100vh;
+            padding: 1.5rem;
+            overflow-x: hidden;
+            padding-bottom: 6rem; /* for bottom nav */
         }
 
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #d4af37 0%, #f7e08a 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .glass-card {
-            background: var(--card-bg);
-            border: 1px solid rgba(212, 175, 55, 0.15);
+        .dragon-icon {
+            font-size: 2rem;
+            color: var(--blue-accent);
+            filter: drop-shadow(0 0 10px rgba(59,108,194,0.6));
+        }
+
+        .lang-selector {
+            background: rgba(11, 31, 59, 0.65);
+            border-radius: 3rem;
+            padding: 0.3rem;
+            display: inline-flex;
+            gap: 0.2rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .lang-option {
+            padding: 0.4rem 0.9rem;
+            border-radius: 3rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-dim);
+        }
+
+        .lang-option.active {
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff;
+            box-shadow: 0 0 15px rgba(42, 82, 152, 0.5);
+        }
+
+        .lang-option:hover:not(.active) {
+            background: rgba(42, 82, 152, 0.2);
+            color: #fff;
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff;
+            font-weight: 800;
+            border-radius: 1.25rem;
+            padding: 0.6rem 1.5rem;
+            transition: 0.3s;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 8px 20px rgba(26,58,107,0.5);
+            font-size: 0.9rem;
+        }
+
+        .btn-blue:hover {
+            background: linear-gradient(135deg, #204080, #3265b0);
+            transform: translateY(-2px);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-btn {
+            background: rgba(11,31,59,0.6);
+            border: 1px solid var(--border-light);
             border-radius: 2rem;
-            backdrop-filter: blur(20px);
-            transition: all 0.3s;
+            padding: 0.4rem 1.1rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-dim);
         }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .filter-btn:hover:not(.active) {
+            background: rgba(42,82,152,0.2);
+            color: #fff;
+        }
+
+        .transaction-card {
+            background: rgba(11,31,59,0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-light);
+            border-radius: 1.5rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .transaction-card:hover {
+            border-color: var(--blue-accent);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            transform: translateY(-2px);
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .type-deposit { background: rgba(16,185,129,0.2); color: #10b981; }
+        .type-withdrawal { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .type-investment { background: rgba(59,130,246,0.2); color: #60a5fa; }
+        .type-referral { background: rgba(168,85,247,0.2); color: #a78bfa; }
+
+        .status-badge {
+            margin-right: 0.4rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .status-approved { color: #10b981; }
+        .status-pending { color: #f59e0b; }
+        .status-rejected { color: #ef4444; }
+        .status-active { color: #60a5fa; }
+        .status-completed { color: #10b981; }
 
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(10, 15, 26, 0.98);
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            background: rgba(7,20,38,0.96);
+            border-top: 1px solid var(--border-light);
             display: flex;
             justify-content: space-around;
             padding: 12px 0;
@@ -60,129 +187,93 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #94a3b8;
+            color: var(--text-dim);
             font-size: 11px;
             font-weight: 800;
             cursor: pointer;
+            transition: 0.3s;
         }
 
-        .nav-link.active { color: var(--gold); }
+        .nav-link.active { color: var(--blue-accent); }
         .nav-link i { font-size: 22px; margin-bottom: 4px; }
 
-        .lang-selector {
-            background: rgba(0,0,0,0.4);
-            border-radius: 2rem;
-            padding: 0.25rem;
-            display: inline-flex;
-            gap: 0.25rem;
-            border: 1px solid rgba(212,175,55,0.3);
-        }
-        .lang-option {
-            padding: 0.3rem 0.7rem;
-            border-radius: 2rem;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #94a3b8;
-        }
-        .lang-option.active {
-            background: linear-gradient(135deg, #d4af37, #8a6d3b);
-            color: #000;
-        }
-
-        .filter-bar {
+        .loading-spinner {
             display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
-        }
-        .filter-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(212,175,55,0.2);
-            border-radius: 2rem;
-            padding: 0.4rem 1rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .filter-btn.active {
-            background: linear-gradient(135deg, #d4af37, #8a6d3b);
-            color: #000;
-            border-color: transparent;
-        }
-        .filter-btn:hover:not(.active) {
-            background: rgba(212,175,55,0.2);
+            justify-content: center;
+            padding: 3rem;
         }
 
-        .transaction-item {
-            background: rgba(255,255,255,0.03);
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
+        .back-btn {
+            color: var(--text-dim);
             transition: 0.2s;
+            font-weight: 700;
+            cursor: pointer;
         }
-        .transaction-item:hover {
-            background: rgba(255,255,255,0.06);
+
+        .back-btn:hover {
+            color: var(--blue-accent);
         }
-        .type-badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: bold;
+
+        @media (max-width: 500px) {
+            .transaction-card {
+                padding: 0.8rem 1rem;
+            }
         }
-        .type-deposit { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-        .type-withdrawal { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .type-investment { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .type-referral { background: rgba(168, 85, 247, 0.2); color: #a78bfa; }
-        .status-approved { color: #10b981; }
-        .status-pending { color: #f59e0b; }
-        .status-rejected { color: #ef4444; }
-        .status-active { color: #60a5fa; }
-        .status-completed { color: #10b981; }
     </style>
 </head>
-<body class="pb-32">
+<body>
 
-    <header class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-        <button onclick="window.location.href='dashboard.html'" class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-white/10">
-            <i class="fa-solid fa-arrow-right text-xl text-[#d4af37]"></i>
-        </button>
-        <h1 class="text-2xl font-black gold-gradient-text italic" data-i18n="transactions_title">سجل المعاملات</h1>
-        <div class="lang-selector">
-            <div class="lang-option active" data-lang="ar">العربية</div>
-            <div class="lang-option" data-lang="en">English</div>
-            <div class="lang-option" data-lang="zh">中文</div>
-            <div class="lang-option" data-lang="de">Deutsch</div>
+    <div class="container">
+        <!-- رأس الصفحة -->
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="window.location.href='dashboard.html'" class="back-btn">
+                <i class="fa-solid fa-arrow-right ml-2"></i> العودة للوحة التحكم
+            </button>
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-dragon dragon-icon"></i>
+                <span class="text-xl font-black text-white italic tracking-wide">VIVOR</span>
+            </div>
+            <div class="lang-selector">
+                <div class="lang-option active" data-lang="ar">العربية</div>
+                <div class="lang-option" data-lang="en">English</div>
+                <div class="lang-option" data-lang="zh">中文</div>
+                <div class="lang-option" data-lang="de">Deutsch</div>
+            </div>
         </div>
-    </header>
 
-    <main class="max-w-7xl mx-auto px-6 pb-24">
+        <h1 class="text-2xl font-black text-blue-300 mb-4"><i class="fa-solid fa-clock-rotate-left ml-2"></i> سجل المعاملات</h1>
+
+        <!-- أزرار الفلترة -->
         <div class="filter-bar">
-            <button class="filter-btn active" data-filter="all" data-i18n="filter_all">الكل</button>
-            <button class="filter-btn" data-filter="deposit" data-i18n="filter_deposit">إيداعات</button>
-            <button class="filter-btn" data-filter="withdrawal" data-i18n="filter_withdrawal">سحوبات</button>
-            <button class="filter-btn" data-filter="investment" data-i18n="filter_investment">استثمارات</button>
-            <button class="filter-btn" data-filter="referral" data-i18n="filter_referral">إحالات</button>
+            <button class="filter-btn active" data-filter="all">الكل</button>
+            <button class="filter-btn" data-filter="deposit">إيداعات</button>
+            <button class="filter-btn" data-filter="withdrawal">سحوبات</button>
+            <button class="filter-btn" data-filter="investment">استثمارات</button>
+            <button class="filter-btn" data-filter="referral">إحالات</button>
         </div>
 
-        <div id="loadingIndicator" class="text-center py-12">
-            <i class="fa-solid fa-spinner fa-spin text-2xl text-gold"></i>
-            <p class="mt-2" data-i18n="loading_transactions">جاري تحميل المعاملات...</p>
+        <!-- مؤشر التحميل -->
+        <div id="loadingIndicator" class="loading-spinner">
+            <i class="fa-solid fa-spinner fa-spin text-2xl text-blue-400"></i>
         </div>
 
-        <div id="transactionsList" class="space-y-3" style="display: none;"></div>
-        <div id="noDataMessage" class="text-center py-12 text-slate-500" style="display: none;" data-i18n="no_transactions">لا توجد معاملات حتى الآن</div>
-    </main>
+        <!-- قائمة المعاملات -->
+        <div id="transactionsList" class="space-y-2" style="display: none;"></div>
 
+        <!-- رسالة عدم وجود بيانات -->
+        <div id="noDataMessage" class="text-center py-12 text-slate-500" style="display: none;">
+            <i class="fa-regular fa-folder-open text-4xl mb-2"></i>
+            <p>لا توجد معاملات حتى الآن</p>
+        </div>
+    </div>
+
+    <!-- القائمة السفلية -->
     <div class="bottom-nav">
-        <div onclick="window.location.href='dashboard.html'" class="nav-link"><i class="fa-solid fa-house-chimney"></i><span data-i18n="home">الرئيسية</span></div>
-        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span data-i18n="deposit">الإيداع</span></div>
-        <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span data-i18n="investments">المشاريع</span></div>
-        <div onclick="window.location.href='transactions.html'" class="nav-link active"><i class="fa-solid fa-clock-rotate-left"></i><span data-i18n="history">التاريخ</span></div>
-        <div onclick="logout()" class="nav-link text-red-500"><i class="fa-solid fa-power-off"></i><span data-i18n="logout">خروج</span></div>
+        <div onclick="window.location.href='dashboard.html'" class="nav-link"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
+        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span>الإيداع</span></div>
+        <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>المشاريع</span></div>
+        <div onclick="window.location.href='transactions.html'" class="nav-link active"><i class="fa-solid fa-clock-rotate-left"></i><span>التاريخ</span></div>
+        <div onclick="logout()" class="nav-link text-red-400"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
     </div>
 
     <script>
@@ -198,13 +289,12 @@
         const URL_REFERRALS = `${API_BASE_URL}/api/referrals/my`;
 
         let socket = null;
+        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
+        const translations = {};
 
         // ============================================================
         // 2. i18n Translations
         // ============================================================
-        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
-        const translations = {};
-
         async function loadTranslations(lang) {
             try {
                 const response = await fetch(`/locales/${lang}/translation.json`);
@@ -258,7 +348,7 @@
         });
 
         // ============================================================
-        // WebSocket (للتوافق مع النظام)
+        // WebSocket (لتوافق النظام)
         // ============================================================
         function initSocket() {
             if (!socket) {
@@ -275,7 +365,7 @@
                         text: data.message,
                         showConfirmButton: false,
                         timer: 5000,
-                        background: '#05070a',
+                        background: '#071426',
                         color: '#fff'
                     });
                 });
@@ -302,29 +392,29 @@
         }
 
         // ============================================================
-        // 4. Fetch all transactions (مع تحويل الأرقام بشكل آمن)
+        // 4. Fetch all transactions
         // ============================================================
         async function loadTransactions() {
             const loadingDiv = document.getElementById('loadingIndicator');
             const container = document.getElementById('transactionsList');
             const noDataDiv = document.getElementById('noDataMessage');
-            loadingDiv.style.display = 'block';
+
+            loadingDiv.style.display = 'flex';
             container.style.display = 'none';
             noDataDiv.style.display = 'none';
 
             try {
-                // جلب جميع البيانات بشكل متوازٍ
                 const [deposits, withdrawals, investments, referralsRes] = await Promise.all([
                     fetchWithAuth(URL_DEPOSITS).then(r => r.ok ? r.json() : []),
                     fetchWithAuth(URL_WITHDRAWALS).then(r => r.ok ? r.json() : []),
                     fetchWithAuth(URL_INVESTMENTS).then(r => r.ok ? r.json() : []),
                     fetchWithAuth(URL_REFERRALS).then(r => r.ok ? r.json() : { referrals: [] })
                 ]);
-                const referrals = referralsRes.referrals || [];
 
+                const referrals = referralsRes.referrals || [];
                 let allTransactions = [];
 
-                // معالجة الإيداعات (تحويل amount إلى رقم)
+                // إيداعات
                 (deposits || []).forEach(d => {
                     allTransactions.push({
                         id: d.id,
@@ -333,11 +423,10 @@
                         status: d.status || 'pending',
                         date: new Date(d.date),
                         details: `الطريقة: ${d.method || 'USDT'}`,
-                        original: d
                     });
                 });
 
-                // معالجة السحوبات
+                // سحوبات
                 (withdrawals || []).forEach(w => {
                     let typeText = w.type === 'profit' ? 'أرباح' : 'أصل';
                     allTransactions.push({
@@ -347,17 +436,17 @@
                         status: w.status || 'pending',
                         date: new Date(w.date),
                         details: `${typeText} | محفظة: ${(w.walletAddress || '').substring(0,10)}...`,
-                        original: w
                     });
                 });
 
-                // معالجة الاستثمارات
+                // استثمارات
                 (investments || []).forEach(inv => {
                     let projectName = '';
                     if (inv.projectType === 'daily') projectName = 'يومي';
                     else if (inv.projectType === 'weekly') projectName = 'أسبوعي';
                     else if (inv.projectType === 'monthly') projectName = 'شهري';
-                    else if (inv.projectType === 'vip') projectName = 'VIP';
+                    else if (inv.projectType === '15days') projectName = '15 يوم';
+                    else projectName = 'VIP';
                     allTransactions.push({
                         id: inv.id,
                         type: 'investment',
@@ -365,11 +454,10 @@
                         status: 'active',
                         date: new Date(inv.startDate),
                         details: `مشروع ${projectName}`,
-                        original: inv
                     });
                 });
 
-                // معالجة مكافآت الإحالات (فقط التي لها مكافأة > 0)
+                // إحالات
                 (referrals || []).forEach(ref => {
                     const reward = parseFloat(ref.reward) || 0;
                     if (reward > 0) {
@@ -380,13 +468,12 @@
                             status: 'completed',
                             date: new Date(ref.registeredAt),
                             details: `مكافأة من ${ref.username}`,
-                            original: ref
                         });
                     }
                 });
 
                 // ترتيب تنازلي حسب التاريخ
-                allTransactions.sort((a,b) => b.date - a.date);
+                allTransactions.sort((a, b) => b.date - a.date);
 
                 // تطبيق الفلتر الحالي
                 const activeFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-filter') || 'all';
@@ -405,7 +492,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                Swal.fire('خطأ', translations[currentLang]?.load_failed || 'فشل تحميل المعاملات', 'error');
+                Swal.fire('خطأ', 'فشل تحميل المعاملات', 'error');
                 noDataDiv.style.display = 'block';
             } finally {
                 loadingDiv.style.display = 'none';
@@ -416,15 +503,15 @@
             const container = document.getElementById('transactionsList');
             const t = translations[currentLang] || {};
             container.innerHTML = '';
+
             transactions.forEach(tx => {
-                // تأكيد أن amount رقم قبل استخدام toFixed
                 const amountNum = (typeof tx.amount === 'number') ? tx.amount : parseFloat(tx.amount) || 0;
                 const typeClass = `type-${tx.type}`;
                 let typeText = '';
                 if (tx.type === 'deposit') typeText = t.deposit || 'إيداع';
                 else if (tx.type === 'withdrawal') typeText = t.withdrawal || 'سحب';
                 else if (tx.type === 'investment') typeText = t.investment || 'استثمار';
-                else typeText = t.referral || 'إحالة';
+                else if (tx.type === 'referral') typeText = t.referral || 'إحالة';
 
                 let statusText = '';
                 let statusClass = '';
@@ -439,13 +526,13 @@
                 const amountSign = (tx.type === 'withdrawal') ? '- ' : '+ ';
                 const dateStr = tx.date.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
 
-                const item = document.createElement('div');
-                item.className = 'transaction-item';
-                item.innerHTML = `
+                const card = document.createElement('div');
+                card.className = 'transaction-card';
+                card.innerHTML = `
                     <div class="flex flex-wrap justify-between items-start gap-2">
-                        <div>
+                        <div class="flex items-center gap-2">
                             <span class="type-badge ${typeClass}">${typeText}</span>
-                            <span class="text-xs mr-2 ${statusClass}">${statusText}</span>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
                         </div>
                         <div class="text-left">
                             <span class="text-lg font-bold ${amountColor}">${amountSign}${amountNum.toFixed(2)} $</span>
@@ -456,7 +543,7 @@
                         <span class="truncate max-w-[200px]">${escapeHtml(tx.details)}</span>
                     </div>
                 `;
-                container.appendChild(item);
+                container.appendChild(card);
             });
         }
 
@@ -476,11 +563,11 @@
         // ============================================================
         async function logout() {
             const result = await Swal.fire({
-                title: translations[currentLang]?.logout_title || 'تسجيل الخروج',
-                text: translations[currentLang]?.logout_confirm || 'هل أنت متأكد؟',
+                title: 'تسجيل الخروج',
+                text: 'هل أنت متأكد؟',
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#d4af37'
+                confirmButtonColor: '#3b6cc2'
             });
             if (result.isConfirmed) {
                 try {
@@ -510,7 +597,7 @@
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
-            initSocket(); // تهيئة WebSocket
+            initSocket();
             try {
                 const res = await fetchWithAuth(URL_ME);
                 if (!res.ok) throw new Error();

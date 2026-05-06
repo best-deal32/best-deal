@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>تسجيل الدخول | النظام الملكي - Best Deal</title>
+    <title>تسجيل الدخول | Vivor</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -14,11 +14,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
         
         :root {
-            --gold-light: #f7e08a;
-            --gold-main: #d4af37;
-            --gold-dark: #8a6d3b;
-            --black-bg: #05070a;
-            --card-bg: rgba(15, 23, 42, 0.98);
+            --bg-deep: #040b14;
+            --bg-card: #071426;
+            --blue-mid: #1a3a6b;
+            --blue-light: #2a5298;
+            --blue-accent: #3b6cc2;
+            --text-primary: #e0e6f0;
         }
 
         * {
@@ -29,116 +30,95 @@
         }
 
         body {
-            background: radial-gradient(circle at top center, #111b27 0%, var(--black-bg) 100%);
-            color: #fff;
+            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            overflow: hidden;
+            justify-content: center;
+            padding: 1.5rem;
+            overflow-x: hidden;
             position: relative;
         }
 
-        .bg-glow-container {
+        /* تأثيرات خلفية */
+        .bg-glow-1 {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .glow-circle-1 {
-            position: absolute;
-            top: -150px;
-            left: -150px;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+            top: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 108, 194, 0.15) 0%, transparent 70%);
             border-radius: 50%;
             filter: blur(60px);
-            animation: pulse-glow 8s infinite alternate;
+            z-index: 0;
         }
-
-        .glow-circle-2 {
+        .bg-glow-2 {
             position: absolute;
-            bottom: -150px;
-            right: -150px;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(42, 82, 152, 0.1) 0%, transparent 70%);
             border-radius: 50%;
             filter: blur(60px);
-            animation: pulse-glow 12s infinite alternate-reverse;
-        }
-
-        @keyframes pulse-glow {
-            0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
-            100% { transform: scale(1.2) translate(20px, 20px); opacity: 0.8; }
+            z-index: 0;
         }
 
         .login-card {
-            background: var(--card-bg);
+            background: rgba(11, 31, 59, 0.85);
             backdrop-filter: blur(25px);
-            border: 1px solid rgba(212, 175, 55, 0.25);
-            border-radius: 32px;
-            width: 90%;
-            max-width: 440px;
-            padding: 50px 40px;
+            border: 1px solid rgba(59, 108, 194, 0.3);
+            border-radius: 3rem;
+            width: 100%;
+            max-width: 480px;
+            padding: 3rem 2.5rem;
             position: relative;
             z-index: 10;
-            animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.7s ease;
         }
 
-        .login-card:hover {
-            border-color: rgba(212, 175, 55, 0.4);
-        }
-
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(40px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .header-section {
+        .dragon-icon-large {
+            display: block;
+            font-size: 5rem;
+            color: var(--blue-accent);
+            filter: drop-shadow(0 0 20px rgba(59, 108, 194, 0.6));
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 0.5rem;
         }
 
-        .logo-icon-wrapper {
-            display: inline-flex;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(0,0,0,0.5));
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 50%;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .logo-icon-wrapper i {
-            font-size: 2.5rem;
-            color: var(--gold-main);
-        }
-
-        .header-section h1 {
-            font-size: 2rem;
+        .login-title {
+            font-size: 2.4rem;
             font-weight: 900;
+            text-align: center;
+            letter-spacing: 2px;
             color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 2.5rem;
         }
 
         .input-group {
-            margin-bottom: 25px;
+            margin-bottom: 1.8rem;
         }
 
-        .input-group label {
+        .input-label {
             display: block;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--gold-light);
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #93b4f5;
         }
 
         .input-wrapper {
@@ -147,156 +127,165 @@
 
         .input-wrapper i {
             position: absolute;
-            right: 18px;
+            right: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--gold-main);
+            color: var(--blue-accent);
             font-size: 1.1rem;
         }
 
         .input-field {
             width: 100%;
-            padding: 16px 52px 16px 20px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            padding: 1rem 3rem 1rem 1.5rem;
+            background: rgba(4, 11, 20, 0.7);
+            border: 1.5px solid rgba(59, 108, 194, 0.3);
+            border-radius: 1.2rem;
             color: #fff;
+            font-weight: 600;
             font-size: 1rem;
             outline: none;
             transition: all 0.3s;
         }
 
         .input-field:focus {
-            border-color: var(--gold-main);
-            background: rgba(0, 0, 0, 0.6);
-            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+            border-color: var(--blue-accent);
+            background: rgba(7, 20, 38, 0.8);
+            box-shadow: 0 0 15px rgba(59, 108, 194, 0.2);
         }
 
-        .submit-button {
+        .login-btn {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, var(--gold-main), var(--gold-dark));
+            padding: 1.1rem;
+            background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-light) 100%);
             border: none;
-            border-radius: 16px;
-            color: #000;
-            font-weight: 800;
+            border-radius: 1.2rem;
+            color: #fff;
+            font-weight: 900;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s;
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 12px;
-            margin-top: 10px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            justify-content: center;
+            gap: 10px;
+            margin-top: 0.5rem;
+            box-shadow: 0 10px 25px rgba(26, 58, 107, 0.5);
         }
 
-        .submit-button:hover:not(:disabled) {
-            transform: translateY(-3px);
-            filter: brightness(1.1);
+        .login-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #204080 0%, #3265b0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(42, 82, 152, 0.6);
         }
 
-        .submit-button:disabled {
-            background: #2a2a2a;
-            color: #555;
+        .login-btn:disabled {
+            background: #1e2a3a;
+            color: #556;
             cursor: not-allowed;
         }
 
         .footer-links {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin-top: 35px;
+            gap: 12px;
+            margin-top: 2rem;
             text-align: center;
         }
 
         .footer-links a {
-            color: rgba(255, 255, 255, 0.6);
+            color: #94a3b8;
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--blue-accent);
         }
 
         .footer-links a span {
-            color: var(--gold-main);
-            font-weight: 700;
+            color: var(--blue-accent);
+            font-weight: 800;
         }
 
-        .forgot-pass {
-            color: var(--gold-light) !important;
-        }
-
-        /* Language Switcher */
         .lang-selector {
             display: flex;
             justify-content: center;
-            gap: 0.5rem;
-            margin-top: 20px;
-            background: rgba(0,0,0,0.4);
-            border-radius: 2rem;
-            padding: 0.25rem;
+            gap: 0.4rem;
+            margin-top: 2rem;
+            background: rgba(11, 31, 59, 0.6);
+            border-radius: 3rem;
+            padding: 0.3rem;
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
-            border: 1px solid rgba(212,175,55,0.3);
+            border: 1px solid rgba(59, 108, 194, 0.25);
         }
+
         .lang-option {
-            padding: 0.3rem 0.7rem;
-            border-radius: 2rem;
-            font-size: 0.7rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 3rem;
+            font-size: 0.75rem;
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
-            color: #94a3b8;
+            color: #99a8c0;
         }
+
         .lang-option.active {
-            background: linear-gradient(135deg, #d4af37, #8a6d3b);
-            color: #000;
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff;
         }
+
         .lang-option:hover:not(.active) {
-            background: rgba(212,175,55,0.2);
-            color: #f7e08a;
+            background: rgba(42, 82, 152, 0.2);
+            color: #fff;
+        }
+
+        @media (max-width: 500px) {
+            .login-card {
+                padding: 2.5rem 1.8rem;
+                border-radius: 2.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="bg-glow-container">
-        <div class="glow-circle-1"></div>
-        <div class="glow-circle-2"></div>
-    </div>
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
 
     <div class="login-card">
-        <div class="header-section">
-            <div class="logo-icon-wrapper">
-                <i class="fa-solid fa-crown"></i>
-            </div>
-            <h1 data-i18n="app_name">النظام الملكي</h1>
-            <p data-i18n="login_subtitle">سجل دخولك للوصول إلى منصة Best Deal</p>
+        <div class="dragon-icon-large">
+            <i class="fa-solid fa-dragon"></i>
         </div>
+        <h1 class="login-title">VIVOR</h1>
+        <p class="login-subtitle">منصة الاستثمار الذكي – سجّل دخولك للمتابعة</p>
 
         <form id="loginForm">
             <div class="input-group">
-                <label data-i18n="username_label">اسم المستخدم</label>
+                <label class="input-label">اسم المستخدم</label>
                 <div class="input-wrapper">
-                    <input type="text" id="username" class="input-field" data-i18n-placeholder="username_placeholder" placeholder="" required>
-                    <i class="fa-solid fa-user-shield"></i>
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" class="input-field" placeholder="أدخل اسم المستخدم" required>
                 </div>
             </div>
             <div class="input-group">
-                <label data-i18n="password_label">كلمة المرور</label>
+                <label class="input-label">كلمة المرور</label>
                 <div class="input-wrapper">
-                    <input type="password" id="password" class="input-field" data-i18n-placeholder="password_placeholder" placeholder="" required>
-                    <i class="fa-solid fa-key"></i>
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" class="input-field" placeholder="••••••••" required>
                 </div>
             </div>
-            <button type="submit" id="submitBtn" class="submit-button">
-                <span data-i18n="login_btn">تسجيل الدخول</span>
-                <i class="fa-solid fa-paper-plane"></i>
+            <button type="submit" id="submitBtn" class="login-btn">
+                <span>تسجيل الدخول</span>
+                <i class="fa-solid fa-arrow-left"></i>
             </button>
         </form>
 
         <div class="footer-links">
-            <a href="forgot-password.html" class="forgot-pass" data-i18n="forgot_password">نسيت كلمة المرور؟</a>
-            <a href="register.html"><span data-i18n="no_account">ليس لديك حساب؟</span> <span data-i18n="create_account">أنشئ حساباً جديداً</span></a>
+            <a href="forgot-password.html">نسيت كلمة المرور؟</a>
+            <a href="register.html"><span>ليس لديك حساب؟</span> أنشئ حساباً جديداً</a>
         </div>
 
         <div class="lang-selector">
@@ -309,7 +298,7 @@
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة (استخدام المسارات النسبية)
+        // الإعدادات العامة (استخدام المسارات النسبية)
         // ============================================================
         const API_BASE_URL = '';
         const LOGIN_ENDPOINT = `${API_BASE_URL}/api/users/login`;
@@ -319,7 +308,7 @@
         let socket = null;
 
         // ============================================================
-        // 2. نظام الترجمة متعدد اللغات (i18n)
+        // نظام الترجمة متعدد اللغات (i18n)
         // ============================================================
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
@@ -341,56 +330,41 @@
         function applyTranslations(lang) {
             const t = translations[lang];
             if (!t) return;
-            // Translate elements with data-i18n
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    el.textContent = t[key];
-                }
+                if (t[key]) el.textContent = t[key];
             });
-            // Translate placeholders
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) {
-                    el.placeholder = t[key];
-                }
+                if (t[key]) el.placeholder = t[key];
             });
-            // Update direction for RTL/LTR
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
                 htmlEl.setAttribute('dir', 'rtl');
                 htmlEl.setAttribute('lang', 'ar');
-                // adjust input padding for RTL
                 document.querySelectorAll('.input-field').forEach(inp => {
-                    inp.style.paddingRight = '52px';
-                    inp.style.paddingLeft = '20px';
+                    inp.style.paddingRight = '3rem';
+                    inp.style.paddingLeft = '1.5rem';
                 });
             } else {
                 htmlEl.setAttribute('dir', 'ltr');
                 htmlEl.setAttribute('lang', lang);
                 document.querySelectorAll('.input-field').forEach(inp => {
-                    inp.style.paddingLeft = '52px';
-                    inp.style.paddingRight = '20px';
+                    inp.style.paddingLeft = '3rem';
+                    inp.style.paddingRight = '1.5rem';
                 });
             }
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
-            // Update active class on language selector
             document.querySelectorAll('.lang-option').forEach(opt => {
-                if (opt.getAttribute('data-lang') === lang) {
-                    opt.classList.add('active');
-                } else {
-                    opt.classList.remove('active');
-                }
+                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
+                else opt.classList.remove('active');
             });
-            // Set cookie for server-side detection
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
 
         async function setLanguage(lang) {
-            if (!translations[lang]) {
-                await loadTranslations(lang);
-            }
+            if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
         }
 
@@ -403,7 +377,7 @@
         });
 
         // ============================================================
-        // WebSocket (للتوافق مع النظام - غير ضروري هنا لكن نضيفه)
+        // WebSocket
         // ============================================================
         function initSocket() {
             if (!socket) {
@@ -415,7 +389,7 @@
         }
 
         // ============================================================
-        // 3. التحقق من وجود جلسة نشطة (توجيه تلقائي إلى dashboard)
+        // التحقق من وجود جلسة نشطة
         // ============================================================
         async function checkExistingSession() {
             try {
@@ -433,7 +407,7 @@
         }
 
         // ============================================================
-        // 4. معالجة نموذج تسجيل الدخول
+        // معالجة نموذج تسجيل الدخول
         // ============================================================
         const loginForm = document.getElementById('loginForm');
         const submitBtn = document.getElementById('submitBtn');
@@ -450,39 +424,35 @@
                     icon: 'warning',
                     title: t.warning_title || 'تنبيه',
                     text: t.login_required || 'يرجى إدخال اسم المستخدم وكلمة المرور',
-                    background: '#05070a',
+                    background: '#071426',
                     color: '#fff',
-                    confirmButtonColor: '#d4af37'
+                    confirmButtonColor: '#3b6cc2'
                 });
                 return;
             }
 
-            // تعطيل الزر أثناء الإرسال
             submitBtn.disabled = true;
             const originalContent = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>' + (translations[currentLang]?.logging_in || 'جاري التحقق...') + '</span>';
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري التحقق...</span>';
 
             try {
                 const response = await fetch(LOGIN_ENDPOINT, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password }),
                     credentials: 'include'
                 });
 
                 const data = await response.json();
 
-                // حالة قفل الحساب (423)
                 if (response.status === 423) {
                     Swal.fire({
                         icon: 'warning',
                         title: translations[currentLang]?.account_locked || 'الحساب مقفل مؤقتاً',
                         text: data.message || 'تم قفل الحساب بسبب كثرة المحاولات الفاشلة، حاول لاحقاً',
-                        background: '#05070a',
+                        background: '#071426',
                         color: '#fff',
-                        confirmButtonColor: '#d4af37'
+                        confirmButtonColor: '#3b6cc2'
                     });
                     return;
                 }
@@ -491,7 +461,6 @@
                     throw new Error(data.message || (translations[currentLang]?.login_failed || 'فشل تسجيل الدخول'));
                 }
 
-                // تسجيل الدخول العادي
                 if (data.user) {
                     localStorage.setItem('currentUser', JSON.stringify(data.user));
                     Swal.fire({
@@ -500,7 +469,7 @@
                         icon: 'success',
                         timer: 1500,
                         showConfirmButton: false,
-                        background: '#05070a',
+                        background: '#071426',
                         color: '#fff'
                     }).then(() => {
                         window.location.href = 'dashboard.html';
@@ -519,9 +488,9 @@
                     icon: 'error',
                     title: translations[currentLang]?.error || 'خطأ',
                     text: errorMsg,
-                    background: '#05070a',
+                    background: '#071426',
                     color: '#fff',
-                    confirmButtonColor: '#d4af37'
+                    confirmButtonColor: '#3b6cc2'
                 });
             } finally {
                 submitBtn.disabled = false;
@@ -529,24 +498,17 @@
             }
         });
 
-        // ============================================================
-        // 5. دعم اختصار Enter (أي زر في النموذج)
-        // ============================================================
+        // دعم Enter
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                if (document.activeElement !== submitBtn) {
-                    loginForm.requestSubmit();
-                }
+            if (e.key === 'Enter' && document.activeElement !== submitBtn) {
+                loginForm.requestSubmit();
             }
         });
 
-        // ============================================================
-        // 6. التحميل الأولي: تحميل الترجمة ثم التحقق من الجلسة
-        // ============================================================
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
-            initSocket(); // تهيئة WebSocket
+            initSocket();
             await checkExistingSession();
         };
     </script>

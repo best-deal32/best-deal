@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>بوابة الإيداع الملكي | Golden Deposit | Best Deal</title>
+    <title>إيداع | Vivor</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -14,287 +14,265 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
         :root {
-            --gold-primary: #d4af37;
-            --gold-light: #f7e08a;
-            --gold-dark: #8a6d3b;
-            --bg-darkest: #05070a;
-            --bg-card: rgba(15, 23, 42, 0.95);
+            --bg-deep: #040b14;
+            --bg-card: #071426;
+            --blue-mid: #1a3a6b;
+            --blue-light: #2a5298;
+            --blue-accent: #3b6cc2;
+            --border-light: rgba(43, 80, 150, 0.45);
+            --text-primary: #e0e6f0;
+            --text-dim: #99a8c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background: radial-gradient(circle at top center, #111b27 0%, var(--bg-darkest) 100%);
-            color: #ffffff;
+            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            color: var(--text-primary);
             min-height: 100vh;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
+            padding: 1.5rem;
             overflow-x: hidden;
         }
 
-        .text-gold-gradient {
-            background: linear-gradient(135deg, var(--gold-light), var(--gold-primary), var(--gold-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .royal-glass-panel {
-            background: var(--bg-card);
-            border: 1px solid rgba(212, 175, 55, 0.3);
+        .glass-card {
+            background: rgba(11, 31, 59, 0.78);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--border-light);
             border-radius: 2.5rem;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
-            position: relative;
-            overflow: hidden;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .royal-glass-panel::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .panel-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .royal-input-wrapper {
-            position: relative;
-            margin-bottom: 2rem;
-        }
-
-        .royal-input {
-            width: 100%;
-            background: rgba(5, 7, 10, 0.6);
-            border: 2px solid rgba(212, 175, 55, 0.2);
-            color: var(--gold-light);
-            font-size: 2rem;
-            font-weight: 900;
-            text-align: center;
-            padding: 1.5rem;
-            border-radius: 1.5rem;
-            outline: none;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-        }
-
-        .royal-input:focus {
-            border-color: var(--gold-primary);
-            box-shadow: 0 0 25px rgba(212, 175, 55, 0.3), inset 0 0 10px rgba(0,0,0,0.8);
-            transform: scale(1.01);
-        }
-
-        .upload-container {
-            border: 2px dashed rgba(212, 175, 55, 0.3);
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.3);
-            transition: 0.3s;
+        .btn-blue {
+            background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-light) 100%);
+            color: #fff;
+            font-weight: 800;
+            border-radius: 1.25rem;
+            padding: 0.9rem 1.8rem;
+            transition: all 0.3s ease;
             cursor: pointer;
-            margin-bottom: 2rem;
-        }
-
-        .upload-container:hover {
-            border-color: var(--gold-primary);
-            background: rgba(212, 175, 55, 0.05);
-        }
-
-        #screenshot-preview {
-            max-width: 100%;
-            max-height: 250px;
-            margin: 1rem auto 0;
-            border-radius: 1rem;
-            display: none;
-            border: 2px solid var(--gold-dark);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-
-        .royal-btn-submit {
-            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
-            color: #000;
-            font-weight: 900;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            width: 100%;
-            padding: 1.5rem;
-            border-radius: 2rem;
             border: none;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.25);
-            display: flex;
+            box-shadow: 0 10px 25px rgba(26, 58, 107, 0.5);
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 0.5rem;
         }
 
-        .royal-btn-submit:hover:not(:disabled) {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(212, 175, 55, 0.4);
-            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 100%);
+        .btn-blue:hover {
+            background: linear-gradient(135deg, #204080 0%, #3265b0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(42, 82, 152, 0.6);
         }
 
-        .royal-btn-submit:disabled {
-            background: #333;
-            color: #666;
+        .btn-blue:disabled {
+            background: #1e2a3a;
+            color: #5a6a7a;
             cursor: not-allowed;
             box-shadow: none;
         }
 
-        .wallet-box {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px dashed var(--gold-dark);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .copy-btn {
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--gold-primary);
-            border: 1px solid var(--gold-primary);
-            padding: 0.5rem 1.5rem;
-            border-radius: 0.75rem;
-            font-weight: bold;
-            font-size: 0.9rem;
+        .btn-outline-blue {
+            background: transparent;
+            border: 1.5px solid var(--blue-accent);
+            color: var(--blue-accent);
+            font-weight: 700;
+            padding: 0.5rem 1.2rem;
+            border-radius: 1.5rem;
             cursor: pointer;
-            transition: 0.3s;
-            margin-top: 1rem;
+            transition: 0.2s;
+            font-size: 0.85rem;
         }
 
-        .copy-btn:hover {
-            background: var(--gold-primary);
-            color: #000;
+        .btn-outline-blue:hover {
+            background: rgba(59,108,194,0.12);
         }
 
-        .network-badge {
-            display: inline-block;
-            background: #627eea;
-            color: #fff;
-            font-weight: 900;
-            padding: 0.25rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
+        .dragon-icon {
+            font-size: 2.2rem;
+            color: var(--blue-accent);
+            filter: drop-shadow(0 0 12px rgba(59, 108, 194, 0.6));
         }
 
         .lang-selector {
-            background: rgba(0,0,0,0.4);
-            border-radius: 2rem;
-            padding: 0.25rem;
+            background: rgba(11, 31, 59, 0.65);
+            border-radius: 3rem;
+            padding: 0.3rem;
             display: inline-flex;
-            gap: 0.25rem;
-            border: 1px solid rgba(212,175,55,0.3);
+            gap: 0.2rem;
+            border: 1px solid var(--border-light);
         }
+
         .lang-option {
-            padding: 0.3rem 0.7rem;
-            border-radius: 2rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 3rem;
             font-size: 0.7rem;
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
-            color: #94a3b8;
+            color: var(--text-dim);
         }
+
         .lang-option.active {
-            background: linear-gradient(135deg, #d4af37, #8a6d3b);
-            color: #000;
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            color: #fff;
+            box-shadow: 0 0 15px rgba(42, 82, 152, 0.5);
         }
+
         .lang-option:hover:not(.active) {
-            background: rgba(212,175,55,0.2);
-            color: #f7e08a;
+            background: rgba(42, 82, 152, 0.2);
+            color: #fff;
+        }
+
+        .wallet-box {
+            background: rgba(0,0,0,0.35);
+            border: 1px dashed var(--border-light);
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .wallet-box .address {
+            font-family: monospace;
+            font-size: 1rem;
+            word-break: break-all;
+            color: var(--blue-accent);
+            font-weight: 700;
+            direction: ltr;
+            text-align: center;
+        }
+
+        .input-wrapper {
+            margin-bottom: 1.8rem;
+        }
+
+        .input-wrapper label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #93b4f5;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.95rem 1.2rem;
+            background: rgba(4,11,20,0.7);
+            border: 1.5px solid rgba(59,108,194,0.3);
+            border-radius: 1rem;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: var(--blue-accent);
+            box-shadow: 0 0 15px rgba(59,108,194,0.15);
+        }
+
+        .warning-box {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin-bottom: 1.8rem;
+            font-size: 0.8rem;
+            color: #f87171;
+        }
+
+        .back-btn {
+            color: var(--text-dim);
+            transition: 0.2s;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            color: var(--blue-accent);
+        }
+
+        @media (max-width: 500px) {
+            .glass-card {
+                padding: 1.8rem 1.2rem;
+                border-radius: 2rem;
+            }
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-    <header class="max-w-3xl mx-auto w-full flex justify-between items-center mb-12 mt-4">
-        <button onclick="window.location.href='dashboard.html'" class="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all">
-            <i class="fa-solid fa-arrow-right text-2xl text-[var(--gold-primary)]"></i>
-        </button>
-        
-        <div class="text-center">
-            <h1 class="text-3xl md:text-4xl font-black text-gold-gradient italic uppercase" data-i18n="deposit_title">Royal Deposit</h1>
-            <p class="text-[10px] md:text-xs text-slate-500 font-bold tracking-[0.3em] uppercase mt-1" data-i18n="deposit_subtitle">بوابة التمويل الآمنة</p>
-        </div>
-
-        <div class="lang-selector">
-            <div class="lang-option active" data-lang="ar">العربية</div>
-            <div class="lang-option" data-lang="en">English</div>
-            <div class="lang-option" data-lang="zh">中文</div>
-            <div class="lang-option" data-lang="de">Deutsch</div>
-        </div>
-    </header>
-
-    <main class="flex-grow flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
-        <div class="royal-glass-panel w-full p-6 md:p-10">
-            <div class="panel-content">
-                
-                <div class="text-center mb-8">
-                    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-black/50 border-2 border-[var(--gold-dark)] mb-4">
-                        <i class="fa-solid fa-vault text-5xl text-[var(--gold-primary)]"></i>
-                    </div>
-                    <h2 class="text-2xl font-black text-white" data-i18n="new_deposit">إيداع رصيد جديد</h2>
-                    <p class="text-sm text-slate-400 mt-2" data-i18n="deposit_instruction">يرجى تحويل المبلغ المطلوب إلى محفظة النظام قبل تأكيد الطلب</p>
-                </div>
-
-                <div class="wallet-box">
-                    <span class="network-badge"><i class="fa-brands fa-ethereum"></i> USDT - ERC20</span>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-2" data-i18n="official_wallet">عنوان محفظة الإيداع الرسمية</p>
-                    <p id="admin-wallet" class="text-lg md:text-xl font-mono text-[var(--gold-light)] break-all select-all">0x7c487888402cC1e77E61eDf48BD20aa939624360</p>
-                    <button onclick="copyWallet()" class="copy-btn">
-                        <i class="fa-regular fa-copy ml-2"></i> <span data-i18n="copy_address">نسخ العنوان</span>
-                    </button>
-                </div>
-
-                <div class="royal-input-wrapper">
-                    <label class="block text-xs font-black text-slate-500 uppercase mb-3 mr-2 tracking-wider italic text-right" data-i18n="amount_label">المبلغ المرسل (بالدولار $)</label>
-                    <input type="number" id="deposit-amount" class="royal-input" placeholder="0.00" step="any" min="1">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-xs font-black text-slate-500 uppercase mb-3 mr-2 tracking-wider italic text-right" data-i18n="screenshot_label">إرفاق إثبات التحويل (لقطة شاشة)</label>
-                    <div class="upload-container" onclick="document.getElementById('screenshot-input').click()">
-                        <i class="fa-solid fa-camera-retro text-4xl text-[var(--gold-primary)] mb-2"></i>
-                        <p class="text-xs text-slate-400" data-i18n="click_to_upload">انقر هنا لاختيار الصورة من جهازك</p>
-                        <input type="file" id="screenshot-input" accept="image/*" class="hidden" onchange="previewImage(this)">
-                        <img id="screenshot-preview" src="" alt="معاينة الصورة">
-                    </div>
-                </div>
-
-                <div class="bg-red-900/20 border border-red-500/30 rounded-2xl p-4 mb-8 flex items-start gap-4 text-right">
-                    <i class="fa-solid fa-triangle-exclamation text-red-500 text-xl mt-1"></i>
-                    <div>
-                        <h4 class="text-red-400 font-black text-sm mb-1" data-i18n="warning_title">تحذير هام جداً</h4>
-                        <p class="text-xs text-slate-300 leading-relaxed" data-i18n="warning_text">تأكد من إرسال الأموال عبر شبكة <strong class="text-white text-lg underline italic">ERC20</strong> فقط. إرسال الأموال عبر شبكة أخرى سيؤدي إلى ضياعها ولن نتمكن من استردادها. لا تقم بالضغط على تأكيد إلا بعد إتمام التحويل فعلياً.</p>
-                    </div>
-                </div>
-
-                <button onclick="submitDeposit()" id="submit-btn" class="royal-btn-submit uppercase italic">
-                    <i class="fa-solid fa-paper-plane"></i>
-                    <span data-i18n="confirm_deposit">تأكيد الإيداع الآن</span>
-                </button>
-
+    <div class="container">
+        <!-- رأس الصفحة -->
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="window.location.href='dashboard.html'" class="back-btn">
+                <i class="fa-solid fa-arrow-right ml-2"></i> العودة للوحة التحكم
+            </button>
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-dragon dragon-icon"></i>
+                <span class="text-xl font-black text-white italic tracking-wide">VIVOR</span>
+            </div>
+            <div class="lang-selector">
+                <div class="lang-option active" data-lang="ar">العربية</div>
+                <div class="lang-option" data-lang="en">English</div>
+                <div class="lang-option" data-lang="zh">中文</div>
+                <div class="lang-option" data-lang="de">Deutsch</div>
             </div>
         </div>
-    </main>
 
-    <footer class="text-center py-6 text-slate-600 text-xs font-bold">
-        <p>&copy; 2026 Golden Emperor System. <span data-i18n="all_rights">جميع الحقوق محفوظة.</span></p>
-    </footer>
+        <div class="glass-card">
+            <h1 class="text-2xl font-black text-center text-blue-300 mb-2">إيداع جديد</h1>
+            <p class="text-sm text-slate-400 text-center mb-6">قم بتحويل المبلغ إلى المحفظة أدناه ثم أدخل رمز المعاملة</p>
+
+            <!-- عنوان المحفظة -->
+            <div class="wallet-box">
+                <p class="text-xs text-slate-400 mb-2 font-bold uppercase">عنوان محفظة الإيداع (USDT-ERC20)</p>
+                <p id="admin-wallet" class="address select-all">0x7c487888402cC1e77E61eDf48BD20aa939624360</p>
+                <button onclick="copyWallet()" class="btn-outline-blue mt-3">
+                    <i class="fa-regular fa-copy ml-1"></i> نسخ العنوان
+                </button>
+            </div>
+
+            <!-- المبلغ -->
+            <div class="input-wrapper">
+                <label>المبلغ المرسل (بالدولار $)</label>
+                <input type="number" id="deposit-amount" class="input-field" placeholder="0.00" step="any" min="1">
+            </div>
+
+            <!-- رمز المعاملة -->
+            <div class="input-wrapper">
+                <label>رمز المعاملة (Transaction ID)</label>
+                <input type="text" id="transaction-code" class="input-field" placeholder="مثال: 0x1234... أو TXN12345" dir="ltr">
+            </div>
+
+            <!-- تحذير -->
+            <div class="warning-box">
+                <i class="fa-solid fa-triangle-exclamation ml-1"></i>
+                <strong>تنبيه:</strong> تأكد من الإرسال عبر شبكة <span class="text-white font-bold">ERC20</span> فقط. أي شبكة أخرى ستفقد أموالك. لا تضغط تأكيد إلا بعد إتمام التحويل.
+            </div>
+
+            <!-- زر التأكيد -->
+            <button onclick="submitDeposit()" id="submit-btn" class="btn-blue w-full py-4 text-lg">
+                <i class="fa-solid fa-paper-plane"></i> تأكيد الإيداع الآن
+            </button>
+        </div>
+    </div>
 
     <script>
         // ============================================================
-        // 1. الإعدادات العامة - مسارات نسبية (يعمل على Railway)
+        // 1. الإعدادات العامة - مسارات نسبية
         // ============================================================
         const API_BASE_URL = '';
         const URL_DEPOSIT_ADD = `${API_BASE_URL}/api/deposits/add`;
@@ -333,10 +311,8 @@
                     el.textContent = t[key];
                 }
             });
-            // Update placeholder for amount input
             const amountInput = document.getElementById('deposit-amount');
             if (amountInput && t.amount_placeholder) amountInput.placeholder = t.amount_placeholder;
-            // Direction
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
                 htmlEl.setAttribute('dir', 'rtl');
@@ -386,7 +362,7 @@
                         text: data.message,
                         showConfirmButton: false,
                         timer: 5000,
-                        background: '#05070a',
+                        background: '#071426',
                         color: '#fff'
                     });
                 });
@@ -430,9 +406,9 @@
                     title: translations[currentLang]?.unauthorized || 'غير مصرح',
                     text: translations[currentLang]?.login_required_deposit || 'الرجاء تسجيل الدخول أولاً للوصول إلى صفحة الإيداع',
                     icon: 'warning',
-                    background: '#05070a',
+                    background: '#071426',
                     color: '#fff',
-                    confirmButtonColor: '#d4af37'
+                    confirmButtonColor: '#3b6cc2'
                 }).then(() => {
                     window.location.href = 'login.html';
                 });
@@ -441,20 +417,8 @@
         }
 
         // ============================================================
-        // 6. وظائف الصورة
+        // 6. وظائف النسخ
         // ============================================================
-        function previewImage(input) {
-            const preview = document.getElementById('screenshot-preview');
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
         function copyWallet() {
             const walletText = document.getElementById('admin-wallet').innerText;
             navigator.clipboard.writeText(walletText).then(() => {
@@ -465,7 +429,7 @@
                     title: translations[currentLang]?.copied || 'تم نسخ العنوان بنجاح',
                     showConfirmButton: false,
                     timer: 2000,
-                    background: '#05070a',
+                    background: '#071426',
                     color: '#fff'
                 });
             }).catch(() => {
@@ -474,39 +438,39 @@
         }
 
         // ============================================================
-        // 7. إرسال طلب الإيداع (باستخدام fetchWithAuth و FormData)
+        // 7. إرسال طلب الإيداع (بدون صورة)
         // ============================================================
         async function submitDeposit() {
             const user = await checkAuthAndGetUser();
             if (!user) return;
 
             const amountInput = document.getElementById('deposit-amount');
-            const fileInput = document.getElementById('screenshot-input');
+            const transactionCodeInput = document.getElementById('transaction-code');
             const amount = parseFloat(amountInput.value);
+            const transactionCode = transactionCodeInput.value.trim();
 
             if (!amount || amount <= 0) {
                 Swal.fire('خطأ', translations[currentLang]?.invalid_amount || 'يرجى إدخال مبلغ صحيح!', 'error');
                 return;
             }
 
-            if (!fileInput.files || !fileInput.files[0]) {
-                Swal.fire('تنبيه', translations[currentLang]?.screenshot_required || 'يرجى إرفاق لقطة شاشة لإثبات عملية التحويل!', 'warning');
+            if (!transactionCode) {
+                Swal.fire('تنبيه', 'يرجى إدخال رمز المعاملة (Transaction ID)', 'warning');
                 return;
             }
 
             const btn = document.getElementById('submit-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.uploading || 'جاري رفع البيانات...');
-
-            const formData = new FormData();
-            formData.append('screenshot', fileInput.files[0]);
-            formData.append('amount', amount);
-            formData.append('method', 'USDT/ERC20');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (translations[currentLang]?.uploading || 'جاري الإرسال...');
 
             try {
                 const response = await fetchWithAuth(URL_DEPOSIT_ADD, {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: amount,
+                        transactionCode: transactionCode
+                    })
                 });
 
                 const data = await response.json();
@@ -514,10 +478,10 @@
                 if (response.ok && data.success) {
                     Swal.fire({
                         title: translations[currentLang]?.success_title || 'تم الإرسال بنجاح!',
-                        text: data.message || (translations[currentLang]?.deposit_success_message || 'سيقوم الأدمن بمراجعة طلبك وصورة التحويل قريباً. ستتلقى إشعاراً عند الموافقة.'),
+                        text: data.message || (translations[currentLang]?.deposit_success_message || 'سيقوم الأدمن بمراجعة طلبك قريباً. ستتلقى إشعاراً عند الموافقة.'),
                         icon: 'success',
-                        confirmButtonColor: '#d4af37',
-                        background: '#05070a',
+                        confirmButtonColor: '#3b6cc2',
+                        background: '#071426',
                         color: '#fff'
                     }).then(() => {
                         window.location.href = 'dashboard.html';
@@ -535,7 +499,7 @@
         }
 
         // ============================================================
-        // 8. التشغيل التلقائي عند فتح الصفحة (التحقق من الجلسة والترجمة)
+        // 8. التشغيل التلقائي عند فتح الصفحة
         // ============================================================
         window.onload = async () => {
             await loadTranslations(currentLang);
