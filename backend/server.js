@@ -1,15 +1,12 @@
 // ============================================================
 // server.js - Vivor | استثمار المعادن الثمينة (الإصدار النهائي)
 // ============================================================
-// تم حل جميع المشاكل المعروفة:
-// - دعم دخول الأدمن عبر البوابة (admin_gateway_token)
-// - زيادة صلاحية رمز البوابة إلى ساعة
-// - تذكرة زائر (بدون تسجيل دخول)
-// - منع السحب قبل أول إيداع
-// - تنبيه وقت السحب (٦-١٢ GMT) - بدون منع
-// - حذف نظام الرتب والمشاريع المتعددة
-// - إيداع بدون رفع صور (المبلغ + رمز المعاملة)
-// - إحالات: 15% من أول إيداع باستخدام الكود فقط
+// تم تضمين:
+// - حل مشكلة 401 في لوحة الأدمن عبر إنشاء token عادي عند إدخال كلمة مرور البوابة
+// - خيار إعادة تعيين قاعدة البيانات بالكامل (RESET_DATA=true في .env)
+// - adminOnly مبسطة
+// - تذكرة زائر، إحالات 15%، إيداع بدون صور، استثمار المعادن (3% يوميًا)
+// - جميع الميزات الأخرى كما هي دون اختصار
 // ============================================================
 
 const express = require('express');
@@ -79,8 +76,7 @@ const upload = multer({
 async function uploadToCloudinary(buffer, originalname) {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: 'deposits', allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
-        transformation: [{ width: 1024, height: 1024, crop: 'limit' }] },
+      { folder: 'deposits', allowed_formats: ['jpg', 'png', 'jpeg', 'webp'], transformation: [{ width: 1024, height: 1024, crop: 'limit' }] },
       (error, result) => { if (error) reject(error); else resolve(result); }
     );
     uploadStream.end(buffer);
@@ -105,8 +101,7 @@ async function initDatabase() {
             console.log('✅ Connected via DB_* variables');
         }
         setInterval(async () => {
-            try { await db.query('SELECT 1'); console.log('✅ Keep-alive'); }
-            catch (err) { console.error('❌ Connection lost'); await initDatabase(); }
+            try { await db.query('SELECT 1'); } catch (err) { await initDatabase(); }
         }, 60000);
     } catch (err) {
         console.error('❌ Database connection failed:', err.message);
@@ -115,6 +110,7 @@ async function initDatabase() {
 }
 
 async function createTables() {
+    // جداول المستخدمين
     await db.execute(`CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(50) PRIMARY KEY, username VARCHAR(50) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL, role VARCHAR(20) DEFAULT 'user',
@@ -167,8 +163,7 @@ async function createTables() {
 
     await db.execute(`CREATE TABLE IF NOT EXISTS activity_logs (
         id INT AUTO_INCREMENT PRIMARY KEY, userId VARCHAR(50),
-        action VARCHAR(255), details TEXT, ip VARCHAR(45),
-        timestamp DATETIME,
+        action VARCHAR(255), details TEXT, ip VARCHAR(45), timestamp DATETIME,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE SET NULL
     )`);
 
@@ -219,6 +214,7 @@ async function createTables() {
     try { await db.execute(`ALTER TABLE users ADD COLUMN totalDeposits DECIMAL(10,2) DEFAULT 0`); } catch (err) {}
     try { await db.execute(`ALTER TABLE users ADD COLUMN dailyBonusStreak INT DEFAULT 0`); } catch (err) {}
 
+    // التأكد من وجود المستخدم الأدمن
     const [existing] = await db.execute('SELECT id FROM users WHERE username = ?', ['freeze']);
     if (existing.length === 0) {
         const hashedPassword = await bcrypt.hash('MHDFREEZE0619', 10);
@@ -230,9 +226,28 @@ async function createTables() {
         console.log('✅ Admin user "freeze" created');
     }
 
+    // إعادة تعيين قاعدة البيانات بالكامل (إذا طلب المستخدم ذلك)
+    if (process.env.RESET_DATA === 'true') {
+        console.log('🔄 جاري إعادة تعيين قاعدة البيانات (RESET_DATA=true)...');
+        await db.execute('DELETE FROM deposit_requests');
+        await db.execute('DELETE FROM withdrawal_requests');
+        await db.execute('DELETE FROM investments');
+        await db.execute('DELETE FROM referrals');
+        await db.execute('DELETE FROM activity_logs');
+        await db.execute('DELETE FROM notifications');
+        await db.execute('DELETE FROM admin_actions');
+        await db.execute('DELETE FROM password_resets');
+        await db.execute('DELETE FROM support_replies');
+        await db.execute('DELETE FROM support_tickets');
+        await db.execute('DELETE FROM users WHERE username != ?', ['freeze']);
+        console.log('✅ تم مسح جميع البيانات باستثناء حساب freeze.');
+        // تعطيل إعادة التعيين تلقائيًا بعد التشغيل
+        process.env.RESET_DATA = 'false';
+    }
+
+    // تحديث totalDeposits
     try {
         await db.execute(`UPDATE users u LEFT JOIN (SELECT userId, SUM(amount) as total FROM deposit_requests WHERE status = 'approved' GROUP BY userId) d ON u.id = d.userId SET u.totalDeposits = COALESCE(d.total, 0)`);
-        console.log('✅ Updated totalDeposits');
     } catch (err) {}
 }
 
@@ -251,19 +266,7 @@ async function authenticateToken(req, res, next) {
     catch (err) { return res.status(403).json({ success: false, message: req.t('invalid_token') }); }
 }
 function adminOnly(req, res, next) {
-    // يقبل الجلسة العادية للأدمن
     if (req.user && req.user.role === 'admin') return next();
-    // أو رمز البوابة المؤقت
-    const gatewayToken = req.cookies?.admin_gateway_token;
-    if (gatewayToken) {
-        try {
-            const decoded = jwt.verify(gatewayToken, JWT_SECRET);
-            if (decoded.type === 'admin_gateway' && decoded.role === 'admin') {
-                req.user = { id: 'admin_gateway', role: 'admin', username: 'admin_gateway' };
-                return next();
-            }
-        } catch (err) {}
-    }
     return res.status(403).json({ success: false, message: req.t('admin_required') });
 }
 async function logAdminAction(adminId, adminUsername, actionType, targetUserId, targetUsername, details, ip) {
@@ -364,18 +367,15 @@ app.get('/api/users/me', authenticateToken, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
 
-// ====================== DEPOSIT ROUTES (بدون صور) ======================
+// ====================== DEPOSIT ROUTES ======================
 app.post('/api/deposits/add', authenticateToken, async (req, res) => {
     try {
         const { amount, transactionCode } = req.body;
         if (!amount || amount <= 0) return res.status(400).json({ success: false, message: 'المبلغ مطلوب' });
         if (!transactionCode || !transactionCode.trim()) return res.status(400).json({ success: false, message: 'رمز المعاملة مطلوب' });
         const id = `DEP_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
-        await runQuery(
-            `INSERT INTO deposit_requests (id, userId, username, amount, method, screenshotPath, date, status)
-             VALUES (?, ?, ?, ?, 'USDT', ?, NOW(), 'pending')`,
-            [id, req.user.id, req.user.username, parseFloat(amount), transactionCode.trim()]
-        );
+        await runQuery(`INSERT INTO deposit_requests (id, userId, username, amount, method, screenshotPath, date, status) VALUES (?, ?, ?, ?, 'USDT', ?, NOW(), 'pending')`,
+            [id, req.user.id, req.user.username, parseFloat(amount), transactionCode.trim()]);
         await logActivity(req.user.id, 'طلب إيداع', `طلب إيداع بقيمة ${amount}$ - رمز: ${transactionCode}`, req.ip);
         notifyAdmins('new-deposit-request', { username: req.user.username, amount: parseFloat(amount) });
         res.json({ success: true, message: 'تم تقديم طلب الإيداع' });
@@ -385,7 +385,6 @@ app.post('/api/deposits/add', authenticateToken, async (req, res) => {
 app.get('/api/admin/deposits', authenticateToken, adminOnly, async (req, res) => {
     res.json(await allQuery('SELECT * FROM deposit_requests WHERE status = "pending" ORDER BY date DESC'));
 });
-
 app.get('/api/deposits/my', authenticateToken, async (req, res) => {
     res.json(await allQuery('SELECT * FROM deposit_requests WHERE userId = ? ORDER BY date DESC', [req.user.id]));
 });
@@ -461,7 +460,6 @@ app.post('/api/withdrawals/add', authenticateToken, async (req, res) => {
 app.get('/api/admin/withdrawals', authenticateToken, adminOnly, async (req, res) => {
     res.json(await allQuery('SELECT * FROM withdrawal_requests WHERE status = "pending" ORDER BY date DESC'));
 });
-
 app.get('/api/withdrawals/my', authenticateToken, async (req, res) => {
     res.json(await allQuery('SELECT * FROM withdrawal_requests WHERE userId = ? ORDER BY date DESC', [req.user.id]));
 });
@@ -676,7 +674,6 @@ app.post('/api/support/tickets', authenticateToken, ticketUpload.single('attachm
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'حدث خطأ' }); }
 });
 
-// تذكرة زائر
 app.post('/api/support/tickets/guest', async (req, res) => {
     try {
         const { name, subject, message } = req.body; if (!subject || !message) return res.status(400).json({ success: false, message: 'الموضوع والرسالة مطلوبان' });
@@ -745,18 +742,23 @@ app.get('/api/admin/admin-actions', authenticateToken, adminOnly, async (req, re
 });
 app.get('/api/admin/verify', authenticateToken, (req, res) => res.json({ success: req.user.role === 'admin' }));
 
+// بوابة الأدمن المعدّلة (تنشئ token عادي)
 app.post('/api/auth/verify-admin-gateway', async (req, res) => {
     try {
         if (req.body.secretPassword === ADMIN_GATEWAY_SECRET) {
-            const tempToken = jwt.sign({ type: 'admin_gateway', role: 'admin' }, JWT_SECRET, { expiresIn: '1h' });
-            res.cookie('admin_gateway_token', tempToken, { httpOnly: true, sameSite: 'lax', secure: isProduction, maxAge: 60 * 60 * 1000 });
+            const adminToken = jwt.sign(
+                { id: 'admin_gateway', username: 'admin_gateway', role: 'admin' },
+                JWT_SECRET,
+                { expiresIn: '8h' }
+            );
+            res.cookie('token', adminToken, { httpOnly: true, sameSite: 'lax', secure: isProduction, maxAge: 8 * 60 * 60 * 1000 });
             return res.json({ success: true });
         }
         res.status(401).json({ success: false, message: req.t('invalid_gateway_password') });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// ====================== REGISTRATION & MISC ======================
+// ====================== REGISTRATION ======================
 app.get('/api/users/check-username', async (req, res) => {
     if (!req.query.username) return res.json({ exists: false });
     const [rows] = await db.execute('SELECT id FROM users WHERE username = ?', [req.query.username]);
@@ -786,11 +788,10 @@ app.post('/api/users/register', async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
 app.post('/api/auth/send-verification', async (req, res) => {
-    try { const { email } = req.body; if (!email) return res.status(400).json({ success: false, message: 'البريد مطلوب' }); const code = Math.floor(100000 + Math.random() * 900000).toString(); global.tempCodes.set(email, { code, expiresAt: Date.now() + 10 * 60 * 1000 }); console.log(`[تطوير] رمز التحقق للبريد ${email} هو: ${code}`); res.json({ success: true, message: 'تم إرسال رمز التحقق' }); }
+    try { const { email } = req.body; if (!email) return res.status(400).json({ success: false, message: 'البريد مطلوب' }); const code = Math.floor(100000 + Math.random() * 900000).toString(); global.tempCodes.set(email, { code, expiresAt: Date.now() + 10 * 60 * 1000 }); console.log(`رمز التحقق: ${code}`); res.json({ success: true, message: 'تم إرسال رمز التحقق' }); }
     catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
 app.post('/api/auth/logout', (req, res) => { res.clearCookie('token'); res.clearCookie('refreshToken'); res.clearCookie('admin_gateway_token'); res.json({ success: true }); });
-
 app.get('/api/activity-logs/recent', authenticateToken, async (req, res) => {
     res.json(await allQuery('SELECT action, details, timestamp FROM activity_logs WHERE userId = ? ORDER BY timestamp DESC LIMIT 50', [req.user.id]));
 });
@@ -831,7 +832,7 @@ process.on('unhandledRejection', (reason, promise) => { console.error('⚠️ Un
     await createTables();
     server.listen(PORT, '0.0.0.0', () => {
         console.log(`\n🚀 Vivor Server running on http://localhost:${PORT}`);
-        console.log(`👑 Admin: freeze / MHDFREEZE0619 | Gateway: ${ADMIN_GATEWAY_SECRET}`);
+        console.log(`👑 Admin: freeze / MHDFREEZE0619`);
         console.log(`📌 Metals 3% daily (50$-10,000$) | Referrals 15%`);
     });
 })();
