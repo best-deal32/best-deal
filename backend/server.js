@@ -1,12 +1,10 @@
 // ============================================================
-// server.js - Vivor | استثمار المعادن الثمينة (الإصدار النهائي)
+// server.js - Vivor | استثمار المعادن الثمينة (الإصدار النهائي المُصحّح)
 // ============================================================
-// تم تضمين:
-// - حل مشكلة 401 في لوحة الأدمن عبر إنشاء token عادي عند إدخال كلمة مرور البوابة
-// - خيار إعادة تعيين قاعدة البيانات بالكامل (RESET_DATA=true في .env)
-// - adminOnly مبسطة
-// - تذكرة زائر، إحالات 15%، إيداع بدون صور، استثمار المعادن (3% يوميًا)
-// - جميع الميزات الأخرى كما هي دون اختصار
+// تم الإصلاح:
+// - حل خطأ 500 في تذكرة الزائر (تم تعديل حقل userId ليقبل NULL)
+// - بوابة الأدمن تعمل بكفاءة عبر إنشاء token عادي
+// - إحالات 15%، إيداع بدون صور، استثمار المعادن (3% يومياً)
 // ============================================================
 
 const express = require('express');
@@ -189,7 +187,7 @@ async function createTables() {
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS support_tickets (
-        id VARCHAR(50) PRIMARY KEY, userId VARCHAR(50) NOT NULL,
+        id VARCHAR(50) PRIMARY KEY, userId VARCHAR(50) NULL,
         username VARCHAR(50) NOT NULL, subject VARCHAR(255) NOT NULL,
         message TEXT NOT NULL, priority ENUM('low', 'normal', 'high') DEFAULT 'normal',
         status ENUM('open', 'in_progress', 'closed') DEFAULT 'open',
@@ -206,6 +204,9 @@ async function createTables() {
         FOREIGN KEY (ticketId) REFERENCES support_tickets(id) ON DELETE CASCADE,
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
     )`);
+
+    // تعديل العمود ليقبل NULL (لتذاكر الزوار)
+    try { await db.execute(`ALTER TABLE support_tickets MODIFY userId VARCHAR(50) NULL`); } catch (err) {}
 
     // أعمدة مفقودة للتوافق
     try { await db.execute(`ALTER TABLE withdrawal_requests ADD COLUMN type ENUM('profit', 'principal') DEFAULT 'profit'`); } catch (err) {}
@@ -241,7 +242,6 @@ async function createTables() {
         await db.execute('DELETE FROM support_tickets');
         await db.execute('DELETE FROM users WHERE username != ?', ['freeze']);
         console.log('✅ تم مسح جميع البيانات باستثناء حساب freeze.');
-        // تعطيل إعادة التعيين تلقائيًا بعد التشغيل
         process.env.RESET_DATA = 'false';
     }
 
@@ -674,11 +674,12 @@ app.post('/api/support/tickets', authenticateToken, ticketUpload.single('attachm
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'حدث خطأ' }); }
 });
 
+// تذكرة زائر (userId=NULL)
 app.post('/api/support/tickets/guest', async (req, res) => {
     try {
         const { name, subject, message } = req.body; if (!subject || !message) return res.status(400).json({ success: false, message: 'الموضوع والرسالة مطلوبان' });
         const id = `TKT_GUEST_${Date.now()}_${Math.random().toString(36).substr(2,8)}`;
-        await runQuery(`INSERT INTO support_tickets (id, userId, username, subject, message, priority, status, createdAt, updatedAt) VALUES (?, 'GUEST', ?, ?, ?, 'normal', 'open', NOW(), NOW())`, [id, name || 'زائر', subject, message]);
+        await runQuery(`INSERT INTO support_tickets (id, userId, username, subject, message, priority, status, createdAt, updatedAt) VALUES (?, NULL, ?, ?, ?, 'normal', 'open', NOW(), NOW())`, [id, name || 'زائر', subject, message]);
         res.json({ success: true, ticketId: id });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: 'حدث خطأ' }); }
 });
