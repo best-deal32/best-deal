@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>الإحالات | Vivor</title>
+    <title>الإحالات | Fargo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,90 +12,72 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         :root {
             --bg-deep: #040b14;
-            --blue-mid: #1a3a6b;
-            --blue-light: #2a5298;
-            --blue-accent: #3b6cc2;
-            --green-mid: #1a5c3a;
-            --green-light: #2d8a4e;
-            --green-accent: #3ca374;
-            --red-accent: #c0392b;
-            --red-light: #e74c3c;
+            --red-dark: #800000;
+            --red-mid: #a00000;
+            --red-light: #c00000;
+            --red-accent: #ff3333;
             --text-primary: #e0e6f0;
             --text-dim: #99a8c0;
         }
         body {
             font-family: 'Cairo', sans-serif;
-            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
             margin: 0; padding: 0; min-height: 100vh;
             overflow-x: hidden;
             padding-bottom: 5rem;
         }
         .glass-card {
-            background: rgba(11,31,59,0.8);
+            background: rgba(20,5,5,0.8);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(60,163,116,0.35);
+            border: 1px solid rgba(255,51,51,0.35);
             border-radius: 2rem;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
-        .btn-green {
-            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+        .btn-red {
+            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
             color: #fff; font-weight: 800; border-radius: 1.25rem;
             padding: 0.7rem 1.5rem; transition: 0.3s; cursor: pointer;
             border: none; display: inline-flex; align-items: center; gap: 0.5rem;
         }
-        .btn-green:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        .btn-blue {
-            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
-            color: #fff; font-weight: 800; border-radius: 1.25rem;
-            padding: 0.5rem 1rem; transition: 0.3s; cursor: pointer;
-            border: none; display: inline-flex; align-items: center; gap: 0.5rem;
-        }
-        .btn-blue:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        .btn-red {
-            background: linear-gradient(135deg, #8e1e1e, #b52e2e);
-            color: #fff; font-weight: 800; border-radius: 1.25rem;
-            padding: 0.5rem 1rem; transition: 0.3s; cursor: pointer;
-            border: none; display: inline-flex; align-items: center; gap: 0.5rem;
-        }
         .btn-red:hover { filter: brightness(1.1); transform: translateY(-2px); }
         .lang-selector {
-            background: rgba(11,31,59,0.65); border-radius: 3rem; padding: 0.3rem;
-            display: inline-flex; gap: 0.2rem; border: 1px solid rgba(60,163,116,0.3);
+            background: rgba(20,5,5,0.65); border-radius: 3rem; padding: 0.3rem;
+            display: inline-flex; gap: 0.2rem; border: 1px solid rgba(255,51,51,0.3);
         }
         .lang-option {
             padding: 0.4rem 0.9rem; border-radius: 3rem; font-size: 0.7rem;
             font-weight: bold; cursor: pointer; color: var(--text-dim); transition: 0.2s;
         }
         .lang-option.active {
-            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
             color: #fff;
         }
-        .lang-option:hover:not(.active) { background: rgba(60,163,116,0.15); color: #fff; }
+        .lang-option:hover:not(.active) { background: rgba(255,51,51,0.15); color: #fff; }
         .code-box {
-            background: rgba(0,0,0,0.5); border: 1px dashed var(--green-accent);
+            background: rgba(0,0,0,0.5); border: 1px dashed var(--red-accent);
             border-radius: 1rem; padding: 0.8rem 1.2rem; font-family: monospace;
             font-size: 1.2rem; letter-spacing: 2px; color: #fff; direction: ltr;
             text-align: center; word-break: break-all;
         }
         .stat-card {
-            background: rgba(11,31,59,0.7); border: 1px solid rgba(60,163,116,0.3);
+            background: rgba(20,5,5,0.7); border: 1px solid rgba(255,51,51,0.3);
             border-radius: 1.5rem; padding: 1.2rem; text-align: center;
         }
         .stat-number {
-            font-size: 2rem; font-weight: 900; color: var(--green-accent);
-            text-shadow: 0 0 15px rgba(60,163,116,0.5);
+            font-size: 2rem; font-weight: 900; color: var(--red-accent);
+            text-shadow: 0 0 15px rgba(255,51,51,0.5);
         }
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(7,20,38,0.96); border-top: 1px solid rgba(60,163,116,0.3);
+            background: rgba(7,20,38,0.96); border-top: 1px solid rgba(255,51,51,0.3);
             display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000;
         }
         .nav-link {
             display: flex; flex-direction: column; align-items: center;
             color: var(--text-dim); font-size: 11px; font-weight: 800; cursor: pointer;
         }
-        .nav-link.active { color: var(--green-accent); }
+        .nav-link.active { color: var(--red-accent); }
         .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
 
         @media (max-width: 640px) {
@@ -108,12 +90,12 @@
 <body>
 
 <header class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-    <button onclick="window.location.href='dashboard.html'" class="text-slate-400 hover:text-green-400 transition">
+    <button onclick="window.location.href='dashboard.html'" class="text-slate-400 hover:text-red-400 transition">
         <i class="fa-solid fa-arrow-right text-xl"></i>
     </button>
     <div class="flex items-center gap-3">
-        <i class="fa-solid fa-dragon text-3xl text-green-400 drop-shadow-xl"></i>
-        <span class="text-xl font-black text-white italic tracking-wide">VIVOR</span>
+        <i class="fa-solid fa-shield-halved text-3xl text-red-400 drop-shadow-xl"></i>
+        <span class="text-xl font-black text-white italic tracking-wide">FARGO</span>
     </div>
     <div class="lang-selector">
         <div class="lang-option active" data-lang="ar">العربية</div>
@@ -126,12 +108,12 @@
 <main class="max-w-5xl mx-auto px-4 mt-4">
     <!-- بطاقة كود الإحالة والإحصائيات -->
     <div class="glass-card p-6 mb-6">
-        <h2 class="text-xl font-black text-green-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-share-nodes"></i> إحالاتك</h2>
+        <h2 class="text-xl font-black text-red-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-share-nodes"></i> إحالاتك</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="stat-card">
                 <p class="text-xs text-slate-400 mb-1">كود الإحالة</p>
                 <p class="code-box mt-1" id="referralCodeDisplay">------</p>
-                <button onclick="copyReferralCode()" class="btn-green mt-3 text-xs py-2 px-4 mx-auto"><i class="fa-regular fa-copy"></i> نسخ الكود</button>
+                <button onclick="copyReferralCode()" class="btn-red mt-3 text-xs py-2 px-4 mx-auto"><i class="fa-regular fa-copy"></i> نسخ الكود</button>
             </div>
             <div class="stat-card">
                 <p class="text-xs text-slate-400 mb-1">عدد المدعوين</p>
@@ -142,25 +124,25 @@
                 <p class="stat-number text-green-400" id="total-earned">0.00 $</p>
             </div>
         </div>
-        <div class="bg-blue-900/20 border border-blue-500/20 rounded-2xl p-4 text-sm text-slate-300">
-            <i class="fa-solid fa-circle-info ml-1 text-green-400"></i>
-            <strong>كيف تعمل الإحالات؟</strong> كل شخص يسجل باستخدام <strong>كود الإحالة</strong> الخاص بك ويقوم بأول إيداع، تربح أنت <span class="text-green-300 font-bold">15%</span> من قيمة هذا الإيداع <strong>دون أن يُخصم من رصيده</strong>. لا يوجد رابط، فقط شارك الكود!
+        <div class="bg-red-900/20 border border-red-500/20 rounded-2xl p-4 text-sm text-slate-300">
+            <i class="fa-solid fa-circle-info ml-1 text-red-400"></i>
+            <strong>كيف تعمل الإحالات؟</strong> كل شخص يسجل باستخدام <strong>كود الإحالة</strong> الخاص بك ويقوم بأول إيداع، تربح أنت <span class="text-red-300 font-bold">15%</span> من قيمة هذا الإيداع <strong>دون أن يُخصم من رصيده</strong>. لا يوجد رابط، فقط شارك الكود!
         </div>
     </div>
 
     <!-- قائمة المدعوين -->
     <div class="glass-card p-6">
-        <h3 class="text-xl font-black text-green-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-users"></i> المدعوون</h3>
+        <h3 class="text-xl font-black text-red-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-users"></i> المدعوون</h3>
         <div class="overflow-x-auto">
             <table class="w-full text-right min-w-[650px]">
                 <thead>
-                    <tr class="border-b border-green-500/20">
-                        <th class="p-2 text-green-300 text-sm">اسم المستخدم</th>
-                        <th class="p-2 text-green-300 text-sm">البريد</th>
-                        <th class="p-2 text-green-300 text-sm">تاريخ التسجيل</th>
-                        <th class="p-2 text-green-300 text-sm">أول إيداع</th>
-                        <th class="p-2 text-green-300 text-sm">المكافأة (15%)</th>
-                        <th class="p-2 text-green-300 text-sm">الحالة</th>
+                    <tr class="border-b border-red-500/20">
+                        <th class="p-2 text-red-300 text-sm">اسم المستخدم</th>
+                        <th class="p-2 text-red-300 text-sm">البريد</th>
+                        <th class="p-2 text-red-300 text-sm">تاريخ التسجيل</th>
+                        <th class="p-2 text-red-300 text-sm">أول إيداع</th>
+                        <th class="p-2 text-red-300 text-sm">المكافأة (15%)</th>
+                        <th class="p-2 text-red-300 text-sm">الحالة</th>
                     </tr>
                 </thead>
                 <tbody id="referrals-table"></tbody>
@@ -209,7 +191,7 @@
     function initSocket() {
         socket = io(window.location.origin, { withCredentials: true });
         socket.on('notification', data => {
-            Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: data.title, text: data.message, timer: 5000, background: '#071426', color: '#fff' });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: data.title, text: data.message, timer: 5000, background: '#1a0000', color: '#fff' });
         });
     }
 
@@ -237,7 +219,7 @@
     async function checkAuth() {
         await fetchUser();
         if (!currentUser) {
-            Swal.fire({ title: 'غير مصرح', text: 'الرجاء تسجيل الدخول', icon: 'warning', background: '#071426', color: '#fff', confirmButtonColor: '#3ca374' })
+            Swal.fire({ title: 'غير مصرح', text: 'الرجاء تسجيل الدخول', icon: 'warning', background: '#1a0000', color: '#fff', confirmButtonColor: '#ff3333' })
                 .then(() => window.location.href = 'login.html');
             return false;
         }
@@ -267,7 +249,7 @@
                     <td class="p-2">${esc(ref.username)}</td>
                     <td class="p-2 text-slate-400 text-xs">${esc(ref.email)}</td>
                     <td class="p-2 text-xs">${new Date(ref.registeredAt).toLocaleDateString()}</td>
-                    <td class="p-2 text-blue-300">${ref.depositAmount} $</td>
+                    <td class="p-2 text-red-300">${ref.depositAmount} $</td>
                     <td class="p-2 text-green-400 font-bold">${ref.reward.toFixed(2)} $</td>
                     <td class="p-2"><span class="px-2 py-1 rounded-full text-xs font-bold ${statusColor}">${status}</span></td>
                 </tr>
@@ -278,11 +260,11 @@
     function copyReferralCode() {
         if (!referralCode) { Swal.fire('خطأ', 'لم يتم تحميل الكود بعد', 'error'); return; }
         navigator.clipboard.writeText(referralCode);
-        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'تم نسخ الكود', timer: 2000, background: '#071426', color: '#fff' });
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'تم نسخ الكود', timer: 2000, background: '#1a0000', color: '#fff' });
     }
 
     function logout() {
-        Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#c0392b', background: '#071426', color: '#fff' })
+        Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#ff3333', background: '#1a0000', color: '#fff' })
         .then(r => {
             if (r.isConfirmed) {
                 fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
