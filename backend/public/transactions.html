@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>سجل المعاملات | Vivor</title>
+    <title>سجل المعاملات | Fargo</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -14,77 +14,66 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         :root {
             --bg-deep: #040b14;
-            --blue-mid: #1a3a6b;
-            --blue-light: #2a5298;
-            --blue-accent: #3b6cc2;
-            --green-mid: #1a5c3a;
-            --green-light: #2d8a4e;
-            --green-accent: #3ca374;
-            --red-accent: #c0392b;
-            --red-light: #e74c3c;
+            --red-dark: #800000;
+            --red-mid: #a00000;
+            --red-light: #c00000;
+            --red-accent: #ff3333;
             --text-primary: #e0e6f0;
             --text-dim: #99a8c0;
         }
         body {
             font-family: 'Cairo', sans-serif;
-            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
             margin: 0; padding: 0; min-height: 100vh;
             overflow-x: hidden;
             padding-bottom: 5rem;
         }
         .glass-card {
-            background: rgba(11,31,59,0.8);
+            background: rgba(20,5,5,0.8);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(60,163,116,0.35);
+            border: 1px solid rgba(255,51,51,0.35);
             border-radius: 2rem;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
-        .btn-green {
-            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+        .btn-red {
+            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
             color: #fff; font-weight: 800; border-radius: 1.25rem;
             padding: 0.7rem 1.5rem; transition: 0.3s; cursor: pointer;
             border: none; display: inline-flex; align-items: center; gap: 0.5rem;
         }
-        .btn-green:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        .btn-blue {
-            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
-            color: #fff; font-weight: 800; border-radius: 1.25rem;
-            padding: 0.5rem 1rem; transition: 0.3s; cursor: pointer;
-            border: none; display: inline-flex; align-items: center; gap: 0.5rem;
-        }
-        .btn-blue:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn-red:hover { filter: brightness(1.1); transform: translateY(-2px); }
         .lang-selector {
-            background: rgba(11,31,59,0.65); border-radius: 3rem; padding: 0.3rem;
-            display: inline-flex; gap: 0.2rem; border: 1px solid rgba(60,163,116,0.3);
+            background: rgba(20,5,5,0.65); border-radius: 3rem; padding: 0.3rem;
+            display: inline-flex; gap: 0.2rem; border: 1px solid rgba(255,51,51,0.3);
         }
         .lang-option {
             padding: 0.4rem 0.9rem; border-radius: 3rem; font-size: 0.7rem;
             font-weight: bold; cursor: pointer; color: var(--text-dim); transition: 0.2s;
         }
         .lang-option.active {
-            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
             color: #fff;
         }
-        .lang-option:hover:not(.active) { background: rgba(60,163,116,0.15); color: #fff; }
+        .lang-option:hover:not(.active) { background: rgba(255,51,51,0.15); color: #fff; }
         .filter-bar {
             display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
         }
         .filter-btn {
-            background: rgba(11,31,59,0.6); border: 1px solid rgba(60,163,116,0.3);
+            background: rgba(20,5,5,0.6); border: 1px solid rgba(255,51,51,0.3);
             border-radius: 2rem; padding: 0.4rem 1.2rem; font-size: 0.75rem; font-weight: bold;
             cursor: pointer; transition: 0.2s; color: var(--text-dim);
         }
         .filter-btn.active {
-            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
             color: #fff; border-color: transparent;
         }
-        .filter-btn:hover:not(.active) { background: rgba(60,163,116,0.15); color: #fff; }
+        .filter-btn:hover:not(.active) { background: rgba(255,51,51,0.15); color: #fff; }
         .transaction-card {
             background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
             border-radius: 1.5rem; padding: 1rem 1.2rem; margin-bottom: 0.8rem; transition: 0.3s;
         }
-        .transaction-card:hover { border-color: var(--green-accent); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .transaction-card:hover { border-color: var(--red-accent); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
         .type-badge {
             display: inline-block; padding: 0.2rem 0.7rem; border-radius: 20px;
             font-size: 0.7rem; font-weight: bold;
@@ -101,14 +90,14 @@
         .status-completed { color: #10b981; }
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(7,20,38,0.96); border-top: 1px solid rgba(60,163,116,0.3);
+            background: rgba(7,20,38,0.96); border-top: 1px solid rgba(255,51,51,0.3);
             display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000;
         }
         .nav-link {
             display: flex; flex-direction: column; align-items: center;
             color: var(--text-dim); font-size: 11px; font-weight: 800; cursor: pointer;
         }
-        .nav-link.active { color: var(--green-accent); }
+        .nav-link.active { color: var(--red-accent); }
         .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
         @media (max-width: 640px) {
             .glass-card { padding: 1.2rem; border-radius: 1.5rem; }
@@ -119,12 +108,12 @@
 <body>
 
 <header class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-    <button onclick="window.location.href='dashboard.html'" class="text-slate-400 hover:text-green-400 transition">
+    <button onclick="window.location.href='dashboard.html'" class="text-slate-400 hover:text-red-400 transition">
         <i class="fa-solid fa-arrow-right text-xl"></i>
     </button>
     <div class="flex items-center gap-3">
-        <i class="fa-solid fa-dragon text-3xl text-green-400 drop-shadow-xl"></i>
-        <span class="text-xl font-black text-white italic tracking-wide">VIVOR</span>
+        <i class="fa-solid fa-shield-halved text-3xl text-red-400 drop-shadow-xl"></i>
+        <span class="text-xl font-black text-white italic tracking-wide">FARGO</span>
     </div>
     <div class="lang-selector">
         <div class="lang-option active" data-lang="ar">العربية</div>
@@ -146,7 +135,7 @@
 
     <!-- مؤشر التحميل -->
     <div id="loadingIndicator" class="text-center py-12">
-        <i class="fa-solid fa-spinner fa-spin text-3xl text-green-400"></i>
+        <i class="fa-solid fa-spinner fa-spin text-3xl text-red-400"></i>
         <p class="mt-2 text-slate-400">جاري تحميل المعاملات...</p>
     </div>
 
@@ -213,7 +202,7 @@
     function initSocket() {
         socket = io(window.location.origin, { withCredentials: true });
         socket.on('notification', data => {
-            Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: data.title, text: data.message, timer: 5000, background: '#071426', color: '#fff' });
+            Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: data.title, text: data.message, timer: 5000, background: '#1a0000', color: '#fff' });
         });
     }
 
@@ -269,7 +258,7 @@
 
             // استثمارات
             (investments || []).forEach(inv => {
-                let projectName = inv.projectType === 'metals' ? 'المعادن الثمينة' : inv.projectType;
+                let projectName = inv.projectType === 'metals' ? 'المعادن والعملات' : inv.projectType;
                 allTransactions.push({
                     id: inv.id, type: 'investment', amount: parseFloat(inv.amount) || 0,
                     status: inv.withdrawnPrincipal ? 'completed' : 'active',
@@ -375,7 +364,7 @@
         Swal.fire({
             title: 'تسجيل الخروج', text: 'هل أنت متأكد؟',
             icon: 'question', showCancelButton: true,
-            confirmButtonColor: '#c0392b', background: '#071426', color: '#fff'
+            confirmButtonColor: '#ff3333', background: '#1a0000', color: '#fff'
         }).then(r => {
             if (r.isConfirmed) {
                 fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
