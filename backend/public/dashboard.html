@@ -7,7 +7,6 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
@@ -16,10 +15,12 @@
         
         :root {
             --bg-deep: #040b14;
-            --bg-card: #071426;
             --blue-mid: #1a3a6b;
             --blue-light: #2a5298;
             --blue-accent: #3b6cc2;
+            --green-mid: #1a5c3a;
+            --green-light: #2d8a4e;
+            --green-accent: #3ca374;
             --text-primary: #e0e6f0;
             --text-dim: #99a8c0;
         }
@@ -37,14 +38,29 @@
         .glass-card {
             background: rgba(11, 31, 59, 0.8);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(43, 80, 150, 0.4);
+            border: 1px solid rgba(60, 163, 116, 0.3);
             border-radius: 2rem;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
             transition: all 0.3s ease;
         }
 
-        .glass-card:hover {
-            border-color: var(--blue-accent);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+        .btn-green {
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            color: #fff;
+            font-weight: 800;
+            border-radius: 1.2rem;
+            padding: 0.7rem 1.5rem;
+            transition: 0.3s;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-green:hover {
+            background: linear-gradient(135deg, #1e6e3e, #35a051);
+            transform: translateY(-2px);
         }
 
         .btn-blue {
@@ -66,27 +82,17 @@
             transform: translateY(-2px);
         }
 
-        .btn-outline-blue {
-            background: transparent;
-            border: 2px solid var(--blue-accent);
-            color: var(--blue-accent);
-            font-weight: 800;
-            border-radius: 1.2rem;
-            padding: 0.7rem 1.5rem;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .btn-outline-blue:hover {
-            background: rgba(59,108,194,0.15);
-            color: #fff;
-        }
-
         .balance-value {
-            font-size: 2.8rem;
+            font-size: clamp(2rem, 8vw, 3rem);
+            font-weight: 900;
+            color: var(--green-accent);
+            text-shadow: 0 0 20px rgba(60,163,116,0.6);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
             font-weight: 900;
             color: var(--blue-accent);
-            text-shadow: 0 0 18px rgba(59,108,194,0.6);
         }
 
         .lang-selector {
@@ -95,7 +101,7 @@
             padding: 0.3rem;
             display: inline-flex;
             gap: 0.2rem;
-            border: 1px solid rgba(43,80,150,0.4);
+            border: 1px solid var(--border-light);
         }
         .lang-option {
             padding: 0.4rem 0.9rem;
@@ -107,11 +113,7 @@
             color: var(--text-dim);
         }
         .lang-option.active {
-            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
-            color: #fff;
-        }
-        .lang-option:hover:not(.active) {
-            background: rgba(42,82,152,0.2);
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
             color: #fff;
         }
 
@@ -121,7 +123,7 @@
             left: 0;
             right: 0;
             background: rgba(7,20,38,0.96);
-            border-top: 1px solid rgba(43,80,150,0.4);
+            border-top: 1px solid rgba(60,163,116,0.3);
             display: flex;
             justify-content: space-around;
             padding: 12px 0;
@@ -137,7 +139,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .nav-link.active { color: var(--blue-accent); }
+        .nav-link.active { color: var(--green-accent); }
         .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
         .nav-link span { font-size: 10px; }
 
@@ -162,18 +164,26 @@
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 1.2rem;
             transition: 0.2s;
+            padding: 1rem;
         }
         .activity-item:hover {
             background: rgba(255,255,255,0.06);
+        }
+
+        @media (max-width: 640px) {
+            .glass-card {
+                border-radius: 1.5rem;
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body class="pb-28">
 
-    <!-- شريط علوي -->
-    <header class="px-5 py-4 flex justify-between items-center border-b border-[#1a3a6b]/40 bg-[#040b14]/50 backdrop-blur-sm sticky top-0 z-50">
+    <!-- شريط علوي محسّن -->
+    <header class="px-5 py-4 flex justify-between items-center border-b border-[#2d8a4e]/30 bg-[#040b14]/60 backdrop-blur-md sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <i class="fa-solid fa-dragon text-3xl text-blue-400 drop-shadow-xl"></i>
+            <i class="fa-solid fa-dragon text-3xl text-green-400 drop-shadow-xl"></i>
             <span class="text-xl font-black text-white italic tracking-wide hidden sm:inline">VIVOR</span>
         </div>
         <div class="flex items-center gap-3">
@@ -184,78 +194,69 @@
                 <div class="lang-option" data-lang="de">Deutsch</div>
             </div>
             <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
-                <i class="fa-regular fa-bell text-xl text-blue-200"></i>
+                <i class="fa-regular fa-bell text-xl text-green-200"></i>
                 <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
             </div>
-            <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-blue-400" src="" alt="Avatar">
+            <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-green-400" src="" alt="Avatar">
         </div>
     </header>
 
     <!-- لوحة الإشعارات المنسدلة -->
-    <div id="notificationsDropdown" class="fixed top-16 left-4 w-72 max-h-80 overflow-y-auto bg-[#0b1f3b] border border-blue-500/30 rounded-2xl shadow-2xl z-50 hidden p-2">
-        <div class="text-center text-sm text-blue-300 font-bold mb-2">الإشعارات</div>
+    <div id="notificationsDropdown" class="fixed top-16 left-4 w-72 max-h-80 overflow-y-auto bg-[#0b1f3b] border border-green-500/30 rounded-2xl shadow-2xl z-50 hidden p-2">
+        <div class="text-center text-sm text-green-300 font-bold mb-2">الإشعارات</div>
         <div id="notificationsList" class="space-y-1 text-xs"></div>
-        <button id="markAllReadBtn" class="text-[10px] text-blue-400 hover:underline mt-2 text-center w-full">تحديد الكل كمقروء</button>
+        <button id="markAllReadBtn" class="text-[10px] text-green-400 hover:underline mt-2 text-center w-full">تحديد الكل كمقروء</button>
     </div>
 
     <main class="max-w-5xl mx-auto px-4 mt-8">
         <!-- بطاقة الترحيب والرصيد -->
         <div class="glass-card p-6 mb-6 text-center">
-            <h2 class="text-lg font-bold text-slate-300">مرحباً <span id="welcome-name" class="text-blue-300">.......</span></h2>
+            <h2 class="text-lg font-bold text-slate-300">مرحباً <span id="welcome-name" class="text-green-300">.......</span></h2>
             <div class="balance-value mt-3" id="user-balance">$0.00</div>
             <p class="text-xs text-slate-400 mt-1">الرصيد المتاح للسحب</p>
             <div class="flex flex-wrap gap-4 justify-center mt-5">
-                <button onclick="window.location.href='deposit.html'" class="btn-blue"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
+                <button onclick="window.location.href='deposit.html'" class="btn-green"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
                 <button onclick="window.location.href='withdraw.html'" class="btn-blue"><i class="fa-solid fa-receipt"></i> سحب</button>
-                <button onclick="window.location.href='support.html'" class="btn-outline-blue"><i class="fa-solid fa-headset"></i> الدعم الفني</button>
+                <button onclick="window.location.href='support.html'" class="bg-white/10 text-white font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur-sm"><i class="fa-solid fa-headset"></i> الدعم</button>
             </div>
         </div>
 
-        <!-- بطاقات الأرباح والاستثمار -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- بطاقات الأرباح والاستثمار والإحالات -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
             <!-- الأرباح -->
-            <div class="glass-card p-5 flex flex-col justify-between">
-                <div class="flex justify-between items-center">
+            <div class="glass-card p-5 flex flex-col justify-between text-center">
+                <div class="flex justify-center items-center gap-2">
                     <span class="text-sm text-slate-400">الأرباح الصافية</span>
-                    <i class="fa-solid fa-chart-line text-blue-400"></i>
+                    <i class="fa-solid fa-chart-line text-green-400"></i>
                 </div>
-                <p class="text-2xl font-black text-green-400 mt-2" id="user-profit">$0.00</p>
-                <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-4 py-2 rounded-xl transition w-fit">سحب الأرباح</button>
+                <p class="stat-value mt-2" id="user-profit">$0.00</p>
+                <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-green-900/30 hover:bg-green-800/50 text-green-300 px-4 py-2 rounded-xl transition w-fit mx-auto">سحب الأرباح</button>
             </div>
             <!-- استثمار المعادن -->
-            <div class="glass-card p-5 flex flex-col justify-between">
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-slate-400">استثمار المعادن</span>
-                    <i class="fa-solid fa-gem text-blue-400"></i>
+            <div class="glass-card p-5 flex flex-col justify-between text-center">
+                <div class="flex justify-center items-center gap-2">
+                    <span class="text-sm text-slate-400">المعادن</span>
+                    <i class="fa-solid fa-gem text-green-400"></i>
                 </div>
-                <p class="text-lg font-bold text-white mt-2">3% يومياً</p>
-                <p class="text-xs text-slate-400 mt-1">الحد الأدنى 50$ - الأقصى 10,000$</p>
-                <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-4 py-2 rounded-xl transition w-fit">استثمر الآن</button>
-            </div>
-        </div>
-
-        <!-- المكافأة اليومية والإحالات -->
-        <div class="grid grid-cols-2 gap-6 mb-6">
-            <!-- المكافأة اليومية -->
-            <div class="glass-card p-5 text-center">
-                <i class="fa-solid fa-gift text-2xl text-blue-400 mb-2"></i>
-                <p class="text-sm text-white font-bold" id="dailyBonusAmount">0.50 $</p>
-                <p class="text-[10px] text-slate-400" id="bonusStreakText"></p>
-                <button id="claimDailyBonusBtn" class="mt-3 w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded-xl transition disabled:opacity-50">استلام المكافأة</button>
+                <p class="text-lg font-bold text-white mt-2">3% يوميًا</p>
+                <p class="text-xs text-slate-400 mt-1">من 50$ إلى 10,000$</p>
+                <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-green-900/30 hover:bg-green-800/50 text-green-300 px-4 py-2 rounded-xl transition w-fit mx-auto">استثمر الآن</button>
             </div>
             <!-- الإحالات -->
-            <div class="glass-card p-5 text-center">
-                <i class="fa-solid fa-user-group text-2xl text-blue-400 mb-2"></i>
-                <p class="text-sm text-white font-bold">كود الإحالة</p>
-                <p class="text-lg font-mono text-blue-300" id="referralCodeDisplay">------</p>
-                <p class="text-[10px] text-slate-400 mt-1">تربح 15% من أول إيداع للمدعو</p>
-                <button onclick="window.location.href='referrals.html'" class="mt-2 text-xs bg-blue-900/30 hover:bg-blue-800/50 text-blue-300 px-4 py-2 rounded-xl transition">تفاصيل الإحالات</button>
+            <div class="glass-card p-5 flex flex-col justify-between text-center">
+                <div class="flex justify-center items-center gap-2">
+                    <span class="text-sm text-slate-400">الإحالات</span>
+                    <i class="fa-solid fa-user-group text-green-400"></i>
+                </div>
+                <p class="text-lg font-mono text-green-300 mt-2" id="referralCodeDisplay">------</p>
+                <p class="text-xs text-slate-400 mt-1">تربح 15% من أول إيداع</p>
+                <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-green-900/30 hover:bg-green-800/50 text-green-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل الإحالات</button>
             </div>
         </div>
 
         <!-- سجل النشاطات -->
         <div class="glass-card p-5 mb-4">
-            <h3 class="text-sm font-bold text-blue-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
+            <h3 class="text-sm font-bold text-green-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
             <div id="activity-container" class="space-y-2 text-sm text-slate-300"></div>
         </div>
     </main>
@@ -299,7 +300,6 @@
             if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
             fetchUserData();
-            loadDailyBonusStatus();
         }
         document.querySelectorAll('.lang-option').forEach(opt => {
             opt.addEventListener('click', () => setLanguage(opt.dataset.lang));
@@ -342,34 +342,8 @@
             document.getElementById('user-balance').innerText = `$${(user.withdrawableAmount || (user.balance||0)+(user.profit||0)).toLocaleString()}`;
             document.getElementById('user-profit').innerText = `$${(user.profit||0).toLocaleString()}`;
             document.getElementById('referralCodeDisplay').innerText = user.referralCode || '------';
-            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username||'U')}&background=1a3a6b&color=fff&bold=true`;
+            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username||'U')}&background=1a5c3a&color=fff&bold=true`;
         }
-
-        // ---------- Daily Bonus ----------
-        async function loadDailyBonusStatus() {
-            const res = await fetchWithAuth(`${API_BASE}/api/daily-bonus/status`);
-            const data = await res.json();
-            const btn = document.getElementById('claimDailyBonusBtn');
-            if (data.canClaim) {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50');
-            } else {
-                btn.disabled = true;
-                btn.classList.add('opacity-50');
-            }
-            document.getElementById('dailyBonusAmount').innerText = `${(data.nextBonusAmount||0.5).toFixed(2)} $`;
-            if (data.currentStreak) document.getElementById('bonusStreakText').innerText = `السلسلة: ${data.currentStreak} يوم`;
-        }
-
-        document.getElementById('claimDailyBonusBtn').addEventListener('click', async () => {
-            const res = await fetchWithAuth(`${API_BASE}/api/daily-bonus/claim`, { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                Swal.fire('تم', data.message, 'success');
-                fetchUserData();
-                loadDailyBonusStatus();
-            } else Swal.fire('خطأ', data.message, 'error');
-        });
 
         // ---------- Quick Withdraw Profit ----------
         async function quickWithdrawProfit() {
@@ -391,9 +365,13 @@
                 return;
             }
             container.innerHTML = activities.slice(0, 6).map(a => `
-                <div class="activity-item p-3 flex justify-between items-center">
-                    <span>${esc(a.action)} - ${esc(a.details)}</span>
-                    <span class="text-xs text-slate-500">${new Date(a.timestamp).toLocaleString()}</span>
+                <div class="activity-item flex justify-between items-center">
+                    <div>
+                        <span class="font-bold text-white">${esc(a.action)}</span>
+                        <span class="text-slate-400 mx-2">-</span>
+                        <span>${esc(a.details)}</span>
+                    </div>
+                    <span class="text-xs text-slate-500 whitespace-nowrap">${new Date(a.timestamp).toLocaleString()}</span>
                 </div>
             `).join('');
         }
@@ -413,7 +391,7 @@
         function updateNotificationsDropdown() {
             const list = document.getElementById('notificationsList');
             list.innerHTML = notifications.map(n => `
-                <div class="py-1 border-b border-white/5 ${!n.isRead ? 'font-bold text-blue-200' : 'text-slate-400'}">
+                <div class="py-1 border-b border-white/5 ${!n.isRead ? 'font-bold text-green-200' : 'text-slate-400'}">
                     <div>${esc(n.title)}</div>
                     <div class="text-[10px]">${esc(n.message)}</div>
                 </div>
@@ -451,7 +429,6 @@
             const user = await fetchUserData();
             if (user) {
                 initSocket();
-                loadDailyBonusStatus();
                 loadActivities();
                 loadNotifications();
                 setInterval(() => {
