@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>تسجيل الدخول | Vivor</title>
+    <title>تسجيل الدخول | Fargo</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -15,12 +15,10 @@
         
         :root {
             --bg-deep: #040b14;
-            --blue-mid: #1a3a6b;
-            --blue-light: #2a5298;
-            --blue-accent: #3b6cc2;
-            --green-mid: #1a5c3a;
-            --green-light: #2d8a4e;
-            --green-accent: #3ca374;
+            --red-dark: #800000;
+            --red-mid: #a00000;
+            --red-light: #c00000;
+            --red-accent: #ff3333;
             --text-primary: #e0e6f0;
             --text-dim: #99a8c0;
         }
@@ -33,7 +31,7 @@
         }
 
         body {
-            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
             min-height: 100vh;
             display: flex;
@@ -51,7 +49,7 @@
             left: -120px;
             width: 450px;
             height: 450px;
-            background: radial-gradient(circle, rgba(60, 163, 116, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 51, 51, 0.15) 0%, transparent 70%);
             border-radius: 50%;
             filter: blur(70px);
             z-index: 0;
@@ -62,16 +60,16 @@
             right: -120px;
             width: 450px;
             height: 450px;
-            background: radial-gradient(circle, rgba(59, 108, 194, 0.12) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(192, 0, 0, 0.12) 0%, transparent 70%);
             border-radius: 50%;
             filter: blur(70px);
             z-index: 0;
         }
 
         .login-card {
-            background: rgba(11, 31, 59, 0.85);
+            background: rgba(20, 5, 5, 0.85);
             backdrop-filter: blur(25px);
-            border: 1px solid rgba(60, 163, 116, 0.3);
+            border: 1px solid rgba(255, 51, 51, 0.3);
             border-radius: 3rem;
             width: 100%;
             max-width: 480px;
@@ -87,11 +85,11 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .dragon-icon {
+        .shield-icon {
             display: block;
             font-size: 4.5rem;
-            color: var(--green-accent);
-            filter: drop-shadow(0 0 20px rgba(60, 163, 116, 0.6));
+            color: var(--red-accent);
+            filter: drop-shadow(0 0 20px rgba(255, 51, 51, 0.6));
             text-align: center;
             margin-bottom: 0.3rem;
         }
@@ -106,7 +104,7 @@
         }
 
         .login-subtitle {
-            color: #94a3b8;
+            color: #ff9999;
             font-size: 0.9rem;
             text-align: center;
             margin-bottom: 2.5rem;
@@ -121,7 +119,7 @@
             margin-bottom: 0.4rem;
             font-size: 0.85rem;
             font-weight: 700;
-            color: #93b4f5;
+            color: #ff9999;
         }
 
         .input-wrapper {
@@ -133,7 +131,7 @@
             right: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--green-accent);
+            color: var(--red-accent);
             font-size: 1.1rem;
         }
 
@@ -141,7 +139,7 @@
             width: 100%;
             padding: 1rem 3rem 1rem 1.5rem;
             background: rgba(4, 11, 20, 0.7);
-            border: 1.5px solid rgba(60, 163, 116, 0.35);
+            border: 1.5px solid rgba(255, 51, 51, 0.35);
             border-radius: 1.2rem;
             color: #fff;
             font-weight: 600;
@@ -151,15 +149,15 @@
         }
 
         .input-field:focus {
-            border-color: var(--green-accent);
+            border-color: var(--red-accent);
             background: rgba(7, 20, 38, 0.8);
-            box-shadow: 0 0 18px rgba(60, 163, 116, 0.25);
+            box-shadow: 0 0 18px rgba(255, 51, 51, 0.25);
         }
 
         .login-btn {
             width: 100%;
             padding: 1.1rem;
-            background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-light) 100%);
+            background: linear-gradient(135deg, var(--red-mid) 0%, var(--red-light) 100%);
             border: none;
             border-radius: 1.2rem;
             color: #fff;
@@ -172,13 +170,13 @@
             justify-content: center;
             gap: 10px;
             margin-top: 0.5rem;
-            box-shadow: 0 10px 25px rgba(26, 92, 58, 0.5);
+            box-shadow: 0 10px 25px rgba(160, 0, 0, 0.5);
         }
 
         .login-btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #1e6e3e 0%, #35a051 100%);
+            background: linear-gradient(135deg, #880000 0%, #b00000 100%);
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(45, 138, 78, 0.6);
+            box-shadow: 0 15px 30px rgba(192, 0, 0, 0.6);
         }
 
         .login-btn:disabled {
@@ -196,7 +194,7 @@
         }
 
         .footer-links a {
-            color: #94a3b8;
+            color: #ff9999;
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 600;
@@ -204,11 +202,11 @@
         }
 
         .footer-links a:hover {
-            color: var(--green-accent);
+            color: var(--red-accent);
         }
 
         .footer-links a span {
-            color: var(--green-accent);
+            color: var(--red-accent);
             font-weight: 800;
         }
 
@@ -217,13 +215,13 @@
             justify-content: center;
             gap: 0.4rem;
             margin-top: 2rem;
-            background: rgba(11, 31, 59, 0.6);
+            background: rgba(20, 5, 5, 0.6);
             border-radius: 3rem;
             padding: 0.3rem;
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
-            border: 1px solid rgba(60, 163, 116, 0.3);
+            border: 1px solid rgba(255, 51, 51, 0.3);
         }
 
         .lang-option {
@@ -237,12 +235,12 @@
         }
 
         .lang-option.active {
-            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
             color: #fff;
         }
 
         .lang-option:hover:not(.active) {
-            background: rgba(60, 163, 116, 0.15);
+            background: rgba(255, 51, 51, 0.15);
             color: #fff;
         }
 
@@ -251,7 +249,7 @@
                 padding: 2.5rem 1.8rem;
                 border-radius: 2.5rem;
             }
-            .dragon-icon {
+            .shield-icon {
                 font-size: 3.5rem;
             }
             .login-title {
@@ -265,10 +263,10 @@
     <div class="bg-glow-2"></div>
 
     <div class="login-card">
-        <div class="dragon-icon">
-            <i class="fa-solid fa-dragon"></i>
+        <div class="shield-icon">
+            <i class="fa-solid fa-shield-halved"></i>
         </div>
-        <h1 class="login-title">VIVOR</h1>
+        <h1 class="login-title">FARGO</h1>
         <p class="login-subtitle">منصة الاستثمار الذكي – سجّل دخولك للمتابعة</p>
 
         <form id="loginForm">
@@ -424,9 +422,9 @@
                     icon: 'warning',
                     title: t.warning_title || 'تنبيه',
                     text: t.login_required || 'يرجى إدخال اسم المستخدم وكلمة المرور',
-                    background: '#071426',
+                    background: '#1a0000',
                     color: '#fff',
-                    confirmButtonColor: '#3b6cc2'
+                    confirmButtonColor: '#ff3333'
                 });
                 return;
             }
@@ -450,9 +448,9 @@
                         icon: 'warning',
                         title: translations[currentLang]?.account_locked || 'الحساب مقفل مؤقتاً',
                         text: data.message || 'تم قفل الحساب بسبب كثرة المحاولات الفاشلة، حاول لاحقاً',
-                        background: '#071426',
+                        background: '#1a0000',
                         color: '#fff',
-                        confirmButtonColor: '#3b6cc2'
+                        confirmButtonColor: '#ff3333'
                     });
                     return;
                 }
@@ -469,7 +467,7 @@
                         icon: 'success',
                         timer: 1500,
                         showConfirmButton: false,
-                        background: '#071426',
+                        background: '#1a0000',
                         color: '#fff'
                     }).then(() => {
                         window.location.href = 'dashboard.html';
@@ -488,9 +486,9 @@
                     icon: 'error',
                     title: translations[currentLang]?.error || 'خطأ',
                     text: errorMsg,
-                    background: '#071426',
+                    background: '#1a0000',
                     color: '#fff',
-                    confirmButtonColor: '#3b6cc2'
+                    confirmButtonColor: '#ff3333'
                 });
             } finally {
                 submitBtn.disabled = false;
