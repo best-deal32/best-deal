@@ -15,11 +15,14 @@
         
         :root {
             --bg-deep: #040b14;
-            --bg-card: #071426;
             --blue-mid: #1a3a6b;
             --blue-light: #2a5298;
             --blue-accent: #3b6cc2;
+            --green-mid: #1a5c3a;
+            --green-light: #2d8a4e;
+            --green-accent: #3ca374;
             --text-primary: #e0e6f0;
+            --text-dim: #99a8c0;
         }
 
         * {
@@ -44,31 +47,31 @@
         /* تأثيرات خلفية */
         .bg-glow-1 {
             position: absolute;
-            top: -100px;
-            left: -100px;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(59, 108, 194, 0.15) 0%, transparent 70%);
+            top: -120px;
+            left: -120px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(60, 163, 116, 0.15) 0%, transparent 70%);
             border-radius: 50%;
-            filter: blur(60px);
+            filter: blur(70px);
             z-index: 0;
         }
         .bg-glow-2 {
             position: absolute;
-            bottom: -100px;
-            right: -100px;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(42, 82, 152, 0.1) 0%, transparent 70%);
+            bottom: -120px;
+            right: -120px;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(59, 108, 194, 0.12) 0%, transparent 70%);
             border-radius: 50%;
-            filter: blur(60px);
+            filter: blur(70px);
             z-index: 0;
         }
 
         .login-card {
             background: rgba(11, 31, 59, 0.85);
             backdrop-filter: blur(25px);
-            border: 1px solid rgba(59, 108, 194, 0.3);
+            border: 1px solid rgba(60, 163, 116, 0.3);
             border-radius: 3rem;
             width: 100%;
             max-width: 480px;
@@ -84,22 +87,22 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .dragon-icon-large {
+        .dragon-icon {
             display: block;
-            font-size: 5rem;
-            color: var(--blue-accent);
-            filter: drop-shadow(0 0 20px rgba(59, 108, 194, 0.6));
+            font-size: 4.5rem;
+            color: var(--green-accent);
+            filter: drop-shadow(0 0 20px rgba(60, 163, 116, 0.6));
             text-align: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
         }
 
         .login-title {
-            font-size: 2.4rem;
+            font-size: 2.2rem;
             font-weight: 900;
             text-align: center;
             letter-spacing: 2px;
             color: #fff;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
         }
 
         .login-subtitle {
@@ -115,8 +118,8 @@
 
         .input-label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.8rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: #93b4f5;
         }
@@ -130,7 +133,7 @@
             right: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--blue-accent);
+            color: var(--green-accent);
             font-size: 1.1rem;
         }
 
@@ -138,7 +141,7 @@
             width: 100%;
             padding: 1rem 3rem 1rem 1.5rem;
             background: rgba(4, 11, 20, 0.7);
-            border: 1.5px solid rgba(59, 108, 194, 0.3);
+            border: 1.5px solid rgba(60, 163, 116, 0.35);
             border-radius: 1.2rem;
             color: #fff;
             font-weight: 600;
@@ -148,15 +151,15 @@
         }
 
         .input-field:focus {
-            border-color: var(--blue-accent);
+            border-color: var(--green-accent);
             background: rgba(7, 20, 38, 0.8);
-            box-shadow: 0 0 15px rgba(59, 108, 194, 0.2);
+            box-shadow: 0 0 18px rgba(60, 163, 116, 0.25);
         }
 
         .login-btn {
             width: 100%;
             padding: 1.1rem;
-            background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-light) 100%);
+            background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-light) 100%);
             border: none;
             border-radius: 1.2rem;
             color: #fff;
@@ -169,18 +172,18 @@
             justify-content: center;
             gap: 10px;
             margin-top: 0.5rem;
-            box-shadow: 0 10px 25px rgba(26, 58, 107, 0.5);
+            box-shadow: 0 10px 25px rgba(26, 92, 58, 0.5);
         }
 
         .login-btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #204080 0%, #3265b0 100%);
+            background: linear-gradient(135deg, #1e6e3e 0%, #35a051 100%);
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(42, 82, 152, 0.6);
+            box-shadow: 0 15px 30px rgba(45, 138, 78, 0.6);
         }
 
         .login-btn:disabled {
             background: #1e2a3a;
-            color: #556;
+            color: #5a6a7a;
             cursor: not-allowed;
         }
 
@@ -201,11 +204,11 @@
         }
 
         .footer-links a:hover {
-            color: var(--blue-accent);
+            color: var(--green-accent);
         }
 
         .footer-links a span {
-            color: var(--blue-accent);
+            color: var(--green-accent);
             font-weight: 800;
         }
 
@@ -220,7 +223,7 @@
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
-            border: 1px solid rgba(59, 108, 194, 0.25);
+            border: 1px solid rgba(60, 163, 116, 0.3);
         }
 
         .lang-option {
@@ -234,12 +237,12 @@
         }
 
         .lang-option.active {
-            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
             color: #fff;
         }
 
         .lang-option:hover:not(.active) {
-            background: rgba(42, 82, 152, 0.2);
+            background: rgba(60, 163, 116, 0.15);
             color: #fff;
         }
 
@@ -247,6 +250,12 @@
             .login-card {
                 padding: 2.5rem 1.8rem;
                 border-radius: 2.5rem;
+            }
+            .dragon-icon {
+                font-size: 3.5rem;
+            }
+            .login-title {
+                font-size: 1.8rem;
             }
         }
     </style>
@@ -256,7 +265,7 @@
     <div class="bg-glow-2"></div>
 
     <div class="login-card">
-        <div class="dragon-icon-large">
+        <div class="dragon-icon">
             <i class="fa-solid fa-dragon"></i>
         </div>
         <h1 class="login-title">VIVOR</h1>
@@ -297,9 +306,6 @@
     </div>
 
     <script>
-        // ============================================================
-        // الإعدادات العامة (استخدام المسارات النسبية)
-        // ============================================================
         const API_BASE_URL = '';
         const LOGIN_ENDPOINT = `${API_BASE_URL}/api/users/login`;
         const USER_ME_ENDPOINT = `${API_BASE_URL}/api/users/me`;
@@ -307,9 +313,7 @@
 
         let socket = null;
 
-        // ============================================================
-        // نظام الترجمة متعدد اللغات (i18n)
-        // ============================================================
+        // i18n
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
 
@@ -332,11 +336,15 @@
             if (!t) return;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) el.textContent = t[key];
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) el.placeholder = t[key];
+                if (t[key]) {
+                    el.placeholder = t[key];
+                }
             });
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
@@ -376,9 +384,7 @@
             });
         });
 
-        // ============================================================
         // WebSocket
-        // ============================================================
         function initSocket() {
             if (!socket) {
                 socket = io(window.location.origin, { withCredentials: true });
@@ -388,14 +394,10 @@
             }
         }
 
-        // ============================================================
-        // التحقق من وجود جلسة نشطة
-        // ============================================================
+        // التحقق من جلسة نشطة
         async function checkExistingSession() {
             try {
-                const response = await fetch(USER_ME_ENDPOINT, {
-                    credentials: 'include'
-                });
+                const response = await fetch(USER_ME_ENDPOINT, { credentials: 'include' });
                 if (response.ok) {
                     const user = await response.json();
                     localStorage.setItem('currentUser', JSON.stringify(user));
@@ -406,9 +408,7 @@
             }
         }
 
-        // ============================================================
         // معالجة نموذج تسجيل الدخول
-        // ============================================================
         const loginForm = document.getElementById('loginForm');
         const submitBtn = document.getElementById('submitBtn');
 
