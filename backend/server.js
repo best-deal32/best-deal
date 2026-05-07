@@ -1,9 +1,8 @@
 // ============================================================
-// server.js - Vivor | استثمار المعادن الثمينة (الإصدار النهائي المُحدث)
+// server.js - Vivor | استثمار المعادن الثمينة (بدون مكافآت)
 // ============================================================
-// يدعم: صفحة الدعم المتكاملة (support.html) – تذاكر المستخدم، تذاكر الزائر،
-// حذف تلقائي للتذاكر القديمة (>24 ساعة) – إحالات 15%، استثمار 3% يوميًا،
-// إيداع بدون صور، سحب مع حد أدنى 10$، مكافأة يومية تصاعدية.
+// تم حذف: المكافأة الترحيبية 5$، نظام المكافأة اليومية بالكامل
+// باقي الميزات: استثمار 3% يومي، إحالات 15%، تذاكر، إيداع بدون صور
 // ============================================================
 
 const express = require('express');
@@ -395,15 +394,12 @@ app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async 
         await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
         await db.execute('UPDATE deposit_requests SET status = "approved" WHERE id = ?', [deposit.id]);
         await db.execute('UPDATE users SET totalDeposits = totalDeposits + ? WHERE id = ?', [amount, userId]);
-        const totalDep = (await getQuery('SELECT totalDeposits FROM users WHERE id = ?', [userId])).totalDeposits;
-        if (totalDep === amount && amount >= 50) {
-            await db.execute('UPDATE users SET balance = balance + 5 WHERE id = ?', [userId]);
-            await addNotification(userId, '🎁 مكافأة ترحيبية', '5$ بعد أول إيداع');
-            await logActivity(userId, 'مكافأة ترحيبية', '5$');
-        }
+        // تم حذف المكافأة الترحيبية 5$
         await logAdminAction(req.user.id, req.user.username, 'approve_deposit', userId, username, `قبول إيداع ${amount}$`, req.ip);
         await addNotification(userId, 'تم قبول الإيداع', `تمت إضافة ${amount}$ إلى رصيدك`);
         await logActivity(userId, 'إيداع مقبول', `تم قبول إيداع ${amount}$`, req.ip);
+        // مكافأة الإحالة تبقى كما هي (لأول إيداع)
+        const totalDep = (await getQuery('SELECT totalDeposits FROM users WHERE id = ?', [userId])).totalDeposits;
         if (totalDep === amount) await processReferralBonus(userId, amount);
         res.json({ success: true, message: 'تم قبول الإيداع' });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
@@ -589,7 +585,7 @@ app.get('/api/referrals/my', authenticateToken, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ success: false }); }
 });
 
-// ====================== NOTIFICATIONS & DAILY BONUS ======================
+// ====================== NOTIFICATIONS (فقط) ======================
 app.get('/api/notifications', authenticateToken, async (req, res) => {
     res.json(await allQuery('SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT 50', [req.user.id]));
 });
@@ -600,30 +596,6 @@ app.put('/api/notifications/:id/read', authenticateToken, async (req, res) => {
 app.put('/api/notifications/read-all', authenticateToken, async (req, res) => {
     await runQuery('UPDATE notifications SET isRead = 1 WHERE userId = ?', [req.user.id]);
     res.json({ success: true });
-});
-
-async function getDailyBonusAmount(streak) { if (streak >= 15) return 1.0; if (streak >= 8) return 0.75; return 0.5; }
-app.get('/api/daily-bonus/status', authenticateToken, async (req, res) => {
-    const user = await getQuery('SELECT totalDeposits, lastDailyBonus, dailyBonusStreak FROM users WHERE id = ?', [req.user.id]);
-    if ((user.totalDeposits || 0) <= 0) return res.json({ canClaim: false, reason: 'يجب الإيداع أولاً' });
-    const today = new Date().toISOString().slice(0,10);
-    const canClaim = (user.lastDailyBonus ? user.lastDailyBonus.toISOString().slice(0,10) : null) !== today;
-    res.json({ canClaim, currentStreak: user.dailyBonusStreak || 0, nextBonusAmount: await getDailyBonusAmount(user.dailyBonusStreak||0) });
-});
-app.post('/api/daily-bonus/claim', authenticateToken, async (req, res) => {
-    const user = await getQuery('SELECT totalDeposits, lastDailyBonus, dailyBonusStreak FROM users WHERE id = ?', [req.user.id]);
-    if ((user.totalDeposits || 0) <= 0) return res.status(400).json({ success: false, message: 'يجب الإيداع أولاً' });
-    const today = new Date().toISOString().slice(0,10);
-    if (user.lastDailyBonus && user.lastDailyBonus.toISOString().slice(0,10) === today) return res.status(400).json({ success: false, message: 'تم استلام المكافأة اليوم' });
-    let streak = user.dailyBonusStreak || 0;
-    if (user.lastDailyBonus) {
-        const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-        if (user.lastDailyBonus.toISOString().slice(0,10) === yesterday.toISOString().slice(0,10)) streak++; else streak = 1;
-    } else streak = 1;
-    const amount = await getDailyBonusAmount(streak);
-    await db.execute('UPDATE users SET profit = profit + ?, lastDailyBonus = CURDATE(), dailyBonusStreak = ? WHERE id = ?', [amount, streak, req.user.id]);
-    await addNotification(req.user.id, 'مكافأة يومية', `تم إضافة ${amount}$`);
-    res.json({ success: true, amount, streak });
 });
 
 // ====================== ANALYTICS ======================
