@@ -15,11 +15,14 @@
         
         :root {
             --bg-deep: #040b14;
-            --bg-card: #071426;
             --blue-mid: #1a3a6b;
             --blue-light: #2a5298;
             --blue-accent: #3b6cc2;
-            --border-light: rgba(43, 80, 150, 0.45);
+            --green-mid: #1a5c3a;
+            --green-light: #2d8a4e;
+            --green-accent: #3ca374;
+            --red-accent: #c0392b;
+            --red-light: #e74c3c;
             --text-primary: #e0e6f0;
             --text-dim: #99a8c0;
         }
@@ -45,16 +48,16 @@
         }
 
         .glass-card {
-            background: rgba(11, 31, 59, 0.78);
+            background: rgba(11, 31, 59, 0.8);
             backdrop-filter: blur(18px);
-            border: 1px solid var(--border-light);
+            border: 1px solid rgba(60, 163, 116, 0.35);
             border-radius: 2.5rem;
             padding: 2.5rem 2rem;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .btn-blue {
-            background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-light) 100%);
+        .btn-green {
+            background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-light) 100%);
             color: #fff;
             font-weight: 800;
             border-radius: 1.25rem;
@@ -62,30 +65,30 @@
             transition: all 0.3s ease;
             cursor: pointer;
             border: none;
-            box-shadow: 0 10px 25px rgba(26, 58, 107, 0.5);
+            box-shadow: 0 10px 25px rgba(26, 92, 58, 0.5);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
         }
 
-        .btn-blue:hover {
-            background: linear-gradient(135deg, #204080 0%, #3265b0 100%);
+        .btn-green:hover {
+            background: linear-gradient(135deg, #1e6e3e 0%, #35a051 100%);
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(42, 82, 152, 0.6);
+            box-shadow: 0 15px 30px rgba(45, 138, 78, 0.6);
         }
 
-        .btn-blue:disabled {
+        .btn-green:disabled {
             background: #1e2a3a;
             color: #5a6a7a;
             cursor: not-allowed;
             box-shadow: none;
         }
 
-        .btn-outline-blue {
+        .btn-outline-green {
             background: transparent;
-            border: 1.5px solid var(--blue-accent);
-            color: var(--blue-accent);
+            border: 1.5px solid var(--green-accent);
+            color: var(--green-accent);
             font-weight: 700;
             padding: 0.5rem 1.2rem;
             border-radius: 1.5rem;
@@ -94,14 +97,14 @@
             font-size: 0.85rem;
         }
 
-        .btn-outline-blue:hover {
-            background: rgba(59,108,194,0.12);
+        .btn-outline-green:hover {
+            background: rgba(60, 163, 116, 0.12);
         }
 
         .dragon-icon {
             font-size: 2.2rem;
-            color: var(--blue-accent);
-            filter: drop-shadow(0 0 12px rgba(59, 108, 194, 0.6));
+            color: var(--green-accent);
+            filter: drop-shadow(0 0 12px rgba(60, 163, 116, 0.6));
         }
 
         .lang-selector {
@@ -110,7 +113,7 @@
             padding: 0.3rem;
             display: inline-flex;
             gap: 0.2rem;
-            border: 1px solid var(--border-light);
+            border: 1px solid rgba(60, 163, 116, 0.3);
         }
 
         .lang-option {
@@ -124,19 +127,19 @@
         }
 
         .lang-option.active {
-            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
             color: #fff;
-            box-shadow: 0 0 15px rgba(42, 82, 152, 0.5);
+            box-shadow: 0 0 15px rgba(45, 138, 78, 0.4);
         }
 
         .lang-option:hover:not(.active) {
-            background: rgba(42, 82, 152, 0.2);
+            background: rgba(60, 163, 116, 0.15);
             color: #fff;
         }
 
         .wallet-box {
             background: rgba(0,0,0,0.35);
-            border: 1px dashed var(--border-light);
+            border: 1px dashed rgba(60, 163, 116, 0.4);
             border-radius: 1.2rem;
             padding: 1.2rem;
             text-align: center;
@@ -147,7 +150,7 @@
             font-family: monospace;
             font-size: 1rem;
             word-break: break-all;
-            color: var(--blue-accent);
+            color: var(--green-accent);
             font-weight: 700;
             direction: ltr;
             text-align: center;
@@ -169,7 +172,7 @@
             width: 100%;
             padding: 0.95rem 1.2rem;
             background: rgba(4,11,20,0.7);
-            border: 1.5px solid rgba(59,108,194,0.3);
+            border: 1.5px solid rgba(60, 163, 116, 0.35);
             border-radius: 1rem;
             color: #fff;
             font-weight: 600;
@@ -179,13 +182,13 @@
         }
 
         .input-field:focus {
-            border-color: var(--blue-accent);
-            box-shadow: 0 0 15px rgba(59,108,194,0.15);
+            border-color: var(--green-accent);
+            box-shadow: 0 0 15px rgba(60, 163, 116, 0.2);
         }
 
         .warning-box {
-            background: rgba(239,68,68,0.08);
-            border: 1px solid rgba(239,68,68,0.25);
+            background: rgba(231, 76, 60, 0.08);
+            border: 1px solid rgba(231, 76, 60, 0.3);
             border-radius: 1rem;
             padding: 0.8rem;
             margin-bottom: 1.8rem;
@@ -201,13 +204,16 @@
         }
 
         .back-btn:hover {
-            color: var(--blue-accent);
+            color: var(--green-accent);
         }
 
         @media (max-width: 500px) {
             .glass-card {
                 padding: 1.8rem 1.2rem;
                 border-radius: 2rem;
+            }
+            .wallet-box .address {
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -233,14 +239,14 @@
         </div>
 
         <div class="glass-card">
-            <h1 class="text-2xl font-black text-center text-blue-300 mb-2">إيداع جديد</h1>
+            <h1 class="text-2xl font-black text-center text-green-300 mb-2">إيداع جديد</h1>
             <p class="text-sm text-slate-400 text-center mb-6">قم بتحويل المبلغ إلى المحفظة أدناه ثم أدخل رمز المعاملة</p>
 
             <!-- عنوان المحفظة -->
             <div class="wallet-box">
-                <p class="text-xs text-slate-400 mb-2 font-bold uppercase">عنوان محفظة الإيداع (USDT-ERC20)</p>
+                <p class="text-xs text-slate-400 mb-2 font-bold uppercase">عنوان محفظة الإيداع (USDT)</p>
                 <p id="admin-wallet" class="address select-all">0x7c487888402cC1e77E61eDf48BD20aa939624360</p>
-                <button onclick="copyWallet()" class="btn-outline-blue mt-3">
+                <button onclick="copyWallet()" class="btn-outline-green mt-3">
                     <i class="fa-regular fa-copy ml-1"></i> نسخ العنوان
                 </button>
             </div>
@@ -257,14 +263,14 @@
                 <input type="text" id="transaction-code" class="input-field" placeholder="مثال: 0x1234... أو TXN12345" dir="ltr">
             </div>
 
-            <!-- تحذير -->
+            <!-- تحذير الشبكات -->
             <div class="warning-box">
                 <i class="fa-solid fa-triangle-exclamation ml-1"></i>
-                <strong>تنبيه:</strong> تأكد من الإرسال عبر شبكة <span class="text-white font-bold">ERC20</span> فقط. أي شبكة أخرى ستفقد أموالك. لا تضغط تأكيد إلا بعد إتمام التحويل.
+                <strong>تنبيه هام:</strong> تأكد من الإرسال عبر شبكة <span class="text-white font-bold underline">BNB Smart Chain (BEP20)</span> أو <span class="text-white font-bold underline">Ethereum (ERC20)</span> فقط. إرسال الأموال عبر شبكة أخرى سيؤدي إلى ضياعها ولن نتمكن من استردادها. لا تضغط تأكيد إلا بعد إتمام التحويل.
             </div>
 
             <!-- زر التأكيد -->
-            <button onclick="submitDeposit()" id="submit-btn" class="btn-blue w-full py-4 text-lg">
+            <button onclick="submitDeposit()" id="submit-btn" class="btn-green w-full py-4 text-lg">
                 <i class="fa-solid fa-paper-plane"></i> تأكيد الإيداع الآن
             </button>
         </div>
@@ -408,7 +414,7 @@
                     icon: 'warning',
                     background: '#071426',
                     color: '#fff',
-                    confirmButtonColor: '#3b6cc2'
+                    confirmButtonColor: '#3ca374'
                 }).then(() => {
                     window.location.href = 'login.html';
                 });
@@ -480,7 +486,7 @@
                         title: translations[currentLang]?.success_title || 'تم الإرسال بنجاح!',
                         text: data.message || (translations[currentLang]?.deposit_success_message || 'سيقوم الأدمن بمراجعة طلبك قريباً. ستتلقى إشعاراً عند الموافقة.'),
                         icon: 'success',
-                        confirmButtonColor: '#3b6cc2',
+                        confirmButtonColor: '#3ca374',
                         background: '#071426',
                         color: '#fff'
                     }).then(() => {
