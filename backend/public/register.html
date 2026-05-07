@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>إنشاء حساب | Vivor</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
         :root {
             --bg-deep: #040b14;
@@ -19,7 +17,11 @@
             --blue-mid: #1a3a6b;
             --blue-light: #2a5298;
             --blue-accent: #3b6cc2;
+            --green-mid: #1a5c3a;
+            --green-light: #2d8a4e;
+            --green-accent: #3ca374;
             --text-primary: #e0e6f0;
+            --text-dim: #99a8c0;
         }
 
         * {
@@ -38,70 +40,52 @@
             justify-content: center;
             padding: 1.5rem;
             overflow-x: hidden;
-            position: relative;
         }
 
-        .bg-glow-1 {
-            position: absolute;
-            top: -120px;
-            right: -120px;
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, rgba(59, 108, 194, 0.12) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(70px);
-            z-index: 0;
-        }
-        .bg-glow-2 {
-            position: absolute;
-            bottom: -120px;
-            left: -120px;
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, rgba(42, 82, 152, 0.08) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(70px);
-            z-index: 0;
-        }
-
-        .register-card {
-            background: rgba(11, 31, 59, 0.85);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(59, 108, 194, 0.3);
+        .glass-card {
+            background: rgba(11, 31, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(43, 80, 150, 0.4);
             border-radius: 3rem;
+            padding: 2.5rem 2rem;
             width: 100%;
-            max-width: 520px;
-            padding: 2.5rem 2.2rem;
-            position: relative;
-            z-index: 10;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-            animation: slideUp 0.7s ease;
+            max-width: 480px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transition: all 0.3s ease;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
+        .step {
+            display: none;
+            animation: fadeSlide 0.5s ease;
+        }
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .dragon-icon-large {
+        .dragon-icon {
+            font-size: 3.5rem;
+            color: var(--green-accent);
+            filter: drop-shadow(0 0 15px rgba(60,163,116,0.6));
             display: block;
-            font-size: 4.5rem;
-            color: var(--blue-accent);
-            filter: drop-shadow(0 0 20px rgba(59, 108, 194, 0.6));
             text-align: center;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
         }
 
-        .register-title {
-            font-size: 2.2rem;
+        .title {
+            font-size: 2rem;
             font-weight: 900;
             text-align: center;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             color: #fff;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
         }
 
-        .register-subtitle {
+        .subtitle {
             color: #94a3b8;
             font-size: 0.9rem;
             text-align: center;
@@ -115,7 +99,7 @@
         .input-label {
             display: block;
             margin-bottom: 0.4rem;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: #93b4f5;
         }
@@ -129,15 +113,15 @@
             right: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--blue-accent);
+            color: var(--green-accent);
             font-size: 1rem;
         }
 
         .input-field {
             width: 100%;
             padding: 0.9rem 2.8rem 0.9rem 1.2rem;
-            background: rgba(4, 11, 20, 0.7);
-            border: 1.5px solid rgba(59, 108, 194, 0.3);
+            background: rgba(4,11,20,0.7);
+            border: 1.5px solid rgba(59,108,194,0.3);
             border-radius: 1rem;
             color: #fff;
             font-weight: 600;
@@ -147,27 +131,14 @@
         }
 
         .input-field:focus {
-            border-color: var(--blue-accent);
-            background: rgba(7, 20, 38, 0.8);
-            box-shadow: 0 0 12px rgba(59, 108, 194, 0.15);
+            border-color: var(--green-accent);
+            box-shadow: 0 0 12px rgba(60,163,116,0.2);
         }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0 1rem;
-        }
-
-        @media (min-width: 500px) {
-            .grid-2 {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .register-btn {
+        .btn-primary {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-light) 100%);
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
             border: none;
             border-radius: 1rem;
             color: #fff;
@@ -179,78 +150,59 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 0.8rem;
-            box-shadow: 0 10px 25px rgba(26, 58, 107, 0.5);
+            box-shadow: 0 10px 25px rgba(26,92,58,0.5);
         }
 
-        .register-btn:hover:not(:disabled) {
-            background: linear-gradient(135deg, #204080 0%, #3265b0 100%);
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #1e6e3e, #35a051);
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(42, 82, 152, 0.6);
         }
 
-        .register-btn:disabled {
+        .btn-primary:disabled {
             background: #1e2a3a;
-            color: #556;
+            color: #5a6a7a;
             cursor: not-allowed;
+            box-shadow: none;
         }
 
-        .btn-outline-blue {
+        .btn-secondary {
             background: transparent;
-            border: 1.5px solid var(--blue-accent);
-            color: var(--blue-accent);
+            border: 1.5px solid var(--green-accent);
+            color: var(--green-accent);
             font-weight: 700;
             padding: 0.7rem 1.2rem;
             border-radius: 1rem;
             cursor: pointer;
-            transition: 0.3s;
-            white-space: nowrap;
-            font-size: 0.85rem;
-        }
-
-        .btn-outline-blue:hover {
-            background: rgba(59, 108, 194, 0.15);
-        }
-
-        .verification-row {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .verification-row input {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 1.5rem;
-            color: var(--blue-accent);
-            text-decoration: none;
-            font-weight: 600;
+            transition: 0.2s;
             font-size: 0.9rem;
-            text-align: center;
-            width: 100%;
+            white-space: nowrap;
         }
 
-        .back-link:hover {
+        .btn-secondary:hover {
+            background: rgba(60,163,116,0.15);
+        }
+
+        .skip-link {
+            color: var(--green-accent);
             text-decoration: underline;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: inline-block;
         }
 
         .lang-selector {
             display: flex;
             justify-content: center;
             gap: 0.4rem;
-            margin-top: 1.8rem;
-            background: rgba(11, 31, 59, 0.6);
+            margin-top: 2rem;
+            background: rgba(11,31,59,0.6);
             border-radius: 3rem;
             padding: 0.3rem;
             width: fit-content;
             margin-left: auto;
             margin-right: auto;
-            border: 1px solid rgba(59, 108, 194, 0.25);
+            border: 1px solid rgba(59,108,194,0.25);
         }
 
         .lang-option {
@@ -264,17 +216,12 @@
         }
 
         .lang-option.active {
-            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
-            color: #fff;
-        }
-
-        .lang-option:hover:not(.active) {
-            background: rgba(42, 82, 152, 0.2);
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
             color: #fff;
         }
 
         @media (max-width: 500px) {
-            .register-card {
+            .glass-card {
                 padding: 2rem 1.5rem;
                 border-radius: 2.5rem;
             }
@@ -282,43 +229,37 @@
     </style>
 </head>
 <body>
-    <div class="bg-glow-1"></div>
-    <div class="bg-glow-2"></div>
-
-    <div class="register-card">
-        <div class="dragon-icon-large">
+    <div class="glass-card">
+        <div class="dragon-icon">
             <i class="fa-solid fa-dragon"></i>
         </div>
-        <h1 class="register-title">VIVOR</h1>
-        <p class="register-subtitle">انضم إلى منصة الاستثمار الذكي – أنشئ حسابك الآن</p>
+        <h1 class="title">VIVOR</h1>
+        <p class="subtitle">أنشئ حسابك وابدأ رحلتك الاستثمارية</p>
 
-        <form id="registerForm">
-            <div class="grid-2">
-                <div class="input-group">
-                    <label class="input-label">اسم المستخدم</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-user"></i>
-                        <input type="text" id="username" class="input-field" placeholder="اسم المستخدم" required>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label class="input-label">الاسم الكامل</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-signature"></i>
-                        <input type="text" id="fullName" class="input-field" placeholder="الاسم الكامل" required>
-                    </div>
+        <!-- الخطوة الأولى: البيانات الأساسية -->
+        <div id="step1" class="step active">
+            <div class="input-group">
+                <label class="input-label">اسم المستخدم</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" class="input-field" placeholder="اختر اسم مستخدم" required>
                 </div>
             </div>
-
+            <div class="input-group">
+                <label class="input-label">الاسم الكامل</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-signature"></i>
+                    <input type="text" id="fullName" class="input-field" placeholder="اسمك الكامل" required>
+                </div>
+            </div>
             <div class="input-group">
                 <label class="input-label">البريد الإلكتروني</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-envelope"></i>
-                    <input type="email" id="email" class="input-field" placeholder="بريدك الإلكتروني" required>
+                    <input type="email" id="email" class="input-field" placeholder="example@mail.com" required>
                 </div>
             </div>
-
-            <div class="grid-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="input-group">
                     <label class="input-label">كلمة المرور</label>
                     <div class="input-wrapper">
@@ -334,30 +275,43 @@
                     </div>
                 </div>
             </div>
+            <button id="nextStepBtn" class="btn-primary">
+                <i class="fa-solid fa-arrow-left"></i> متابعة
+            </button>
+        </div>
 
+        <!-- الخطوة الثانية: كود الإحالة ورمز التحقق -->
+        <div id="step2" class="step">
+            <p class="text-sm text-slate-300 text-center mb-6">
+                هل لديك كود إحالة؟ أدخله الآن أو تخطَّ هذه الخطوة.
+            </p>
             <div class="input-group">
                 <label class="input-label">كود الإحالة (اختياري)</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-gift"></i>
-                    <input type="text" id="referrerCode" class="input-field" placeholder="أدخل كود الإحالة إن وجد">
+                    <input type="text" id="referrerCode" class="input-field" placeholder="أدخل الكود أو اتركه فارغاً">
                 </div>
+                <span id="skipReferral" class="skip-link"><i class="fa-solid fa-forward ml-1"></i> تخطي</span>
             </div>
 
-            <div class="verification-row">
-                <input type="text" id="verificationCode" class="input-field" placeholder="رمز التحقق (6 أرقام)">
-                <button type="button" id="sendCodeBtn" class="btn-outline-blue">
+            <!-- رمز التحقق (اختياري) -->
+            <div class="flex items-end gap-2 mb-4">
+                <div class="input-group flex-1">
+                    <label class="input-label">رمز التحقق (اختياري)</label>
+                    <input type="text" id="verificationCode" class="input-field" placeholder="الرمز المرسل إلى بريدك">
+                </div>
+                <button type="button" id="sendCodeBtn" class="btn-secondary">
                     <i class="fa-regular fa-paper-plane ml-1"></i> إرسال الرمز
                 </button>
             </div>
 
-            <button type="submit" id="registerBtn" class="register-btn">
+            <button id="registerBtn" class="btn-primary mt-4">
                 <i class="fa-solid fa-user-plus"></i> إنشاء الحساب
             </button>
-        </form>
-
-        <a href="login.html" class="back-link">
-            <i class="fa-solid fa-arrow-right ml-1"></i> لديك حساب بالفعل؟ سجل دخول الآن
-        </a>
+            <button id="backToStep1" class="btn-secondary w-full mt-2 justify-center">
+                <i class="fa-solid fa-arrow-right ml-1"></i> العودة للبيانات
+            </button>
+        </div>
 
         <div class="lang-selector">
             <div class="lang-option active" data-lang="ar">العربية</div>
@@ -365,314 +319,219 @@
             <div class="lang-option" data-lang="zh">中文</div>
             <div class="lang-option" data-lang="de">Deutsch</div>
         </div>
+
+        <p class="text-center text-sm text-slate-500 mt-6">
+            لديك حساب؟ <a href="login.html" class="text-green-400 font-bold hover:underline">سجل دخول</a>
+        </p>
     </div>
 
     <script>
-        // ============================================================
-        // 1. الإعدادات العامة - مسارات نسبية
-        // ============================================================
-        const API_BASE_URL = '';
-        const URL_SEND_VERIFICATION = `${API_BASE_URL}/api/auth/send-verification`;
-        const URL_REGISTER = `${API_BASE_URL}/api/users/register`;
-        const URL_CHECK_USERNAME = `${API_BASE_URL}/api/users/check-username`;
-        const URL_VALIDATE_EMAIL = `${API_BASE_URL}/api/auth/validate-email`;
+        const API_BASE = '';
+        const URL_SEND_VERIFICATION = API_BASE + '/api/auth/send-verification';
+        const URL_REGISTER = API_BASE + '/api/users/register';
+        const URL_CHECK_USERNAME = API_BASE + '/api/users/check-username';
+        const URL_VALIDATE_EMAIL = API_BASE + '/api/auth/validate-email';
 
         let socket = null;
-
-        // ============================================================
-        // 2. نظام الترجمة متعدد اللغات (i18n)
-        // ============================================================
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
 
+        // i18n (مبسطة)
         async function loadTranslations(lang) {
             try {
-                const response = await fetch(`/locales/${lang}/translation.json`);
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-                translations[lang] = data;
-                return data;
-            } catch (err) {
-                console.warn(`Failed to load translations for ${lang}, falling back to ar`);
-                if (lang !== 'ar') return loadTranslations('ar');
-                return {};
-            }
+                const res = await fetch(`/locales/${lang}/translation.json`);
+                if (res.ok) translations[lang] = await res.json();
+            } catch(e) {}
         }
-
         function applyTranslations(lang) {
-            const t = translations[lang];
-            if (!t) return;
+            const t = translations[lang] || {};
             document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) el.textContent = t[key];
+                if(t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
             });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) el.placeholder = t[key];
-            });
-            const htmlEl = document.documentElement;
-            if (lang === 'ar') {
-                htmlEl.setAttribute('dir', 'rtl');
-                htmlEl.setAttribute('lang', 'ar');
-            } else {
-                htmlEl.setAttribute('dir', 'ltr');
-                htmlEl.setAttribute('lang', lang);
-            }
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = lang;
             localStorage.setItem('preferredLanguage', lang);
             currentLang = lang;
-            document.querySelectorAll('.lang-option').forEach(opt => {
-                if (opt.getAttribute('data-lang') === lang) opt.classList.add('active');
-                else opt.classList.remove('active');
-            });
+            document.querySelectorAll('.lang-option').forEach(o => o.classList.toggle('active', o.dataset.lang === lang));
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
-
-        async function setLanguage(lang) {
-            if (!translations[lang]) await loadTranslations(lang);
-            applyTranslations(lang);
-        }
-
         document.querySelectorAll('.lang-option').forEach(opt => {
-            opt.addEventListener('click', async () => {
-                const lang = opt.getAttribute('data-lang');
-                if (lang === currentLang) return;
-                await setLanguage(lang);
-            });
+            opt.addEventListener('click', async () => { await applyTranslations(opt.dataset.lang); });
         });
 
-        // ============================================================
         // WebSocket
-        // ============================================================
         function initSocket() {
             if (!socket) {
                 socket = io(window.location.origin, { withCredentials: true });
-                socket.on('connect', () => {
-                    console.log('Socket connected on register page');
-                });
+                socket.on('connect', () => console.log('Socket connected'));
             }
         }
 
-        // ============================================================
-        // 3. جلب كود الإحالة من الرابط إن وجد
-        // ============================================================
-        function getReferrerCodeFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('ref');
-        }
+        // التنقل بين الخطوات
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
 
-        // ============================================================
-        // 4. التحقق من البريد الإلكتروني (نطاق حقيقي)
-        // ============================================================
-        let emailTimeout;
-        document.getElementById('email').addEventListener('input', async (e) => {
-            clearTimeout(emailTimeout);
-            const email = e.target.value.trim();
-            if (!email.includes('@')) return;
-            emailTimeout = setTimeout(async () => {
-                try {
-                    const res = await fetch(`${URL_VALIDATE_EMAIL}?email=${encodeURIComponent(email)}`);
-                    const data = await res.json();
-                    if (!data.valid) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: translations[currentLang]?.invalid_email_title || 'بريد غير صالح',
-                            text: data.reason || (translations[currentLang]?.invalid_email_reason || 'يرجى استخدام بريد إلكتروني حقيقي (غير مؤقت)'),
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 4000
-                        });
-                        document.getElementById('email').classList.add('border-red-500');
-                    } else {
-                        document.getElementById('email').classList.remove('border-red-500');
-                    }
-                } catch(e) {}
-            }, 800);
-        });
-
-        // ============================================================
-        // 5. التحقق من اسم المستخدم فوراً (تجنب التكرار)
-        // ============================================================
-        let usernameTimeout;
-        document.getElementById('username').addEventListener('input', async (e) => {
-            clearTimeout(usernameTimeout);
-            const username = e.target.value.trim();
-            if (username.length < 3) return;
-            usernameTimeout = setTimeout(async () => {
-                try {
-                    const res = await fetch(`${URL_CHECK_USERNAME}?username=${encodeURIComponent(username)}`);
-                    const data = await res.json();
-                    if (data.exists) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: translations[currentLang]?.username_taken_title || 'اسم مستخدم موجود',
-                            text: translations[currentLang]?.username_taken_text || 'هذا الاسم مستخدم بالفعل، اختر اسماً آخر',
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-                        document.getElementById('username').classList.add('border-red-500');
-                    } else {
-                        document.getElementById('username').classList.remove('border-red-500');
-                    }
-                } catch(e) {}
-            }, 500);
-        });
-
-        // ============================================================
-        // 6. إرسال رمز التحقق
-        // ============================================================
-        let countdown = 0;
-        let countdownInterval;
-        const sendCodeBtn = document.getElementById('sendCodeBtn');
-
-        function startCountdown(seconds) {
-            if (countdownInterval) clearInterval(countdownInterval);
-            countdown = seconds;
-            sendCodeBtn.disabled = true;
-            const originalText = sendCodeBtn.innerHTML;
-            countdownInterval = setInterval(() => {
-                countdown--;
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    sendCodeBtn.disabled = false;
-                    sendCodeBtn.innerHTML = originalText;
-                } else {
-                    sendCodeBtn.innerHTML = `<i class="fa-regular fa-paper-plane ml-1"></i> إعادة الإرسال (${countdown})`;
-                }
-            }, 1000);
-        }
-
-        sendCodeBtn.addEventListener('click', async () => {
-            const email = document.getElementById('email').value.trim();
-            if (!email) {
-                Swal.fire('خطأ', translations[currentLang]?.email_required || 'يرجى إدخال البريد الإلكتروني أولاً', 'error');
-                return;
-            }
-            if (!email.includes('@') || !email.includes('.')) {
-                Swal.fire('خطأ', translations[currentLang]?.invalid_email_format || 'صيغة البريد غير صحيحة', 'error');
-                return;
-            }
-            const btn = sendCodeBtn;
-            btn.disabled = true;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
-            try {
-                const response = await fetch(URL_SEND_VERIFICATION, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email }),
-                    credentials: 'include'
-                });
-                const data = await response.json();
-                if (data.success) {
-                    Swal.fire(translations[currentLang]?.code_sent_title || 'تم الإرسال', 
-                              translations[currentLang]?.code_sent_message || 'تم إرسال رمز التحقق إلى بريدك الإلكتروني', 
-                              'success');
-                    startCountdown(60);
-                } else {
-                    Swal.fire('خطأ', data.message || (translations[currentLang]?.send_code_failed || 'فشل إرسال الرمز'), 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                }
-            } catch (err) {
-                console.error(err);
-                Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالسيرفر', 'error');
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        });
-
-        // ============================================================
-        // 7. تقديم نموذج التسجيل الكامل
-        // ============================================================
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
+        document.getElementById('nextStepBtn').addEventListener('click', () => {
             const username = document.getElementById('username').value.trim();
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            let referrerCode = document.getElementById('referrerCode').value.trim();
-            const verificationCode = document.getElementById('verificationCode').value.trim();
 
-            // إذا كان هناك كود إحالة من الرابط ولم يضع المستخدم شيئاً، نستخدمه
-            const urlReferrer = getReferrerCodeFromUrl();
-            if (!referrerCode && urlReferrer) {
-                referrerCode = urlReferrer;
-                document.getElementById('referrerCode').value = referrerCode;
-            }
-
-            // التحقق من الحقول الأساسية
             if (!username || !fullName || !email || !password) {
-                Swal.fire('خطأ', translations[currentLang]?.required_fields || 'جميع الحقول الأساسية مطلوبة', 'error');
+                Swal.fire({ icon: 'warning', title: 'حقول ناقصة', text: 'يرجى ملء جميع الحقول', background: '#071426', color: '#fff' });
                 return;
             }
             if (password !== confirmPassword) {
-                Swal.fire('خطأ', translations[currentLang]?.passwords_not_match || 'كلمتا المرور غير متطابقتين', 'error');
+                Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمتا المرور غير متطابقتين', background: '#071426', color: '#fff' });
                 return;
             }
             if (password.length < 6) {
-                Swal.fire('خطأ', translations[currentLang]?.password_too_short || 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+                Swal.fire({ icon: 'error', title: 'ضعيفة', text: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', background: '#071426', color: '#fff' });
                 return;
             }
             if (!email.includes('@')) {
-                Swal.fire('خطأ', translations[currentLang]?.invalid_email || 'البريد الإلكتروني غير صالح', 'error');
+                Swal.fire({ icon: 'error', title: 'بريد غير صالح', text: 'يرجى إدخال بريد صحيح', background: '#071426', color: '#fff' });
                 return;
             }
+
+            step1.classList.remove('active');
+            step2.classList.add('active');
+        });
+
+        document.getElementById('backToStep1').addEventListener('click', () => {
+            step2.classList.remove('active');
+            step1.classList.add('active');
+        });
+
+        document.getElementById('skipReferral').addEventListener('click', () => {
+            document.getElementById('referrerCode').value = '';
+            // يمكن إضافة تأثير بصري بسيط
+        });
+
+        // إرسال رمز التحقق
+        let countdown = 0, countdownInterval;
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        sendCodeBtn.addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            if (!email || !email.includes('@')) {
+                Swal.fire('خطأ', 'يرجى إدخال بريد صحيح في الخطوة الأولى', 'error');
+                return;
+            }
+            if (countdown > 0) return;
+            sendCodeBtn.disabled = true;
+            const originalText = sendCodeBtn.innerHTML;
+            sendCodeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري...';
+            try {
+                const res = await fetch(URL_SEND_VERIFICATION, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ email }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    Swal.fire('تم', 'تم إرسال رمز التحقق إلى بريدك', 'success');
+                    startCountdown(60);
+                } else {
+                    Swal.fire('خطأ', data.message || 'فشل الإرسال', 'error');
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.innerHTML = originalText;
+                }
+            } catch(e) {
+                Swal.fire('خطأ', 'فشل الاتصال', 'error');
+                sendCodeBtn.disabled = false;
+                sendCodeBtn.innerHTML = originalText;
+            }
+        });
+
+        function startCountdown(seconds) {
+            if(countdownInterval) clearInterval(countdownInterval);
+            countdown = seconds;
+            const originalText = sendCodeBtn.innerHTML;
+            sendCodeBtn.disabled = true;
+            countdownInterval = setInterval(() => {
+                countdown--;
+                if(countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    sendCodeBtn.disabled = false;
+                    sendCodeBtn.innerHTML = originalText;
+                } else {
+                    sendCodeBtn.innerHTML = `إعادة الإرسال (${countdown})`;
+                }
+            }, 1000);
+        }
+
+        // تقديم التسجيل النهائي
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const username = document.getElementById('username').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const referrerCode = document.getElementById('referrerCode').value.trim();
+            const verificationCode = document.getElementById('verificationCode').value.trim();
 
             const btn = document.getElementById('registerBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري إنشاء الحساب...';
 
             try {
-                const response = await fetch(URL_REGISTER, {
+                const res = await fetch(URL_REGISTER, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type':'application/json'},
                     body: JSON.stringify({
-                        username,
-                        password,
-                        fullName,
-                        email,
-                        origin: 'غير محدد',
-                        currentLocation: 'غير محدد',
-                        currentJob: 'غير محدد',
-                        work: 'غير محدد',
-                        profession: 'غير محدد',
-                        verificationCode,
-                        referrerCode
+                        username, password, fullName, email,
+                        origin: 'غير محدد', currentLocation: 'غير محدد',
+                        currentJob: 'غير محدد', work: 'غير محدد', profession: 'غير محدد',
+                        verificationCode, referrerCode
                     }),
                     credentials: 'include'
                 });
-                const data = await response.json();
+                const data = await res.json();
                 if (data.success) {
                     Swal.fire({
-                        title: translations[currentLang]?.register_success_title || 'تم التسجيل بنجاح',
-                        text: data.message || (translations[currentLang]?.register_success_text || 'يمكنك الآن تسجيل الدخول إلى المنصة'),
-                        icon: 'success',
-                        background: '#071426',
-                        color: '#fff',
-                        confirmButtonColor: '#3b6cc2'
-                    }).then(() => {
-                        window.location.href = 'login.html';
-                    });
+                        icon: 'success', title: 'تم التسجيل',
+                        text: data.message || 'يمكنك الآن تسجيل الدخول',
+                        background: '#071426', color: '#fff'
+                    }).then(() => window.location.href = 'login.html');
                 } else {
-                    Swal.fire(translations[currentLang]?.register_failed_title || 'فشل التسجيل', data.message || (translations[currentLang]?.register_failed_text || 'حدث خطأ غير معروف'), 'error');
+                    Swal.fire({ icon: 'error', title: 'فشل', text: data.message, background: '#071426', color: '#fff' });
                 }
-            } catch (err) {
-                console.error(err);
-                Swal.fire('خطأ', translations[currentLang]?.connection_error || 'فشل الاتصال بالسيرفر، تأكد من تشغيل الخادم', 'error');
+            } catch(e) {
+                Swal.fire({ icon: 'error', title: 'خطأ', text: 'فشل الاتصال', background: '#071426', color: '#fff' });
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> إنشاء الحساب';
             }
         });
 
-        // ============================================================
-        // 8. تحميل الترجمات الأولية
-        // ============================================================
+        // التحقق من اسم المستخدم والايميل (تحسينات)
+        let usernameTimeout, emailTimeout;
+        document.getElementById('username').addEventListener('input', function() {
+            clearTimeout(usernameTimeout);
+            const val = this.value.trim();
+            if (val.length < 3) return;
+            usernameTimeout = setTimeout(async () => {
+                const res = await fetch(`${URL_CHECK_USERNAME}?username=${val}`);
+                const d = await res.json();
+                if (d.exists) {
+                    Swal.fire({ icon: 'warning', title: 'اسم مستخدم موجود', text: 'اختر اسماً آخر', toast: true, position: 'top-end', timer: 3000, background: '#071426', color: '#fff' });
+                }
+            }, 500);
+        });
+        document.getElementById('email').addEventListener('input', function() {
+            clearTimeout(emailTimeout);
+            const val = this.value.trim();
+            if (!val.includes('@')) return;
+            emailTimeout = setTimeout(async () => {
+                const res = await fetch(`${URL_VALIDATE_EMAIL}?email=${encodeURIComponent(val)}`);
+                const d = await res.json();
+                if (!d.valid) {
+                    Swal.fire({ icon: 'warning', title: 'بريد غير صالح', text: d.reason, toast: true, position: 'top-end', timer: 4000, background: '#071426', color: '#fff' });
+                }
+            }, 800);
+        });
+
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
