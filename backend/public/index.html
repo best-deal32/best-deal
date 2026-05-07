@@ -4,68 +4,238 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Vivor | استثمار المعادن الثمينة</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+        
         :root {
             --bg-deep: #040b14;
-            --bg-card: #071426;
             --blue-mid: #1a3a6b;
             --blue-light: #2a5298;
             --blue-accent: #3b6cc2;
-            --border-light: rgba(43, 80, 150, 0.4);
+            --green-mid: #1a5c3a;
+            --green-light: #2d8a4e;
+            --green-accent: #3ca374;
             --text-primary: #e0e6f0;
             --text-dim: #99a8c0;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: 'Cairo', sans-serif;
+        }
+
+        body {
             background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
         }
+
         .glass-panel {
-            background: rgba(11,31,59,0.75);
+            background: rgba(11, 31, 59, 0.75);
             backdrop-filter: blur(16px);
-            border: 1px solid var(--border-light);
+            border: 1px solid rgba(60, 163, 116, 0.35);
             border-radius: 2rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
-        .btn-blue {
-            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
-            color: #fff; font-weight: 800; border-radius: 1.5rem;
-            padding: 0.8rem 2rem; transition: all 0.3s; cursor: pointer;
-            border: none; display: inline-flex; align-items: center; gap: 0.5rem;
+
+        .btn-green {
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            color: #fff;
+            font-weight: 800;
+            border-radius: 1.5rem;
+            padding: 0.8rem 2rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 10px 25px rgba(26,92,58,0.5);
         }
-        .btn-blue:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        .btn-green:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .btn-blue-outline {
+            background: transparent;
+            border: 2px solid var(--blue-accent);
+            color: var(--blue-accent);
+            font-weight: 800;
+            border-radius: 1.5rem;
+            padding: 0.8rem 2rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-blue-outline:hover {
+            background: rgba(59,108,194,0.1);
+            transform: translateY(-2px);
+        }
+
         .lang-selector {
-            background: rgba(11,31,59,0.65); border-radius: 3rem;
-            padding: 0.25rem; display: inline-flex; gap: 0.2rem;
-            border: 1px solid var(--border-light);
+            background: rgba(11,31,59,0.65);
+            border-radius: 3rem;
+            padding: 0.25rem;
+            display: inline-flex;
+            gap: 0.2rem;
+            border: 1px solid rgba(60,163,116,0.3);
         }
+
         .lang-option {
-            padding: 0.3rem 0.8rem; border-radius: 3rem;
-            font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: 0.2s;
+            padding: 0.3rem 0.8rem;
+            border-radius: 3rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
             color: var(--text-dim);
         }
-        .lang-option.active { background: linear-gradient(135deg, var(--blue-mid), var(--blue-light)); color: #fff; }
-        .lang-option:hover:not(.active) { background: rgba(42,82,152,0.2); color: #fff; }
-        .feature-card {
-            background: rgba(11,31,59,0.7); border: 1px solid var(--border-light);
-            border-radius: 1.5rem; padding: 1.5rem; text-align: center;
-            transition: 0.3s; cursor: pointer; backdrop-filter: blur(5px);
+
+        .lang-option.active {
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            color: #fff;
         }
-        .feature-card:hover { border-color: var(--blue-accent); transform: translateY(-5px); }
+
+        .lang-option:hover:not(.active) {
+            background: rgba(60,163,116,0.15);
+            color: #fff;
+        }
+
+        .feature-card {
+            background: rgba(11,31,59,0.7);
+            border: 1px solid rgba(60,163,116,0.3);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .feature-card:hover {
+            border-color: var(--green-accent);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+            background: rgba(15,38,71,0.8);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--green-accent);
+            margin-bottom: 0.7rem;
+        }
+
+        .info-section {
+            margin-bottom: 1.8rem;
+            border-bottom: 1px solid rgba(60,163,116,0.2);
+            padding-bottom: 1.2rem;
+        }
+
+        .info-section h3 {
+            color: var(--green-accent);
+            font-weight: 900;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-section p, .info-section li {
+            font-size: 0.92rem;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .info-section ul {
+            margin-right: 1.6rem;
+        }
+
+        .highlight {
+            color: #60a5fa;
+            font-weight: bold;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(4,11,20,0.9);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            background: rgba(11,31,59,0.95);
+            border: 1px solid var(--green-accent);
+            border-radius: 2rem;
+            max-width: 720px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.2rem;
+            left: 1.2rem;
+            background: rgba(255,255,255,0.07);
+            border: none;
+            color: var(--green-accent);
+            font-size: 1.6rem;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(60,163,116,0.25);
+        }
+
+        @media (max-width: 640px) {
+            .glass-panel {
+                border-radius: 1.5rem;
+                padding: 1.5rem;
+            }
+            .btn-green, .btn-blue-outline {
+                padding: 0.7rem 1.5rem;
+            }
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
     <!-- الشريط العلوي -->
-    <nav class="px-5 py-4 flex justify-between items-center sticky top-0 z-50 bg-[#040b14]/80 backdrop-blur-md border-b border-[#1a3a6b]/30">
+    <nav class="px-5 py-4 flex justify-between items-center sticky top-0 z-50 bg-[#040b14]/80 backdrop-blur-md border-b border-[#2d8a4e]/30">
         <div class="flex items-center gap-3">
-            <i class="fa-solid fa-dragon text-4xl text-blue-400 drop-shadow-lg"></i>
+            <i class="fa-solid fa-dragon text-4xl text-green-400 drop-shadow-lg"></i>
             <span class="text-2xl font-black text-white italic tracking-wider">VIVOR</span>
         </div>
         <div class="flex items-center gap-4">
@@ -75,8 +245,8 @@
                 <div class="lang-option" data-lang="zh">ZH</div>
                 <div class="lang-option" data-lang="de">DE</div>
             </div>
-            <button onclick="window.location.href='login.html'" class="btn-blue hidden sm:flex">
-                <i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول
+            <button onclick="window.location.href='login.html'" class="btn-green hidden sm:flex">
+                <i class="fa-solid fa-right-to-bracket"></i> دخول
             </button>
         </div>
     </nav>
@@ -85,19 +255,19 @@
     <main class="flex-grow flex flex-col items-center justify-center px-6 py-12">
         <!-- الترحيب -->
         <div class="text-center max-w-3xl mx-auto mb-16">
-            <i class="fa-solid fa-dragon text-8xl text-blue-500/30 mb-4 block"></i>
+            <i class="fa-solid fa-dragon text-8xl text-green-500/30 mb-4 block"></i>
             <h1 class="text-4xl md:text-5xl font-black mb-3 leading-tight">
-                استثمر في <span class="text-blue-400">الذهب والفضة</span>
+                استثمر في <span class="text-green-400">الذهب والفضة</span>
             </h1>
             <p class="text-slate-300 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-                منصة Vivor تمنحك عائداً يومياً <strong class="text-blue-300">3%</strong> على استثماراتك في المعادن الثمينة.
-                ابدأ من <strong class="text-blue-300">50$</strong> فقط، واسحب أرباحك يومياً أو رأس مالك في أي وقت.
+                منصة Vivor تمنحك عائداً يومياً <strong class="text-green-300">3%</strong> على استثماراتك في المعادن الثمينة.
+                ابدأ من <strong class="text-green-300">50$</strong> فقط، واسحب أرباحك يومياً أو رأس مالك في أي وقت.
             </p>
             <div class="mt-8 flex flex-wrap justify-center gap-4">
-                <button onclick="window.location.href='register.html'" class="btn-blue text-lg px-10 py-4">
+                <button onclick="window.location.href='register.html'" class="btn-green text-lg px-10 py-4">
                     <i class="fa-solid fa-user-plus"></i> أنشئ حساباً
                 </button>
-                <button onclick="window.location.href='login.html'" class="btn-blue bg-transparent border-2 border-blue-400 text-blue-400 hover:text-white text-lg px-10 py-4">
+                <button onclick="window.location.href='login.html'" class="btn-blue-outline text-lg px-10 py-4">
                     <i class="fa-solid fa-arrow-left"></i> دخول
                 </button>
             </div>
@@ -106,45 +276,45 @@
         <!-- الميزات -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-20 max-w-6xl w-full">
             <div class="feature-card">
-                <i class="fa-solid fa-scale-balanced text-5xl text-blue-400 mb-4"></i>
+                <i class="fa-solid fa-scale-balanced"></i>
                 <h3 class="text-xl font-black text-white mb-2">استثمار ذكي</h3>
                 <p class="text-sm text-slate-300">مشروع واحد (ذهب وفضة) بعائد 3% يومياً. بدون تعقيد.</p>
-                <span class="text-xs text-blue-200 mt-2 inline-block">الحدود: 50$ - 10,000$</span>
+                <span class="text-xs text-green-200 mt-2 inline-block">الحدود: 50$ - 10,000$</span>
             </div>
             <div class="feature-card">
-                <i class="fa-solid fa-wallet text-5xl text-blue-400 mb-4"></i>
+                <i class="fa-solid fa-wallet"></i>
                 <h3 class="text-xl font-black text-white mb-2">إيداع بسيط</h3>
                 <p class="text-sm text-slate-300">فقط أدخل المبلغ ورمز المعاملة بعد التحويل. لا حاجة لرفع صور.</p>
             </div>
             <div class="feature-card">
-                <i class="fa-solid fa-share-nodes text-5xl text-blue-400 mb-4"></i>
+                <i class="fa-solid fa-share-nodes"></i>
                 <h3 class="text-xl font-black text-white mb-2">إحالات 15%</h3>
                 <p class="text-sm text-slate-300">ادعُ أصدقاءك عبر <strong>كود الإحالة</strong> واحصل على 15% من أول إيداع لهم!</p>
             </div>
             <div class="feature-card">
-                <i class="fa-solid fa-headset text-5xl text-blue-400 mb-4"></i>
+                <i class="fa-solid fa-headset"></i>
                 <h3 class="text-xl font-black text-white mb-2">دعم فوري</h3>
                 <p class="text-sm text-slate-300">افتح تذكرة دعم وسنرد عليك في أسرع وقت. متاح للجميع.</p>
-                <button onclick="openGuestTicket()" class="mt-3 text-xs text-blue-300 underline">فتح تذكرة كزائر</button>
+                <button onclick="openGuestTicket()" class="mt-3 text-xs text-green-300 underline">فتح تذكرة كزائر</button>
             </div>
         </div>
 
         <!-- كيف تبدأ -->
         <div class="glass-panel p-8 max-w-4xl w-full mb-12">
-            <h2 class="text-2xl font-black text-blue-300 mb-8 text-center">كيف تبدأ؟</h2>
+            <h2 class="text-2xl font-black text-green-300 mb-8 text-center">كيف تبدأ؟</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 <div>
-                    <i class="fa-solid fa-user-plus text-5xl text-blue-400 mb-4"></i>
+                    <i class="fa-solid fa-user-plus text-5xl text-green-400 mb-4"></i>
                     <h4 class="font-bold text-white text-lg mb-2">1. سجّل حساباً</h4>
                     <p class="text-sm text-slate-400">أنشئ حسابك مجاناً واستخدم كود إحالة (إن وجد).</p>
                 </div>
                 <div>
-                    <i class="fa-solid fa-money-bill-wave text-5xl text-blue-400 mb-4"></i>
+                    <i class="fa-solid fa-money-bill-wave text-5xl text-green-400 mb-4"></i>
                     <h4 class="font-bold text-white text-lg mb-2">2. أودع</h4>
                     <p class="text-sm text-slate-400">حول المبلغ إلى محفظتنا وأدخل رمز المعاملة. سيقوم الأدمن بتأكيده.</p>
                 </div>
                 <div>
-                    <i class="fa-solid fa-chart-line text-5xl text-blue-400 mb-4"></i>
+                    <i class="fa-solid fa-chart-line text-5xl text-green-400 mb-4"></i>
                     <h4 class="font-bold text-white text-lg mb-2">3. استثمر واربح</h4>
                     <p class="text-sm text-slate-400">استثمر في مشروع المعادن واستمتع بأرباح يومية وسحب فوري.</p>
                 </div>
@@ -153,19 +323,19 @@
     </main>
 
     <!-- تذييل -->
-    <footer class="text-center py-6 text-slate-500 text-xs border-t border-[#1a3a6b]/30">
-        © 2025 Vivor. جميع الحقوق محفوظة. | <a href="#" onclick="openGuestTicket()" class="text-blue-400 underline">الدعم الفني</a>
+    <footer class="text-center py-6 text-slate-500 text-xs border-t border-[#2d8a4e]/30">
+        © 2025 Vivor. جميع الحقوق محفوظة. | <a href="#" onclick="openGuestTicket()" class="text-green-400 underline">الدعم الفني</a>
     </footer>
 
     <!-- نافذة تذكرة زائر -->
-    <div id="guestTicketModal" style="display:none;" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="guestTicketModal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-md w-full">
-            <h3 class="text-xl font-bold text-blue-300 mb-4">تذكرة دعم (زائر)</h3>
-            <input type="text" id="guestName" class="w-full bg-black/50 border border-blue-500/30 rounded-xl p-3 mb-3 text-white" placeholder="اسمك (اختياري)">
-            <input type="text" id="guestSubject" class="w-full bg-black/50 border border-blue-500/30 rounded-xl p-3 mb-3 text-white" placeholder="الموضوع">
-            <textarea id="guestMessage" rows="4" class="w-full bg-black/50 border border-blue-500/30 rounded-xl p-3 mb-4 text-white" placeholder="رسالتك"></textarea>
+            <h3 class="text-xl font-bold text-green-300 mb-4">تذكرة دعم (زائر)</h3>
+            <input type="text" id="guestName" class="w-full bg-black/50 border border-green-500/30 rounded-xl p-3 mb-3 text-white" placeholder="اسمك (اختياري)">
+            <input type="text" id="guestSubject" class="w-full bg-black/50 border border-green-500/30 rounded-xl p-3 mb-3 text-white" placeholder="الموضوع">
+            <textarea id="guestMessage" rows="4" class="w-full bg-black/50 border border-green-500/30 rounded-xl p-3 mb-4 text-white" placeholder="رسالتك"></textarea>
             <div class="flex gap-3">
-                <button onclick="submitGuestTicket()" class="btn-blue flex-1 justify-center">إرسال</button>
+                <button onclick="submitGuestTicket()" class="btn-green flex-1 justify-center">إرسال</button>
                 <button onclick="closeGuestTicket()" class="bg-gray-600 text-white px-4 py-2 rounded-xl">إلغاء</button>
             </div>
         </div>
@@ -206,7 +376,7 @@
             }
         }
 
-        // تبديل اللغة (بسيط)
+        // تبديل اللغة
         document.querySelectorAll('.lang-option').forEach(opt => {
             opt.addEventListener('click', () => {
                 document.querySelectorAll('.lang-option').forEach(o => o.classList.remove('active'));
