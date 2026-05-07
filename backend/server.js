@@ -1,10 +1,9 @@
 // ============================================================
-// server.js - Vivor | استثمار المعادن الثمينة (الإصدار النهائي المُصحّح)
+// server.js - Vivor | استثمار المعادن الثمينة (الإصدار النهائي المُحدث)
 // ============================================================
-// تم الإصلاح:
-// - حل خطأ 500 في تذكرة الزائر (تم تعديل حقل userId ليقبل NULL)
-// - بوابة الأدمن تعمل بكفاءة عبر إنشاء token عادي
-// - إحالات 15%، إيداع بدون صور، استثمار المعادن (3% يومياً)
+// يدعم: صفحة الدعم المتكاملة (support.html) – تذاكر المستخدم، تذاكر الزائر،
+// حذف تلقائي للتذاكر القديمة (>24 ساعة) – إحالات 15%، استثمار 3% يوميًا،
+// إيداع بدون صور، سحب مع حد أدنى 10$، مكافأة يومية تصاعدية.
 // ============================================================
 
 const express = require('express');
@@ -192,8 +191,7 @@ async function createTables() {
         message TEXT NOT NULL, priority ENUM('low', 'normal', 'high') DEFAULT 'normal',
         status ENUM('open', 'in_progress', 'closed') DEFAULT 'open',
         attachmentPath VARCHAR(255), createdAt DATETIME NOT NULL,
-        updatedAt DATETIME NOT NULL,
-        FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+        updatedAt DATETIME NOT NULL
     )`);
 
     await db.execute(`CREATE TABLE IF NOT EXISTS support_replies (
@@ -817,7 +815,20 @@ async function distributeMetalProfits() {
         await connection.commit();
     } catch (err) { await connection.rollback(); console.error('Profit error:', err); } finally { connection.release(); }
 }
+
+// حذف التذاكر القديمة (بعد 24 ساعة)
+async function deleteOldTickets() {
+    try {
+        await db.execute(`DELETE FROM support_replies WHERE ticketId IN (SELECT id FROM support_tickets WHERE createdAt < NOW() - INTERVAL 1 DAY)`);
+        await db.execute(`DELETE FROM support_tickets WHERE createdAt < NOW() - INTERVAL 1 DAY`);
+        console.log('✅ تم حذف التذاكر القديمة.');
+    } catch (err) {
+        console.error('❌ خطأ في حذف التذاكر القديمة:', err);
+    }
+}
+
 cron.schedule('0 * * * *', distributeMetalProfits);
+cron.schedule('0 * * * *', deleteOldTickets);
 
 // ====================== SERVE STATIC ======================
 const publicPath = path.join(__dirname, 'public');
@@ -835,5 +846,6 @@ process.on('unhandledRejection', (reason, promise) => { console.error('⚠️ Un
         console.log(`\n🚀 Vivor Server running on http://localhost:${PORT}`);
         console.log(`👑 Admin: freeze / MHDFREEZE0619`);
         console.log(`📌 Metals 3% daily (50$-10,000$) | Referrals 15%`);
+        console.log(`🎫 Support tickets with auto-delete after 24h`);
     });
 })();
