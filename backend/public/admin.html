@@ -16,7 +16,10 @@
       --blue-mid: #1a3a6b;
       --blue-light: #2a5298;
       --blue-accent: #3b6cc2;
-      --border-light: rgba(43,80,150,0.4);
+      --green-mid: #1a5c3a;
+      --green-light: #2d8a4e;
+      --green-accent: #3ca374;
+      --border-light: rgba(60,163,116,0.4);
       --text-primary: #e0e6f0;
       --text-dim: #99a8c0;
     }
@@ -29,11 +32,18 @@
     }
     .glass-panel {
       background: rgba(11,31,59,0.8);
-      backdrop-filter: blur(15px);
+      backdrop-filter: blur(20px);
       border: 1px solid var(--border-light);
       border-radius: 2rem;
       box-shadow: 0 30px 60px rgba(0,0,0,0.5);
     }
+    .btn-green {
+      background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+      color: #fff; font-weight: 800; border-radius: 1.5rem;
+      padding: 0.7rem 1.5rem; transition: 0.3s; cursor: pointer;
+      border: none; display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-green:hover { filter: brightness(1.1); transform: translateY(-2px); }
     .btn-blue {
       background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
       color: #fff; font-weight: 800; border-radius: 1.5rem;
@@ -47,7 +57,7 @@
     }
     .btn-approve { background: #10b981; color: #fff; }
     .btn-reject { background: #ef4444; color: #fff; }
-    .btn-view { background: var(--blue-accent); color: #fff; }
+    .btn-view { background: var(--green-mid); color: #fff; }
     .btn-warn { background: #f59e0b; color: #000; }
     .badge {
       padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;
@@ -63,7 +73,7 @@
       cursor: pointer; transition: 0.2s;
     }
     .tab-btn.active {
-      background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+      background: linear-gradient(135deg, var(--green-mid), var(--green-light));
       color: #fff;
     }
     .table-container {
@@ -73,7 +83,7 @@
       width: 100%; border-collapse: collapse; text-align: right; min-width: 850px;
     }
     th {
-      padding: 10px 8px; color: var(--blue-accent); font-weight: 800;
+      padding: 10px 8px; color: var(--green-accent); font-weight: 800;
       font-size: 0.75rem; border-bottom: 1px solid rgba(59,108,194,0.3);
     }
     td {
@@ -88,17 +98,27 @@
       background: rgba(4,11,20,0.7); border: 1px solid rgba(59,108,194,0.4);
       color: #fff; padding: 10px; border-radius: 10px; width: 100%; margin-bottom: 15px;
     }
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .glass-panel { padding: 1rem; border-radius: 1.5rem; }
+      .tab-btn { padding: 0.5rem 0.9rem; font-size: 0.8rem; }
+      table { min-width: 650px; }
+    }
   </style>
 </head>
 <body>
 
-<!-- شاشة البوابة -->
+<!-- نافذة البوابة الملكية -->
 <div id="gatewayScreen" class="flex-center">
-  <div class="glass-panel p-8 max-w-sm w-full text-center">
-    <i class="fa-solid fa-dragon text-4xl text-blue-400 mb-3"></i>
-    <h2 class="text-xl font-bold mb-4">بوابة الأدمن</h2>
-    <input type="password" id="gatewayPass" placeholder="كلمة المرور السرية" dir="ltr" />
-    <button id="gatewayBtn" class="btn-blue w-full justify-center py-3">دخول</button>
+  <div class="glass-panel p-8 max-w-sm w-full text-center transform hover:scale-[1.02] transition duration-300">
+    <i class="fa-solid fa-dragon text-5xl text-green-400 mb-4 drop-shadow-[0_0_15px_rgba(60,163,116,0.7)]"></i>
+    <h2 class="text-3xl font-black text-green-300 mb-2">البوابة الملكية</h2>
+    <p class="text-green-200/70 text-sm mb-6">أدخل كلمة المرور للوصول إلى لوحة التحكم</p>
+    <input type="password" id="gatewayPass" class="w-full bg-[#040b14]/80 border border-green-500/40 rounded-2xl py-3 px-4 text-white text-center text-lg placeholder:text-green-200/50 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition" placeholder="كلمة المرور" dir="ltr" />
+    <button id="gatewayBtn" class="btn-green w-full justify-center py-3 mt-4 text-lg">
+      <i class="fa-solid fa-right-to-bracket ml-2"></i> دخول
+    </button>
+    <p class="text-green-200/40 text-xs mt-4">وصول آمن لـ Vivor admin</p>
   </div>
 </div>
 
@@ -107,33 +127,33 @@
   <!-- رأس الصفحة -->
   <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
     <div class="flex items-center gap-3">
-      <i class="fa-solid fa-dragon text-4xl text-blue-400 drop-shadow-xl"></i>
-      <h1 class="text-2xl font-black text-blue-300 tracking-wide">VIVOR - لوحة التحكم</h1>
+      <i class="fa-solid fa-dragon text-4xl text-green-400 drop-shadow-xl"></i>
+      <h1 class="text-2xl font-black text-green-300 tracking-wide">VIVOR - لوحة التحكم</h1>
     </div>
     <div class="flex gap-3">
-      <button onclick="loadEverything()" class="btn-blue"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
+      <button onclick="loadEverything()" class="btn-green"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
       <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl font-bold text-sm">خروج</button>
     </div>
   </div>
 
   <!-- إحصائيات -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center">
-      <p class="text-xs text-slate-400">المستخدمين</p><p id="stat-users" class="text-2xl font-black text-blue-300">0</p>
+    <div class="bg-[#0b1f3b] border border-green-500/30 rounded-2xl p-4 text-center">
+      <p class="text-xs text-slate-400">المستخدمين</p><p id="stat-users" class="text-2xl font-black text-green-300">0</p>
     </div>
-    <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center">
+    <div class="bg-[#0b1f3b] border border-green-500/30 rounded-2xl p-4 text-center">
       <p class="text-xs text-slate-400">إيداعات معلقة</p><p id="stat-deposits" class="text-2xl font-black text-yellow-400">0</p>
     </div>
-    <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center">
+    <div class="bg-[#0b1f3b] border border-green-500/30 rounded-2xl p-4 text-center">
       <p class="text-xs text-slate-400">سحوبات معلقة</p><p id="stat-withdrawals" class="text-2xl font-black text-yellow-400">0</p>
     </div>
-    <div class="bg-[#0b1f3b] border border-blue-500/30 rounded-2xl p-4 text-center">
-      <p class="text-xs text-slate-400">إجمالي الأرصدة</p><p id="stat-balance" class="text-2xl font-black text-blue-300">$0</p>
+    <div class="bg-[#0b1f3b] border border-green-500/30 rounded-2xl p-4 text-center">
+      <p class="text-xs text-slate-400">إجمالي الأرصدة</p><p id="stat-balance" class="text-2xl font-black text-green-300">$0</p>
     </div>
   </div>
 
   <!-- تبويبات -->
-  <div class="flex gap-2 mb-4 flex-wrap">
+  <div class="flex gap-2 mb-4 flex-wrap justify-center">
     <button class="tab-btn active" data-tab="users">👥 المستخدمين</button>
     <button class="tab-btn" data-tab="deposits">💰 الإيداعات</button>
     <button class="tab-btn" data-tab="withdrawals">💸 السحوبات</button>
@@ -141,59 +161,33 @@
     <button class="tab-btn" data-tab="analytics">📊 التحليلات</button>
   </div>
 
-  <!-- المحتوى -->
+  <!-- محتوى التبويبات -->
   <div id="tab-users" class="tab-content">
-    <div class="flex gap-2 mb-3">
-      <input type="text" id="userSearch" placeholder="بحث..." class="bg-black/50 border border-blue-500/30 rounded-xl px-3 py-2 text-white w-64" />
-    </div>
-    <div class="table-container">
-      <table>
-        <thead><tr><th>المستخدم</th><th>الاسم</th><th>البريد</th><th>الرصيد</th><th>الأرباح</th><th>الإيداعات</th><th>كود الإحالة</th><th>إجراءات</th></tr></thead>
-        <tbody id="usersBody"></tbody>
-      </table>
-    </div>
+    <div class="flex gap-2 mb-3"><input type="text" id="userSearch" placeholder="بحث..." class="bg-black/50 border border-green-500/30 rounded-xl px-3 py-2 text-white w-full sm:w-64" /></div>
+    <div class="table-container"><table><thead><tr><th>المستخدم</th><th>الاسم</th><th>البريد</th><th>الرصيد</th><th>الأرباح</th><th>الإيداعات</th><th>كود الإحالة</th><th>إجراءات</th></tr></thead><tbody id="usersBody"></tbody></table></div>
   </div>
 
   <div id="tab-deposits" class="tab-content hidden">
-    <div class="table-container">
-      <table>
-        <thead><tr><th>المستخدم</th><th>المبلغ</th><th>رمز المعاملة</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr></thead>
-        <tbody id="depositsBody"></tbody>
-      </table>
-    </div>
+    <div class="table-container"><table><thead><tr><th>المستخدم</th><th>المبلغ</th><th>رمز المعاملة</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="depositsBody"></tbody></table></div>
   </div>
 
   <div id="tab-withdrawals" class="tab-content hidden">
-    <div class="table-container">
-      <table>
-        <thead><tr><th>المستخدم</th><th>المبلغ</th><th>النوع</th><th>المحفظة</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr></thead>
-        <tbody id="withdrawalsBody"></tbody>
-      </table>
-    </div>
+    <div class="table-container"><table><thead><tr><th>المستخدم</th><th>المبلغ</th><th>النوع</th><th>المحفظة</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
   </div>
 
   <div id="tab-tickets" class="tab-content hidden">
-    <div class="table-container">
-      <table>
-        <thead><tr><th>المستخدم</th><th>الموضوع</th><th>الأولوية</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
-        <tbody id="ticketsBody"></tbody>
-      </table>
-    </div>
+    <div class="table-container"><table><thead><tr><th>المستخدم</th><th>الموضوع</th><th>الأولوية</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead><tbody id="ticketsBody"></tbody></table></div>
     <div id="ticketDetailPanel" class="mt-4 p-4 glass-panel hidden"></div>
   </div>
 
   <div id="tab-analytics" class="tab-content hidden">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-[#0b1f3b] border border-blue-500/20 rounded-2xl p-4"><canvas id="userChart"></canvas></div>
-      <div class="bg-[#0b1f3b] border border-blue-500/20 rounded-2xl p-4"><canvas id="depositChart"></canvas></div>
+      <div class="bg-[#0b1f3b] border border-green-500/20 rounded-2xl p-4"><canvas id="userChart"></canvas></div>
+      <div class="bg-[#0b1f3b] border border-green-500/20 rounded-2xl p-4"><canvas id="depositChart"></canvas></div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-      <div class="bg-[#0b1f3b] border border-blue-500/20 rounded-2xl p-4">
-        <h3 class="text-blue-300 font-bold mb-2">أعلى الأرصدة</h3><div id="topBalance"></div>
-      </div>
-      <div class="bg-[#0b1f3b] border border-blue-500/20 rounded-2xl p-4">
-        <h3 class="text-blue-300 font-bold mb-2">أعلى الإحالات</h3><div id="topReferrers"></div>
-      </div>
+      <div class="bg-[#0b1f3b] border border-green-500/20 rounded-2xl p-4"><h3 class="text-green-300 font-bold mb-2">أعلى الأرصدة</h3><div id="topBalance"></div></div>
+      <div class="bg-[#0b1f3b] border border-green-500/20 rounded-2xl p-4"><h3 class="text-green-300 font-bold mb-2">أعلى الإحالات</h3><div id="topReferrers"></div></div>
     </div>
   </div>
 </div>
@@ -206,10 +200,8 @@ document.getElementById('gatewayBtn').addEventListener('click', async () => {
   const pass = document.getElementById('gatewayPass').value;
   try {
     const res = await fetch(API + '/api/auth/verify-admin-gateway', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secretPassword: pass }),
-      credentials: 'include'
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secretPassword: pass }), credentials: 'include'
     });
     const data = await res.json();
     if (data.success) {
@@ -220,9 +212,7 @@ document.getElementById('gatewayBtn').addEventListener('click', async () => {
     } else {
       Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمة المرور غير صحيحة', background: '#071426', color: '#fff' });
     }
-  } catch (e) {
-    Swal.fire({ icon: 'error', title: 'خطأ', text: 'فشل الاتصال', background: '#071426', color: '#fff' });
-  }
+  } catch (e) { Swal.fire({ icon: 'error', title: 'خطأ', text: 'فشل الاتصال', background: '#071426', color: '#fff' }); }
 });
 
 // --- Tabs ---
@@ -282,10 +272,10 @@ function renderUsers(users) {
       <td><strong>${esc(u.username)}</strong></td>
       <td>${esc(u.fullName||'—')}</td>
       <td class="text-xs">${esc(u.email)}</td>
-      <td class="text-blue-300">${Number(u.balance||0).toFixed(2)} $</td>
-      <td class="text-green-400">${Number(u.profit||0).toFixed(2)} $</td>
+      <td class="text-green-300">${Number(u.balance||0).toFixed(2)} $</td>
+      <td class="text-blue-300">${Number(u.profit||0).toFixed(2)} $</td>
       <td>${Number(u.totalDeposits||0).toFixed(2)} $</td>
-      <td class="font-mono text-blue-200 text-xs">${esc(u.referralCode||'—')}</td>
+      <td class="font-mono text-green-200 text-xs">${esc(u.referralCode||'—')}</td>
       <td>
         <button onclick="editBalance('${u.id}','${esc(u.username)}',${Number(u.balance||0)})" class="action-btn btn-view">💰</button>
         <button onclick="resetPw('${u.id}','${esc(u.username)}')" class="action-btn btn-warn">🔑</button>
@@ -301,8 +291,8 @@ function renderDeposits(deposits) {
   tbody.innerHTML = filtered.length ? filtered.map(d => `
     <tr>
       <td>${esc(d.username)}</td>
-      <td class="text-blue-300">${Number(d.amount).toFixed(2)} $</td>
-      <td class="font-mono text-xs text-blue-200">${esc(d.screenshotPath || '—')}</td>
+      <td class="text-green-300">${Number(d.amount).toFixed(2)} $</td>
+      <td class="font-mono text-xs text-green-200">${esc(d.screenshotPath || '—')}</td>
       <td>${new Date(d.date).toLocaleString()}</td>
       <td><span class="badge badge-pending">معلق</span></td>
       <td>
@@ -364,7 +354,7 @@ function renderStats(users, deposits, withdrawals) {
 window.editBalance = async (userId, username, currentBalance) => {
   const { value: newBal } = await Swal.fire({
     title: `تعديل رصيد ${username}`, input: 'number', inputValue: currentBalance,
-    showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#3b6cc2'
+    showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#3ca374'
   });
   if (!newBal) return;
   await api(API + '/api/admin/set-user-balance', {
@@ -377,7 +367,7 @@ window.editBalance = async (userId, username, currentBalance) => {
 window.resetPw = async (userId, username) => {
   const { value: pass } = await Swal.fire({
     title: `كلمة مرور جديدة لـ ${username}`, input: 'password', inputPlaceholder: 'الكلمة الجديدة',
-    showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#3b6cc2'
+    showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#3ca374'
   });
   if (!pass) return;
   await api(API + '/api/admin/reset-user-password', {
@@ -390,7 +380,7 @@ window.resetPw = async (userId, username) => {
 window.handleDeposit = async (id, action) => {
   const confirm = await Swal.fire({
     title: 'تأكيد', text: `هل تريد ${action==='approve'?'قبول':'رفض'} الإيداع؟`,
-    icon: 'warning', showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#3b6cc2'
+    icon: 'warning', showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#3ca374'
   });
   if (!confirm.isConfirmed) return;
   await api(`${API}/api/admin/deposits/${id}/${action}`, { method: 'POST' });
@@ -400,7 +390,7 @@ window.handleDeposit = async (id, action) => {
 window.handleWithdrawal = async (id, action) => {
   const confirm = await Swal.fire({
     title: 'تأكيد', text: `هل تريد ${action==='approve'?'قبول':'رفض'} السحب؟`,
-    icon: 'warning', showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#3b6cc2'
+    icon: 'warning', showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#3ca374'
   });
   if (!confirm.isConfirmed) return;
   await api(`${API}/api/admin/withdrawals/${id}/${action}`, { method: 'POST' });
@@ -413,13 +403,13 @@ window.viewTicket = async (ticketId) => {
   const panel = document.getElementById('ticketDetailPanel');
   panel.classList.remove('hidden');
   panel.innerHTML = `
-    <h3 class="text-lg font-bold text-blue-300 mb-2">${esc(data.ticket.subject)}</h3>
+    <h3 class="text-lg font-bold text-green-300 mb-2">${esc(data.ticket.subject)}</h3>
     <p class="text-slate-300 mb-1">${esc(data.ticket.message)}</p>
     <div class="text-xs text-slate-500 mb-4">${new Date(data.ticket.createdAt).toLocaleString()} | ${data.ticket.status}</div>
     <div class="space-y-2">${data.replies.map(r => `<div class="bg-black/20 p-2 rounded-lg"><strong>${esc(r.username)}:</strong> ${esc(r.message)}</div>`).join('')}</div>
     <div class="mt-4 flex gap-2">
-      <input type="text" id="replyInput" class="bg-black/50 border border-blue-500/30 rounded-lg p-2 flex-1 text-white" placeholder="اكتب رداً...">
-      <button onclick="replyTicket('${ticketId}')" class="btn-blue">رد</button>
+      <input type="text" id="replyInput" class="bg-black/50 border border-green-500/30 rounded-lg p-2 flex-1 text-white" placeholder="اكتب رداً...">
+      <button onclick="replyTicket('${ticketId}')" class="btn-green">رد</button>
       <button onclick="closeTicket('${ticketId}')" class="bg-gray-600 px-4 py-2 rounded-lg text-white">إغلاق</button>
     </div>
   `;
@@ -452,7 +442,7 @@ function loadAnalyticsChart(data) {
   if (charts.dep) charts.dep.destroy();
   if (data.userGrowth?.length) {
     charts.user = new Chart(document.getElementById('userChart'), {
-      type: 'line', data: { labels: data.userGrowth.map(d=>d.date), datasets: [{ label: 'مستخدمين جدد', data: data.userGrowth.map(d=>d.count), borderColor: '#3b6cc2' }] }
+      type: 'line', data: { labels: data.userGrowth.map(d=>d.date), datasets: [{ label: 'مستخدمين جدد', data: data.userGrowth.map(d=>d.count), borderColor: '#3ca374' }] }
     });
   }
   if (data.dailyDeposits?.length) {
@@ -460,8 +450,8 @@ function loadAnalyticsChart(data) {
       type: 'bar', data: { labels: data.dailyDeposits.map(d=>d.date), datasets: [{ label: 'إيداعات ($)', data: data.dailyDeposits.map(d=>d.total), backgroundColor: '#2a5298' }] }
     });
   }
-  document.getElementById('topBalance').innerHTML = (data.topBalanceUsers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-blue-300">${Number(u.balance)} $</span></div>`).join('');
-  document.getElementById('topReferrers').innerHTML = (data.topReferrers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-blue-300">${u.referralCount} مدعو</span></div>`).join('');
+  document.getElementById('topBalance').innerHTML = (data.topBalanceUsers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-green-300">${Number(u.balance)} $</span></div>`).join('');
+  document.getElementById('topReferrers').innerHTML = (data.topReferrers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-green-300">${u.referralCount} مدعو</span></div>`).join('');
 }
 
 async function loadAnalytics() {
@@ -499,7 +489,7 @@ function initSocket() {
 }
 
 function logout() {
-  Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#3b6cc2', background: '#071426', color: '#fff' }).then(r => {
+  Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#3ca374', background: '#071426', color: '#fff' }).then(r => {
     if (r.isConfirmed) {
       fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).finally(() => window.location.href = 'admin.html');
     }
