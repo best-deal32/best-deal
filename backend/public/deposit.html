@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>إيداع | Vivor</title>
+    <title>إيداع | Fargo</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -15,14 +15,10 @@
         
         :root {
             --bg-deep: #040b14;
-            --blue-mid: #1a3a6b;
-            --blue-light: #2a5298;
-            --blue-accent: #3b6cc2;
-            --green-mid: #1a5c3a;
-            --green-light: #2d8a4e;
-            --green-accent: #3ca374;
-            --red-accent: #c0392b;
-            --red-light: #e74c3c;
+            --red-dark: #800000;
+            --red-mid: #a00000;
+            --red-light: #c00000;
+            --red-accent: #ff3333;
             --text-primary: #e0e6f0;
             --text-dim: #99a8c0;
         }
@@ -35,7 +31,7 @@
         }
 
         body {
-            background: radial-gradient(ellipse at top, #0a1628 0%, var(--bg-deep) 70%);
+            background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
             min-height: 100vh;
             padding: 1.5rem;
@@ -48,16 +44,16 @@
         }
 
         .glass-card {
-            background: rgba(11, 31, 59, 0.8);
+            background: rgba(20, 5, 5, 0.8);
             backdrop-filter: blur(18px);
-            border: 1px solid rgba(60, 163, 116, 0.35);
+            border: 1px solid rgba(255, 51, 51, 0.35);
             border-radius: 2.5rem;
             padding: 2.5rem 2rem;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .btn-green {
-            background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-light) 100%);
+        .btn-red {
+            background: linear-gradient(135deg, var(--red-mid) 0%, var(--red-light) 100%);
             color: #fff;
             font-weight: 800;
             border-radius: 1.25rem;
@@ -65,30 +61,30 @@
             transition: all 0.3s ease;
             cursor: pointer;
             border: none;
-            box-shadow: 0 10px 25px rgba(26, 92, 58, 0.5);
+            box-shadow: 0 10px 25px rgba(160, 0, 0, 0.5);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
         }
 
-        .btn-green:hover {
-            background: linear-gradient(135deg, #1e6e3e 0%, #35a051 100%);
+        .btn-red:hover {
+            background: linear-gradient(135deg, #880000 0%, #b00000 100%);
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(45, 138, 78, 0.6);
+            box-shadow: 0 15px 30px rgba(192, 0, 0, 0.6);
         }
 
-        .btn-green:disabled {
+        .btn-red:disabled {
             background: #1e2a3a;
             color: #5a6a7a;
             cursor: not-allowed;
             box-shadow: none;
         }
 
-        .btn-outline-green {
+        .btn-outline-red {
             background: transparent;
-            border: 1.5px solid var(--green-accent);
-            color: var(--green-accent);
+            border: 1.5px solid var(--red-accent);
+            color: var(--red-accent);
             font-weight: 700;
             padding: 0.5rem 1.2rem;
             border-radius: 1.5rem;
@@ -97,23 +93,23 @@
             font-size: 0.85rem;
         }
 
-        .btn-outline-green:hover {
-            background: rgba(60, 163, 116, 0.12);
+        .btn-outline-red:hover {
+            background: rgba(255, 51, 51, 0.12);
         }
 
-        .dragon-icon {
+        .shield-icon {
             font-size: 2.2rem;
-            color: var(--green-accent);
-            filter: drop-shadow(0 0 12px rgba(60, 163, 116, 0.6));
+            color: var(--red-accent);
+            filter: drop-shadow(0 0 12px rgba(255, 51, 51, 0.6));
         }
 
         .lang-selector {
-            background: rgba(11, 31, 59, 0.65);
+            background: rgba(20, 5, 5, 0.65);
             border-radius: 3rem;
             padding: 0.3rem;
             display: inline-flex;
             gap: 0.2rem;
-            border: 1px solid rgba(60, 163, 116, 0.3);
+            border: 1px solid rgba(255, 51, 51, 0.3);
         }
 
         .lang-option {
@@ -127,19 +123,19 @@
         }
 
         .lang-option.active {
-            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
             color: #fff;
-            box-shadow: 0 0 15px rgba(45, 138, 78, 0.4);
+            box-shadow: 0 0 15px rgba(192, 0, 0, 0.4);
         }
 
         .lang-option:hover:not(.active) {
-            background: rgba(60, 163, 116, 0.15);
+            background: rgba(255, 51, 51, 0.15);
             color: #fff;
         }
 
         .wallet-box {
             background: rgba(0,0,0,0.35);
-            border: 1px dashed rgba(60, 163, 116, 0.4);
+            border: 1px dashed rgba(255, 51, 51, 0.4);
             border-radius: 1.2rem;
             padding: 1.2rem;
             text-align: center;
@@ -150,7 +146,7 @@
             font-family: monospace;
             font-size: 1rem;
             word-break: break-all;
-            color: var(--green-accent);
+            color: var(--red-accent);
             font-weight: 700;
             direction: ltr;
             text-align: center;
@@ -165,14 +161,14 @@
             margin-bottom: 0.5rem;
             font-size: 0.8rem;
             font-weight: 700;
-            color: #93b4f5;
+            color: #ff9999;
         }
 
         .input-field {
             width: 100%;
             padding: 0.95rem 1.2rem;
             background: rgba(4,11,20,0.7);
-            border: 1.5px solid rgba(60, 163, 116, 0.35);
+            border: 1.5px solid rgba(255, 51, 51, 0.35);
             border-radius: 1rem;
             color: #fff;
             font-weight: 600;
@@ -182,18 +178,18 @@
         }
 
         .input-field:focus {
-            border-color: var(--green-accent);
-            box-shadow: 0 0 15px rgba(60, 163, 116, 0.2);
+            border-color: var(--red-accent);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.2);
         }
 
         .warning-box {
-            background: rgba(231, 76, 60, 0.08);
-            border: 1px solid rgba(231, 76, 60, 0.3);
+            background: rgba(255, 51, 51, 0.08);
+            border: 1px solid rgba(255, 51, 51, 0.3);
             border-radius: 1rem;
             padding: 0.8rem;
             margin-bottom: 1.8rem;
             font-size: 0.8rem;
-            color: #f87171;
+            color: #ff6666;
         }
 
         .back-btn {
@@ -204,7 +200,7 @@
         }
 
         .back-btn:hover {
-            color: var(--green-accent);
+            color: var(--red-accent);
         }
 
         @media (max-width: 500px) {
@@ -227,8 +223,8 @@
                 <i class="fa-solid fa-arrow-right ml-2"></i> العودة للوحة التحكم
             </button>
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-dragon dragon-icon"></i>
-                <span class="text-xl font-black text-white italic tracking-wide">VIVOR</span>
+                <i class="fa-solid fa-shield-halved shield-icon"></i>
+                <span class="text-xl font-black text-white italic tracking-wide">FARGO</span>
             </div>
             <div class="lang-selector">
                 <div class="lang-option active" data-lang="ar">العربية</div>
@@ -239,14 +235,14 @@
         </div>
 
         <div class="glass-card">
-            <h1 class="text-2xl font-black text-center text-green-300 mb-2">إيداع جديد</h1>
+            <h1 class="text-2xl font-black text-center text-red-300 mb-2">إيداع جديد</h1>
             <p class="text-sm text-slate-400 text-center mb-6">قم بتحويل المبلغ إلى المحفظة أدناه ثم أدخل رمز المعاملة</p>
 
             <!-- عنوان المحفظة -->
             <div class="wallet-box">
                 <p class="text-xs text-slate-400 mb-2 font-bold uppercase">عنوان محفظة الإيداع (USDT)</p>
                 <p id="admin-wallet" class="address select-all">0x7c487888402cC1e77E61eDf48BD20aa939624360</p>
-                <button onclick="copyWallet()" class="btn-outline-green mt-3">
+                <button onclick="copyWallet()" class="btn-outline-red mt-3">
                     <i class="fa-regular fa-copy ml-1"></i> نسخ العنوان
                 </button>
             </div>
@@ -270,7 +266,7 @@
             </div>
 
             <!-- زر التأكيد -->
-            <button onclick="submitDeposit()" id="submit-btn" class="btn-green w-full py-4 text-lg">
+            <button onclick="submitDeposit()" id="submit-btn" class="btn-red w-full py-4 text-lg">
                 <i class="fa-solid fa-paper-plane"></i> تأكيد الإيداع الآن
             </button>
         </div>
@@ -368,7 +364,7 @@
                         text: data.message,
                         showConfirmButton: false,
                         timer: 5000,
-                        background: '#071426',
+                        background: '#1a0000',
                         color: '#fff'
                     });
                 });
@@ -412,9 +408,9 @@
                     title: translations[currentLang]?.unauthorized || 'غير مصرح',
                     text: translations[currentLang]?.login_required_deposit || 'الرجاء تسجيل الدخول أولاً للوصول إلى صفحة الإيداع',
                     icon: 'warning',
-                    background: '#071426',
+                    background: '#1a0000',
                     color: '#fff',
-                    confirmButtonColor: '#3ca374'
+                    confirmButtonColor: '#ff3333'
                 }).then(() => {
                     window.location.href = 'login.html';
                 });
@@ -435,7 +431,7 @@
                     title: translations[currentLang]?.copied || 'تم نسخ العنوان بنجاح',
                     showConfirmButton: false,
                     timer: 2000,
-                    background: '#071426',
+                    background: '#1a0000',
                     color: '#fff'
                 });
             }).catch(() => {
@@ -486,8 +482,8 @@
                         title: translations[currentLang]?.success_title || 'تم الإرسال بنجاح!',
                         text: data.message || (translations[currentLang]?.deposit_success_message || 'سيقوم الأدمن بمراجعة طلبك قريباً. ستتلقى إشعاراً عند الموافقة.'),
                         icon: 'success',
-                        confirmButtonColor: '#3ca374',
-                        background: '#071426',
+                        confirmButtonColor: '#ff3333',
+                        background: '#1a0000',
                         color: '#fff'
                     }).then(() => {
                         window.location.href = 'dashboard.html';
