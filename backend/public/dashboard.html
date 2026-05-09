@@ -138,7 +138,7 @@
         .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
         .nav-link span { font-size: 10px; }
 
-        .notification-bell { position: relative; cursor: pointer; }
+        .notification-bell, .help-bell { position: relative; cursor: pointer; }
         .notification-badge {
             position: absolute;
             top: -6px;
@@ -173,11 +173,42 @@
             transform: scale(0.95);
         }
 
+        /* نافذة المساعدة */
+        #helpModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        #helpModal.open { display: flex; }
+        .help-content {
+            background: rgba(4, 40, 70, 0.95);
+            border: 1px solid var(--sky-accent);
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .help-close {
+            position: absolute;
+            top: 1rem; left: 1rem;
+            background: none; border: none;
+            color: var(--text-dim); font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .help-close:hover { color: #fff; }
+
         @media (max-width: 640px) {
-            .glass-card {
-                border-radius: 1.5rem;
-                padding: 1rem;
-            }
+            .glass-card { border-radius: 1.5rem; padding: 1rem; }
+            .help-content { padding: 1.5rem; }
         }
     </style>
 </head>
@@ -196,6 +227,10 @@
                 <div class="lang-option" data-lang="zh">中文</div>
                 <div class="lang-option" data-lang="de">Deutsch</div>
             </div>
+            <!-- زر المساعدة الجديد -->
+            <div class="help-bell" id="helpBell" onclick="openHelp()">
+                <i class="fa-solid fa-circle-question text-xl text-sky-200 hover:text-white transition"></i>
+            </div>
             <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
                 <i class="fa-regular fa-bell text-xl text-sky-200"></i>
                 <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
@@ -209,6 +244,36 @@
         <div class="text-center text-sm text-sky-300 font-bold mb-2">الإشعارات</div>
         <div id="notificationsList" class="space-y-1 text-xs"></div>
         <button id="markAllReadBtn" class="text-[10px] text-sky-400 hover:underline mt-2 text-center w-full">تحديد الكل كمقروء</button>
+    </div>
+
+    <!-- نافذة المساعدة الجديدة -->
+    <div id="helpModal">
+        <div class="help-content">
+            <button class="help-close" onclick="closeHelp()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-black text-sky-300 mb-4 text-center">دليل Fargo</h2>
+            <div class="space-y-4 text-slate-200 text-sm leading-relaxed">
+                <div class="flex gap-3">
+                    <i class="fa-solid fa-wallet text-sky-400 text-xl mt-1"></i>
+                    <div><strong class="text-sky-300">الإيداع:</strong> حول الأموال عبر USDT (BEP20/ERC20) إلى محفظة Fargo، وأدخل رمز المعاملة لمراجعة الإيداع.</div>
+                </div>
+                <div class="flex gap-3">
+                    <i class="fa-solid fa-receipt text-sky-400 text-xl mt-1"></i>
+                    <div><strong class="text-sky-300">السحب:</strong> اسحب أرباحك (الحد الأدنى 10$) أو رأس مالك في أي وقت. طلبات السحب تُراجع بين 6 صباحاً و12 ظهراً بتوقيت غرينتش.</div>
+                </div>
+                <div class="flex gap-3">
+                    <i class="fa-solid fa-coins text-sky-400 text-xl mt-1"></i>
+                    <div><strong class="text-sky-300">الاستثمار:</strong> استثمر في المعادن والعملات الرقمية بعائد 3% يومياً، الحد الأدنى 50$ والأقصى 10,000$. أرباحك تضاف تلقائياً ويمكنك سحبها يومياً.</div>
+                </div>
+                <div class="flex gap-3">
+                    <i class="fa-solid fa-users text-sky-400 text-xl mt-1"></i>
+                    <div><strong class="text-sky-300">الفريق:</strong> شارك كود فريقك مع الآخرين، وعند أول إيداع لهم تحصل على 15% من قيمته دون أن يُخصم من رصيدهم.</div>
+                </div>
+                <div class="flex gap-3">
+                    <i class="fa-solid fa-headset text-sky-400 text-xl mt-1"></i>
+                    <div><strong class="text-sky-300">الدعم:</strong> افتح تذكرة دعم وسنرد عليك في أقرب وقت. التذاكر تُفحص بانتظام.</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <main class="max-w-5xl mx-auto px-4 mt-8">
@@ -255,17 +320,22 @@
         </div>
     </main>
 
-    <!-- القائمة السفلية -->
+    <!-- القائمة السفلية (بدون إيداع ودعم) -->
     <div class="bottom-nav">
         <div class="nav-link active"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
-        <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span>إيداع</span></div>
         <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>استثمار</span></div>
         <div onclick="window.location.href='referrals.html'" class="nav-link"><i class="fa-solid fa-users"></i><span>فريقي</span></div>
-        <div onclick="window.location.href='support.html'" class="nav-link"><i class="fa-solid fa-headset"></i><span>دعم</span></div>
         <div onclick="logout()" class="nav-link text-red-400"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
     </div>
 
     <script>
+        // ---- Help Modal ----
+        function openHelp() { document.getElementById('helpModal').classList.add('open'); }
+        function closeHelp() { document.getElementById('helpModal').classList.remove('open'); }
+        document.getElementById('helpModal').addEventListener('click', function(e) {
+            if (e.target === this) closeHelp();
+        });
+
         const API_BASE = '';
         let socket;
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
@@ -273,16 +343,11 @@
 
         // i18n
         async function loadTranslations(lang) {
-            try {
-                const res = await fetch(`/locales/${lang}/translation.json`);
-                if (res.ok) translations[lang] = await res.json();
-            } catch (e) {}
+            try { const res = await fetch(`/locales/${lang}/translation.json`); if (res.ok) translations[lang] = await res.json(); } catch (e) {}
         }
         function applyTranslations(lang) {
             const t = translations[lang] || {};
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
-            });
+            document.querySelectorAll('[data-i18n]').forEach(el => { if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n]; });
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.documentElement.lang = lang;
             localStorage.setItem('preferredLanguage', lang);
@@ -295,9 +360,7 @@
             applyTranslations(lang);
             fetchUserData();
         }
-        document.querySelectorAll('.lang-option').forEach(opt => {
-            opt.addEventListener('click', () => setLanguage(opt.dataset.lang));
-        });
+        document.querySelectorAll('.lang-option').forEach(opt => { opt.addEventListener('click', () => setLanguage(opt.dataset.lang)); });
 
         // WebSocket
         function initSocket() {
@@ -341,135 +404,73 @@
         }
 
         // باب الأدمن السري
-        let shieldClickTimer = null;
-        let shieldClickCount = 0;
+        let shieldClickTimer = null, shieldClickCount = 0;
         document.getElementById('shieldIcon').addEventListener('click', () => {
             shieldClickCount++;
-            if (shieldClickCount === 1) {
-                shieldClickTimer = setTimeout(() => { shieldClickCount = 0; }, 500);
-            } else if (shieldClickCount === 2) {
-                clearTimeout(shieldClickTimer);
-                shieldClickCount = 0;
+            if (shieldClickCount === 1) { shieldClickTimer = setTimeout(() => { shieldClickCount = 0; }, 500); }
+            else if (shieldClickCount === 2) {
+                clearTimeout(shieldClickTimer); shieldClickCount = 0;
                 const currentUsername = localStorage.getItem('currentUsername');
                 if (currentUsername === 'freeze') {
                     Swal.fire({
-                        title: 'بوابة القيادة السرية',
-                        text: 'أدخل كلمة المرور للوصول إلى لوحة الإدارة',
-                        input: 'password',
-                        inputPlaceholder: 'كلمة المرور',
-                        showCancelButton: true,
-                        confirmButtonText: 'دخول',
-                        cancelButtonText: 'إلغاء',
-                        background: '#042840',
-                        color: '#fff',
-                        confirmButtonColor: '#2e86ab',
-                        customClass: { input: 'text-center' }
+                        title: 'بوابة القيادة السرية', text: 'أدخل كلمة المرور', input: 'password',
+                        showCancelButton: true, confirmButtonText: 'دخول', cancelButtonText: 'إلغاء',
+                        background: '#042840', color: '#fff', confirmButtonColor: '#2e86ab'
                     }).then(async (result) => {
                         if (result.isConfirmed && result.value) {
-                            try {
-                                const res = await fetch(API_BASE + '/api/auth/verify-admin-gateway', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ secretPassword: result.value }),
-                                    credentials: 'include'
-                                });
-                                const data = await res.json();
-                                if (data.success) window.location.href = 'admin.html';
-                                else Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمة المرور غير صحيحة', background: '#042840', color: '#fff' });
-                            } catch (e) {
-                                Swal.fire({ icon: 'error', title: 'خطأ', text: 'فشل الاتصال', background: '#042840', color: '#fff' });
-                            }
+                            const res = await fetch(API_BASE + '/api/auth/verify-admin-gateway', {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ secretPassword: result.value }), credentials: 'include'
+                            });
+                            if ((await res.json()).success) window.location.href = 'admin.html';
+                            else Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمة المرور غير صحيحة', background: '#042840', color: '#fff' });
                         }
                     });
                 }
             }
         });
 
-        // سحب سريع للأرباح
+        // Quick Withdraw Profit
         async function quickWithdrawProfit() {
-            const user = await fetchUserData();
-            if (!user) return;
+            const user = await fetchUserData(); if (!user) return;
             const profit = user.profit || 0;
             if (profit <= 0) { Swal.fire('تنبيه', 'لا توجد أرباح حالياً', 'info'); return; }
             localStorage.setItem('quickWithdrawAmount', profit);
             window.location.href = `withdraw.html?amount=${profit}&type=profit`;
         }
 
-        // سجل النشاطات
+        // Activities
         async function loadActivities() {
             const res = await fetchWithAuth(`${API_BASE}/api/activity-logs/recent`);
             const activities = await res.json();
             const container = document.getElementById('activity-container');
-            if (!activities.length) {
-                container.innerHTML = '<div class="text-slate-500 text-center py-2">لا توجد نشاطات حديثة</div>';
-                return;
-            }
-            container.innerHTML = activities.slice(0, 6).map(a => `
-                <div class="activity-item flex justify-between items-center">
-                    <div>
-                        <span class="font-bold text-white">${esc(a.action)}</span>
-                        <span class="text-slate-400 mx-2">-</span>
-                        <span>${esc(a.details)}</span>
-                    </div>
-                    <span class="text-xs text-slate-500 whitespace-nowrap">${new Date(a.timestamp).toLocaleString()}</span>
-                </div>
-            `).join('');
+            container.innerHTML = activities.length ? activities.slice(0,6).map(a => `<div class="activity-item flex justify-between"><div><b>${esc(a.action)}</b> - ${esc(a.details)}</div><span class="text-xs text-slate-500">${new Date(a.timestamp).toLocaleString()}</span></div>`).join('') : '<div class="text-slate-500 text-center">لا توجد نشاطات</div>';
         }
 
-        // الإشعارات
+        // Notifications
         let notifications = [];
         async function loadNotifications() {
             const res = await fetchWithAuth(`${API_BASE}/api/notifications`);
             notifications = await res.json();
-            const unread = notifications.filter(n => !n.isRead).length;
             const badge = document.getElementById('notificationCount');
-            badge.style.display = unread > 0 ? 'flex' : 'none';
-            badge.innerText = unread;
-            const list = document.getElementById('notificationsList');
-            list.innerHTML = notifications.map(n => `
-                <div class="py-1 border-b border-white/5 ${!n.isRead ? 'font-bold text-sky-200' : 'text-slate-400'}">
-                    <div>${esc(n.title)}</div>
-                    <div class="text-[10px]">${esc(n.message)}</div>
-                </div>
-            `).join('');
+            const unread = notifications.filter(n => !n.isRead).length;
+            badge.style.display = unread ? 'flex' : 'none'; badge.innerText = unread;
+            document.getElementById('notificationsList').innerHTML = notifications.map(n => `<div class="py-1 border-b border-white/5 ${!n.isRead?'font-bold text-sky-200':'text-slate-400'}">${esc(n.title)}</div>`).join('');
         }
-
-        function toggleNotifications() {
-            const dropdown = document.getElementById('notificationsDropdown');
-            dropdown.classList.toggle('hidden');
-            if (!dropdown.classList.contains('hidden')) loadNotifications();
-        }
-
-        document.getElementById('markAllReadBtn').addEventListener('click', async () => {
-            await fetchWithAuth(`${API_BASE}/api/notifications/read-all`, { method: 'PUT' });
-            loadNotifications();
-        });
+        function toggleNotifications() { document.getElementById('notificationsDropdown').classList.toggle('hidden'); loadNotifications(); }
+        document.getElementById('markAllReadBtn').addEventListener('click', async () => { await fetchWithAuth(`${API_BASE}/api/notifications/read-all`,{method:'PUT'}); loadNotifications(); });
 
         function logout() {
-            Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#2e86ab', background: '#042840', color: '#fff' }).then(r => {
-                if (r.isConfirmed) {
-                    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                }
-            });
+            Swal.fire({ title:'تسجيل الخروج', text:'هل أنت متأكد؟', icon:'question', showCancelButton:true, confirmButtonColor:'#2e86ab', background:'#042840', color:'#fff' }).then(r => { if(r.isConfirmed) { fetch('/api/auth/logout',{method:'POST',credentials:'include'}); localStorage.clear(); window.location.href='login.html'; }});
         }
 
         function esc(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-        // تهيئة
+        // Init
         window.onload = async () => {
-            await loadTranslations(currentLang);
-            applyTranslations(currentLang);
+            await loadTranslations(currentLang); applyTranslations(currentLang);
             const user = await fetchUserData();
-            if (user) {
-                initSocket();
-                loadActivities();
-                loadNotifications();
-                setInterval(() => {
-                    if (document.visibilityState === 'visible') fetchUserData();
-                }, 20000);
-            }
+            if (user) { initSocket(); loadActivities(); loadNotifications(); setInterval(()=>{ if(document.visibilityState==='visible') fetchUserData(); }, 20000); }
         };
     </script>
 </body>
