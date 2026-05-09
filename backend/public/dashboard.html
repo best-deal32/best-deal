@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>لوحة التحكم | Fargo</title>
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a3d62">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -14,18 +18,18 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
         :root {
-            --bg-deep: #040b14;
-            --red-dark: #800000;
-            --red-mid: #a00000;
-            --red-light: #c00000;
-            --red-accent: #ff3333;
-            --text-primary: #e0e6f0;
-            --text-dim: #99a8c0;
+            --bg-deep: #021a2b;
+            --sky-dark: #0a3d62;
+            --sky-mid: #1e6b8a;
+            --sky-light: #2e86ab;
+            --sky-accent: #45b3e0;
+            --text-primary: #e6f7ff;
+            --text-dim: #b0d4e8;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
+            background: radial-gradient(ellipse at top, #022c43 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
             margin: 0;
             padding: 0;
@@ -34,16 +38,16 @@
         }
 
         .glass-card {
-            background: rgba(20, 5, 5, 0.8);
+            background: rgba(4, 40, 70, 0.8);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 51, 51, 0.3);
+            border: 1px solid rgba(69, 179, 224, 0.3);
             border-radius: 2rem;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
             transition: all 0.3s ease;
         }
 
-        .btn-red {
-            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
+        .btn-sky {
+            background: linear-gradient(135deg, var(--sky-mid), var(--sky-light));
             color: #fff;
             font-weight: 800;
             border-radius: 1.2rem;
@@ -56,15 +60,15 @@
             gap: 0.5rem;
         }
 
-        .btn-red:hover {
-            background: linear-gradient(135deg, #880000, #b00000);
+        .btn-sky:hover {
+            background: linear-gradient(135deg, #1a5670, #2e86ab);
             transform: translateY(-2px);
         }
 
-        .btn-outline-red {
+        .btn-outline-sky {
             background: transparent;
-            border: 2px solid var(--red-accent);
-            color: var(--red-accent);
+            border: 2px solid var(--sky-accent);
+            color: var(--sky-accent);
             font-weight: 800;
             border-radius: 1.2rem;
             padding: 0.7rem 1.5rem;
@@ -72,31 +76,31 @@
             cursor: pointer;
         }
 
-        .btn-outline-red:hover {
-            background: rgba(255, 51, 51, 0.15);
+        .btn-outline-sky:hover {
+            background: rgba(69, 179, 224, 0.15);
             color: #fff;
         }
 
         .balance-value {
             font-size: clamp(2rem, 8vw, 3rem);
             font-weight: 900;
-            color: var(--red-accent);
-            text-shadow: 0 0 20px rgba(255, 51, 51, 0.6);
+            color: var(--sky-accent);
+            text-shadow: 0 0 20px rgba(69, 179, 224, 0.6);
         }
 
         .stat-value {
             font-size: 1.8rem;
             font-weight: 900;
-            color: var(--red-accent);
+            color: var(--sky-accent);
         }
 
         .lang-selector {
-            background: rgba(11,31,59,0.7);
+            background: rgba(4,40,70,0.7);
             border-radius: 3rem;
             padding: 0.3rem;
             display: inline-flex;
             gap: 0.2rem;
-            border: 1px solid rgba(255, 51, 51, 0.3);
+            border: 1px solid rgba(69, 179, 224, 0.3);
         }
         .lang-option {
             padding: 0.4rem 0.9rem;
@@ -108,7 +112,7 @@
             color: var(--text-dim);
         }
         .lang-option.active {
-            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
+            background: linear-gradient(135deg, var(--sky-mid), var(--sky-light));
             color: #fff;
         }
 
@@ -117,8 +121,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(7,20,38,0.96);
-            border-top: 1px solid rgba(255, 51, 51, 0.3);
+            background: rgba(2, 26, 43, 0.96);
+            border-top: 1px solid rgba(69, 179, 224, 0.3);
             display: flex;
             justify-content: space-around;
             padding: 12px 0;
@@ -134,7 +138,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .nav-link.active { color: var(--red-accent); }
+        .nav-link.active { color: var(--sky-accent); }
         .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
         .nav-link span { font-size: 10px; }
 
@@ -155,8 +159,8 @@
         }
 
         .activity-item {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
             border-radius: 1.2rem;
             transition: 0.2s;
             padding: 1rem;
@@ -165,13 +169,23 @@
             background: rgba(255,255,255,0.06);
         }
 
-        /* أيقونة الدرع قابلة للضغط */
-        .shield-icon {
+        .install-btn {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            color: #000;
+            font-weight: 900;
+            border-radius: 2rem;
+            padding: 0.6rem 1.5rem;
+            transition: 0.3s;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
         }
-        .shield-icon:active {
-            transform: scale(0.95);
+        .install-btn:hover {
+            transform: scale(1.03);
+            filter: brightness(1.1);
         }
 
         @media (max-width: 640px) {
@@ -185,9 +199,9 @@
 <body class="pb-28">
 
     <!-- شريط علوي محسّن -->
-    <header class="px-5 py-4 flex justify-between items-center border-b border-[#c00000]/30 bg-[#040b14]/60 backdrop-blur-md sticky top-0 z-50">
+    <header class="px-5 py-4 flex justify-between items-center border-b border-[#2e86ab]/30 bg-[#021a2b]/80 backdrop-blur-md sticky top-0 z-50">
         <div class="flex items-center gap-3">
-            <i id="shieldIcon" class="fa-solid fa-shield-halved text-3xl text-red-400 drop-shadow-xl shield-icon"></i>
+            <i class="fa-solid fa-shield-halved text-3xl text-sky-400 drop-shadow-xl"></i>
             <span class="text-xl font-black text-white italic tracking-wide hidden sm:inline">FARGO</span>
         </div>
         <div class="flex items-center gap-3">
@@ -198,29 +212,30 @@
                 <div class="lang-option" data-lang="de">Deutsch</div>
             </div>
             <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
-                <i class="fa-regular fa-bell text-xl text-red-200"></i>
+                <i class="fa-regular fa-bell text-xl text-sky-200"></i>
                 <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
             </div>
-            <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-red-400" src="" alt="Avatar">
+            <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-sky-400" src="" alt="Avatar">
         </div>
     </header>
 
     <!-- لوحة الإشعارات المنسدلة -->
-    <div id="notificationsDropdown" class="fixed top-16 left-4 w-72 max-h-80 overflow-y-auto bg-[#1a0000] border border-red-500/30 rounded-2xl shadow-2xl z-50 hidden p-2">
-        <div class="text-center text-sm text-red-300 font-bold mb-2">الإشعارات</div>
+    <div id="notificationsDropdown" class="fixed top-16 left-4 w-72 max-h-80 overflow-y-auto bg-[#042840] border border-sky-500/30 rounded-2xl shadow-2xl z-50 hidden p-2">
+        <div class="text-center text-sm text-sky-300 font-bold mb-2">الإشعارات</div>
         <div id="notificationsList" class="space-y-1 text-xs"></div>
-        <button id="markAllReadBtn" class="text-[10px] text-red-400 hover:underline mt-2 text-center w-full">تحديد الكل كمقروء</button>
+        <button id="markAllReadBtn" class="text-[10px] text-sky-400 hover:underline mt-2 text-center w-full">تحديد الكل كمقروء</button>
     </div>
 
     <main class="max-w-5xl mx-auto px-4 mt-8">
         <!-- بطاقة الترحيب والرصيد -->
         <div class="glass-card p-6 mb-6 text-center">
-            <h2 class="text-lg font-bold text-slate-300">مرحباً <span id="welcome-name" class="text-red-300">.......</span></h2>
+            <h2 class="text-lg font-bold text-slate-200">مرحباً <span id="welcome-name" class="text-sky-300">.......</span></h2>
             <div class="balance-value mt-3" id="user-balance">$0.00</div>
             <p class="text-xs text-slate-400 mt-1">الرصيد المتاح للسحب</p>
             <div class="flex flex-wrap gap-4 justify-center mt-5">
-                <button onclick="window.location.href='deposit.html'" class="btn-red"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
-                <button onclick="window.location.href='withdraw.html'" class="btn-outline-red"><i class="fa-solid fa-receipt"></i> سحب</button>
+                <button onclick="window.location.href='deposit.html'" class="btn-sky"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
+                <button onclick="window.location.href='withdraw.html'" class="btn-outline-sky"><i class="fa-solid fa-receipt"></i> سحب</button>
+                <button id="installButton" class="install-btn hidden"><i class="fa-solid fa-download"></i> تثبيت التطبيق</button>
                 <button onclick="window.location.href='support.html'" class="bg-white/10 text-white font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur-sm"><i class="fa-solid fa-headset"></i> الدعم</button>
             </div>
         </div>
@@ -231,36 +246,36 @@
             <div class="glass-card p-5 flex flex-col justify-between text-center">
                 <div class="flex justify-center items-center gap-2">
                     <span class="text-sm text-slate-400">الأرباح الصافية</span>
-                    <i class="fa-solid fa-chart-line text-red-400"></i>
+                    <i class="fa-solid fa-chart-line text-sky-400"></i>
                 </div>
                 <p class="stat-value mt-2" id="user-profit">$0.00</p>
-                <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-red-900/30 hover:bg-red-800/50 text-red-300 px-4 py-2 rounded-xl transition w-fit mx-auto">سحب الأرباح</button>
+                <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">سحب الأرباح</button>
             </div>
             <!-- استثمار المعادن -->
             <div class="glass-card p-5 flex flex-col justify-between text-center">
                 <div class="flex justify-center items-center gap-2">
-                    <span class="text-sm text-slate-400">المعادن</span>
-                    <i class="fa-solid fa-gem text-red-400"></i>
+                    <span class="text-sm text-slate-400">المعادن والعملات</span>
+                    <i class="fa-solid fa-coins text-sky-400"></i>
                 </div>
                 <p class="text-lg font-bold text-white mt-2">3% يوميًا</p>
                 <p class="text-xs text-slate-400 mt-1">من 50$ إلى 10,000$</p>
-                <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-red-900/30 hover:bg-red-800/50 text-red-300 px-4 py-2 rounded-xl transition w-fit mx-auto">استثمر الآن</button>
+                <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">استثمر الآن</button>
             </div>
             <!-- الإحالات -->
             <div class="glass-card p-5 flex flex-col justify-between text-center">
                 <div class="flex justify-center items-center gap-2">
                     <span class="text-sm text-slate-400">الإحالات</span>
-                    <i class="fa-solid fa-user-group text-red-400"></i>
+                    <i class="fa-solid fa-user-group text-sky-400"></i>
                 </div>
-                <p class="text-lg font-mono text-red-300 mt-2" id="referralCodeDisplay">------</p>
+                <p class="text-lg font-mono text-sky-300 mt-2" id="referralCodeDisplay">------</p>
                 <p class="text-xs text-slate-400 mt-1">تربح 15% من أول إيداع</p>
-                <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-red-900/30 hover:bg-red-800/50 text-red-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل الإحالات</button>
+                <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل الإحالات</button>
             </div>
         </div>
 
         <!-- سجل النشاطات -->
         <div class="glass-card p-5 mb-4">
-            <h3 class="text-sm font-bold text-red-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
+            <h3 class="text-sm font-bold text-sky-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
             <div id="activity-container" class="space-y-2 text-sm text-slate-300"></div>
         </div>
     </main>
@@ -276,18 +291,47 @@
     </div>
 
     <script>
+        // ============ PWA Install Logic ============
+        let deferredPrompt;
+        const installBtn = document.getElementById('installButton');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.classList.add('hidden');
+                Swal.fire({ icon: 'success', title: 'تم التثبيت', text: 'تم إضافة Fargo إلى شاشتك الرئيسية', timer: 2000, showConfirmButton: false, background: '#042840', color: '#fff' });
+            }
+            deferredPrompt = null;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBtn.classList.add('hidden');
+            deferredPrompt = null;
+        });
+
+        // ============ Main Dashboard Logic ============
         const API_BASE = '';
         let socket;
+
+        // i18n (مبسطة)
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
 
-        // ---------- i18n ----------
         async function loadTranslations(lang) {
             try {
                 const res = await fetch(`/locales/${lang}/translation.json`);
                 if (res.ok) translations[lang] = await res.json();
             } catch (e) { /* ignore */ }
         }
+
         function applyTranslations(lang) {
             const t = translations[lang] || {};
             document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -300,25 +344,27 @@
             document.querySelectorAll('.lang-option').forEach(o => o.classList.toggle('active', o.dataset.lang === lang));
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
+
         async function setLanguage(lang) {
             if (!translations[lang]) await loadTranslations(lang);
             applyTranslations(lang);
             fetchUserData();
         }
+
         document.querySelectorAll('.lang-option').forEach(opt => {
             opt.addEventListener('click', () => setLanguage(opt.dataset.lang));
         });
 
-        // ---------- Socket ----------
+        // WebSocket
         function initSocket() {
             socket = io(window.location.origin, { withCredentials: true });
             socket.on('notification', data => {
-                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: data.title, text: data.message, timer: 5000, background: '#1a0000', color: '#fff' });
+                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: data.title, text: data.message, timer: 5000, background: '#042840', color: '#fff' });
                 loadNotifications();
             });
         }
 
-        // ---------- Auth ----------
+        // Auth
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
             let res = await fetch(url, options);
@@ -346,67 +392,11 @@
             document.getElementById('user-balance').innerText = `$${(user.withdrawableAmount || (user.balance||0)+(user.profit||0)).toLocaleString()}`;
             document.getElementById('user-profit').innerText = `$${(user.profit||0).toLocaleString()}`;
             document.getElementById('referralCodeDisplay').innerText = user.referralCode || '------';
-            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username||'U')}&background=800000&color=fff&bold=true`;
-            // تخزين اسم المستخدم للتحقق من صلاحية الأدمن
+            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username||'U')}&background=1e6b8a&color=fff&bold=true`;
             localStorage.setItem('currentUsername', user.username);
         }
 
-        // ---------- باب الأدمن السري (ضغط الدرع مرتين) ----------
-        let shieldClickTimer = null;
-        let shieldClickCount = 0;
-
-        document.getElementById('shieldIcon').addEventListener('click', () => {
-            shieldClickCount++;
-            if (shieldClickCount === 1) {
-                shieldClickTimer = setTimeout(() => { shieldClickCount = 0; }, 500);
-            } else if (shieldClickCount === 2) {
-                clearTimeout(shieldClickTimer);
-                shieldClickCount = 0;
-                // التحقق من أن المستخدم هو freeze (الأدمن)
-                const currentUsername = localStorage.getItem('currentUsername');
-                if (currentUsername === 'freeze') {
-                    // إظهار نافذة كلمة المرور
-                    Swal.fire({
-                        title: 'بوابة القيادة السرية',
-                        text: 'أدخل كلمة المرور للوصول إلى لوحة الإدارة',
-                        input: 'password',
-                        inputPlaceholder: 'كلمة المرور',
-                        showCancelButton: true,
-                        confirmButtonText: 'دخول',
-                        cancelButtonText: 'إلغاء',
-                        background: '#1a0000',
-                        color: '#fff',
-                        confirmButtonColor: '#ff3333',
-                        customClass: {
-                            input: 'text-center'
-                        }
-                    }).then(async (result) => {
-                        if (result.isConfirmed && result.value) {
-                            try {
-                                const res = await fetch(API_BASE + '/api/auth/verify-admin-gateway', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ secretPassword: result.value }),
-                                    credentials: 'include'
-                                });
-                                const data = await res.json();
-                                if (data.success) {
-                                    window.location.href = 'admin.html';
-                                } else {
-                                    Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمة المرور غير صحيحة', background: '#1a0000', color: '#fff' });
-                                }
-                            } catch (e) {
-                                Swal.fire({ icon: 'error', title: 'خطأ', text: 'فشل الاتصال', background: '#1a0000', color: '#fff' });
-                            }
-                        }
-                    });
-                } else {
-                    // ليس أدمن – تجاهل
-                }
-            }
-        });
-
-        // ---------- Quick Withdraw Profit ----------
+        // Quick Withdraw
         async function quickWithdrawProfit() {
             const user = await fetchUserData();
             if (!user) return;
@@ -416,7 +406,7 @@
             window.location.href = `withdraw.html?amount=${profit}&type=profit`;
         }
 
-        // ---------- Activities ----------
+        // Activities
         async function loadActivities() {
             const res = await fetchWithAuth(`${API_BASE}/api/activity-logs/recent`);
             const activities = await res.json();
@@ -437,7 +427,7 @@
             `).join('');
         }
 
-        // ---------- Notifications ----------
+        // Notifications
         let notifications = [];
         async function loadNotifications() {
             const res = await fetchWithAuth(`${API_BASE}/api/notifications`);
@@ -452,7 +442,7 @@
         function updateNotificationsDropdown() {
             const list = document.getElementById('notificationsList');
             list.innerHTML = notifications.map(n => `
-                <div class="py-1 border-b border-white/5 ${!n.isRead ? 'font-bold text-red-200' : 'text-slate-400'}">
+                <div class="py-1 border-b border-white/5 ${!n.isRead ? 'font-bold text-sky-200' : 'text-slate-400'}">
                     <div>${esc(n.title)}</div>
                     <div class="text-[10px]">${esc(n.message)}</div>
                 </div>
@@ -470,9 +460,9 @@
             loadNotifications();
         });
 
-        // ---------- Logout ----------
+        // Logout
         function logout() {
-            Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#ff3333', background: '#1a0000', color: '#fff' }).then(r => {
+            Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#2e86ab', background: '#042840', color: '#fff' }).then(r => {
                 if (r.isConfirmed) {
                     fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
                     localStorage.clear();
@@ -483,7 +473,7 @@
 
         function esc(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-        // ---------- Init ----------
+        // Init
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
@@ -493,9 +483,7 @@
                 loadActivities();
                 loadNotifications();
                 setInterval(() => {
-                    if (document.visibilityState === 'visible') {
-                        fetchUserData();
-                    }
+                    if (document.visibilityState === 'visible') fetchUserData();
                 }, 20000);
             }
         };
