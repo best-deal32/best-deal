@@ -316,7 +316,7 @@
         <h1 class="register-title">FARGO</h1>
         <p class="register-subtitle">أنشئ حسابك وابدأ رحلتك الاستثمارية</p>
 
-        <!-- الخطوة الأولى: البيانات الأساسية (تمت إضافة رقم الهاتف) -->
+        <!-- الخطوة الأولى: البيانات الأساسية -->
         <div id="step1" class="step active">
             <div class="grid-2">
                 <div class="input-group">
@@ -334,21 +334,22 @@
                     </div>
                 </div>
             </div>
+            <!-- البريد الإلكتروني (اختياري) -->
             <div class="input-group">
-                <label class="input-label">البريد الإلكتروني</label>
+                <label class="input-label">البريد الإلكتروني (اختياري)</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-envelope"></i>
-                    <input type="email" id="email" class="input-field" placeholder="example@mail.com" required>
+                    <input type="email" id="email" class="input-field" placeholder="example@mail.com">
                 </div>
             </div>
-            <!-- حقل رقم الهاتف الجديد -->
+            <!-- رقم الهاتف (اختياري) -->
             <div class="input-group">
-                <label class="input-label">رقم الهاتف</label>
+                <label class="input-label">رقم الهاتف (اختياري)</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-phone"></i>
-                    <input type="tel" id="phoneNumber" class="input-field" placeholder="مثال: 0912345678" dir="ltr" required>
+                    <input type="tel" id="phoneNumber" class="input-field" placeholder="مثال: 0912345678" dir="ltr">
                 </div>
-                <p class="text-xs text-red-300/70 mt-1">يجب أن يكون رقم الهاتف بين 10 و15 رقماً</p>
+                <p class="text-xs text-red-300/70 mt-1">يجب أن يكون رقم الهاتف بين 10 و15 رقماً إن أدخلته</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="input-group">
@@ -374,19 +375,19 @@
         <!-- الخطوة الثانية: كود الإحالة ورمز التحقق -->
         <div id="step2" class="step">
             <p class="text-sm text-slate-300 text-center mb-6">
-                هل لديك كود إحالة؟ أدخله الآن أو تخطَّ هذه الخطوة.
+                هل لديك كود فريق؟ أدخله الآن أو تخطَّ هذه الخطوة.
             </p>
             <div class="input-group">
-                <label class="input-label">كود الإحالة (اختياري)</label>
+                <label class="input-label">كود الفريق (اختياري)</label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-gift"></i>
+                    <i class="fa-solid fa-users"></i>
                     <input type="text" id="referrerCode" class="input-field" placeholder="أدخل الكود أو اتركه فارغاً">
                 </div>
                 <span id="skipReferral" class="skip-link"><i class="fa-solid fa-forward ml-1"></i> تخطي</span>
             </div>
 
-            <!-- رمز التحقق (اختياري) -->
-            <div class="flex items-end gap-2 mb-4">
+            <!-- رمز التحقق (اختياري) - يظهر فقط عند إدخال بريد -->
+            <div id="verificationSection" class="flex items-end gap-2 mb-4 hidden">
                 <div class="input-group flex-1">
                     <label class="input-label">رمز التحقق (اختياري)</label>
                     <input type="text" id="verificationCode" class="input-field" placeholder="الرمز المرسل إلى بريدك">
@@ -427,7 +428,7 @@
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
 
-        // i18n (مبسطة)
+        // i18n
         async function loadTranslations(lang) {
             try {
                 const res = await fetch(`/locales/${lang}/translation.json`);
@@ -461,6 +462,7 @@
         // التنقل بين الخطوات
         const step1 = document.getElementById('step1');
         const step2 = document.getElementById('step2');
+        const verificationSection = document.getElementById('verificationSection');
 
         document.getElementById('nextStepBtn').addEventListener('click', () => {
             const username = document.getElementById('username').value.trim();
@@ -470,15 +472,22 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (!username || !fullName || !email || !phoneNumber || !password) {
-                Swal.fire({ icon: 'warning', title: 'حقول ناقصة', text: 'يرجى ملء جميع الحقول بما فيها رقم الهاتف', background: '#1a0000', color: '#fff' });
+            if (!username || !fullName || !password) {
+                Swal.fire({ icon: 'warning', title: 'حقول ناقصة', text: 'يرجى ملء اسم المستخدم والاسم الكامل وكلمة المرور', background: '#1a0000', color: '#fff' });
                 return;
             }
-            // التحقق من عدد أرقام الهاتف
-            const phoneDigits = phoneNumber.replace(/\D/g, ''); // إزالة أي رموز غير رقمية
-            if (phoneDigits.length < 10 || phoneDigits.length > 15) {
-                Swal.fire({ icon: 'error', title: 'رقم هاتف غير صالح', text: 'يجب أن يكون رقم الهاتف بين 10 و15 رقماً', background: '#1a0000', color: '#fff' });
+            // يجب تقديم بريد أو هاتف
+            if (!email && !phoneNumber) {
+                Swal.fire({ icon: 'warning', title: 'مطلوب', text: 'يرجى إدخال البريد الإلكتروني أو رقم الهاتف على الأقل', background: '#1a0000', color: '#fff' });
                 return;
+            }
+            // التحقق من عدد أرقام الهاتف إن وجد
+            if (phoneNumber) {
+                const phoneDigits = phoneNumber.replace(/\D/g, '');
+                if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+                    Swal.fire({ icon: 'error', title: 'رقم هاتف غير صالح', text: 'يجب أن يكون رقم الهاتف بين 10 و15 رقماً', background: '#1a0000', color: '#fff' });
+                    return;
+                }
             }
             if (password !== confirmPassword) {
                 Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمتا المرور غير متطابقتين', background: '#1a0000', color: '#fff' });
@@ -488,9 +497,16 @@
                 Swal.fire({ icon: 'error', title: 'ضعيفة', text: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', background: '#1a0000', color: '#fff' });
                 return;
             }
-            if (!email.includes('@')) {
+            if (email && !email.includes('@')) {
                 Swal.fire({ icon: 'error', title: 'بريد غير صالح', text: 'يرجى إدخال بريد صحيح', background: '#1a0000', color: '#fff' });
                 return;
+            }
+
+            // إظهار قسم رمز التحقق فقط إذا كان البريد موجوداً
+            if (email) {
+                verificationSection.classList.remove('hidden');
+            } else {
+                verificationSection.classList.add('hidden');
             }
 
             step1.classList.remove('active');
@@ -512,7 +528,7 @@
         sendCodeBtn.addEventListener('click', async () => {
             const email = document.getElementById('email').value.trim();
             if (!email || !email.includes('@')) {
-                Swal.fire('خطأ', 'يرجى إدخال بريد صحيح في الخطوة الأولى', 'error');
+                Swal.fire('خطأ', 'يرجى إدخال بريد صحيح أولاً', 'error');
                 return;
             }
             if (countdown > 0) return;
@@ -559,12 +575,12 @@
             }, 1000);
         }
 
-        // تقديم التسجيل النهائي (يتضمن رقم الهاتف)
+        // تقديم التسجيل النهائي
         document.getElementById('registerBtn').addEventListener('click', async () => {
             const username = document.getElementById('username').value.trim();
             const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const email = document.getElementById('email').value.trim() || null;
+            const phoneNumber = document.getElementById('phoneNumber').value.trim() || null;
             const password = document.getElementById('password').value;
             const referrerCode = document.getElementById('referrerCode').value.trim();
             const verificationCode = document.getElementById('verificationCode').value.trim();
@@ -578,10 +594,9 @@
                     method: 'POST',
                     headers: {'Content-Type':'application/json'},
                     body: JSON.stringify({
-                        username, password, fullName, email,
-                        phoneNumber, // إرسال رقم الهاتف إلى السيرفر
-                        origin: 'غير محدد', currentLocation: 'غير محدد',
-                        currentJob: 'غير محدد', work: 'غير محدد', profession: 'غير محدد',
+                        username, password, fullName,
+                        email: email || undefined,
+                        phoneNumber: phoneNumber || undefined,
                         verificationCode, referrerCode
                     }),
                     credentials: 'include'
