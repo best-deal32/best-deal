@@ -11,77 +11,77 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         :root {
-            --bg-deep: #040b14;
-            --red-dark: #800000;
-            --red-mid: #a00000;
-            --red-light: #c00000;
-            --red-accent: #ff3333;
-            --text-primary: #e0e6f0;
-            --text-dim: #99a8c0;
+            --bg-deep: #0a1628;
+            --blue-dark: #0f2847;
+            --blue-mid: #1a4a7a;
+            --blue-light: #2a6eb0;
+            --blue-accent: #3d8fd9;
+            --text-primary: #e6f0fa;
+            --text-dim: #a0b8d4;
         }
         body {
             font-family: 'Cairo', sans-serif;
-            background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
+            background: radial-gradient(ellipse at top, #112240 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
             margin: 0; padding: 0; min-height: 100vh;
             overflow-x: hidden;
             padding-bottom: 5rem;
         }
         .glass-card {
-            background: rgba(20,5,5,0.8);
+            background: rgba(15, 40, 71, 0.85);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,51,51,0.35);
+            border: 1px solid rgba(61, 143, 217, 0.3);
             border-radius: 2rem;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
-        .btn-red {
-            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
+        .btn-blue {
+            background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
             color: #fff; font-weight: 800; border-radius: 1.25rem;
             padding: 0.7rem 1.8rem; transition: 0.3s; cursor: pointer;
             border: none; display: inline-flex; align-items: center; gap: 0.5rem;
         }
-        .btn-red:hover { filter: brightness(1.1); transform: translateY(-2px); }
-        .btn-outline-red {
-            background: transparent; border: 1.5px solid var(--red-accent);
-            color: var(--red-accent); font-weight: 700; border-radius: 1.25rem;
+        .btn-blue:hover { filter: brightness(1.1); transform: translateY(-2px); }
+        .btn-outline-blue {
+            background: transparent; border: 1.5px solid var(--blue-accent);
+            color: var(--blue-accent); font-weight: 700; border-radius: 1.25rem;
             padding: 0.5rem 1.2rem; cursor: pointer; transition: 0.2s;
         }
-        .btn-outline-red:hover { background: rgba(255,51,51,0.1); }
+        .btn-outline-blue:hover { background: rgba(61,143,217,0.1); }
         .lang-selector {
-            background: rgba(20,5,5,0.65); border-radius: 3rem; padding: 0.3rem;
-            display: inline-flex; gap: 0.2rem; border: 1px solid rgba(255,51,51,0.3);
+            background: rgba(15,40,71,0.65); border-radius: 3rem; padding: 0.3rem;
+            display: inline-flex; gap: 0.2rem; border: 1px solid rgba(61,143,217,0.3);
         }
         .lang-option {
             padding: 0.4rem 0.9rem; border-radius: 3rem; font-size: 0.7rem;
             font-weight: bold; cursor: pointer; color: var(--text-dim); transition: 0.2s;
         }
-        .lang-option.active { background: linear-gradient(135deg, var(--red-mid), var(--red-light)); color: #fff; }
-        .lang-option:hover:not(.active) { background: rgba(255,51,51,0.15); color: #fff; }
+        .lang-option.active { background: linear-gradient(135deg, var(--blue-mid), var(--blue-light)); color: #fff; }
+        .lang-option:hover:not(.active) { background: rgba(61,143,217,0.15); color: #fff; }
         .input-field {
             width: 100%; padding: 0.8rem 1.2rem; background: rgba(4,11,20,0.7);
-            border: 1.5px solid rgba(255,51,51,0.3); border-radius: 1rem;
+            border: 1.5px solid rgba(61,143,217,0.3); border-radius: 1rem;
             color: #fff; font-weight: 600; font-size: 0.95rem; outline: none; transition: 0.3s;
         }
-        .input-field:focus { border-color: var(--red-accent); box-shadow: 0 0 12px rgba(255,51,51,0.25); }
+        .input-field:focus { border-color: var(--blue-accent); box-shadow: 0 0 12px rgba(61,143,217,0.25); }
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(7,20,38,0.96); border-top: 1px solid rgba(255,51,51,0.3);
+            background: rgba(10,22,40,0.96); border-top: 1px solid rgba(61,143,217,0.3);
             display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000;
         }
         .nav-link {
             display: flex; flex-direction: column; align-items: center;
             color: var(--text-dim); font-size: 11px; font-weight: 800; cursor: pointer;
         }
-        .nav-link.active { color: var(--red-accent); }
+        .nav-link.active { color: var(--blue-accent); }
         .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
         .ticket-row {
             cursor: pointer; transition: 0.2s; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .ticket-row:hover { background: rgba(255,51,51,0.1); }
+        .ticket-row:hover { background: rgba(61,143,217,0.1); }
         .badge {
             padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold;
         }
-        .badge-open { background: rgba(255,51,51,0.2); color: #ff6666; }
+        .badge-open { background: rgba(61,143,217,0.2); color: #6db3e6; }
         .badge-closed { background: rgba(239,68,68,0.2); color: #ef4444; }
         @media (max-width: 640px) {
             .glass-card { padding: 1.2rem; border-radius: 1.5rem; }
@@ -91,11 +91,11 @@
 <body>
 
 <header class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-    <button onclick="window.location.href='dashboard.html'" class="text-slate-400 hover:text-red-400 transition">
+    <button onclick="window.location.href='dashboard.html'" class="text-slate-400 hover:text-blue-400 transition">
         <i class="fa-solid fa-arrow-right text-xl"></i>
     </button>
     <div class="flex items-center gap-3">
-        <i class="fa-solid fa-shield-halved text-3xl text-red-400 drop-shadow-xl"></i>
+        <i class="fa-solid fa-shield-halved text-3xl text-blue-400 drop-shadow-xl"></i>
         <span class="text-xl font-black text-white italic tracking-wide">FARGO</span>
     </div>
     <div class="lang-selector">
@@ -109,14 +109,14 @@
 <main class="max-w-4xl mx-auto px-4 mt-6">
     <!-- زر فتح تذكرة جديدة -->
     <div class="text-center mb-8">
-        <button onclick="openNewTicketModal()" class="btn-red text-lg px-10 py-3"><i class="fa-solid fa-plus-circle"></i> فتح تذكرة جديدة</button>
+        <button onclick="openNewTicketModal()" class="btn-blue text-lg px-10 py-3"><i class="fa-solid fa-plus-circle"></i> فتح تذكرة جديدة</button>
     </div>
 
     <!-- قائمة التذاكر -->
     <div class="glass-card p-6 mb-6">
-        <h3 class="text-xl font-black text-red-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-ticket"></i> تذاكري</h3>
+        <h3 class="text-xl font-black text-blue-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-ticket"></i> تذاكري</h3>
         <div id="ticketsList" class="space-y-1"></div>
-        <div id="noTickets" class="text-center py-8 text-slate-500 hidden">لا توجد تذاكر سابقة.</div>
+        <div id="noTickets" class="text-center py-8 text-slate-400 hidden">لا توجد تذاكر سابقة.</div>
     </div>
 
     <!-- تفاصيل تذكرة (مخفي) -->
@@ -125,8 +125,8 @@
         <div id="ticketDetailContent"></div>
         <div class="mt-6">
             <textarea id="replyMessage" rows="3" class="input-field" placeholder="اكتب ردك..."></textarea>
-            <button onclick="sendReply()" class="btn-red mt-3">إرسال الرد</button>
-            <button id="closeTicketBtn" class="btn-outline-red mt-2 hidden">إغلاق التذكرة</button>
+            <button onclick="sendReply()" class="btn-blue mt-3">إرسال الرد</button>
+            <button id="closeTicketBtn" class="btn-outline-blue mt-2 hidden">إغلاق التذكرة</button>
         </div>
     </div>
 </main>
@@ -134,11 +134,11 @@
 <!-- نافذة تذكرة جديدة -->
 <div id="newTicketModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="glass-card p-6 w-full max-w-md">
-        <h3 class="text-xl font-bold text-red-300 mb-4">تذكرة جديدة</h3>
+        <h3 class="text-xl font-bold text-blue-300 mb-4">تذكرة جديدة</h3>
         <input type="text" id="newSubject" class="input-field mb-3" placeholder="الموضوع">
         <textarea id="newMessage" rows="4" class="input-field mb-4" placeholder="الرسالة"></textarea>
         <div class="flex gap-3">
-            <button onclick="submitNewTicket()" class="btn-red flex-1">إرسال</button>
+            <button onclick="submitNewTicket()" class="btn-blue flex-1">إرسال</button>
             <button onclick="closeNewTicketModal()" class="bg-gray-600 text-white px-4 py-2 rounded-xl">إلغاء</button>
         </div>
     </div>
@@ -196,7 +196,7 @@
             currentUser = await res.json();
             return true;
         } catch (e) {
-            Swal.fire({ title: 'غير مصرح', text: 'يجب تسجيل الدخول', icon: 'warning', background: '#1a0000', color: '#fff' }).then(() => window.location.href = 'login.html');
+            Swal.fire({ title: 'غير مصرح', text: 'يجب تسجيل الدخول', icon: 'warning', background: '#0a1628', color: '#fff' }).then(() => window.location.href = 'login.html');
             return false;
         }
     }
@@ -238,10 +238,10 @@
         panel.classList.remove('hidden');
 
         let html = `
-            <h3 class="text-xl font-bold text-red-300 mb-2">${esc(data.ticket.subject)}</h3>
+            <h3 class="text-xl font-bold text-blue-300 mb-2">${esc(data.ticket.subject)}</h3>
             <p class="text-slate-300 mb-2">${esc(data.ticket.message)}</p>
             <div class="text-xs text-slate-500 mb-4">${new Date(data.ticket.createdAt).toLocaleString()} | الحالة: ${data.ticket.status}</div>
-            <h4 class="text-red-200 mb-2">الردود:</h4>
+            <h4 class="text-blue-200 mb-2">الردود:</h4>
         `;
         data.replies.forEach(r => {
             html += `<div class="bg-black/20 p-3 rounded-lg mb-2"><strong>${esc(r.username)}:</strong> ${esc(r.message)}</div>`;
@@ -266,7 +266,7 @@
 
     async function sendReply() {
         const msg = document.getElementById('replyMessage').value.trim();
-        if (!msg) { Swal.fire('تنبيه', 'الرجاء كتابة رد', 'warning', { background: '#1a0000', color: '#fff' }); return; }
+        if (!msg) { Swal.fire('تنبيه', 'الرجاء كتابة رد', 'warning', { background: '#0a1628', color: '#fff' }); return; }
         const res = await fetchWithAuth(API + '/api/support/tickets/' + currentTicketId + '/reply', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -325,7 +325,7 @@
         Swal.fire({
             title: 'تسجيل الخروج', text: 'هل أنت متأكد؟',
             icon: 'question', showCancelButton: true,
-            confirmButtonColor: '#ff3333', background: '#1a0000', color: '#fff'
+            confirmButtonColor: '#3d8fd9', background: '#0a1628', color: '#fff'
         }).then(r => {
             if (r.isConfirmed) {
                 fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
