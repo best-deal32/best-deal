@@ -14,13 +14,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
         
         :root {
-            --bg-deep: #040b14;
-            --red-dark: #800000;
-            --red-mid: #a00000;
-            --red-light: #c00000;
-            --red-accent: #ff3333;
-            --text-primary: #e0e6f0;
-            --text-dim: #99a8c0;
+            --bg-deep: #041b12;
+            --green-dark: #0b3d2e;
+            --green-mid: #1a5c3a;
+            --green-light: #2d8a4e;
+            --green-accent: #3ca374;
+            --text-primary: #e6f7f0;
+            --text-dim: #b0d4c0;
         }
 
         * {
@@ -31,7 +31,7 @@
         }
 
         body {
-            background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
+            background: radial-gradient(ellipse at top, #0a2a1a 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
             min-height: 100vh;
             padding: 1.5rem;
@@ -44,16 +44,16 @@
         }
 
         .glass-card {
-            background: rgba(20, 5, 5, 0.8);
+            background: rgba(11, 45, 30, 0.8);
             backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 51, 51, 0.35);
+            border: 1px solid rgba(60, 163, 116, 0.35);
             border-radius: 2.5rem;
             padding: 2rem;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .btn-red {
-            background: linear-gradient(135deg, var(--red-mid) 0%, var(--red-light) 100%);
+        .btn-green {
+            background: linear-gradient(135deg, var(--green-mid) 0%, var(--green-light) 100%);
             color: #fff;
             font-weight: 800;
             border-radius: 1.25rem;
@@ -61,30 +61,30 @@
             transition: all 0.3s ease;
             cursor: pointer;
             border: none;
-            box-shadow: 0 10px 25px rgba(160, 0, 0, 0.5);
+            box-shadow: 0 10px 25px rgba(26, 92, 58, 0.5);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
         }
 
-        .btn-red:hover {
-            background: linear-gradient(135deg, #880000 0%, #b00000 100%);
+        .btn-green:hover {
+            background: linear-gradient(135deg, #1e6e3e 0%, #35a051 100%);
             transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(192, 0, 0, 0.6);
+            box-shadow: 0 15px 30px rgba(45, 138, 78, 0.6);
         }
 
-        .btn-red:disabled {
+        .btn-green:disabled {
             background: #1e2a3a;
             color: #5a6a7a;
             cursor: not-allowed;
             box-shadow: none;
         }
 
-        .btn-outline-red {
+        .btn-outline-green {
             background: transparent;
-            border: 1.5px solid var(--red-accent);
-            color: var(--red-accent);
+            border: 1.5px solid var(--green-accent);
+            color: var(--green-accent);
             font-weight: 700;
             padding: 0.5rem 1.2rem;
             border-radius: 1.5rem;
@@ -93,23 +93,23 @@
             font-size: 0.85rem;
         }
 
-        .btn-outline-red:hover {
-            background: rgba(255, 51, 51, 0.12);
+        .btn-outline-green:hover {
+            background: rgba(60, 163, 116, 0.12);
         }
 
         .shield-icon {
             font-size: 2.2rem;
-            color: var(--red-accent);
-            filter: drop-shadow(0 0 12px rgba(255, 51, 51, 0.6));
+            color: var(--green-accent);
+            filter: drop-shadow(0 0 12px rgba(60, 163, 116, 0.6));
         }
 
         .lang-selector {
-            background: rgba(20, 5, 5, 0.65);
+            background: rgba(11, 45, 30, 0.65);
             border-radius: 3rem;
             padding: 0.3rem;
             display: inline-flex;
             gap: 0.2rem;
-            border: 1px solid rgba(255, 51, 51, 0.3);
+            border: 1px solid rgba(60, 163, 116, 0.3);
         }
 
         .lang-option {
@@ -123,24 +123,23 @@
         }
 
         .lang-option.active {
-            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
             color: #fff;
-            box-shadow: 0 0 15px rgba(192, 0, 0, 0.4);
+            box-shadow: 0 0 15px rgba(45, 138, 78, 0.4);
         }
 
         .lang-option:hover:not(.active) {
-            background: rgba(255, 51, 51, 0.15);
+            background: rgba(60, 163, 116, 0.15);
             color: #fff;
         }
 
-        /* Toggle Switch */
         .toggle-switch {
             display: flex;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 3rem;
             padding: 0.3rem;
             margin-bottom: 2rem;
-            border: 1px solid rgba(255, 51, 51, 0.35);
+            border: 1px solid rgba(60, 163, 116, 0.35);
         }
 
         .toggle-option {
@@ -156,12 +155,11 @@
         }
 
         .toggle-option.active {
-            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
+            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
             color: #fff;
-            box-shadow: 0 5px 15px rgba(192, 0, 0, 0.4);
+            box-shadow: 0 5px 15px rgba(45, 138, 78, 0.4);
         }
 
-        /* Balance Display */
         .balance-display {
             display: flex;
             justify-content: space-between;
@@ -170,7 +168,7 @@
             border-radius: 1.5rem;
             padding: 1.2rem;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(255, 51, 51, 0.25);
+            border: 1px solid rgba(60, 163, 116, 0.25);
         }
 
         .balance-display .label {
@@ -182,11 +180,10 @@
         .balance-display .amount {
             font-size: 1.8rem;
             font-weight: 900;
-            color: var(--red-accent);
-            text-shadow: 0 0 12px rgba(255, 51, 51, 0.5);
+            color: var(--green-accent);
+            text-shadow: 0 0 12px rgba(60, 163, 116, 0.5);
         }
 
-        /* Input Styles */
         .input-wrapper {
             position: relative;
             margin-bottom: 1.5rem;
@@ -197,14 +194,14 @@
             margin-bottom: 0.5rem;
             font-size: 0.8rem;
             font-weight: 700;
-            color: #ff9999;
+            color: #90e0b0;
         }
 
         .input-field {
             width: 100%;
             padding: 0.95rem 1.2rem;
             background: rgba(4, 11, 20, 0.7);
-            border: 1.5px solid rgba(255, 51, 51, 0.35);
+            border: 1.5px solid rgba(60, 163, 116, 0.35);
             border-radius: 1rem;
             color: #fff;
             font-weight: 600;
@@ -214,9 +211,9 @@
         }
 
         .input-field:focus {
-            border-color: var(--red-accent);
+            border-color: var(--green-accent);
             background: rgba(7, 20, 38, 0.8);
-            box-shadow: 0 0 15px rgba(255, 51, 51, 0.2);
+            box-shadow: 0 0 15px rgba(60, 163, 116, 0.2);
         }
 
         .wallet-input {
@@ -224,11 +221,10 @@
             text-align: left;
         }
 
-        /* Buttons */
         .max-btn {
             background: transparent;
-            border: 1px solid var(--red-accent);
-            color: var(--red-accent);
+            border: 1px solid var(--green-accent);
+            color: var(--green-accent);
             font-weight: 700;
             padding: 0.4rem 1rem;
             border-radius: 2rem;
@@ -239,13 +235,13 @@
         }
 
         .max-btn:hover {
-            background: rgba(255, 51, 51, 0.15);
+            background: rgba(60, 163, 116, 0.15);
         }
 
         .paste-btn {
             background: transparent;
-            border: 1px solid var(--red-accent);
-            color: var(--red-accent);
+            border: 1px solid var(--green-accent);
+            color: var(--green-accent);
             font-weight: 700;
             padding: 0.4rem 1rem;
             border-radius: 2rem;
@@ -255,23 +251,22 @@
         }
 
         .paste-btn:hover {
-            background: rgba(255, 51, 51, 0.15);
+            background: rgba(60, 163, 116, 0.15);
         }
 
-        /* Rules Section */
         .withdraw-rules {
-            background: rgba(255, 51, 51, 0.08);
+            background: rgba(60, 163, 116, 0.08);
             border-radius: 1rem;
             padding: 1rem;
             margin-top: 1.5rem;
-            border-right: 4px solid var(--red-accent);
+            border-right: 4px solid var(--green-accent);
         }
 
         .withdraw-rules h4 {
             font-size: 0.85rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
-            color: var(--red-accent);
+            color: var(--green-accent);
         }
 
         .withdraw-rules p {
@@ -280,7 +275,6 @@
             margin-bottom: 0.3rem;
         }
 
-        /* Warning Box */
         .warning-box {
             background: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
@@ -299,7 +293,7 @@
         }
 
         .back-btn:hover {
-            color: var(--red-accent);
+            color: var(--green-accent);
         }
 
         .info-text {
@@ -344,10 +338,10 @@
         </div>
 
         <div class="glass-card">
-            <h1 class="text-2xl font-black text-center text-red-300 mb-2">سحب الأموال</h1>
+            <h1 class="text-2xl font-black text-center text-green-300 mb-2">سحب الأموال</h1>
             <p class="text-sm text-slate-400 text-center mb-6">اختر نوع السحب وأدخل البيانات المطلوبة</p>
 
-            <!-- تحذير أوقات المراجعة (6 صباحاً - 12 ظهراً بتوقيت غرينتش) -->
+            <!-- تحذير أوقات المراجعة -->
             <div class="warning-box">
                 <i class="fa-regular fa-clock ml-2"></i>
                 <strong>تنبيه:</strong> تتم مراجعة طلبات السحب بين <strong>6:00 صباحاً و 12:00 ظهراً</strong> بتوقيت غرينتش (GMT). الرجاء تقديم طلبك خلال هذه الفترة لضمان المراجعة السريعة.
@@ -370,14 +364,14 @@
                         <span class="label">الأرباح المتاحة</span>
                         <p id="profitAmount" class="amount">0.00 $</p>
                     </div>
-                    <i class="fa-solid fa-chart-line text-2xl text-red-400 opacity-60"></i>
+                    <i class="fa-solid fa-chart-line text-2xl text-green-400 opacity-60"></i>
                 </div>
                 <div class="balance-display">
                     <div>
                         <span class="label">الرصيد الأساسي</span>
                         <p id="balanceAmount" class="amount">0.00 $</p>
                     </div>
-                    <i class="fa-solid fa-wallet text-2xl text-red-400 opacity-60"></i>
+                    <i class="fa-solid fa-wallet text-2xl text-green-400 opacity-60"></i>
                 </div>
             </div>
 
@@ -393,7 +387,7 @@
 
             <!-- المبلغ -->
             <div class="input-wrapper">
-                <label>المبلغ المراد سحبه (دولار)</label>
+                <label>المبلغ (USDT)</label>
                 <input type="number" id="withdrawAmount" class="input-field" placeholder="0.00" step="any" min="1">
                 <div class="flex justify-end mt-1">
                     <button id="maxWithdrawBtn" class="max-btn"><i class="fa-regular fa-circle-up ml-1"></i> الحد الأقصى</button>
@@ -402,7 +396,7 @@
             </div>
 
             <!-- زر التقديم -->
-            <button id="submitWithdrawBtn" class="btn-red w-full py-4 text-lg mt-2">
+            <button id="submitWithdrawBtn" class="btn-green w-full py-4 text-lg mt-2">
                 <i class="fa-solid fa-paper-plane"></i> تقديم طلب السحب
             </button>
 
@@ -419,21 +413,15 @@
     </div>
 
     <script>
-        // ============================================================
-        // 1. الإعدادات العامة - مسارات نسبية
-        // ============================================================
         const API_BASE_URL = '';
         const URL_ME = `${API_BASE_URL}/api/users/me`;
         const URL_WITHDRAW = `${API_BASE_URL}/api/withdrawals/add`;
         const URL_REFRESH = `${API_BASE_URL}/api/auth/refresh`;
 
         let currentUser = null;
-        let withdrawType = 'profit'; // 'profit' or 'principal'
+        let withdrawType = 'profit';
         let socket = null;
 
-        // ============================================================
-        // 2. نظام الترجمة متعدد اللغات (i18n)
-        // ============================================================
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
 
@@ -456,9 +444,7 @@
             if (!t) return;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    el.textContent = t[key];
-                }
+                if (t[key]) el.textContent = t[key];
             });
             const htmlEl = document.documentElement;
             if (lang === 'ar') {
@@ -494,55 +480,33 @@
             });
         });
 
-        // ============================================================
-        // WebSocket
-        // ============================================================
         function initSocket() {
             if (!socket) {
                 socket = io(window.location.origin, { withCredentials: true });
                 socket.on('connect', () => {
-                    if (currentUser && currentUser.id) {
-                        socket.emit('register-user', currentUser.id);
-                    }
+                    if (currentUser && currentUser.id) socket.emit('register-user', currentUser.id);
                 });
                 socket.on('notification', (data) => {
                     Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: data.type || 'info',
-                        title: data.title,
-                        text: data.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        background: '#1a0000',
-                        color: '#fff'
+                        toast: true, position: 'top-end',
+                        icon: data.type || 'info', title: data.title, text: data.message,
+                        showConfirmButton: false, timer: 5000, background: '#0a2a1a', color: '#fff'
                     });
                 });
             }
         }
 
-        // ============================================================
-        // 3. دالة fetch مع إعادة محاولة التجديد التلقائي
-        // ============================================================
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
             let response = await fetch(url, options);
             if (response.status === 401 || response.status === 403) {
                 const refreshRes = await fetch(URL_REFRESH, { method: 'POST', credentials: 'include' });
-                if (refreshRes.ok) {
-                    response = await fetch(url, options);
-                } else {
-                    localStorage.removeItem('currentUser');
-                    window.location.href = 'login.html';
-                    throw new Error('Session expired');
-                }
+                if (refreshRes.ok) response = await fetch(url, options);
+                else { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; throw new Error('Session expired'); }
             }
             return response;
         }
 
-        // ============================================================
-        // 4. جلب بيانات المستخدم الحالي
-        // ============================================================
         async function fetchCurrentUser() {
             try {
                 const res = await fetchWithAuth(URL_ME);
@@ -557,12 +521,8 @@
             const user = await fetchCurrentUser();
             if (!user) {
                 Swal.fire({
-                    title: 'غير مصرح',
-                    text: 'الرجاء تسجيل الدخول أولاً',
-                    icon: 'warning',
-                    background: '#1a0000',
-                    color: '#fff',
-                    confirmButtonColor: '#ff3333'
+                    title: 'غير مصرح', text: 'الرجاء تسجيل الدخول أولاً',
+                    icon: 'warning', background: '#0a2a1a', color: '#fff', confirmButtonColor: '#3ca374'
                 }).then(() => window.location.href = 'login.html');
                 return false;
             }
@@ -574,28 +534,19 @@
 
         function updateBalancesDisplay() {
             if (currentUser) {
-                const profit = parseFloat(currentUser.profit) || 0;
-                const balance = parseFloat(currentUser.balance) || 0;
-                document.getElementById('profitAmount').innerText = profit.toLocaleString() + ' $';
-                document.getElementById('balanceAmount').innerText = balance.toLocaleString() + ' $';
+                document.getElementById('profitAmount').innerText = (parseFloat(currentUser.profit) || 0).toLocaleString() + ' $';
+                document.getElementById('balanceAmount').innerText = (parseFloat(currentUser.balance) || 0).toLocaleString() + ' $';
                 updateMaxHint();
             }
         }
 
         function updateMaxHint() {
             let max = 0;
-            if (withdrawType === 'profit') {
-                max = parseFloat(currentUser?.profit) || 0;
-            } else {
-                max = parseFloat(currentUser?.balance) || 0;
-            }
-            const input = document.getElementById('withdrawAmount');
-            input.placeholder = 'الحد الأقصى: ' + max.toFixed(2) + ' $';
+            if (withdrawType === 'profit') max = parseFloat(currentUser?.profit) || 0;
+            else max = parseFloat(currentUser?.balance) || 0;
+            document.getElementById('withdrawAmount').placeholder = 'الحد الأقصى: ' + max.toFixed(2) + ' $';
         }
 
-        // ============================================================
-        // 5. تبديل نوع السحب
-        // ============================================================
         document.getElementById('toggleProfit').addEventListener('click', () => {
             withdrawType = 'profit';
             document.getElementById('toggleProfit').classList.add('active');
@@ -612,131 +563,64 @@
             document.getElementById('withdrawAmount').value = '';
         });
 
-        // ============================================================
-        // 6. زر الحد الأقصى
-        // ============================================================
         document.getElementById('maxWithdrawBtn').addEventListener('click', () => {
             let max = 0;
-            if (withdrawType === 'profit') {
-                max = parseFloat(currentUser?.profit) || 0;
-            } else {
-                max = parseFloat(currentUser?.balance) || 0;
-            }
+            if (withdrawType === 'profit') max = parseFloat(currentUser?.profit) || 0;
+            else max = parseFloat(currentUser?.balance) || 0;
             document.getElementById('withdrawAmount').value = max.toFixed(2);
         });
 
-        // ============================================================
-        // 7. لصق عنوان المحفظة من الحافظة
-        // ============================================================
         document.getElementById('pasteWalletBtn').addEventListener('click', async () => {
             try {
                 const text = await navigator.clipboard.readText();
                 document.getElementById('walletAddress').value = text;
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'تم لصق العنوان',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    background: '#1a0000',
-                    color: '#fff'
-                });
-            } catch (err) {
-                Swal.fire('خطأ', 'لا يمكن الوصول إلى الحافظة', 'error');
-            }
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'تم لصق العنوان', timer: 1500, background: '#0a2a1a', color: '#fff' });
+            } catch (err) { Swal.fire('خطأ', 'لا يمكن الوصول إلى الحافظة', 'error'); }
         });
 
-        // ============================================================
-        // 8. تقديم طلب السحب
-        // ============================================================
         async function submitWithdraw() {
-            if (!currentUser) {
-                Swal.fire('خطأ', 'الرجاء تسجيل الدخول أولاً', 'error');
-                return;
-            }
-            
+            if (!currentUser) { Swal.fire('خطأ', 'الرجاء تسجيل الدخول أولاً', 'error'); return; }
             const walletAddress = document.getElementById('walletAddress').value.trim();
-            const amountRaw = document.getElementById('withdrawAmount').value;
-            const amount = parseFloat(amountRaw);
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
             let max = 0;
-            if (withdrawType === 'profit') {
-                max = parseFloat(currentUser.profit) || 0;
-            } else {
-                max = parseFloat(currentUser.balance) || 0;
-            }
+            if (withdrawType === 'profit') max = parseFloat(currentUser.profit) || 0;
+            else max = parseFloat(currentUser.balance) || 0;
 
-            if (!walletAddress) {
-                Swal.fire('خطأ', 'يرجى إدخال عنوان المحفظة', 'error');
-                return;
-            }
-            if (isNaN(amount) || amount <= 0) {
-                Swal.fire('خطأ', 'المبلغ غير صالح', 'error');
-                return;
-            }
-            if (amount > max) {
-                Swal.fire('خطأ', `الحد الأقصى المتاح للسحب من ${withdrawType === 'profit' ? 'الأرباح' : 'الرصيد الأساسي'} هو ${max.toFixed(2)} $`, 'warning');
-                return;
-            }
-            if (withdrawType === 'profit' && amount < 10) {
-                Swal.fire('تنبيه', 'الحد الأدنى لسحب الأرباح هو 10 دولار', 'info');
-                return;
-            }
+            if (!walletAddress) { Swal.fire('خطأ', 'يرجى إدخال عنوان المحفظة', 'error'); return; }
+            if (isNaN(amount) || amount <= 0) { Swal.fire('خطأ', 'المبلغ غير صالح', 'error'); return; }
+            if (amount > max) { Swal.fire('خطأ', `الحد الأقصى المتاح للسحب من ${withdrawType === 'profit' ? 'الأرباح' : 'الرصيد الأساسي'} هو ${max.toFixed(2)} $`, 'warning'); return; }
+            if (withdrawType === 'profit' && amount < 10) { Swal.fire('تنبيه', 'الحد الأدنى لسحب الأرباح هو 10 دولار', 'info'); return; }
 
             const btn = document.getElementById('submitWithdrawBtn');
             btn.disabled = true;
-            const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري المعالجة...';
 
             try {
-                const requestBody = {
-                    walletAddress: walletAddress,
-                    amount: amount,
-                    type: withdrawType
-                };
-
                 const response = await fetchWithAuth(URL_WITHDRAW, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ walletAddress, amount, type: withdrawType })
                 });
-                
                 const data = await response.json();
-                
                 if (response.ok && data.success) {
-                    Swal.fire({
-                        title: 'تم تقديم الطلب',
-                        text: data.message || 'تم استلام طلب السحب، سيتم مراجعته من قبل الإدارة.',
-                        icon: 'success',
-                        background: '#1a0000',
-                        color: '#fff'
-                    }).then(() => {
-                        window.location.href = 'dashboard.html';
-                    });
+                    Swal.fire({ title: 'تم تقديم الطلب', text: data.message || 'تم استلام طلب السحب، سيتم مراجعته من قبل الإدارة.', icon: 'success', background: '#0a2a1a', color: '#fff' }).then(() => window.location.href = 'dashboard.html');
                 } else {
-                    const errorMsg = data.message || 'حدث خطأ أثناء معالجة الطلب';
-                    Swal.fire('فشل', errorMsg, 'error');
+                    Swal.fire('فشل', data.message || 'حدث خطأ أثناء معالجة الطلب', 'error');
                 }
             } catch (err) {
-                console.error('خطأ في الاتصال:', err);
                 Swal.fire('خطأ', 'فشل الاتصال بالسيرفر.', 'error');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> تقديم طلب السحب';
             }
         }
 
         document.getElementById('submitWithdrawBtn').addEventListener('click', submitWithdraw);
 
-        // ============================================================
-        // 9. التحميل الأولي والتحديث الدوري للأرصدة
-        // ============================================================
         window.onload = async () => {
             await loadTranslations(currentLang);
             applyTranslations(currentLang);
             const ok = await checkAuth();
             if (ok) {
-                // التحقق من وجود مبلغ سحب سريع من لوحة التحكم
                 const urlParams = new URLSearchParams(window.location.search);
                 const quickAmount = urlParams.get('amount') || localStorage.getItem('quickWithdrawAmount');
                 const quickType = urlParams.get('type');
@@ -754,14 +638,10 @@
                     document.getElementById('withdrawAmount').value = parseFloat(quickAmount).toFixed(2);
                     localStorage.removeItem('quickWithdrawAmount');
                 }
-                // تحديث الأرصدة كل 15 ثانية
                 setInterval(async () => {
                     if (document.visibilityState === 'visible') {
                         const newUser = await fetchCurrentUser();
-                        if (newUser) {
-                            currentUser = newUser;
-                            updateBalancesDisplay();
-                        }
+                        if (newUser) { currentUser = newUser; updateBalancesDisplay(); }
                     }
                 }, 15000);
             }
