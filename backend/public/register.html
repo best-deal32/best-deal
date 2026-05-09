@@ -71,7 +71,7 @@
             border: 1px solid rgba(255, 51, 51, 0.3);
             border-radius: 3rem;
             width: 100%;
-            max-width: 520px;
+            max-width: 550px;
             padding: 2.5rem 2.2rem;
             position: relative;
             z-index: 10;
@@ -316,7 +316,7 @@
         <h1 class="register-title">FARGO</h1>
         <p class="register-subtitle">أنشئ حسابك وابدأ رحلتك الاستثمارية</p>
 
-        <!-- الخطوة الأولى: البيانات الأساسية -->
+        <!-- الخطوة الأولى: البيانات الأساسية (تمت إضافة رقم الهاتف) -->
         <div id="step1" class="step active">
             <div class="grid-2">
                 <div class="input-group">
@@ -340,6 +340,15 @@
                     <i class="fa-solid fa-envelope"></i>
                     <input type="email" id="email" class="input-field" placeholder="example@mail.com" required>
                 </div>
+            </div>
+            <!-- حقل رقم الهاتف الجديد -->
+            <div class="input-group">
+                <label class="input-label">رقم الهاتف</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="tel" id="phoneNumber" class="input-field" placeholder="مثال: 0912345678" dir="ltr" required>
+                </div>
+                <p class="text-xs text-red-300/70 mt-1">يجب أن يكون رقم الهاتف بين 10 و15 رقماً</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="input-group">
@@ -457,11 +466,18 @@
             const username = document.getElementById('username').value.trim();
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (!username || !fullName || !email || !password) {
-                Swal.fire({ icon: 'warning', title: 'حقول ناقصة', text: 'يرجى ملء جميع الحقول', background: '#1a0000', color: '#fff' });
+            if (!username || !fullName || !email || !phoneNumber || !password) {
+                Swal.fire({ icon: 'warning', title: 'حقول ناقصة', text: 'يرجى ملء جميع الحقول بما فيها رقم الهاتف', background: '#1a0000', color: '#fff' });
+                return;
+            }
+            // التحقق من عدد أرقام الهاتف
+            const phoneDigits = phoneNumber.replace(/\D/g, ''); // إزالة أي رموز غير رقمية
+            if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+                Swal.fire({ icon: 'error', title: 'رقم هاتف غير صالح', text: 'يجب أن يكون رقم الهاتف بين 10 و15 رقماً', background: '#1a0000', color: '#fff' });
                 return;
             }
             if (password !== confirmPassword) {
@@ -543,11 +559,12 @@
             }, 1000);
         }
 
-        // تقديم التسجيل النهائي
+        // تقديم التسجيل النهائي (يتضمن رقم الهاتف)
         document.getElementById('registerBtn').addEventListener('click', async () => {
             const username = document.getElementById('username').value.trim();
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const password = document.getElementById('password').value;
             const referrerCode = document.getElementById('referrerCode').value.trim();
             const verificationCode = document.getElementById('verificationCode').value.trim();
@@ -562,6 +579,7 @@
                     headers: {'Content-Type':'application/json'},
                     body: JSON.stringify({
                         username, password, fullName, email,
+                        phoneNumber, // إرسال رقم الهاتف إلى السيرفر
                         origin: 'غير محدد', currentLocation: 'غير محدد',
                         currentJob: 'غير محدد', work: 'غير محدد', profession: 'غير محدد',
                         verificationCode, referrerCode
