@@ -224,24 +224,27 @@
             </div>
         </div>
 
-        <!-- بطاقات الأرباح والاستثمار والإحالات -->
+        <!-- بطاقات الأرباح والاستثمار والفريق -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+            <!-- الأرباح -->
             <div class="glass-card p-5 text-center">
                 <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">الأرباح</span><i class="fa-solid fa-chart-line text-sky-400"></i></div>
                 <p class="stat-value mt-2" id="user-profit">$0.00</p>
                 <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">سحب الأرباح</button>
             </div>
+            <!-- استثمار المعادن -->
             <div class="glass-card p-5 text-center">
                 <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">المعادن والعملات</span><i class="fa-solid fa-coins text-sky-400"></i></div>
                 <p class="text-lg font-bold text-white mt-2">3% يوميًا</p>
                 <p class="text-xs text-slate-400 mt-1">50$ - 10,000$</p>
                 <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">استثمر الآن</button>
             </div>
+            <!-- الفريق -->
             <div class="glass-card p-5 text-center">
-                <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">الإحالات</span><i class="fa-solid fa-user-group text-sky-400"></i></div>
+                <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">فريقي</span><i class="fa-solid fa-user-group text-sky-400"></i></div>
                 <p class="text-lg font-mono text-sky-300 mt-2" id="referralCodeDisplay">------</p>
-                <p class="text-xs text-slate-400 mt-1">15% من أول إيداع</p>
-                <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل</button>
+                <p class="text-xs text-slate-400 mt-1">فريقك يربح لك 15% من أول إيداع لهم</p>
+                <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل الفريق</button>
             </div>
         </div>
 
@@ -257,7 +260,7 @@
         <div class="nav-link active"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
         <div onclick="window.location.href='deposit.html'" class="nav-link"><i class="fa-solid fa-wallet"></i><span>إيداع</span></div>
         <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>استثمار</span></div>
-        <div onclick="window.location.href='referrals.html'" class="nav-link"><i class="fa-solid fa-users"></i><span>إحالات</span></div>
+        <div onclick="window.location.href='referrals.html'" class="nav-link"><i class="fa-solid fa-users"></i><span>فريقي</span></div>
         <div onclick="window.location.href='support.html'" class="nav-link"><i class="fa-solid fa-headset"></i><span>دعم</span></div>
         <div onclick="logout()" class="nav-link text-red-400"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
     </div>
