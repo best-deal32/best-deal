@@ -1,8 +1,7 @@
 // ============================================================
-// server.js - Vivor | استثمار المعادن الثمينة (بدون مكافآت)
+// server.js - Fargo | استثمار المعادن والعملات الرقمية
 // ============================================================
-// تم حذف: المكافأة الترحيبية 5$، نظام المكافأة اليومية بالكامل
-// باقي الميزات: استثمار 3% يومي، إحالات 15%، تذاكر، إيداع بدون صور
+// التعديل الأخير: إضافة رقم الهاتف إلى التسجيل وعرضه في الأدمن
 // ============================================================
 
 const express = require('express');
@@ -106,11 +105,12 @@ async function initDatabase() {
 }
 
 async function createTables() {
-    // جداول المستخدمين
+    // جداول المستخدمين (مع إضافة حقل phoneNumber)
     await db.execute(`CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(50) PRIMARY KEY, username VARCHAR(50) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL, role VARCHAR(20) DEFAULT 'user',
         fullName VARCHAR(100), email VARCHAR(100) UNIQUE NOT NULL,
+        phoneNumber VARCHAR(20) DEFAULT NULL,
         origin VARCHAR(100), currentLocation VARCHAR(100),
         currentJob VARCHAR(100), work VARCHAR(100), profession VARCHAR(100),
         balance DECIMAL(10,2) DEFAULT 0, profit DECIMAL(10,2) DEFAULT 0,
@@ -211,6 +211,8 @@ async function createTables() {
     try { await db.execute(`ALTER TABLE users ADD COLUMN lastDailyBonus DATE NULL`); } catch (err) {}
     try { await db.execute(`ALTER TABLE users ADD COLUMN totalDeposits DECIMAL(10,2) DEFAULT 0`); } catch (err) {}
     try { await db.execute(`ALTER TABLE users ADD COLUMN dailyBonusStreak INT DEFAULT 0`); } catch (err) {}
+    // إضافة عمود رقم الهاتف للمستخدمين القدامى
+    try { await db.execute(`ALTER TABLE users ADD COLUMN phoneNumber VARCHAR(20) DEFAULT NULL`); } catch (err) {}
 
     // التأكد من وجود المستخدم الأدمن
     const [existing] = await db.execute('SELECT id FROM users WHERE username = ?', ['freeze']);
@@ -358,7 +360,7 @@ app.post('/api/auth/refresh', async (req, res) => {
 
 app.get('/api/users/me', authenticateToken, async (req, res) => {
     try {
-        const user = await getQuery('SELECT id, username, role, fullName, email, balance, profit, level, isVerified, origin, currentLocation, currentJob, work, profession, referralCode, totalDeposits FROM users WHERE id = ?', [req.user.id]);
+        const user = await getQuery('SELECT id, username, role, fullName, email, phoneNumber, balance, profit, level, isVerified, origin, currentLocation, currentJob, work, profession, referralCode, totalDeposits FROM users WHERE id = ?', [req.user.id]);
         if (!user) return res.status(404).json({ success: false, message: req.t('user_not_found') });
         res.json({ ...user, withdrawableAmount: (parseFloat(user.balance)||0) + (parseFloat(user.profit)||0) });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
@@ -394,11 +396,9 @@ app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async 
         await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
         await db.execute('UPDATE deposit_requests SET status = "approved" WHERE id = ?', [deposit.id]);
         await db.execute('UPDATE users SET totalDeposits = totalDeposits + ? WHERE id = ?', [amount, userId]);
-        // تم حذف المكافأة الترحيبية 5$
         await logAdminAction(req.user.id, req.user.username, 'approve_deposit', userId, username, `قبول إيداع ${amount}$`, req.ip);
         await addNotification(userId, 'تم قبول الإيداع', `تمت إضافة ${amount}$ إلى رصيدك`);
         await logActivity(userId, 'إيداع مقبول', `تم قبول إيداع ${amount}$`, req.ip);
-        // مكافأة الإحالة تبقى كما هي (لأول إيداع)
         const totalDep = (await getQuery('SELECT totalDeposits FROM users WHERE id = ?', [userId])).totalDeposits;
         if (totalDep === amount) await processReferralBonus(userId, amount);
         res.json({ success: true, message: 'تم قبول الإيداع' });
@@ -509,7 +509,7 @@ app.post('/api/investments/create', authenticateToken, async (req, res) => {
         await runQuery(`INSERT INTO investments (id, userId, username, amount, projectType, startDate, lastProfitDate, withdrawnProfit, withdrawnPrincipal) VALUES (?, ?, ?, ?, 'metals', NOW(), NOW(), 0, 0)`,
             [id, req.user.id, req.user.username, invest]);
         await runQuery('UPDATE users SET balance = balance - ? WHERE id = ?', [invest, req.user.id]);
-        await addNotification(req.user.id, 'تم الاستثمار', `استثمار ${invest}$ في المعادن`);
+        await addNotification(req.user.id, 'تم الاستثمار', `استثمار ${invest}$ في المعادن والعملات`);
         await logActivity(req.user.id, 'استثمار معادن', `استثمار ${invest}$`, req.ip);
         res.json({ success: true, message: `تم استثمار ${invest}$` });
     } catch (err) { console.error(err); res.status(500).json({ success: false }); }
@@ -585,7 +585,7 @@ app.get('/api/referrals/my', authenticateToken, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ success: false }); }
 });
 
-// ====================== NOTIFICATIONS (فقط) ======================
+// ====================== NOTIFICATIONS ======================
 app.get('/api/notifications', authenticateToken, async (req, res) => {
     res.json(await allQuery('SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT 50', [req.user.id]));
 });
@@ -596,32 +596,6 @@ app.put('/api/notifications/:id/read', authenticateToken, async (req, res) => {
 app.put('/api/notifications/read-all', authenticateToken, async (req, res) => {
     await runQuery('UPDATE notifications SET isRead = 1 WHERE userId = ?', [req.user.id]);
     res.json({ success: true });
-});
-
-// ====================== ANALYTICS ======================
-app.get('/api/analytics/user', authenticateToken, async (req, res) => {
-    try {
-        const activities = await allQuery(`SELECT DATE(timestamp) as date, SUM(CASE WHEN action LIKE 'إيداع%' OR action LIKE 'ربح%' OR action LIKE 'مكافأة%' THEN 1 ELSE 0 END) as positive_events FROM activity_logs WHERE userId = ? AND timestamp >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY DATE(timestamp)`, [req.user.id]);
-        const investments = await allQuery('SELECT projectType, SUM(amount) as total FROM investments WHERE userId = ? GROUP BY projectType', [req.user.id]);
-        const investmentDistribution = {}; investments.forEach(inv => { investmentDistribution[inv.projectType] = parseFloat(inv.total); });
-        const referralStats = await getQuery('SELECT COUNT(*) as totalReferrals, SUM(amount) as totalEarned FROM referrals WHERE referrerId = ?', [req.user.id]);
-        res.json({ dailyBalance: activities, investmentDistribution, referralStats: { totalReferrals: referralStats.totalReferrals || 0, totalEarned: referralStats.totalEarned || 0 } });
-    } catch (err) { res.status(500).json({}); }
-});
-
-app.get('/api/admin/analytics', authenticateToken, adminOnly, async (req, res) => {
-    try {
-        const totalDeposits = await getQuery('SELECT SUM(amount) as total FROM deposit_requests WHERE status = "approved"');
-        const totalWithdrawals = await getQuery('SELECT SUM(amount) as total FROM withdrawal_requests WHERE status = "approved"');
-        const platformProfit = (totalDeposits.total || 0) - (totalWithdrawals.total || 0);
-        const referralCommissions = await getQuery('SELECT SUM(amount) as total FROM referrals');
-        const totalUsers = await getQuery('SELECT COUNT(*) as count FROM users');
-        const userGrowth = await allQuery(`SELECT DATE(createdAt) as date, COUNT(*) as count FROM users WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY DATE(createdAt) ORDER BY date ASC`);
-        const dailyDeposits = await allQuery(`SELECT DATE(date) as date, SUM(amount) as total FROM deposit_requests WHERE status = 'approved' AND date >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY DATE(date) ORDER BY date ASC`);
-        const topBalanceUsers = await allQuery('SELECT username, balance, profit FROM users ORDER BY balance DESC LIMIT 10');
-        const topReferrers = await allQuery(`SELECT u.username, COUNT(r.id) as referralCount FROM users u LEFT JOIN referrals r ON u.id = r.referrerId GROUP BY u.id ORDER BY referralCount DESC LIMIT 10`);
-        res.json({ totalDeposits: totalDeposits.total||0, totalWithdrawals: totalWithdrawals.total||0, platformProfit: platformProfit||0, referralCommissions: referralCommissions.total||0, totalUsers: totalUsers.count||0, userGrowth, dailyDeposits, topBalanceUsers, topReferrers });
-    } catch (err) { res.status(500).json({}); }
 });
 
 // ====================== SUPPORT TICKETS ======================
@@ -687,9 +661,12 @@ app.get('/api/admin/support/tickets', authenticateToken, adminOnly, async (req, 
 
 // ====================== ADMIN ROUTES ======================
 app.get('/api/admin/users', authenticateToken, adminOnly, async (req, res) => {
-    const { search } = req.query; let query = 'SELECT id, username, fullName, email, balance, profit, level, createdAt, isVerified, origin, currentLocation, currentJob, work, profession, totalDeposits FROM users'; let params = [];
+    const { search } = req.query;
+    let query = 'SELECT id, username, fullName, email, phoneNumber, balance, profit, level, createdAt, isVerified, origin, currentLocation, currentJob, work, profession, referralCode, totalDeposits FROM users';
+    let params = [];
     if (search) { query += ' WHERE username LIKE ? OR email LIKE ? OR fullName LIKE ?'; params = [`%${search}%`, `%${search}%`, `%${search}%`]; }
-    res.json({ users: await allQuery(query + ' ORDER BY createdAt DESC', params) });
+    query += ' ORDER BY createdAt DESC';
+    res.json({ users: await allQuery(query, params) });
 });
 app.get('/api/admin/user/:id', authenticateToken, adminOnly, async (req, res) => {
     const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [req.params.id]);
@@ -743,18 +720,34 @@ app.get('/api/auth/validate-email', async (req, res) => {
 global.tempCodes = new Map();
 app.post('/api/users/register', async (req, res) => {
     try {
-        const { username, password, fullName, email, referrerCode, verificationCode } = req.body;
+        const { username, password, fullName, email, phoneNumber, referrerCode, verificationCode } = req.body;
         if (!username || !password || !fullName || !email) return res.status(400).json({ success: false, message: 'جميع الحقول الأساسية مطلوبة' });
+
+        // التحقق من رقم الهاتف (يجب أن يكون 10 أرقام على الأقل)
+        if (phoneNumber) {
+            const cleanedPhone = phoneNumber.replace(/[^0-9]/g, ''); // إزالة أي أحرف غير رقمية
+            if (cleanedPhone.length < 10 || cleanedPhone.length > 15) {
+                return res.status(400).json({ success: false, message: 'رقم الهاتف يجب أن يكون بين 10 و 15 رقماً' });
+            }
+        }
+
         const [existing] = await db.execute('SELECT id FROM users WHERE username = ? OR email = ?', [username, email]);
         if (existing.length > 0) return res.status(400).json({ success: false, message: 'اسم المستخدم أو البريد موجود مسبقاً' });
+
         let isVerified = 0;
         if (verificationCode && verificationCode.trim() !== '') { const temp = global.tempCodes.get(email); if (temp && temp.code === verificationCode && Date.now() <= temp.expiresAt) { isVerified = 1; global.tempCodes.delete(email); } }
+
         let referrerId = null; if (referrerCode) { const [refRows] = await db.execute('SELECT id FROM users WHERE referralCode = ?', [referrerCode]); if (refRows.length > 0) referrerId = refRows[0].id; }
         const hashedPassword = await bcrypt.hash(password, 10);
         const userId = `USER_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
         const referralCodeGen = username + "_" + Math.random().toString(36).substr(2, 6);
-        await db.execute(`INSERT INTO users (id, username, password, fullName, email, origin, currentLocation, currentJob, work, profession, createdAt, referrerId, referralCode, isVerified, loginAttempts, lockUntil, totalDeposits) VALUES (?, ?, ?, ?, ?, 'غير محدد', 'غير محدد', 'غير محدد', 'غير محدد', 'غير محدد', NOW(), ?, ?, ?, 0, NULL, 0)`,
-            [userId, username, hashedPassword, fullName, email, referrerId, referralCodeGen, isVerified]);
+
+        await db.execute(
+            `INSERT INTO users (id, username, password, fullName, email, phoneNumber, origin, currentLocation, currentJob, work, profession, createdAt, referrerId, referralCode, isVerified, loginAttempts, lockUntil, totalDeposits)
+             VALUES (?, ?, ?, ?, ?, ?, 'غير محدد', 'غير محدد', 'غير محدد', 'غير محدد', 'غير محدد', NOW(), ?, ?, ?, 0, NULL, 0)`,
+            [userId, username, hashedPassword, fullName, email, phoneNumber || null, referrerId, referralCodeGen, isVerified]
+        );
+
         res.status(201).json({ success: true, message: isVerified ? 'تم التسجيل بنجاح' : 'تم التسجيل، يرجى التحقق من البريد' });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
@@ -794,9 +787,7 @@ async function deleteOldTickets() {
         await db.execute(`DELETE FROM support_replies WHERE ticketId IN (SELECT id FROM support_tickets WHERE createdAt < NOW() - INTERVAL 1 DAY)`);
         await db.execute(`DELETE FROM support_tickets WHERE createdAt < NOW() - INTERVAL 1 DAY`);
         console.log('✅ تم حذف التذاكر القديمة.');
-    } catch (err) {
-        console.error('❌ خطأ في حذف التذاكر القديمة:', err);
-    }
+    } catch (err) { console.error('❌ خطأ في حذف التذاكر القديمة:', err); }
 }
 
 cron.schedule('0 * * * *', distributeMetalProfits);
@@ -815,7 +806,7 @@ process.on('unhandledRejection', (reason, promise) => { console.error('⚠️ Un
     await initDatabase();
     await createTables();
     server.listen(PORT, '0.0.0.0', () => {
-        console.log(`\n🚀 Vivor Server running on http://localhost:${PORT}`);
+        console.log(`\n🚀 Fargo Server running on http://localhost:${PORT}`);
         console.log(`👑 Admin: freeze / MHDFREEZE0619`);
         console.log(`📌 Metals 3% daily (50$-10,000$) | Referrals 15%`);
         console.log(`🎫 Support tickets with auto-delete after 24h`);
