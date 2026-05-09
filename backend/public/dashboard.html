@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>لوحة التحكم | Fargo</title>
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA Meta & Links -->
     <meta name="theme-color" content="#0a3d62">
+    <link rel="manifest" href="/manifest.json">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -16,7 +16,6 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        
         :root {
             --bg-deep: #021a2b;
             --sky-dark: #0a3d62;
@@ -26,179 +25,80 @@
             --text-primary: #e6f7ff;
             --text-dim: #b0d4e8;
         }
-
         body {
             font-family: 'Cairo', sans-serif;
             background: radial-gradient(ellipse at top, #022c43 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            overflow-x: hidden;
+            margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden;
         }
-
         .glass-card {
             background: rgba(4, 40, 70, 0.8);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(69, 179, 224, 0.3);
             border-radius: 2rem;
             box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            transition: all 0.3s ease;
         }
-
         .btn-sky {
             background: linear-gradient(135deg, var(--sky-mid), var(--sky-light));
-            color: #fff;
-            font-weight: 800;
-            border-radius: 1.2rem;
-            padding: 0.7rem 1.5rem;
-            transition: 0.3s;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            color: #fff; font-weight: 800; border-radius: 1.2rem;
+            padding: 0.7rem 1.5rem; transition: 0.3s; cursor: pointer;
+            border: none; display: inline-flex; align-items: center; gap: 0.5rem;
         }
-
-        .btn-sky:hover {
-            background: linear-gradient(135deg, #1a5670, #2e86ab);
-            transform: translateY(-2px);
-        }
-
+        .btn-sky:hover { background: linear-gradient(135deg, #1a5670, #2e86ab); transform: translateY(-2px); }
         .btn-outline-sky {
-            background: transparent;
-            border: 2px solid var(--sky-accent);
-            color: var(--sky-accent);
-            font-weight: 800;
-            border-radius: 1.2rem;
-            padding: 0.7rem 1.5rem;
-            transition: 0.3s;
-            cursor: pointer;
+            background: transparent; border: 2px solid var(--sky-accent);
+            color: var(--sky-accent); font-weight: 800; border-radius: 1.2rem;
+            padding: 0.7rem 1.5rem; transition: 0.3s; cursor: pointer;
         }
-
-        .btn-outline-sky:hover {
-            background: rgba(69, 179, 224, 0.15);
-            color: #fff;
-        }
-
+        .btn-outline-sky:hover { background: rgba(69,179,224,0.15); color: #fff; }
         .balance-value {
-            font-size: clamp(2rem, 8vw, 3rem);
-            font-weight: 900;
-            color: var(--sky-accent);
-            text-shadow: 0 0 20px rgba(69, 179, 224, 0.6);
+            font-size: clamp(2rem, 8vw, 3rem); font-weight: 900;
+            color: var(--sky-accent); text-shadow: 0 0 20px rgba(69,179,224,0.6);
         }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--sky-accent);
-        }
-
+        .stat-value { font-size: 1.8rem; font-weight: 900; color: var(--sky-accent); }
         .lang-selector {
-            background: rgba(4,40,70,0.7);
-            border-radius: 3rem;
-            padding: 0.3rem;
-            display: inline-flex;
-            gap: 0.2rem;
-            border: 1px solid rgba(69, 179, 224, 0.3);
+            background: rgba(4,40,70,0.7); border-radius: 3rem; padding: 0.3rem;
+            display: inline-flex; gap: 0.2rem; border: 1px solid rgba(69,179,224,0.3);
         }
         .lang-option {
-            padding: 0.4rem 0.9rem;
-            border-radius: 3rem;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            color: var(--text-dim);
+            padding: 0.4rem 0.9rem; border-radius: 3rem; font-size: 0.7rem;
+            font-weight: bold; cursor: pointer; color: var(--text-dim); transition: 0.2s;
         }
-        .lang-option.active {
-            background: linear-gradient(135deg, var(--sky-mid), var(--sky-light));
-            color: #fff;
-        }
-
+        .lang-option.active { background: linear-gradient(135deg, var(--sky-mid), var(--sky-light)); color: #fff; }
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(2, 26, 43, 0.96);
-            border-top: 1px solid rgba(69, 179, 224, 0.3);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 1000;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(2, 26, 43, 0.96); border-top: 1px solid rgba(69,179,224,0.3);
+            display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000;
         }
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-dim);
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); font-size: 11px; font-weight: 800; cursor: pointer; }
         .nav-link.active { color: var(--sky-accent); }
         .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
-        .nav-link span { font-size: 10px; }
-
         .notification-bell { position: relative; cursor: pointer; }
         .notification-badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #ef4444;
-            color: #fff;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: -6px; right: -6px; background: #ef4444; color: #fff;
+            border-radius: 50%; width: 18px; height: 18px; font-size: 10px;
+            display: flex; align-items: center; justify-content: center;
         }
-
         .activity-item {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 1.2rem;
-            transition: 0.2s;
-            padding: 1rem;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 1.2rem; transition: 0.2s; padding: 1rem;
         }
-        .activity-item:hover {
-            background: rgba(255,255,255,0.06);
-        }
-
+        .activity-item:hover { background: rgba(255,255,255,0.06); }
         .install-btn {
-            background: linear-gradient(135deg, #34d399, #10b981);
-            color: #000;
-            font-weight: 900;
-            border-radius: 2rem;
-            padding: 0.6rem 1.5rem;
-            transition: 0.3s;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #34d399, #10b981); color: #000; font-weight: 900;
+            border-radius: 2rem; padding: 0.6rem 1.5rem; transition: 0.3s; cursor: pointer;
+            border: none; display: inline-flex; align-items: center; gap: 0.5rem;
+            box-shadow: 0 10px 25px rgba(16,185,129,0.4);
         }
-        .install-btn:hover {
-            transform: scale(1.03);
-            filter: brightness(1.1);
-        }
-
+        .install-btn:hover { transform: scale(1.03); filter: brightness(1.1); }
         @media (max-width: 640px) {
-            .glass-card {
-                border-radius: 1.5rem;
-                padding: 1rem;
-            }
+            .glass-card { border-radius: 1.5rem; padding: 1rem; }
         }
     </style>
 </head>
 <body class="pb-28">
 
-    <!-- شريط علوي محسّن -->
+    <!-- شريط علوي -->
     <header class="px-5 py-4 flex justify-between items-center border-b border-[#2e86ab]/30 bg-[#021a2b]/80 backdrop-blur-md sticky top-0 z-50">
         <div class="flex items-center gap-3">
             <i class="fa-solid fa-shield-halved text-3xl text-sky-400 drop-shadow-xl"></i>
@@ -235,41 +135,29 @@
             <div class="flex flex-wrap gap-4 justify-center mt-5">
                 <button onclick="window.location.href='deposit.html'" class="btn-sky"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
                 <button onclick="window.location.href='withdraw.html'" class="btn-outline-sky"><i class="fa-solid fa-receipt"></i> سحب</button>
-                <button id="installButton" class="install-btn hidden"><i class="fa-solid fa-download"></i> تثبيت التطبيق</button>
+                <button id="installButton" class="install-btn" style="display: none;"><i class="fa-solid fa-download"></i> تثبيت التطبيق</button>
                 <button onclick="window.location.href='support.html'" class="bg-white/10 text-white font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur-sm"><i class="fa-solid fa-headset"></i> الدعم</button>
             </div>
         </div>
 
-        <!-- بطاقات الأرباح والاستثمار والإحالات -->
+        <!-- بطاقات -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
-            <!-- الأرباح -->
-            <div class="glass-card p-5 flex flex-col justify-between text-center">
-                <div class="flex justify-center items-center gap-2">
-                    <span class="text-sm text-slate-400">الأرباح الصافية</span>
-                    <i class="fa-solid fa-chart-line text-sky-400"></i>
-                </div>
+            <div class="glass-card p-5 text-center">
+                <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">الأرباح</span><i class="fa-solid fa-chart-line text-sky-400"></i></div>
                 <p class="stat-value mt-2" id="user-profit">$0.00</p>
                 <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">سحب الأرباح</button>
             </div>
-            <!-- استثمار المعادن -->
-            <div class="glass-card p-5 flex flex-col justify-between text-center">
-                <div class="flex justify-center items-center gap-2">
-                    <span class="text-sm text-slate-400">المعادن والعملات</span>
-                    <i class="fa-solid fa-coins text-sky-400"></i>
-                </div>
+            <div class="glass-card p-5 text-center">
+                <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">المعادن والعملات</span><i class="fa-solid fa-coins text-sky-400"></i></div>
                 <p class="text-lg font-bold text-white mt-2">3% يوميًا</p>
-                <p class="text-xs text-slate-400 mt-1">من 50$ إلى 10,000$</p>
+                <p class="text-xs text-slate-400 mt-1">50$ - 10,000$</p>
                 <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">استثمر الآن</button>
             </div>
-            <!-- الإحالات -->
-            <div class="glass-card p-5 flex flex-col justify-between text-center">
-                <div class="flex justify-center items-center gap-2">
-                    <span class="text-sm text-slate-400">الإحالات</span>
-                    <i class="fa-solid fa-user-group text-sky-400"></i>
-                </div>
+            <div class="glass-card p-5 text-center">
+                <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">الإحالات</span><i class="fa-solid fa-user-group text-sky-400"></i></div>
                 <p class="text-lg font-mono text-sky-300 mt-2" id="referralCodeDisplay">------</p>
-                <p class="text-xs text-slate-400 mt-1">تربح 15% من أول إيداع</p>
-                <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل الإحالات</button>
+                <p class="text-xs text-slate-400 mt-1">15% من أول إيداع</p>
+                <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل</button>
             </div>
         </div>
 
@@ -291,52 +179,67 @@
     </div>
 
     <script>
-        // ============ PWA Install Logic ============
+        // ======================= PWA Install Logic (للجميع) =======================
+        // تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('SW registered');
+                }).catch(err => console.warn('SW registration failed', err));
+            });
+        }
+
         let deferredPrompt;
         const installBtn = document.getElementById('installButton');
 
+        // التقاط حدث beforeinstallprompt (يطلقه Chrome عند استيفاء شروط PWA)
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.classList.remove('hidden');
+            // إظهار الزر لجميع المستخدمين
+            installBtn.style.display = 'inline-flex';
         });
 
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                installBtn.classList.add('hidden');
-                Swal.fire({ icon: 'success', title: 'تم التثبيت', text: 'تم إضافة Fargo إلى شاشتك الرئيسية', timer: 2000, showConfirmButton: false, background: '#042840', color: '#fff' });
+        // عند الضغط على الزر
+        window.installApp = () => {
+            if (!deferredPrompt) {
+                // إذا لم يتوفر الحدث، نوجه المستخدم لإضافة يدوية
+                alert('يمكنك تثبيت التطبيق من قائمة المتصفح (⋮) ثم "إضافة إلى الشاشة الرئيسية".');
+                return;
             }
-            deferredPrompt = null;
-        });
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                    Swal.fire({ icon: 'success', title: 'تم التثبيت', text: 'تم إضافة Fargo إلى شاشتك الرئيسية', timer: 2000, showConfirmButton: false, background: '#042840', color: '#fff' });
+                }
+                deferredPrompt = null;
+            });
+        };
+        installBtn.addEventListener('click', window.installApp);
 
+        // إخفاء الزر إذا كان التطبيق مثبتًا بالفعل
         window.addEventListener('appinstalled', () => {
-            installBtn.classList.add('hidden');
+            installBtn.style.display = 'none';
             deferredPrompt = null;
         });
+        // فحص أولي إذا كان مثبتًا مسبقًا
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            installBtn.style.display = 'none';
+        }
 
-        // ============ Main Dashboard Logic ============
+        // ======================= Dashboard Logic =======================
         const API_BASE = '';
         let socket;
-
-        // i18n (مبسطة)
         let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
         const translations = {};
 
         async function loadTranslations(lang) {
-            try {
-                const res = await fetch(`/locales/${lang}/translation.json`);
-                if (res.ok) translations[lang] = await res.json();
-            } catch (e) { /* ignore */ }
+            try { const res = await fetch(`/locales/${lang}/translation.json`); if (res.ok) translations[lang] = await res.json(); } catch(e) {}
         }
-
         function applyTranslations(lang) {
             const t = translations[lang] || {};
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
-            });
+            document.querySelectorAll('[data-i18n]').forEach(el => { if(t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n]; });
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.documentElement.lang = lang;
             localStorage.setItem('preferredLanguage', lang);
@@ -344,18 +247,9 @@
             document.querySelectorAll('.lang-option').forEach(o => o.classList.toggle('active', o.dataset.lang === lang));
             document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
         }
+        async function setLanguage(lang) { if(!translations[lang]) await loadTranslations(lang); applyTranslations(lang); fetchUserData(); }
+        document.querySelectorAll('.lang-option').forEach(opt => { opt.addEventListener('click', () => setLanguage(opt.dataset.lang)); });
 
-        async function setLanguage(lang) {
-            if (!translations[lang]) await loadTranslations(lang);
-            applyTranslations(lang);
-            fetchUserData();
-        }
-
-        document.querySelectorAll('.lang-option').forEach(opt => {
-            opt.addEventListener('click', () => setLanguage(opt.dataset.lang));
-        });
-
-        // WebSocket
         function initSocket() {
             socket = io(window.location.origin, { withCredentials: true });
             socket.on('notification', data => {
@@ -364,7 +258,6 @@
             });
         }
 
-        // Auth
         async function fetchWithAuth(url, options = {}) {
             options.credentials = 'include';
             let res = await fetch(url, options);
@@ -382,110 +275,60 @@
                 if (!res.ok) throw new Error();
                 const user = await res.json();
                 localStorage.setItem('currentUser', JSON.stringify(user));
-                updateUI(user);
-                return user;
-            } catch (e) { return null; }
+                updateUI(user); return user;
+            } catch(e) { return null; }
         }
 
         function updateUI(user) {
             document.getElementById('welcome-name').innerText = user.fullName || user.username;
-            document.getElementById('user-balance').innerText = `$${(user.withdrawableAmount || (user.balance||0)+(user.profit||0)).toLocaleString()}`;
+            document.getElementById('user-balance').innerText = `$${((user.balance||0)+(user.profit||0)).toLocaleString()}`;
             document.getElementById('user-profit').innerText = `$${(user.profit||0).toLocaleString()}`;
             document.getElementById('referralCodeDisplay').innerText = user.referralCode || '------';
             document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username||'U')}&background=1e6b8a&color=fff&bold=true`;
-            localStorage.setItem('currentUsername', user.username);
         }
 
-        // Quick Withdraw
         async function quickWithdrawProfit() {
-            const user = await fetchUserData();
-            if (!user) return;
+            const user = await fetchUserData(); if (!user) return;
             const profit = user.profit || 0;
-            if (profit <= 0) { Swal.fire('تنبيه', 'لا توجد أرباح حالياً', 'info'); return; }
+            if (profit <= 0) { Swal.fire('تنبيه', 'لا أرباح حالياً', 'info'); return; }
             localStorage.setItem('quickWithdrawAmount', profit);
             window.location.href = `withdraw.html?amount=${profit}&type=profit`;
         }
 
-        // Activities
         async function loadActivities() {
             const res = await fetchWithAuth(`${API_BASE}/api/activity-logs/recent`);
             const activities = await res.json();
             const container = document.getElementById('activity-container');
-            if (!activities.length) {
-                container.innerHTML = '<div class="text-slate-500 text-center py-2">لا توجد نشاطات حديثة</div>';
-                return;
-            }
-            container.innerHTML = activities.slice(0, 6).map(a => `
-                <div class="activity-item flex justify-between items-center">
-                    <div>
-                        <span class="font-bold text-white">${esc(a.action)}</span>
-                        <span class="text-slate-400 mx-2">-</span>
-                        <span>${esc(a.details)}</span>
-                    </div>
-                    <span class="text-xs text-slate-500 whitespace-nowrap">${new Date(a.timestamp).toLocaleString()}</span>
-                </div>
-            `).join('');
+            container.innerHTML = activities.length ? activities.slice(0,6).map(a => `<div class="activity-item flex justify-between"><div><b>${esc(a.action)}</b> - ${esc(a.details)}</div><span class="text-xs text-slate-500">${new Date(a.timestamp).toLocaleString()}</span></div>`).join('') : '<div class="text-slate-500 text-center">لا توجد نشاطات</div>';
         }
 
-        // Notifications
         let notifications = [];
         async function loadNotifications() {
             const res = await fetchWithAuth(`${API_BASE}/api/notifications`);
             notifications = await res.json();
-            const unread = notifications.filter(n => !n.isRead).length;
             const badge = document.getElementById('notificationCount');
-            badge.style.display = unread > 0 ? 'flex' : 'none';
+            const unread = notifications.filter(n=>!n.isRead).length;
+            badge.style.display = unread ? 'flex' : 'none';
             badge.innerText = unread;
-            updateNotificationsDropdown();
-        }
-
-        function updateNotificationsDropdown() {
-            const list = document.getElementById('notificationsList');
-            list.innerHTML = notifications.map(n => `
-                <div class="py-1 border-b border-white/5 ${!n.isRead ? 'font-bold text-sky-200' : 'text-slate-400'}">
-                    <div>${esc(n.title)}</div>
-                    <div class="text-[10px]">${esc(n.message)}</div>
-                </div>
-            `).join('');
+            document.getElementById('notificationsList').innerHTML = notifications.map(n => `<div class="py-1 border-b border-white/5 ${!n.isRead?'font-bold text-sky-200':'text-slate-400'}">${esc(n.title)}</div>`).join('');
         }
 
         function toggleNotifications() {
-            const dropdown = document.getElementById('notificationsDropdown');
-            dropdown.classList.toggle('hidden');
-            if (!dropdown.classList.contains('hidden')) loadNotifications();
-        }
-
-        document.getElementById('markAllReadBtn').addEventListener('click', async () => {
-            await fetchWithAuth(`${API_BASE}/api/notifications/read-all`, { method: 'PUT' });
+            document.getElementById('notificationsDropdown').classList.toggle('hidden');
             loadNotifications();
-        });
+        }
+        document.getElementById('markAllReadBtn').addEventListener('click', async () => { await fetchWithAuth(`${API_BASE}/api/notifications/read-all`,{method:'PUT'}); loadNotifications(); });
 
-        // Logout
         function logout() {
-            Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#2e86ab', background: '#042840', color: '#fff' }).then(r => {
-                if (r.isConfirmed) {
-                    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-                    localStorage.clear();
-                    window.location.href = 'login.html';
-                }
-            });
+            Swal.fire({ title:'تسجيل الخروج', text:'هل أنت متأكد؟', icon:'question', showCancelButton:true, confirmButtonColor:'#2e86ab', background:'#042840', color:'#fff' }).then(r => { if(r.isConfirmed) { fetch('/api/auth/logout',{method:'POST',credentials:'include'}); localStorage.clear(); window.location.href='login.html'; }});
         }
 
         function esc(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 
-        // Init
         window.onload = async () => {
-            await loadTranslations(currentLang);
-            applyTranslations(currentLang);
+            await loadTranslations(currentLang); applyTranslations(currentLang);
             const user = await fetchUserData();
-            if (user) {
-                initSocket();
-                loadActivities();
-                loadNotifications();
-                setInterval(() => {
-                    if (document.visibilityState === 'visible') fetchUserData();
-                }, 20000);
-            }
+            if(user) { initSocket(); loadActivities(); loadNotifications(); setInterval(()=>{ if(document.visibilityState==='visible') fetchUserData(); }, 20000); }
         };
     </script>
 </body>
