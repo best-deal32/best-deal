@@ -23,14 +23,15 @@
             --text-dim: #b0d4e8;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Cairo', sans-serif;
             background: radial-gradient(ellipse at top, #022c43 0%, var(--bg-deep) 70%);
             color: var(--text-primary);
-            margin: 0;
-            padding: 0;
             min-height: 100vh;
             overflow-x: hidden;
+            padding-bottom: 5rem;
         }
 
         .glass-card {
@@ -173,6 +174,70 @@
             transform: scale(0.95);
         }
 
+        /* Tabs */
+        .tabs-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+        .tab-btn {
+            background: transparent;
+            border: 1px solid rgba(69, 179, 224, 0.25);
+            color: var(--text-dim);
+            font-weight: 800;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--sky-mid), var(--sky-light));
+            color: #fff;
+            border-color: transparent;
+        }
+        .tab-btn:hover:not(.active) {
+            background: rgba(69, 179, 224, 0.1);
+        }
+
+        /* المعاملات */
+        .transaction-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 1.5rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 0.8rem;
+            transition: transform 0.2s;
+        }
+        .transaction-card:hover {
+            transform: translateX(5px);
+            border-color: var(--sky-accent);
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .type-deposit { background: rgba(16,185,129,0.2); color: #10b981; }
+        .type-withdrawal { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .type-investment { background: rgba(59,130,246,0.2); color: #60a5fa; }
+        .type-referral { background: rgba(168,85,247,0.2); color: #a78bfa; }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
         /* نافذة المساعدة */
         #helpModal {
             display: none;
@@ -209,6 +274,8 @@
         @media (max-width: 640px) {
             .glass-card { border-radius: 1.5rem; padding: 1rem; }
             .help-content { padding: 1.5rem; }
+            .tabs-container { gap: 0.3rem; }
+            .tab-btn { padding: 0.4rem 1rem; font-size: 0.8rem; }
         }
     </style>
 </head>
@@ -227,7 +294,6 @@
                 <div class="lang-option" data-lang="zh">中文</div>
                 <div class="lang-option" data-lang="de">Deutsch</div>
             </div>
-            <!-- زر المساعدة الجديد -->
             <div class="help-bell" id="helpBell" onclick="openHelp()">
                 <i class="fa-solid fa-circle-question text-xl text-sky-200 hover:text-white transition"></i>
             </div>
@@ -246,7 +312,7 @@
         <button id="markAllReadBtn" class="text-[10px] text-sky-400 hover:underline mt-2 text-center w-full">تحديد الكل كمقروء</button>
     </div>
 
-    <!-- نافذة المساعدة الجديدة -->
+    <!-- نافذة المساعدة -->
     <div id="helpModal">
         <div class="help-content">
             <button class="help-close" onclick="closeHelp()"><i class="fa-solid fa-xmark"></i></button>
@@ -277,50 +343,69 @@
     </div>
 
     <main class="max-w-5xl mx-auto px-4 mt-8">
-        <!-- بطاقة الترحيب والرصيد -->
-        <div class="glass-card p-6 mb-6 text-center">
-            <h2 class="text-lg font-bold text-slate-200">مرحباً <span id="welcome-name" class="text-sky-300">.......</span></h2>
-            <div class="balance-value mt-3" id="user-balance">$0.00</div>
-            <p class="text-xs text-slate-400 mt-1">الرصيد المتاح للسحب</p>
-            <div class="flex flex-wrap gap-4 justify-center mt-5">
-                <button onclick="window.location.href='deposit.html'" class="btn-sky"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
-                <button onclick="window.location.href='withdraw.html'" class="btn-outline-sky"><i class="fa-solid fa-receipt"></i> سحب</button>
-                <button onclick="window.location.href='support.html'" class="bg-white/10 text-white font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur-sm"><i class="fa-solid fa-headset"></i> الدعم</button>
+        <!-- تبويبات الصفحة الرئيسية -->
+        <div class="tabs-container">
+            <button class="tab-btn active" data-tab="overview"><i class="fa-solid fa-house"></i> نظرة عامة</button>
+            <button class="tab-btn" data-tab="transactions"><i class="fa-solid fa-clock-rotate-left"></i> سجل المعاملات</button>
+        </div>
+
+        <!-- محتوى تبويب نظرة عامة -->
+        <div id="overview-tab">
+            <!-- بطاقة الترحيب والرصيد -->
+            <div class="glass-card p-6 mb-6 text-center animate-fadeInUp">
+                <h2 class="text-lg font-bold text-slate-200">مرحباً <span id="welcome-name" class="text-sky-300">.......</span></h2>
+                <div class="balance-value mt-3" id="user-balance">$0.00</div>
+                <p class="text-xs text-slate-400 mt-1">الرصيد المتاح للسحب</p>
+                <div class="flex flex-wrap gap-4 justify-center mt-5">
+                    <button onclick="window.location.href='deposit.html'" class="btn-sky"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
+                    <button onclick="window.location.href='withdraw.html'" class="btn-outline-sky"><i class="fa-solid fa-receipt"></i> سحب</button>
+                    <button onclick="window.location.href='support.html'" class="bg-white/10 text-white font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur-sm"><i class="fa-solid fa-headset"></i> الدعم</button>
+                </div>
+            </div>
+
+            <!-- بطاقات الأرباح والاستثمار والفريق -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                <!-- الأرباح -->
+                <div class="glass-card p-5 text-center animate-fadeInUp" style="animation-delay: 0.1s">
+                    <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">الأرباح</span><i class="fa-solid fa-chart-line text-sky-400"></i></div>
+                    <p class="stat-value mt-2" id="user-profit">$0.00</p>
+                    <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">سحب الأرباح</button>
+                </div>
+                <!-- استثمار المعادن -->
+                <div class="glass-card p-5 text-center animate-fadeInUp" style="animation-delay: 0.2s">
+                    <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">المعادن والعملات</span><i class="fa-solid fa-coins text-sky-400"></i></div>
+                    <p class="text-lg font-bold text-white mt-2">3% يوميًا</p>
+                    <p class="text-xs text-slate-400 mt-1">50$ - 10,000$</p>
+                    <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">استثمر الآن</button>
+                </div>
+                <!-- الفريق -->
+                <div class="glass-card p-5 text-center animate-fadeInUp" style="animation-delay: 0.3s">
+                    <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">فريقي</span><i class="fa-solid fa-user-group text-sky-400"></i></div>
+                    <p class="text-lg font-mono text-sky-300 mt-2" id="referralCodeDisplay">------</p>
+                    <p class="text-xs text-slate-400 mt-1">فريقك يربح لك 15% من أول إيداع لهم</p>
+                    <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل الفريق</button>
+                </div>
+            </div>
+
+            <!-- سجل النشاطات -->
+            <div class="glass-card p-5 mb-4 animate-fadeInUp" style="animation-delay: 0.4s">
+                <h3 class="text-sm font-bold text-sky-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
+                <div id="activity-container" class="space-y-2 text-sm text-slate-300"></div>
             </div>
         </div>
 
-        <!-- بطاقات الأرباح والاستثمار والفريق -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
-            <!-- الأرباح -->
-            <div class="glass-card p-5 text-center">
-                <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">الأرباح</span><i class="fa-solid fa-chart-line text-sky-400"></i></div>
-                <p class="stat-value mt-2" id="user-profit">$0.00</p>
-                <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">سحب الأرباح</button>
+        <!-- محتوى تبويب سجل المعاملات -->
+        <div id="transactions-tab" class="hidden">
+            <div class="glass-card p-5">
+                <h3 class="text-xl font-black text-sky-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> سجل المعاملات</h3>
+                <div id="transactions-container" class="space-y-3">
+                    <div class="text-center py-8 text-slate-400">جاري تحميل المعاملات...</div>
+                </div>
             </div>
-            <!-- استثمار المعادن -->
-            <div class="glass-card p-5 text-center">
-                <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">المعادن والعملات</span><i class="fa-solid fa-coins text-sky-400"></i></div>
-                <p class="text-lg font-bold text-white mt-2">3% يوميًا</p>
-                <p class="text-xs text-slate-400 mt-1">50$ - 10,000$</p>
-                <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">استثمر الآن</button>
-            </div>
-            <!-- الفريق -->
-            <div class="glass-card p-5 text-center">
-                <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">فريقي</span><i class="fa-solid fa-user-group text-sky-400"></i></div>
-                <p class="text-lg font-mono text-sky-300 mt-2" id="referralCodeDisplay">------</p>
-                <p class="text-xs text-slate-400 mt-1">فريقك يربح لك 15% من أول إيداع لهم</p>
-                <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل الفريق</button>
-            </div>
-        </div>
-
-        <!-- سجل النشاطات -->
-        <div class="glass-card p-5 mb-4">
-            <h3 class="text-sm font-bold text-sky-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
-            <div id="activity-container" class="space-y-2 text-sm text-slate-300"></div>
         </div>
     </main>
 
-    <!-- القائمة السفلية (بدون إيداع ودعم) -->
+    <!-- القائمة السفلية -->
     <div class="bottom-nav">
         <div class="nav-link active"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
         <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>استثمار</span></div>
@@ -465,6 +550,120 @@
         }
 
         function esc(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+        // ========== Tabs Logic ==========
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const overviewTab = document.getElementById('overview-tab');
+        const transactionsTab = document.getElementById('transactions-tab');
+        let transactionsLoaded = false;
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const target = btn.dataset.tab;
+                if (target === 'overview') {
+                    overviewTab.classList.remove('hidden');
+                    transactionsTab.classList.add('hidden');
+                } else if (target === 'transactions') {
+                    overviewTab.classList.add('hidden');
+                    transactionsTab.classList.remove('hidden');
+                    if (!transactionsLoaded) {
+                        loadTransactionsData();
+                        transactionsLoaded = true;
+                    }
+                }
+            });
+        });
+
+        async function loadTransactionsData() {
+            const container = document.getElementById('transactions-container');
+            container.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>جاري التحميل...</div>';
+            try {
+                const [deposits, withdrawals, investments, referralsRes] = await Promise.all([
+                    fetchWithAuth(`${API_BASE}/api/deposits/my`).then(r => r.ok ? r.json() : []),
+                    fetchWithAuth(`${API_BASE}/api/withdrawals/my`).then(r => r.ok ? r.json() : []),
+                    fetchWithAuth(`${API_BASE}/api/investments/my`).then(r => r.ok ? r.json() : []),
+                    fetchWithAuth(`${API_BASE}/api/referrals/my`).then(r => r.ok ? r.json() : { referrals: [] })
+                ]);
+
+                const referrals = referralsRes.referrals || [];
+                let allTransactions = [];
+
+                (deposits || []).forEach(d => {
+                    allTransactions.push({
+                        id: d.id, type: 'deposit', amount: parseFloat(d.amount) || 0,
+                        status: d.status || 'pending', date: new Date(d.date),
+                        details: `USDT - TX: ${d.screenshotPath || '-'}`
+                    });
+                });
+
+                (withdrawals || []).forEach(w => {
+                    allTransactions.push({
+                        id: w.id, type: 'withdrawal', amount: parseFloat(w.amount) || 0,
+                        status: w.status || 'pending', date: new Date(w.date),
+                        details: `${w.type === 'profit' ? 'أرباح' : 'أصل'} | محفظة: ${(w.walletAddress || '').substring(0,12)}...`
+                    });
+                });
+
+                (investments || []).forEach(inv => {
+                    allTransactions.push({
+                        id: inv.id, type: 'investment', amount: parseFloat(inv.amount) || 0,
+                        status: inv.withdrawnPrincipal ? 'completed' : 'active',
+                        date: new Date(inv.startDate),
+                        details: 'مشروع المعادن والعملات'
+                    });
+                });
+
+                (referrals || []).forEach(ref => {
+                    const reward = parseFloat(ref.reward) || 0;
+                    if (reward > 0) {
+                        allTransactions.push({
+                            id: `ref_${ref.username}`, type: 'referral', amount: reward,
+                            status: 'completed', date: new Date(ref.registeredAt),
+                            details: `مكافأة من ${ref.username}`
+                        });
+                    }
+                });
+
+                allTransactions.sort((a, b) => b.date - a.date);
+
+                if (allTransactions.length === 0) {
+                    container.innerHTML = '<div class="text-center py-8 text-slate-400">لا توجد معاملات حتى الآن</div>';
+                    return;
+                }
+
+                let html = '';
+                allTransactions.forEach(tx => {
+                    const amount = tx.amount.toFixed(2);
+                    let typeClass = '', typeText = '';
+                    if (tx.type === 'deposit') { typeClass = 'type-deposit'; typeText = 'إيداع'; }
+                    else if (tx.type === 'withdrawal') { typeClass = 'type-withdrawal'; typeText = 'سحب'; }
+                    else if (tx.type === 'investment') { typeClass = 'type-investment'; typeText = 'استثمار'; }
+                    else { typeClass = 'type-referral'; typeText = 'إحالة'; }
+
+                    const sign = tx.type === 'withdrawal' ? '- ' : '+ ';
+                    const colorClass = tx.type === 'withdrawal' ? 'text-yellow-400' : 'text-green-400';
+                    const dateStr = tx.date.toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+
+                    html += `
+                        <div class="transaction-card flex flex-wrap justify-between items-center gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="type-badge ${typeClass}">${typeText}</span>
+                                <span class="text-xs text-slate-400">${dateStr}</span>
+                            </div>
+                            <div class="text-left">
+                                <span class="font-bold ${colorClass}">${sign}${amount} $</span>
+                                <div class="text-xs text-slate-500 mt-1">${esc(tx.details)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<div class="text-center py-8 text-red-400">فشل تحميل المعاملات</div>';
+            }
+        }
 
         // Init
         window.onload = async () => {
