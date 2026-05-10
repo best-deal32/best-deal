@@ -452,7 +452,7 @@ app.post('/api/withdrawals/add', authenticateToken, async (req, res) => {
         if (type !== 'profit' && type !== 'principal') return res.status(400).json({ success: false, message: 'نوع السحب غير صالح' });
         const user = await getQuery('SELECT balance, profit, totalDeposits FROM users WHERE id = ?', [req.user.id]);
         if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
-        if ((user.totalDeposits || 0) <= 0) return res.status(400).json({ success: false, message: 'يجب القيام بإيداع أولاً' });
+        // تم إزالة شرط وجود إيداع سابق للسماح بسحب أرباح الإحالة فوراً
         if (type === 'profit') {
             if (parseFloat(user.profit) < withdrawAmount) return res.status(400).json({ success: false, message: 'الأرباح غير كافية' });
             if (withdrawAmount < 10) return res.status(400).json({ success: false, message: 'الحد الأدنى لسحب الأرباح هو 10$' });
