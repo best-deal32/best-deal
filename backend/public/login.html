@@ -271,10 +271,10 @@
 
         <form id="loginForm">
             <div class="input-group">
-                <label class="input-label">اسم المستخدم</label>
+                <label class="input-label">اسم المستخدم أو البريد الإلكتروني أو الهاتف</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-user"></i>
-                    <input type="text" id="username" class="input-field" placeholder="أدخل اسم المستخدم" required>
+                    <input type="text" id="login" class="input-field" placeholder="أدخل اسم المستخدم، البريد أو الهاتف" required>
                 </div>
             </div>
             <div class="input-group">
@@ -413,15 +413,15 @@
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const username = document.getElementById('username').value.trim();
+            const login = document.getElementById('login').value.trim();
             const password = document.getElementById('password').value.trim();
 
-            if (!username || !password) {
+            if (!login || !password) {
                 const t = translations[currentLang] || {};
                 Swal.fire({
                     icon: 'warning',
                     title: t.warning_title || 'تنبيه',
-                    text: t.login_required || 'يرجى إدخال اسم المستخدم وكلمة المرور',
+                    text: t.login_required || 'يرجى إدخال اسم المستخدم (أو البريد/الهاتف) وكلمة المرور',
                     background: '#1a0000',
                     color: '#fff',
                     confirmButtonColor: '#ff3333'
@@ -437,7 +437,8 @@
                 const response = await fetch(LOGIN_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password }),
+                    // إرسال login بدلاً من username
+                    body: JSON.stringify({ login, password }),
                     credentials: 'include'
                 });
 
