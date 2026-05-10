@@ -1,15 +1,15 @@
 // ============================================================
-// server.js - Fargo | استثمار المعادن والعملات الرقمية
+// server.js - Fargo | استثمار المعادن والعملات الرقمية (النسخة النهائية)
 // ============================================================
 // الميزات:
-// - تسجيل بحقل بريد إلكتروني (اختياري) أو رقم هاتف (اختياري) – يجب إدخال أحدهما
+// - تسجيل دخول موحد (اسم المستخدم، البريد الإلكتروني، أو رقم الهاتف)
+// - تسجيل حساب جديد (البريد اختياري، رقم الهاتف اختياري - يجب إدخال أحدهما)
 // - إيداع بدون رفع صور (المبلغ + رمز المعاملة)
 // - سحب أرباح (حد أدنى 10$) أو رصيد أساسي
 // - استثمار المعادن والعملات (3% يوميًا، 50$-10,000$)
 // - نظام فريق (إحالات): 15% من أول إيداع للعضو المدعو
-// - مكافأة ترحيبية 5$ عند أول إيداع >= 50$ (تم حذفها حاليًا حسب الطلب الأخير)
-// - تذاكر دعم (للمستخدمين والزوار)
-// - تحليلات وأدمن كامل مع بوابة خاصة
+// - تذاكر دعم (للمستخدمين المسجلين والزوار)
+// - لوحة تحكم للأدمن مع تحليلات ورسوم بيانية
 // - إشعارات فورية (WebSocket)
 // - دعم i18n (عربي، إنجليزي، صيني، ألماني)
 // ============================================================
@@ -333,16 +333,24 @@ app.use('/api/users/login', authLimiter);
 app.use('/api/users/register', authLimiter);
 
 // ====================== AUTH ROUTES ======================
+// تسجيل الدخول الموحد (اسم المستخدم، البريد، رقم الهاتف)
 app.post('/api/users/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
-        if (!username || !password) return res.status(400).json({ success: false, message: req.t('login_required_fields') });
-        const user = await getQuery('SELECT * FROM users WHERE username = ?', [username]);
+        const { login, password } = req.body;
+        if (!login || !password) return res.status(400).json({ success: false, message: req.t('login_required_fields') });
+
+        // البحث في الحقول الثلاثة
+        const user = await getQuery(
+            'SELECT * FROM users WHERE username = ? OR email = ? OR phoneNumber = ?',
+            [login, login, login]
+        );
+
         if (!user) return res.status(401).json({ success: false, message: req.t('invalid_credentials') });
         if (user.lockUntil && new Date(user.lockUntil) > new Date()) {
             const minutesLeft = Math.ceil((new Date(user.lockUntil) - new Date()) / 60000);
             return res.status(423).json({ success: false, message: `الحساب مقفل لمدة ${minutesLeft} دقيقة` });
         }
+
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
             await runQuery('UPDATE users SET loginAttempts = loginAttempts + 1 WHERE id = ?', [user.id]);
@@ -353,12 +361,15 @@ app.post('/api/users/login', async (req, res) => {
             }
             return res.status(401).json({ success: false, message: req.t('invalid_credentials') });
         }
+
         await runQuery('UPDATE users SET loginAttempts = 0, lockUntil = NULL WHERE id = ?', [user.id]);
+
         const token = generateToken(user.id, user.username, user.role);
         const refreshToken = generateRefreshToken(user.id);
         await runQuery('UPDATE users SET refreshToken = ? WHERE id = ?', [refreshToken, user.id]);
         res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: isProduction, maxAge: 15 * 60 * 1000 });
         res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', secure: isProduction, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
         const { password: _, ...userData } = user;
         await logActivity(user.id, 'تسجيل دخول', 'تسجيل دخول ناجح', req.ip);
         res.json({ success: true, user: userData });
@@ -416,15 +427,12 @@ app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async 
         await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [amount, userId]);
         await db.execute('UPDATE deposit_requests SET status = "approved" WHERE id = ?', [deposit.id]);
         await db.execute('UPDATE users SET totalDeposits = totalDeposits + ? WHERE id = ?', [amount, userId]);
-        const totalDep = (await getQuery('SELECT totalDeposits FROM users WHERE id = ?', [userId])).totalDeposits;
-        if (totalDep === amount && amount >= 50) {
-            await db.execute('UPDATE users SET balance = balance + 5 WHERE id = ?', [userId]);
-            await addNotification(userId, '🎁 مكافأة ترحيبية', '5$ بعد أول إيداع');
-            await logActivity(userId, 'مكافأة ترحيبية', '5$');
-        }
+        // تمت إزالة المكافأة الترحيبية بناءً على الطلب السابق
         await logAdminAction(req.user.id, req.user.username, 'approve_deposit', userId, username, `قبول إيداع ${amount}$`, req.ip);
         await addNotification(userId, 'تم قبول الإيداع', `تمت إضافة ${amount}$ إلى رصيدك`);
         await logActivity(userId, 'إيداع مقبول', `تم قبول إيداع ${amount}$`, req.ip);
+        // مكافأة الفريق (15% لأول إيداع)
+        const totalDep = (await getQuery('SELECT totalDeposits FROM users WHERE id = ?', [userId])).totalDeposits;
         if (totalDep === amount) await processReferralBonus(userId, amount);
         res.json({ success: true, message: 'تم قبول الإيداع' });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
@@ -610,7 +618,7 @@ app.get('/api/referrals/my', authenticateToken, async (req, res) => {
     } catch (err) { console.error(err); res.status(500).json({ success: false }); }
 });
 
-// ====================== NOTIFICATIONS & DAILY BONUS (تم إلغاء المكافأة اليومية) ======================
+// ====================== NOTIFICATIONS ======================
 app.get('/api/notifications', authenticateToken, async (req, res) => {
     res.json(await allQuery('SELECT * FROM notifications WHERE userId = ? ORDER BY createdAt DESC LIMIT 50', [req.user.id]));
 });
@@ -712,7 +720,7 @@ app.get('/api/admin/support/tickets', authenticateToken, adminOnly, async (req, 
 // ====================== ADMIN ROUTES ======================
 app.get('/api/admin/users', authenticateToken, adminOnly, async (req, res) => {
     const { search } = req.query; let query = 'SELECT id, username, fullName, email, phoneNumber, balance, profit, level, createdAt, isVerified, origin, currentLocation, currentJob, work, profession, totalDeposits, referralCode FROM users'; let params = [];
-    if (search) { query += ' WHERE username LIKE ? OR email LIKE ? OR fullName LIKE ?'; params = [`%${search}%`, `%${search}%`, `%${search}%`]; }
+    if (search) { query += ' WHERE username LIKE ? OR email LIKE ? OR phoneNumber LIKE ? OR fullName LIKE ?'; params = [`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`]; }
     res.json({ users: await allQuery(query + ' ORDER BY createdAt DESC', params) });
 });
 app.get('/api/admin/user/:id', authenticateToken, adminOnly, async (req, res) => {
@@ -764,7 +772,6 @@ app.post('/api/users/register', async (req, res) => {
     try {
         const { username, password, fullName, email, phoneNumber, referrerCode, verificationCode } = req.body;
         if (!username || !password || !fullName) return res.status(400).json({ success: false, message: 'جميع الحقول الأساسية مطلوبة' });
-        // يجب إدخال إما البريد أو رقم الهاتف
         const cleanEmail = email ? email.trim() : null;
         const cleanPhone = phoneNumber ? phoneNumber.trim() : null;
         if (!cleanEmail && !cleanPhone) return res.status(400).json({ success: false, message: 'يجب إدخال البريد الإلكتروني أو رقم الهاتف' });
@@ -772,7 +779,6 @@ app.post('/api/users/register', async (req, res) => {
         const [existingUser] = await db.execute('SELECT id FROM users WHERE username = ?', [username]);
         if (existingUser.length > 0) return res.status(400).json({ success: false, message: 'اسم المستخدم موجود مسبقاً' });
 
-        // التدقيق على رقم الهاتف إن وُجد
         if (cleanPhone) {
             const digits = cleanPhone.replace(/\D/g, '');
             if (digits.length < 10 || digits.length > 15) return res.status(400).json({ success: false, message: 'رقم الهاتف يجب أن يكون بين 10 و15 رقماً' });
@@ -808,7 +814,7 @@ app.get('/api/activity-logs/recent', authenticateToken, async (req, res) => {
     res.json(await allQuery('SELECT action, details, timestamp FROM activity_logs WHERE userId = ? ORDER BY timestamp DESC LIMIT 50', [req.user.id]));
 });
 
-// ====================== CRON: توزيع أرباح الاستثمارات ======================
+// ====================== CRON ======================
 async function distributeMetalProfits() {
     const connection = await db.getConnection();
     try {
