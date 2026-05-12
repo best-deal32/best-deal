@@ -1,7 +1,18 @@
 // ============================================================
 // server.js - Fargo | استثمار المعادن والعملات الرقمية (نهائي)
 // ============================================================
-// ... (الكود الكامل كما في آخر رد – مرفق لأجلك فقط)
+// الميزات:
+// - تسجيل دخول موحد (اسم المستخدم، البريد الإلكتروني، أو رقم الهاتف)
+// - تسجيل : بريد أو هاتف (أحدهما إجباري)
+// - إيداع بدون صور (المبلغ + رمز المعاملة)
+// - سحب أرباح (≥10$) أو أصل
+// - استثمار وحيد: 3% يومياً (50$–10,000$)
+// - فريق (إحالات) 15% من أول إيداع
+// - تذاكر دعم (مستخدمين + زوّار)
+// - أدمن كامل مع تحليلات
+// - إشعارات فورية (WebSocket)
+// - i18n (عربي/إنجليزي/صيني/ألماني)
+// ============================================================
 
 const express = require('express');
 const mysql = require('mysql2/promise');
@@ -50,7 +61,35 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.set('trust proxy', 1);
 app.use(middleware.handle(i18next));
 
-// ... (باقي الكود مطابق تماماً لآخر نسخة أرسلتها لك)
+// ====================== Cloudinary ======================
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// --- تخزين مؤقت للملفات في الذاكرة ---
+const multerStorage = multer.memoryStorage(); // هذا هو المفقود الذي سبب الخطأ
+
+const upload = multer({
+  storage: multerStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('يسمح فقط برفع الصور'), false);
+  }
+});
+
+async function uploadToCloudinary(buffer, originalname) {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: 'deposits', allowed_formats: ['jpg', 'png', 'jpeg', 'webp'], transformation: [{ width: 1024, height: 1024, crop: 'limit' }] },
+      (error, result) => { if (error) reject(error); else resolve(result); }
+    );
+    uploadStream.end(buffer);
+  });
+}
+
 // ====================== Database ======================
 let db;
 async function initDatabase() {
