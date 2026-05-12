@@ -7,7 +7,7 @@
 // - إيداع بدون صور (المبلغ + رمز المعاملة)
 // - سحب أرباح (≥10$) أو أصل
 // - استثمار وحيد: 3% يومياً (50$–10,000$)
-// - فريق (إحالات) 15% من أول إيداع
+// - فريق (إحالات) 15% من أول إيداع تُضاف مباشرة إلى الأرباح
 // - تذاكر دعم (مستخدمين + زوّار)
 // - أدمن كامل مع تحليلات
 // - إشعارات فورية (WebSocket)
@@ -68,8 +68,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// --- تخزين مؤقت للملفات في الذاكرة ---
-const multerStorage = multer.memoryStorage(); // هذا هو المفقود الذي سبب الخطأ
+// --- تعريف multerStorage (ضروري جدا) ---
+const multerStorage = multer.memoryStorage();
 
 const upload = multer({
   storage: multerStorage,
@@ -247,7 +247,7 @@ async function createTables() {
         console.log('✅ Admin user "freeze" created');
     }
 
-    // إعادة تعيين اختياري (تم تعطيله نهائياً)
+    // ميزة إعادة التعيين معطلة نهائيا
     // if (process.env.RESET_DATA === 'true') { ... }
 
     try {
@@ -404,8 +404,12 @@ app.post('/api/admin/deposits/:id/approve', authenticateToken, adminOnly, async 
         await logAdminAction(req.user.id, req.user.username, 'approve_deposit', userId, username, `قبول إيداع ${amount}$`, req.ip);
         await addNotification(userId, 'تم قبول الإيداع', `تمت إضافة ${amount}$ إلى رصيدك`);
         await logActivity(userId, 'إيداع مقبول', `تم قبول إيداع ${amount}$`, req.ip);
+
+        // ✅ مكافأة الإحالة عن أول إيداع فقط
         const totalDep = (await getQuery('SELECT totalDeposits FROM users WHERE id = ?', [userId])).totalDeposits;
-        if (totalDep === amount) await processReferralBonus(userId, amount);
+        if (totalDep === amount) {
+            await processReferralBonus(userId, amount);
+        }
         res.json({ success: true, message: 'تم قبول الإيداع' });
     } catch (err) { console.error(err); res.status(500).json({ success: false, message: req.t('server_error') }); }
 });
@@ -437,15 +441,16 @@ app.post('/api/withdrawals/add', authenticateToken, async (req, res) => {
         const withdrawAmount = parseFloat(amount);
         if (isNaN(withdrawAmount) || withdrawAmount <= 0) return res.status(400).json({ success: false, message: 'مبلغ غير صالح' });
         if (type !== 'profit' && type !== 'principal') return res.status(400).json({ success: false, message: 'نوع السحب غير صالح' });
-        const user = await getQuery('SELECT balance, profit, totalDeposits FROM users WHERE id = ?', [req.user.id]);
+        const user = await getQuery('SELECT balance, profit FROM users WHERE id = ?', [req.user.id]);
         if (!user) return res.status(404).json({ success: false, message: 'المستخدم غير موجود' });
-        // تم إزالة شرط وجود إيداع سابق للسماح بسحب أرباح الإحالة فوراً
+
         if (type === 'profit') {
             if (parseFloat(user.profit) < withdrawAmount) return res.status(400).json({ success: false, message: 'الأرباح غير كافية' });
             if (withdrawAmount < 10) return res.status(400).json({ success: false, message: 'الحد الأدنى لسحب الأرباح هو 10$' });
         } else {
             if (parseFloat(user.balance) < withdrawAmount) return res.status(400).json({ success: false, message: 'الرصيد غير كافٍ' });
         }
+
         const id = `WIT_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
         await runQuery(`INSERT INTO withdrawal_requests (id, userId, username, amount, walletAddress, type, status, date) VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())`,
             [id, req.user.id, req.user.username, withdrawAmount, walletAddress, type]);
@@ -467,12 +472,17 @@ app.post('/api/admin/withdrawals/:id/approve', authenticateToken, adminOnly, asy
     try {
         const request = await getQuery('SELECT * FROM withdrawal_requests WHERE id = ?', [req.params.id]);
         if (!request || request.status !== 'pending') return res.status(404).json({ success: false, message: 'الطلب غير موجود' });
-        const { userId, amount, type, walletAddress, username } = request;
+        const { userId, amount, type, username } = request;
         const withdrawAmount = parseFloat(amount);
         const user = await getQuery('SELECT balance, profit FROM users WHERE id = ?', [userId]);
         let newBalance = parseFloat(user.balance), newProfit = parseFloat(user.profit);
-        if (type === 'profit') { if (newProfit < withdrawAmount) return res.status(400).json({ success: false, message: 'أرباح غير كافية' }); newProfit -= withdrawAmount; }
-        else { if (newBalance < withdrawAmount) return res.status(400).json({ success: false, message: 'رصيد غير كافٍ' }); newBalance -= withdrawAmount; }
+        if (type === 'profit') {
+            if (newProfit < withdrawAmount) return res.status(400).json({ success: false, message: 'أرباح غير كافية' });
+            newProfit -= withdrawAmount;
+        } else {
+            if (newBalance < withdrawAmount) return res.status(400).json({ success: false, message: 'رصيد غير كافٍ' });
+            newBalance -= withdrawAmount;
+        }
         await db.execute('UPDATE users SET balance = ?, profit = ? WHERE id = ?', [newBalance, newProfit, userId]);
         await db.execute('UPDATE withdrawal_requests SET status = "approved" WHERE id = ?', [req.params.id]);
         await logAdminAction(req.user.id, req.user.username, 'approve_withdrawal', userId, username, `قبول سحب ${withdrawAmount}$`, req.ip);
@@ -530,7 +540,8 @@ app.post('/api/investments/withdraw-profit', authenticateToken, async (req, res)
         const [rows] = await db.execute('SELECT * FROM investments WHERE id = ? AND userId = ?', [investmentId, req.user.id]);
         if (!rows || rows.length === 0) return res.status(404).json({ success: false, message: 'الاستثمار غير موجود' });
         const inv = rows[0];
-        const now = new Date(); const lastProfitDate = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
+        const now = new Date();
+        const lastProfitDate = inv.lastProfitDate ? new Date(inv.lastProfitDate) : new Date(inv.startDate);
         const diffDays = Math.floor((now - lastProfitDate) / (1000 * 60 * 60 * 24));
         if (diffDays <= 0) return res.status(400).json({ success: false, message: 'لا توجد أرباح جديدة' });
         const profit = inv.amount * 0.03 * diffDays;
@@ -561,31 +572,49 @@ app.post('/api/investments/withdraw-principal', authenticateToken, async (req, r
 // ====================== REFERRAL (فريق) ======================
 async function processReferralBonus(referredUserId, depositAmount) {
     try {
-        const referred = await getQuery('SELECT referrerId FROM users WHERE id = ?', [referredUserId]);
-        if (!referred || !referred.referrerId) return;
-        const referrer = await getQuery('SELECT id, username FROM users WHERE id = ?', [referred.referrerId]);
-        if (!referrer) return;
-        const previousDeposits = await getQuery('SELECT COUNT(*) as cnt FROM deposit_requests WHERE userId = ? AND status = "approved"', [referredUserId]);
-        if (previousDeposits.cnt > 1) return;
+        const referred = await getQuery('SELECT referrerId, username FROM users WHERE id = ?', [referredUserId]);
+        if (!referred || !referred.referrerId) {
+            console.log(`⚠️ لا يوجد مُحيل للمستخدم ${referredUserId}`);
+            return;
+        }
+        const referrer = await getQuery('SELECT id, username, profit FROM users WHERE id = ?', [referred.referrerId]);
+        if (!referrer) {
+            console.log(`⚠️ المُحيل غير موجود: ${referred.referrerId}`);
+            return;
+        }
+
         const bonus = depositAmount * 0.15;
         if (bonus <= 0) return;
-        // المكافأة إلى أرباح المُحيل مباشرة
+
+        // ✅ إضافة المكافأة إلى أرباح المُحيل
         await db.execute('UPDATE users SET profit = profit + ? WHERE id = ?', [bonus, referrer.id]);
-        await addNotification(referrer.id, 'مكافأة فريق', `حصلت على ${bonus.toFixed(2)}$ أرباح من إيداع ${referredUserId}`);
-        await logActivity(referrer.id, 'مكافأة فريق (أرباح)', `${bonus.toFixed(2)}$ من إيداع ${referredUserId}`, null);
-    } catch (err) { console.error('Referral error:', err); }
+        await addNotification(referrer.id, 'مكافأة فريق', `حصلت على ${bonus.toFixed(2)}$ أرباح من إيداع ${referred.username}`);
+        await logActivity(referrer.id, 'مكافأة فريق (أرباح)', `${bonus.toFixed(2)}$ من إيداع ${referred.username}`, null);
+        console.log(`✅ مكافأة إحالة: ${bonus.toFixed(2)}$ أُضيفت إلى ${referrer.username} من إيداع ${referred.username}`);
+    } catch (err) {
+        console.error('❌ Referral error:', err);
+    }
 }
 
 app.get('/api/referrals/my', authenticateToken, async (req, res) => {
     try {
         const directReferrals = await allQuery('SELECT id, username, email, phoneNumber, createdAt FROM users WHERE referrerId = ?', [req.user.id]);
-        let totalEarned = 0; const list = [];
+        let totalEarned = 0;
+        const list = [];
         for (const ref of directReferrals) {
             const firstDep = await getQuery('SELECT amount FROM deposit_requests WHERE userId = ? AND status = "approved" ORDER BY date ASC LIMIT 1', [ref.id]);
             const depositAmount = firstDep ? firstDep.amount : 0;
             const reward = depositAmount * 0.15;
             totalEarned += reward;
-            list.push({ username: ref.username, email: ref.email, phoneNumber: ref.phoneNumber, registeredAt: ref.createdAt, depositAmount, reward, status: depositAmount > 0 ? 'eligible' : 'pending' });
+            list.push({
+                username: ref.username,
+                email: ref.email,
+                phoneNumber: ref.phoneNumber,
+                registeredAt: ref.createdAt,
+                depositAmount,
+                reward,
+                status: depositAmount > 0 ? 'eligible' : 'pending'
+            });
         }
         res.json({ success: true, totalReferrals: directReferrals.length, totalEarned, referrals: list });
     } catch (err) { console.error(err); res.status(500).json({ success: false }); }
