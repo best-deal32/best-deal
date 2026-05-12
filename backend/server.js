@@ -582,11 +582,11 @@ async function processReferralBonus(referredUserId, depositAmount) {
         if (previousDeposits.cnt > 1) return;
         const bonus = depositAmount * 0.15;
         if (bonus <= 0) return;
-        // ❌ القديم: await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [bonus, referrer.id]);
-        // ✅ الجديد: تُضاف المكافأة إلى أرباح المُحيل مباشرة
+        // إضافة المكافأة إلى أرباح المُحيل مباشرة (profit)
         await db.execute('UPDATE users SET profit = profit + ? WHERE id = ?', [bonus, referrer.id]);
         await addNotification(referrer.id, 'مكافأة فريق', `حصلت على ${bonus.toFixed(2)}$ أرباح من إيداع ${referredUserId}`);
-        await logActivity(referrer.id, 'مكافأة فريق (أرباح)', `${bonus.toFixed(2)}$ من إيداع ${referredUserId}`);
+        // استخدام ip فارغ لأن الدالة ليس لديها req
+        await logActivity(referrer.id, 'مكافأة فريق (أرباح)', `${bonus.toFixed(2)}$ من إيداع ${referredUserId}`, null);
     } catch (err) { console.error('Referral error:', err); }
 }
 
