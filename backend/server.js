@@ -245,23 +245,23 @@ async function createTables() {
         console.log('✅ Admin user "freeze" created');
     }
 
-    // إعادة تعيين اختياري
-    if (process.env.RESET_DATA === 'true') {
-        console.log('🔄 جاري مسح البيانات (RESET_DATA=true)...');
-        await db.execute('DELETE FROM deposit_requests');
-        await db.execute('DELETE FROM withdrawal_requests');
-        await db.execute('DELETE FROM investments');
-        await db.execute('DELETE FROM referrals');
-        await db.execute('DELETE FROM activity_logs');
-        await db.execute('DELETE FROM notifications');
-        await db.execute('DELETE FROM admin_actions');
-        await db.execute('DELETE FROM password_resets');
-        await db.execute('DELETE FROM support_replies');
-        await db.execute('DELETE FROM support_tickets');
-        await db.execute('DELETE FROM users WHERE username != ?', ['freeze']);
-        console.log('✅ تم مسح البيانات.');
-        process.env.RESET_DATA = 'false';
-    }
+    // إعادة تعيين اختياري (تم تعطيله نهائياً)
+    // if (process.env.RESET_DATA === 'true') {
+    //     console.log('🔄 جاري مسح البيانات (RESET_DATA=true)...');
+    //     await db.execute('DELETE FROM deposit_requests');
+    //     await db.execute('DELETE FROM withdrawal_requests');
+    //     await db.execute('DELETE FROM investments');
+    //     await db.execute('DELETE FROM referrals');
+    //     await db.execute('DELETE FROM activity_logs');
+    //     await db.execute('DELETE FROM notifications');
+    //     await db.execute('DELETE FROM admin_actions');
+    //     await db.execute('DELETE FROM password_resets');
+    //     await db.execute('DELETE FROM support_replies');
+    //     await db.execute('DELETE FROM support_tickets');
+    //     await db.execute('DELETE FROM users WHERE username != ?', ['freeze']);
+    //     console.log('✅ تم مسح البيانات.');
+    //     process.env.RESET_DATA = 'false';
+    // }
 
     try {
         await db.execute(`UPDATE users u LEFT JOIN (SELECT userId, SUM(amount) as total FROM deposit_requests WHERE status = 'approved' GROUP BY userId) d ON u.id = d.userId SET u.totalDeposits = COALESCE(d.total, 0)`);
@@ -582,9 +582,11 @@ async function processReferralBonus(referredUserId, depositAmount) {
         if (previousDeposits.cnt > 1) return;
         const bonus = depositAmount * 0.15;
         if (bonus <= 0) return;
-        await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [bonus, referrer.id]);
-        await addNotification(referrer.id, 'مكافأة فريق', `حصلت على ${bonus.toFixed(2)}$ من إيداع ${referredUserId}`);
-        await logActivity(referrer.id, 'مكافأة فريق', `${bonus.toFixed(2)}$ من إيداع ${referredUserId}`, req.ip);
+        // ❌ القديم: await db.execute('UPDATE users SET balance = balance + ? WHERE id = ?', [bonus, referrer.id]);
+        // ✅ الجديد: تُضاف المكافأة إلى أرباح المُحيل مباشرة
+        await db.execute('UPDATE users SET profit = profit + ? WHERE id = ?', [bonus, referrer.id]);
+        await addNotification(referrer.id, 'مكافأة فريق', `حصلت على ${bonus.toFixed(2)}$ أرباح من إيداع ${referredUserId}`);
+        await logActivity(referrer.id, 'مكافأة فريق (أرباح)', `${bonus.toFixed(2)}$ من إيداع ${referredUserId}`);
     } catch (err) { console.error('Referral error:', err); }
 }
 
