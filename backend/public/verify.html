@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>التحقق من الحساب - MarketHub</title>
     <style>
-        /* نفس التصميم السابق مع إضافات */
         :root {
             --green-dark: #059669; --green-light: #6ee7b7;
             --blue-dark: #1e40af; --blue-light: #93c5fd;
             --white: #ffffff; --text-light: #f0fdf4;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
@@ -37,10 +36,16 @@
         }
         .btn { width: 100%; padding: 14px; font-weight: 700; border-radius: 50px; cursor: pointer; transition:0.3s; }
         .btn-primary { background: white; color: var(--green-dark); border: none; }
-        .btn-telegram { background: #2AABEE; color: white; border: none; display: inline-block; width: auto; padding: 12px 25px; text-decoration: none; }
-        .error-message { color: #fca5a5; display: none; }
-        .success-message { color: var(--green-light); display: none; }
-        .back-link { margin-top: 20px; color: var(--green-light); text-decoration: none; }
+        .btn-telegram { background: #2AABEE; color: white; border: none; display: inline-block; width: auto; padding: 12px 25px; text-decoration: none; border-radius: 50px; }
+        .error-message { color: #fca5a5; display: none; font-size: 0.9rem; margin-top: 10px; }
+        .success-message { color: var(--green-light); display: none; font-size: 0.9rem; margin-top: 10px; }
+        .back-link { margin-top: 20px; color: var(--green-light); text-decoration: none; display: inline-block; }
+        .email-input {
+            width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1);
+            color: white; font-size: 1rem; outline: none;
+        }
+        .email-input::placeholder { color: rgba(255,255,255,0.6); }
     </style>
 </head>
 <body>
@@ -48,8 +53,10 @@
         <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
         <p id="mainMsg">التحقق من الحساب</p>
 
-        <div id="emailSection" class="method-box" style="display:none;">
-            <p>تم إرسال رمز إلى بريدك الإلكتروني</p>
+        <!-- قسم البريد الإلكتروني -->
+        <div id="emailSection" class="method-box">
+            <p>أدخل بريدك الإلكتروني ورمز التحقق</p>
+            <input type="email" id="verifyEmailInput" class="email-input" placeholder="بريدك الإلكتروني">
             <div class="code-inputs" id="codeInputs">
                 <input type="text" maxlength="1" inputmode="numeric" data-index="0">
                 <input type="text" maxlength="1" inputmode="numeric" data-index="1">
@@ -59,37 +66,39 @@
                 <input type="text" maxlength="1" inputmode="numeric" data-index="5">
             </div>
             <button class="btn btn-primary" id="verifyEmailBtn">تحقق</button>
-            <p style="margin-top:10px;"><a id="resendEmailLink" href="#">إعادة إرسال</a></p>
+            <p style="margin-top:10px;"><a id="resendEmailLink" href="#" style="color:#6ee7b7;">إعادة إرسال</a></p>
+            <div id="emailError" class="error-message"></div>
+            <div id="emailSuccess" class="success-message"></div>
         </div>
 
+        <!-- قسم تيليجرام (يظهر فقط لو فيه بيانات) -->
         <div id="telegramSection" class="method-box" style="display:none;">
-            <p>للتحقق عبر تيليجرام، اضغط على الزر أدناه وافتح البوت ثم أرسل <code>/start</code> مع الرمز.</p>
+            <p>للتحقق عبر تيليجرام، اضغط على الزر أدناه لفتح البوت.</p>
             <a id="telegramDeepLink" class="btn btn-telegram" href="#" target="_blank">فتح تيليجرام</a>
         </div>
 
-        <div id="serverError" class="error-message"></div>
-        <div id="serverSuccess" class="success-message"></div>
-        <a href="register.html" class="back-link">← العودة للتسجيل</a>
+        <a href="login.html" class="back-link">← العودة لتسجيل الدخول</a>
     </div>
 
     <script>
-        const email = sessionStorage.getItem('verifyEmail') || '';
-        const phone = sessionStorage.getItem('verifyPhone') || '';
-        const telegramLink = sessionStorage.getItem('telegramLink') || '';
+        // محاولة قراءة البيانات المخزنة من التسجيل
+        const savedEmail = sessionStorage.getItem('verifyEmail') || '';
+        const savedPhone = sessionStorage.getItem('verifyPhone') || '';
+        const savedTelegramLink = sessionStorage.getItem('telegramLink') || '';
 
-        // إظهار الأقسام المناسبة
-        if (email) {
-            document.getElementById('emailSection').style.display = 'block';
+        const emailInput = document.getElementById('verifyEmailInput');
+        // إذا كان لدينا بريد من التسجيل، نملأ الحقل تلقائيًا
+        if (savedEmail) {
+            emailInput.value = savedEmail;
         }
-        if (phone && telegramLink) {
+
+        // إظهار قسم تيليجرام إذا وُجد رابط
+        if (savedTelegramLink) {
             document.getElementById('telegramSection').style.display = 'block';
-            document.getElementById('telegramDeepLink').href = telegramLink;
-        }
-        if (!email && !phone) {
-            window.location.href = 'register.html';
+            document.getElementById('telegramDeepLink').href = savedTelegramLink;
         }
 
-        // ---------- البريد ----------
+        // ---- التعامل مع حقول الرمز الستة ----
         const codeInputs = document.querySelectorAll('#codeInputs input');
         codeInputs.forEach((input, idx) => {
             input.addEventListener('input', (e) => {
@@ -106,39 +115,79 @@
             return code;
         }
 
+        // ---- زر التحقق ----
         document.getElementById('verifyEmailBtn').addEventListener('click', async () => {
+            const email = emailInput.value.trim();
             const code = getCode();
-            if (code.length !== 6) {
-                document.getElementById('serverError').textContent = 'أدخل 6 أرقام';
-                document.getElementById('serverError').style.display = 'block';
+            const errorEl = document.getElementById('emailError');
+            const successEl = document.getElementById('emailSuccess');
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+
+            if (!email) {
+                errorEl.textContent = 'يرجى إدخال البريد الإلكتروني';
+                errorEl.style.display = 'block';
                 return;
             }
-            const res = await fetch('/api/auth/verify-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, code })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                document.getElementById('serverSuccess').textContent = 'تم التحقق!';
-                document.getElementById('serverSuccess').style.display = 'block';
-                setTimeout(() => window.location.href = 'login.html', 1500);
-            } else {
-                document.getElementById('serverError').textContent = data.message;
-                document.getElementById('serverError').style.display = 'block';
+            if (code.length !== 6) {
+                errorEl.textContent = 'يرجى إدخال رمز التحقق المكون من 6 أرقام';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    successEl.textContent = 'تم التحقق بنجاح! جارٍ تحويلك...';
+                    successEl.style.display = 'block';
+                    sessionStorage.clear();
+                    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+                } else {
+                    errorEl.textContent = data.message || 'فشل التحقق';
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.textContent = 'خطأ في الاتصال';
+                errorEl.style.display = 'block';
             }
         });
 
+        // ---- إعادة إرسال الرمز ----
         document.getElementById('resendEmailLink').addEventListener('click', async (e) => {
             e.preventDefault();
-            const res = await fetch('/api/auth/resend-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            document.getElementById('serverError').style.display = 'block';
-            document.getElementById('serverError').textContent = data.message || 'تم الإرسال';
+            const email = emailInput.value.trim();
+            const errorEl = document.getElementById('emailError');
+            const successEl = document.getElementById('emailSuccess');
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+            if (!email) {
+                errorEl.textContent = 'يرجى إدخال البريد الإلكتروني أولاً';
+                errorEl.style.display = 'block';
+                return;
+            }
+            try {
+                const res = await fetch('/api/auth/resend-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    successEl.textContent = 'تم إرسال رمز جديد إلى بريدك';
+                    successEl.style.display = 'block';
+                } else {
+                    errorEl.textContent = data.message || 'فشل إعادة الإرسال';
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.textContent = 'خطأ في الاتصال';
+                errorEl.style.display = 'block';
+            }
         });
     </script>
 </body>
