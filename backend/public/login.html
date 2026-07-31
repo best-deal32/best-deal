@@ -5,149 +5,294 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل الدخول - MarketHub</title>
     <style>
-        /* نفس التصميم السابق */
         :root {
-            --green-dark: #059669; --green-light: #6ee7b7;
-            --blue-dark: #1e40af; --blue-light: #93c5fd;
-            --white: #ffffff; --text-light: #f0fdf4;
+            --green-dark: #059669;
+            --green-light: #6ee7b7;
+            --blue-dark: #1e40af;
+            --blue-light: #93c5fd;
+            --white: #ffffff;
+            --text-light: #f0fdf4;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             background: linear-gradient(135deg, var(--green-dark) 0%, var(--blue-dark) 100%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; color: var(--white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--white);
         }
+
         .login-card {
-            background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(15px);
-            border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            max-width: 450px; width: 100%; padding: 40px 30px;
+            max-width: 450px;
+            width: 100%;
+            padding: 40px 30px;
         }
-        h1 { text-align: center; font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
-        h1 .emerald-text { color: var(--green-light); } h1 .blue-text { color: var(--blue-light); }
-        .subtitle { text-align: center; color: rgba(255, 255, 255, 0.8); margin-bottom: 30px; font-size: 0.95rem; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-light); }
+
+        .login-card h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .login-card h1 .emerald-text {
+            color: var(--green-light);
+        }
+
+        .login-card h1 .blue-text {
+            color: var(--blue-light);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
         .form-group input {
-            width: 100%; padding: 14px 16px; border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px; background: rgba(255, 255, 255, 0.1); color: var(--white);
-            font-size: 1rem; outline: none; transition: border-color 0.3s, background 0.3s;
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
         }
-        .form-group input::placeholder { color: rgba(255, 255, 255, 0.6); }
-        .form-group input:focus { border-color: var(--green-light); background: rgba(255, 255, 255, 0.15); }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; color: var(--text-light); }
-        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--green-dark); }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-group input:focus {
+            border-color: var(--green-light);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--green-dark);
+        }
+
         .btn-login {
-            width: 100%; padding: 14px; font-size: 1.1rem; font-weight: 700; color: var(--green-dark);
-            background-color: var(--white); border: none; border-radius: 50px; cursor: pointer;
-            transition: all 0.3s ease; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); margin-bottom: 20px;
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--green-dark);
+            background-color: var(--white);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
         }
-        .btn-login:hover { background-color: #ecfdf5; transform: translateY(-2px); }
-        .extra-links { text-align: center; font-size: 0.9rem; }
-        .extra-links a { color: var(--green-light); text-decoration: none; font-weight: 500; }
-        .extra-links a:hover { color: var(--white); text-decoration: underline; }
-        .back-home { display: block; text-align: center; margin-top: 25px; color: rgba(255, 255, 255, 0.65); font-size: 0.9rem; text-decoration: none; }
-        .back-home:hover { color: var(--white); }
-        .error-message { color: #fca5a5; font-size: 0.85rem; margin-top: 5px; display: none; }
+
+        .btn-login:hover {
+            background-color: #ecfdf5;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        .extra-links {
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .extra-links a {
+            color: var(--green-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .extra-links a:hover {
+            color: var(--white);
+            text-decoration: underline;
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .back-home:hover {
+            color: var(--white);
+        }
+
+        .error-message {
+            color: #fca5a5;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="login-card">
-        <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
+        <h1>
+            <span class="emerald-text">Market</span><span class="blue-text">Hub</span>
+        </h1>
         <p class="subtitle">تسجيل الدخول إلى حسابك</p>
+
         <form id="loginForm">
             <div class="form-group">
                 <label for="loginId">البريد الإلكتروني / اسم المستخدم / رقم الهاتف</label>
-                <input type="text" id="loginId" placeholder="example@mail.com أو اسم المستخدم" required>
+                <input type="text" id="loginId" placeholder="example@mail.com أو اسم المستخدم أو 05xxxxxxxx" required>
                 <div class="error-message" id="loginIdError">يرجى ملء هذا الحقل</div>
             </div>
+
             <div class="form-group">
                 <label for="password">كلمة المرور</label>
                 <input type="password" id="password" placeholder="********" required>
                 <div class="error-message" id="passwordError">كلمة المرور مطلوبة</div>
             </div>
+
             <div class="checkbox-group">
                 <input type="checkbox" id="rememberMe">
                 <label for="rememberMe">تذكرني</label>
             </div>
+
             <div id="serverError" class="error-message" style="margin-bottom: 15px;"></div>
+
             <button type="submit" class="btn-login">تسجيل الدخول</button>
         </form>
+
         <div class="extra-links">
             <a href="register.html">ليس لديك حساب؟ أنشئ واحداً</a>
         </div>
     </div>
+
     <a href="index.html" class="back-home">← العودة إلى الصفحة الرئيسية</a>
 
     <script>
+        // ---------- عناصر الصفحة ----------
         const form = document.getElementById('loginForm');
-        const loginId = document.getElementById('loginId');
-        const password = document.getElementById('password');
+        const loginIdInput = document.getElementById('loginId');
+        const passwordInput = document.getElementById('password');
         const rememberCheck = document.getElementById('rememberMe');
         const serverError = document.getElementById('serverError');
+        const loginIdError = document.getElementById('loginIdError');
+        const passwordError = document.getElementById('passwordError');
 
-        // تحميل بيانات محفوظة إذا وجدت
+        // ---------- تحميل بيانات محفوظة عند فتح الصفحة ----------
         window.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem('rememberedLogin');
             if (saved) {
-                const { loginId: savedId, password: savedPass } = JSON.parse(saved);
-                loginId.value = savedId || '';
-                password.value = savedPass || '';
-                rememberCheck.checked = true;
+                try {
+                    const { loginId, password } = JSON.parse(saved);
+                    if (loginId) loginIdInput.value = loginId;
+                    if (password) passwordInput.value = password;
+                    rememberCheck.checked = true;
+                } catch (e) {
+                    // بيانات غير صالحة، نتجاهلها
+                }
             }
         });
 
+        // ---------- معالجة تقديم النموذج ----------
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // إخفاء رسائل الخطأ
-            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
 
-            if (!loginId.value.trim()) {
-                document.getElementById('loginIdError').style.display = 'block';
+            // إخفاء جميع رسائل الخطأ
+            [serverError, loginIdError, passwordError].forEach(el => {
+                if (el) el.style.display = 'none';
+            });
+
+            // التحقق من الحقول
+            const loginId = loginIdInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!loginId) {
+                loginIdError.style.display = 'block';
+                loginIdInput.focus();
                 return;
             }
-            if (!password.value) {
-                document.getElementById('passwordError').style.display = 'block';
+
+            if (!password) {
+                passwordError.style.display = 'block';
+                passwordInput.focus();
                 return;
             }
 
-            // إرسال طلب تسجيل الدخول إلى الخادم
             try {
+                // إرسال طلب تسجيل الدخول إلى الخادم
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        loginId: loginId.value.trim(),
-                        password: password.value
-                    }),
-                    credentials: 'include' // لاستقبال وإرسال الكوكيز
+                    body: JSON.stringify({ loginId, password }),
+                    credentials: 'include' // لاستقبال الكوكيز
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    serverError.textContent = data.message || 'فشل تسجيل الدخول';
+                    // عرض رسالة الخطأ من الخادم
+                    serverError.textContent = data.message || 'فشل تسجيل الدخول، تحقق من البيانات.';
                     serverError.style.display = 'block';
                     return;
                 }
 
-                // حفظ بيانات التذكر إذا لزم
+                // معالجة خيار "تذكرني"
                 if (rememberCheck.checked) {
-                    localStorage.setItem('rememberedLogin', JSON.stringify({
-                        loginId: loginId.value.trim(),
-                        password: password.value // ملاحظة: في الإنتاج يفضل عدم تخزين كلمة السر
-                    }));
+                    localStorage.setItem('rememberedLogin', JSON.stringify({ loginId, password }));
                 } else {
                     localStorage.removeItem('rememberedLogin');
                 }
 
-                // بعد تسجيل الدخول الناجح، التوجيه إلى لوحة التحكم
-                window.location.href = 'dashboard.html';
+                // التوجيه بناءً على حقل redirect الذي يرسله الخادم
+                // إذا كان المستخدم أدمن سيحتوي على '/admin.html'، وإلا '/dashboard.html'
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
             } catch (err) {
-                console.error(err);
-                serverError.textContent = 'خطأ في الاتصال بالخادم';
+                console.error('خطأ في الاتصال بالخادم:', err);
+                serverError.textContent = 'خطأ في الاتصال بالخادم. حاول مرة أخرى.';
                 serverError.style.display = 'block';
             }
         });
