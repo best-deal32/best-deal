@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحقق من الحساب - MarketHub</title>
+    <style>
+        /* نفس تصميم verify السابق */
+        :root {
+            --green-dark: #059669; --green-light: #6ee7b7;
+            --blue-dark: #1e40af; --blue-light: #93c5fd;
+            --white: #ffffff; --text-light: #f0fdf4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--blue-dark) 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; color: var(--white);
+        }
+        .verify-card {
+            background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(15px);
+            border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 450px; width: 100%; padding: 40px 30px; text-align: center;
+        }
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
+        h1 .emerald-text { color: var(--green-light); } h1 .blue-text { color: var(--blue-light); }
+        .subtitle { color: rgba(255, 255, 255, 0.8); margin-bottom: 25px; }
+        .code-inputs { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; direction: ltr; }
+        .code-inputs input {
+            width: 50px; height: 60px; text-align: center; font-size: 1.8rem; font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1); color: var(--white); outline: none;
+        }
+        .code-inputs input:focus { border-color: var(--green-light); background: rgba(255,255,255,0.2); }
+        .btn-verify {
+            width: 100%; padding: 14px; font-size: 1.1rem; font-weight: 700; color: var(--green-dark);
+            background-color: var(--white); border: none; border-radius: 50px; cursor: pointer;
+            margin-bottom: 20px; transition: 0.3s;
+        }
+        .btn-verify:hover { background-color: #ecfdf5; transform: translateY(-2px); }
+        .resend-area { font-size: 0.9rem; color: rgba(255,255,255,0.75); }
+        .resend-area a { color: var(--green-light); text-decoration: none; font-weight: 600; }
+        .resend-area a.disabled { color: rgba(255,255,255,0.4); pointer-events: none; }
+        .error-message { color: #fca5a5; font-size: 0.9rem; margin-bottom: 15px; display: none; }
+        .success-message { color: var(--green-light); font-size: 0.9rem; margin-bottom: 15px; display: none; }
+        .back-home { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.65); font-size: 0.9rem; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="verify-card">
+        <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
+        <p class="subtitle">تم إرسال رمز التحقق إلى بريدك الإلكتروني</p>
+        <div id="messages">
+            <div class="error-message" id="errorMsg"></div>
+            <div class="success-message" id="successMsg"></div>
+        </div>
+        <div class="code-inputs" id="codeInputs">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="0">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="1">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="2">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="3">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="4">
+            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="5">
+        </div>
+        <button class="btn-verify" id="verifyBtn">تحقق</button>
+        <div class="resend-area">
+            <span id="resendText">لم تستلم الرمز؟ </span>
+            <a id="resendLink" class="disabled">إعادة الإرسال (60 ثانية)</a>
+        </div>
+    </div>
+    <a href="register.html" class="back-home">← العودة للتسجيل</a>
+
+    <script>
+        const email = sessionStorage.getItem('verifyEmail');
+        if (!email) {
+            // إذا لم يوجد بريد مخزن، إعادة للتسجيل
+            // window.location.href = 'register.html';
+        }
+
+        const codeInputs = document.querySelectorAll('.code-inputs input');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
+        const resendLink = document.getElementById('resendLink');
+
+        // التنقل التلقائي بين الحقول
+        codeInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value && index < 5) codeInputs[index+1].focus();
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value && index > 0) codeInputs[index-1].focus();
+            });
+        });
+
+        // دالة الحصول على الكود
+        function getCode() {
+            let code = '';
+            codeInputs.forEach(inp => code += inp.value);
+            return code;
+        }
+
+        // إرسال التحقق
+        verifyBtn.addEventListener('click', async () => {
+            const code = getCode();
+            if (code.length !== 6) {
+                errorMsg.textContent = 'يرجى إدخال 6 أرقام';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    errorMsg.textContent = data.message || 'رمز غير صحيح';
+                    errorMsg.style.display = 'block';
+                    successMsg.style.display = 'none';
+                    return;
+                }
+
+                successMsg.textContent = 'تم التحقق بنجاح! جارٍ تحويلك...';
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                sessionStorage.removeItem('verifyEmail');
+                setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+            } catch (err) {
+                errorMsg.textContent = 'خطأ في الاتصال';
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        // مؤقت إعادة الإرسال (وظيفة شكلية، يمكن تفعيلها عبر API حقيقي لاحقاً)
+        let timer = 60;
+        const interval = setInterval(() => {
+            timer--;
+            if (timer <= 0) {
+                resendLink.textContent = 'إعادة الإرسال';
+                resendLink.classList.remove('disabled');
+                clearInterval(interval);
+            } else {
+                resendLink.textContent = `إعادة الإرسال (${timer} ثانية)`;
+            }
+        }, 1000);
+
+        resendLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (resendLink.classList.contains('disabled')) return;
+            // يمكن إرسال طلب إعادة إرسال الكود هنا
+            // حالياً لا يوجد API لذلك، لكن يمكن إضافته
+            timer = 60;
+            resendLink.classList.add('disabled');
+            // إعادة بدء المؤقت
+        });
+    </script>
+</body>
+</html>
