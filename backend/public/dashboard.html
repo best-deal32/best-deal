@@ -2,676 +2,183 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>لوحة التحكم | Fargo</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - MarketHub</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        
+        /* نفس تصميم dashboard السابق ولكن بإضافات */
         :root {
-            --bg-deep: #021a2b;
-            --sky-dark: #0a3d62;
-            --sky-mid: #1e6b8a;
-            --sky-light: #2e86ab;
-            --sky-accent: #45b3e0;
-            --text-primary: #e6f7ff;
-            --text-dim: #b0d4e8;
+            --green-dark: #059669; --green-light: #6ee7b7;
+            --blue-dark: #1e40af; --blue-light: #93c5fd;
+            --white: #ffffff; --bg-glass: rgba(255, 255, 255, 0.1);
+            --border-glass: rgba(255, 255, 255, 0.2);
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
-            font-family: 'Cairo', sans-serif;
-            background: radial-gradient(ellipse at top, #022c43 0%, var(--bg-deep) 70%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            padding-bottom: 5rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #065f46 0%, #1e3a8a 100%);
+            min-height: 100vh; color: var(--white); display: flex; flex-direction: column;
         }
-
-        .glass-card {
-            background: rgba(4, 40, 70, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(69, 179, 224, 0.3);
-            border-radius: 2rem;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            transition: all 0.3s ease;
+        .navbar {
+            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glass); padding: 15px 30px;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
         }
-
-        .btn-sky {
-            background: linear-gradient(135deg, var(--sky-mid), var(--sky-light));
-            color: #fff;
-            font-weight: 800;
-            border-radius: 1.2rem;
-            padding: 0.7rem 1.5rem;
-            transition: 0.3s;
-            cursor: pointer;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+        .logo { font-size: 1.8rem; font-weight: 800; }
+        .logo .emerald-text { color: var(--green-light); } .logo .blue-text { color: var(--blue-light); }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { color: var(--white); text-decoration: none; padding: 8px 16px; border-radius: 20px; transition:0.3s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.15); }
+        .btn-outline-light {
+            border: 1px solid rgba(255,255,255,0.5); background: transparent; color: white;
+            padding: 8px 20px; border-radius: 30px; text-decoration: none; transition:0.3s;
         }
-
-        .btn-sky:hover {
-            background: linear-gradient(135deg, #1a5670, #2e86ab);
-            transform: translateY(-2px);
+        .btn-outline-light:hover { background: rgba(255,255,255,0.1); }
+        .main-container { flex:1; padding:30px 20px; max-width:1200px; margin:0 auto; width:100%; }
+        .search-section {
+            background: var(--bg-glass); backdrop-filter: blur(10px); border:1px solid var(--border-glass);
+            border-radius:25px; padding:25px; margin-bottom:40px;
         }
-
-        .btn-outline-sky {
-            background: transparent;
-            border: 2px solid var(--sky-accent);
-            color: var(--sky-accent);
-            font-weight: 800;
-            border-radius: 1.2rem;
-            padding: 0.7rem 1.5rem;
-            transition: 0.3s;
-            cursor: pointer;
+        .search-form { display:flex; gap:15px; flex-wrap:wrap; }
+        .search-field { flex:1 1 200px; }
+        .search-field label { font-size:0.9rem; color:rgba(255,255,255,0.8); }
+        .search-field input {
+            width:100%; padding:12px 15px; border-radius:12px; background:rgba(255,255,255,0.1);
+            border:1px solid var(--border-glass); color:white; margin-top:6px;
         }
-
-        .btn-outline-sky:hover {
-            background: rgba(69, 179, 224, 0.15);
-            color: #fff;
+        .btn-search {
+            padding:12px 30px; background:white; color:var(--green-dark); font-weight:bold;
+            border:none; border-radius:50px; cursor:pointer; align-self:flex-end;
         }
-
-        .balance-value {
-            font-size: clamp(2rem, 8vw, 3rem);
-            font-weight: 900;
-            color: var(--sky-accent);
-            text-shadow: 0 0 20px rgba(69, 179, 224, 0.6);
+        .quick-actions { display:flex; gap:20px; margin-bottom:40px; flex-wrap:wrap; }
+        .action-card {
+            flex:1 1 200px; background:var(--bg-glass); backdrop-filter:blur(10px);
+            border:1px solid var(--border-glass); border-radius:20px; padding:25px;
+            text-align:center; color:white; text-decoration:none; transition:0.3s;
         }
-
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--sky-accent);
+        .action-card:hover { background:rgba(255,255,255,0.2); transform:translateY(-5px); }
+        .action-card .icon { font-size:2.5rem; margin-bottom:10px; }
+        .action-card .title { font-weight:600; }
+        .featured-section h2 { font-size:1.6rem; margin-bottom:20px; }
+        .featured-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:20px; }
+        .product-card {
+            background:var(--bg-glass); backdrop-filter:blur(10px); border-radius:20px;
+            overflow:hidden; border:1px solid var(--border-glass);
         }
-
-        .lang-selector {
-            background: rgba(4,40,70,0.7);
-            border-radius: 3rem;
-            padding: 0.3rem;
-            display: inline-flex;
-            gap: 0.2rem;
-            border: 1px solid rgba(69, 179, 224, 0.3);
-        }
-        .lang-option {
-            padding: 0.4rem 0.9rem;
-            border-radius: 3rem;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            color: var(--text-dim);
-        }
-        .lang-option.active {
-            background: linear-gradient(135deg, var(--sky-mid), var(--sky-light));
-            color: #fff;
-        }
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(2, 26, 43, 0.96);
-            border-top: 1px solid rgba(69, 179, 224, 0.3);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            z-index: 1000;
-        }
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-dim);
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .nav-link.active { color: var(--sky-accent); }
-        .nav-link i { font-size: 1.5rem; margin-bottom: 3px; }
-        .nav-link span { font-size: 10px; }
-
-        .notification-bell, .help-bell { position: relative; cursor: pointer; }
-        .notification-badge {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            background: #ef4444;
-            color: #fff;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .activity-item {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 1.2rem;
-            transition: 0.2s;
-            padding: 1rem;
-        }
-        .activity-item:hover {
-            background: rgba(255,255,255,0.06);
-        }
-
-        .shield-icon {
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        .shield-icon:active {
-            transform: scale(0.95);
-        }
-
-        /* Tabs */
-        .tabs-container {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            justify-content: center;
-        }
-        .tab-btn {
-            background: transparent;
-            border: 1px solid rgba(69, 179, 224, 0.25);
-            color: var(--text-dim);
-            font-weight: 800;
-            padding: 0.5rem 1.5rem;
-            border-radius: 2rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.9rem;
-        }
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--sky-mid), var(--sky-light));
-            color: #fff;
-            border-color: transparent;
-        }
-        .tab-btn:hover:not(.active) {
-            background: rgba(69, 179, 224, 0.1);
-        }
-
-        /* المعاملات */
-        .transaction-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 1.5rem;
-            padding: 1rem 1.2rem;
-            margin-bottom: 0.8rem;
-            transition: transform 0.2s;
-        }
-        .transaction-card:hover {
-            transform: translateX(5px);
-            border-color: var(--sky-accent);
-        }
-        .type-badge {
-            display: inline-block;
-            padding: 0.2rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-        .type-deposit { background: rgba(16,185,129,0.2); color: #10b981; }
-        .type-withdrawal { background: rgba(245,158,11,0.2); color: #f59e0b; }
-        .type-investment { background: rgba(59,130,246,0.2); color: #60a5fa; }
-        .type-referral { background: rgba(168,85,247,0.2); color: #a78bfa; }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        /* نافذة المساعدة */
-        #helpModal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-        }
-        #helpModal.open { display: flex; }
-        .help-content {
-            background: rgba(4, 40, 70, 0.95);
-            border: 1px solid var(--sky-accent);
-            border-radius: 2rem;
-            padding: 2rem;
-            max-width: 600px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .help-close {
-            position: absolute;
-            top: 1rem; left: 1rem;
-            background: none; border: none;
-            color: var(--text-dim); font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .help-close:hover { color: #fff; }
-
-        @media (max-width: 640px) {
-            .glass-card { border-radius: 1.5rem; padding: 1rem; }
-            .help-content { padding: 1.5rem; }
-            .tabs-container { gap: 0.3rem; }
-            .tab-btn { padding: 0.4rem 1rem; font-size: 0.8rem; }
-        }
+        .product-card img { width:100%; height:160px; object-fit:cover; background:rgba(0,0,0,0.3); }
+        .product-card .info { padding:15px; }
+        .product-card .info h3 { margin-bottom:5px; }
+        .product-card .price { color:var(--green-light); font-weight:bold; }
+        .badge { background:var(--green-dark); padding:2px 10px; border-radius:20px; font-size:0.75rem; }
+        .view-all { color:var(--green-light); text-decoration:none; margin-top:20px; display:inline-block; }
+        footer { text-align:center; padding:20px; color:rgba(255,255,255,0.5); }
     </style>
 </head>
-<body class="pb-28">
-
-    <!-- شريط علوي -->
-    <header class="px-5 py-4 flex justify-between items-center border-b border-[#2e86ab]/30 bg-[#021a2b]/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <i id="shieldIcon" class="fa-solid fa-shield-halved text-3xl text-sky-400 drop-shadow-xl shield-icon"></i>
-            <span class="text-xl font-black text-white italic tracking-wide hidden sm:inline">FARGO</span>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span class="emerald-text">Market</span><span class="blue-text">Hub</span></div>
+        <div class="nav-links">
+            <a href="dashboard.html">الرئيسية</a>
+            <a href="offers.html">العروض</a>
+            <a href="create-offer.html">إضافة منتج</a>
+            <a href="profile.html">ملفي</a>
+            <a href="#" id="logoutBtn" class="btn-outline-light">تسجيل خروج</a>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="lang-selector">
-                <div class="lang-option active" data-lang="ar">العربية</div>
-                <div class="lang-option" data-lang="en">English</div>
-                <div class="lang-option" data-lang="zh">中文</div>
-                <div class="lang-option" data-lang="de">Deutsch</div>
-            </div>
-            <div class="help-bell" id="helpBell" onclick="openHelp()">
-                <i class="fa-solid fa-circle-question text-xl text-sky-200 hover:text-white transition"></i>
-            </div>
-            <div class="notification-bell" id="notificationBell" onclick="toggleNotifications()">
-                <i class="fa-regular fa-bell text-xl text-sky-200"></i>
-                <span id="notificationCount" class="notification-badge" style="display: none;">0</span>
-            </div>
-            <img id="user-avatar" class="w-10 h-10 rounded-full border-2 border-sky-400" src="" alt="Avatar">
+    </nav>
+
+    <div class="main-container">
+        <!-- قسم البحث -->
+        <div class="search-section">
+            <h2>🔍 ابحث عن منتج أو متجر</h2>
+            <form class="search-form" id="searchForm">
+                <div class="search-field">
+                    <label for="keyword">كلمة مفتاحية</label>
+                    <input type="text" id="keyword" placeholder="اسم المنتج أو المتجر...">
+                </div>
+                <button type="submit" class="btn-search">بحث</button>
+            </form>
         </div>
-    </header>
 
-    <!-- لوحة الإشعارات المنسدلة -->
-    <div id="notificationsDropdown" class="fixed top-16 left-4 w-72 max-h-80 overflow-y-auto bg-[#042840] border border-sky-500/30 rounded-2xl shadow-2xl z-50 hidden p-2">
-        <div class="text-center text-sm text-sky-300 font-bold mb-2">الإشعارات</div>
-        <div id="notificationsList" class="space-y-1 text-xs"></div>
-        <button id="markAllReadBtn" class="text-[10px] text-sky-400 hover:underline mt-2 text-center w-full">تحديد الكل كمقروء</button>
-    </div>
+        <!-- أزرار سريعة -->
+        <div class="quick-actions">
+            <a href="create-offer.html" class="action-card">
+                <div class="icon">➕</div><div class="title">إضافة منتج جديد</div>
+            </a>
+            <a href="offers.html" class="action-card">
+                <div class="icon">⭐</div><div class="title">العروض المميزة</div>
+            </a>
+            <a href="profile.html" class="action-card">
+                <div class="icon">👤</div><div class="title">ملفي الشخصي</div>
+            </a>
+        </div>
 
-    <!-- نافذة المساعدة -->
-    <div id="helpModal">
-        <div class="help-content">
-            <button class="help-close" onclick="closeHelp()"><i class="fa-solid fa-xmark"></i></button>
-            <h2 class="text-2xl font-black text-sky-300 mb-4 text-center">دليل Fargo</h2>
-            <div class="space-y-4 text-slate-200 text-sm leading-relaxed">
-                <div class="flex gap-3">
-                    <i class="fa-solid fa-wallet text-sky-400 text-xl mt-1"></i>
-                    <div><strong class="text-sky-300">الإيداع:</strong> حول الأموال عبر USDT (BEP20/ERC20) إلى محفظة Fargo، وأدخل رمز المعاملة لمراجعة الإيداع.</div>
-                </div>
-                <div class="flex gap-3">
-                    <i class="fa-solid fa-receipt text-sky-400 text-xl mt-1"></i>
-                    <div><strong class="text-sky-300">السحب:</strong> اسحب أرباحك (الحد الأدنى 10$) أو رأس مالك في أي وقت. طلبات السحب تُراجع بين 6 صباحاً و12 ظهراً بتوقيت غرينتش.</div>
-                </div>
-                <div class="flex gap-3">
-                    <i class="fa-solid fa-coins text-sky-400 text-xl mt-1"></i>
-                    <div><strong class="text-sky-300">الاستثمار:</strong> استثمر في المعادن والعملات الرقمية بعائد 3% يومياً، الحد الأدنى 50$ والأقصى 10,000$. أرباحك تضاف تلقائياً ويمكنك سحبها يومياً.</div>
-                </div>
-                <div class="flex gap-3">
-                    <i class="fa-solid fa-users text-sky-400 text-xl mt-1"></i>
-                    <div><strong class="text-sky-300">الفريق:</strong> شارك كود فريقك مع الآخرين، وعند أول إيداع لهم تحصل على 15% من قيمته <strong class="text-sky-200">كأرباح</strong> تضاف مباشرة إلى رصيد أرباحك.</div>
-                </div>
-                <div class="flex gap-3">
-                    <i class="fa-solid fa-headset text-sky-400 text-xl mt-1"></i>
-                    <div><strong class="text-sky-300">الدعم:</strong> افتح تذكرة دعم وسنرد عليك في أقرب وقت. التذاكر تُفحص بانتظام.</div>
-                </div>
-            </div>
+        <!-- العروض المميزة -->
+        <div class="featured-section">
+            <h2>🔥 عروض مميزة</h2>
+            <div class="featured-grid" id="featuredGrid"></div>
+            <a href="offers.html" class="view-all">عرض الكل ←</a>
         </div>
     </div>
 
-    <main class="max-w-5xl mx-auto px-4 mt-8">
-        <!-- تبويبات الصفحة الرئيسية -->
-        <div class="tabs-container">
-            <button class="tab-btn active" data-tab="overview"><i class="fa-solid fa-house"></i> نظرة عامة</button>
-            <button class="tab-btn" data-tab="transactions"><i class="fa-solid fa-clock-rotate-left"></i> سجل المعاملات</button>
-        </div>
-
-        <!-- محتوى تبويب نظرة عامة -->
-        <div id="overview-tab">
-            <!-- بطاقة الترحيب والرصيد -->
-            <div class="glass-card p-6 mb-6 text-center animate-fadeInUp">
-                <h2 class="text-lg font-bold text-slate-200">مرحباً <span id="welcome-name" class="text-sky-300">.......</span></h2>
-                <div class="balance-value mt-3" id="user-balance">$0.00</div>
-                <p class="text-xs text-slate-400 mt-1">الرصيد المتاح للسحب</p>
-                <div class="flex flex-wrap gap-4 justify-center mt-5">
-                    <button onclick="window.location.href='deposit.html'" class="btn-sky"><i class="fa-solid fa-circle-plus"></i> إيداع</button>
-                    <button onclick="window.location.href='withdraw.html'" class="btn-outline-sky"><i class="fa-solid fa-receipt"></i> سحب</button>
-                    <button onclick="window.location.href='support.html'" class="bg-white/10 text-white font-bold px-4 py-2 rounded-xl border border-white/20 backdrop-blur-sm"><i class="fa-solid fa-headset"></i> الدعم</button>
-                </div>
-            </div>
-
-            <!-- بطاقات الأرباح والاستثمار والفريق -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
-                <!-- الأرباح -->
-                <div class="glass-card p-5 text-center animate-fadeInUp" style="animation-delay: 0.1s">
-                    <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">الأرباح</span><i class="fa-solid fa-chart-line text-sky-400"></i></div>
-                    <p class="stat-value mt-2" id="user-profit">$0.00</p>
-                    <button onclick="quickWithdrawProfit()" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">سحب الأرباح</button>
-                </div>
-                <!-- استثمار المعادن -->
-                <div class="glass-card p-5 text-center animate-fadeInUp" style="animation-delay: 0.2s">
-                    <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">المعادن والعملات</span><i class="fa-solid fa-coins text-sky-400"></i></div>
-                    <p class="text-lg font-bold text-white mt-2">3% يوميًا</p>
-                    <p class="text-xs text-slate-400 mt-1">50$ - 10,000$</p>
-                    <button onclick="window.location.href='investments.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">استثمر الآن</button>
-                </div>
-                <!-- الفريق -->
-                <div class="glass-card p-5 text-center animate-fadeInUp" style="animation-delay: 0.3s">
-                    <div class="flex justify-center items-center gap-2"><span class="text-sm text-slate-400">فريقي</span><i class="fa-solid fa-user-group text-sky-400"></i></div>
-                    <p class="text-lg font-mono text-sky-300 mt-2" id="referralCodeDisplay">------</p>
-                    <!-- ⚡️ التعديل: توضيح أن المكافأة تُضاف للأرباح -->
-                    <p class="text-xs text-slate-400 mt-1">فريقك يربح لك 15% من أول إيداع لهم <span class="text-green-400 font-semibold">(تُضاف للأرباح)</span></p>
-                    <button onclick="window.location.href='referrals.html'" class="mt-3 text-xs bg-sky-900/30 hover:bg-sky-800/50 text-sky-300 px-4 py-2 rounded-xl transition w-fit mx-auto">تفاصيل الفريق</button>
-                </div>
-            </div>
-
-            <!-- سجل النشاطات -->
-            <div class="glass-card p-5 mb-4 animate-fadeInUp" style="animation-delay: 0.4s">
-                <h3 class="text-sm font-bold text-sky-300 mb-3"><i class="fa-solid fa-clock-rotate-left ml-1"></i> آخر النشاطات</h3>
-                <div id="activity-container" class="space-y-2 text-sm text-slate-300"></div>
-            </div>
-        </div>
-
-        <!-- محتوى تبويب سجل المعاملات -->
-        <div id="transactions-tab" class="hidden">
-            <div class="glass-card p-5">
-                <h3 class="text-xl font-black text-sky-300 mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> سجل المعاملات</h3>
-                <div id="transactions-container" class="space-y-3">
-                    <div class="text-center py-8 text-slate-400">جاري تحميل المعاملات...</div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- القائمة السفلية -->
-    <div class="bottom-nav">
-        <div class="nav-link active"><i class="fa-solid fa-house-chimney"></i><span>الرئيسية</span></div>
-        <div onclick="window.location.href='investments.html'" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>استثمار</span></div>
-        <div onclick="window.location.href='referrals.html'" class="nav-link"><i class="fa-solid fa-users"></i><span>فريقي</span></div>
-        <div onclick="logout()" class="nav-link text-red-400"><i class="fa-solid fa-power-off"></i><span>خروج</span></div>
-    </div>
+    <footer>© 2025 MarketHub</footer>
 
     <script>
-        // ---- Help Modal ----
-        function openHelp() { document.getElementById('helpModal').classList.add('open'); }
-        function closeHelp() { document.getElementById('helpModal').classList.remove('open'); }
-        document.getElementById('helpModal').addEventListener('click', function(e) {
-            if (e.target === this) closeHelp();
-        });
-
-        const API_BASE = '';
-        let socket;
-        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
-        const translations = {};
-
-        // i18n
-        async function loadTranslations(lang) {
-            try { const res = await fetch(`/locales/${lang}/translation.json`); if (res.ok) translations[lang] = await res.json(); } catch (e) {}
-        }
-        function applyTranslations(lang) {
-            const t = translations[lang] || {};
-            document.querySelectorAll('[data-i18n]').forEach(el => { if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n]; });
-            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.documentElement.lang = lang;
-            localStorage.setItem('preferredLanguage', lang);
-            currentLang = lang;
-            document.querySelectorAll('.lang-option').forEach(o => o.classList.toggle('active', o.dataset.lang === lang));
-            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
-        }
-        async function setLanguage(lang) {
-            if (!translations[lang]) await loadTranslations(lang);
-            applyTranslations(lang);
-            fetchUserData();
-        }
-        document.querySelectorAll('.lang-option').forEach(opt => { opt.addEventListener('click', () => setLanguage(opt.dataset.lang)); });
-
-        // WebSocket
-        function initSocket() {
-            socket = io(window.location.origin, { withCredentials: true });
-            socket.on('notification', data => {
-                Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: data.title, text: data.message, timer: 5000, background: '#042840', color: '#fff' });
-                loadNotifications();
-            });
-        }
-
-        // Auth
-        async function fetchWithAuth(url, options = {}) {
-            options.credentials = 'include';
-            let res = await fetch(url, options);
-            if (res.status === 401 || res.status === 403) {
-                const refresh = await fetch(`${API_BASE}/api/auth/refresh`, { method: 'POST', credentials: 'include' });
-                if (refresh.ok) res = await fetch(url, options);
-                else { localStorage.clear(); window.location.href = 'login.html'; }
-            }
-            return res;
-        }
-
-        async function fetchUserData() {
+        // التحقق من تسجيل الدخول
+        async function checkAuth() {
             try {
-                const res = await fetchWithAuth(`${API_BASE}/api/users/me`);
-                if (!res.ok) throw new Error();
-                const user = await res.json();
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                updateUI(user);
-                return user;
-            } catch (e) { return null; }
-        }
-
-        function updateUI(user) {
-            document.getElementById('welcome-name').innerText = user.fullName || user.username;
-            document.getElementById('user-balance').innerText = `$${((user.balance||0)+(user.profit||0)).toLocaleString()}`;
-            document.getElementById('user-profit').innerText = `$${(user.profit||0).toLocaleString()}`;
-            document.getElementById('referralCodeDisplay').innerText = user.referralCode || '------';
-            document.getElementById('user-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username||'U')}&background=1e6b8a&color=fff&bold=true`;
-            localStorage.setItem('currentUsername', user.username);
-        }
-
-        // باب الأدمن السري
-        let shieldClickTimer = null, shieldClickCount = 0;
-        document.getElementById('shieldIcon').addEventListener('click', () => {
-            shieldClickCount++;
-            if (shieldClickCount === 1) { shieldClickTimer = setTimeout(() => { shieldClickCount = 0; }, 500); }
-            else if (shieldClickCount === 2) {
-                clearTimeout(shieldClickTimer); shieldClickCount = 0;
-                const currentUsername = localStorage.getItem('currentUsername');
-                if (currentUsername === 'freeze') {
-                    Swal.fire({
-                        title: 'بوابة القيادة السرية', text: 'أدخل كلمة المرور', input: 'password',
-                        showCancelButton: true, confirmButtonText: 'دخول', cancelButtonText: 'إلغاء',
-                        background: '#042840', color: '#fff', confirmButtonColor: '#2e86ab'
-                    }).then(async (result) => {
-                        if (result.isConfirmed && result.value) {
-                            const res = await fetch(API_BASE + '/api/auth/verify-admin-gateway', {
-                                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ secretPassword: result.value }), credentials: 'include'
-                            });
-                            if ((await res.json()).success) window.location.href = 'admin.html';
-                            else Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمة المرور غير صحيحة', background: '#042840', color: '#fff' });
-                        }
-                    });
+                const res = await fetch('/api/auth/me', { credentials: 'include' });
+                if (!res.ok) {
+                    window.location.href = 'login.html';
                 }
+            } catch (err) {
+                window.location.href = 'login.html';
             }
-        });
-
-        // Quick Withdraw Profit
-        async function quickWithdrawProfit() {
-            const user = await fetchUserData(); if (!user) return;
-            const profit = user.profit || 0;
-            if (profit <= 0) { Swal.fire('تنبيه', 'لا توجد أرباح حالياً', 'info'); return; }
-            localStorage.setItem('quickWithdrawAmount', profit);
-            window.location.href = `withdraw.html?amount=${profit}&type=profit`;
         }
+        checkAuth();
 
-        // Activities
-        async function loadActivities() {
-            const res = await fetchWithAuth(`${API_BASE}/api/activity-logs/recent`);
-            const activities = await res.json();
-            const container = document.getElementById('activity-container');
-            container.innerHTML = activities.length ? activities.slice(0,6).map(a => `<div class="activity-item flex justify-between"><div><b>${esc(a.action)}</b> - ${esc(a.details)}</div><span class="text-xs text-slate-500">${new Date(a.timestamp).toLocaleString()}</span></div>`).join('') : '<div class="text-slate-500 text-center">لا توجد نشاطات</div>';
-        }
-
-        // Notifications
-        let notifications = [];
-        async function loadNotifications() {
-            const res = await fetchWithAuth(`${API_BASE}/api/notifications`);
-            notifications = await res.json();
-            const badge = document.getElementById('notificationCount');
-            const unread = notifications.filter(n => !n.isRead).length;
-            badge.style.display = unread ? 'flex' : 'none'; badge.innerText = unread;
-            document.getElementById('notificationsList').innerHTML = notifications.map(n => `<div class="py-1 border-b border-white/5 ${!n.isRead?'font-bold text-sky-200':'text-slate-400'}">${esc(n.title)}</div>`).join('');
-        }
-        function toggleNotifications() { document.getElementById('notificationsDropdown').classList.toggle('hidden'); loadNotifications(); }
-        document.getElementById('markAllReadBtn').addEventListener('click', async () => { await fetchWithAuth(`${API_BASE}/api/notifications/read-all`,{method:'PUT'}); loadNotifications(); });
-
-        function logout() {
-            Swal.fire({ title:'تسجيل الخروج', text:'هل أنت متأكد؟', icon:'question', showCancelButton:true, confirmButtonColor:'#2e86ab', background:'#042840', color:'#fff' }).then(r => { if(r.isConfirmed) { fetch('/api/auth/logout',{method:'POST',credentials:'include'}); localStorage.clear(); window.location.href='login.html'; }});
-        }
-
-        function esc(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-
-        // ========== Tabs Logic ==========
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const overviewTab = document.getElementById('overview-tab');
-        const transactionsTab = document.getElementById('transactions-tab');
-        let transactionsLoaded = false;
-
-        tabButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const target = btn.dataset.tab;
-                if (target === 'overview') {
-                    overviewTab.classList.remove('hidden');
-                    transactionsTab.classList.add('hidden');
-                } else if (target === 'transactions') {
-                    overviewTab.classList.add('hidden');
-                    transactionsTab.classList.remove('hidden');
-                    if (!transactionsLoaded) {
-                        loadTransactionsData();
-                        transactionsLoaded = true;
-                    }
-                }
-            });
-        });
-
-        async function loadTransactionsData() {
-            const container = document.getElementById('transactions-container');
-            container.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>جاري التحميل...</div>';
+        // تحميل العروض المميزة
+        async function loadFeatured() {
             try {
-                const [deposits, withdrawals, investments, referralsRes] = await Promise.all([
-                    fetchWithAuth(`${API_BASE}/api/deposits/my`).then(r => r.ok ? r.json() : []),
-                    fetchWithAuth(`${API_BASE}/api/withdrawals/my`).then(r => r.ok ? r.json() : []),
-                    fetchWithAuth(`${API_BASE}/api/investments/my`).then(r => r.ok ? r.json() : []),
-                    fetchWithAuth(`${API_BASE}/api/referrals/my`).then(r => r.ok ? r.json() : { referrals: [] })
-                ]);
-
-                const referrals = referralsRes.referrals || [];
-                let allTransactions = [];
-
-                (deposits || []).forEach(d => {
-                    allTransactions.push({
-                        id: d.id, type: 'deposit', amount: parseFloat(d.amount) || 0,
-                        status: d.status || 'pending', date: new Date(d.date),
-                        details: `USDT - TX: ${d.screenshotPath || '-'}`
-                    });
-                });
-
-                (withdrawals || []).forEach(w => {
-                    allTransactions.push({
-                        id: w.id, type: 'withdrawal', amount: parseFloat(w.amount) || 0,
-                        status: w.status || 'pending', date: new Date(w.date),
-                        details: `${w.type === 'profit' ? 'أرباح' : 'أصل'} | محفظة: ${(w.walletAddress || '').substring(0,12)}...`
-                    });
-                });
-
-                (investments || []).forEach(inv => {
-                    allTransactions.push({
-                        id: inv.id, type: 'investment', amount: parseFloat(inv.amount) || 0,
-                        status: inv.withdrawnPrincipal ? 'completed' : 'active',
-                        date: new Date(inv.startDate),
-                        details: 'مشروع المعادن والعملات'
-                    });
-                });
-
-                (referrals || []).forEach(ref => {
-                    const reward = parseFloat(ref.reward) || 0;
-                    if (reward > 0) {
-                        allTransactions.push({
-                            id: `ref_${ref.username}`, type: 'referral', amount: reward,
-                            status: 'completed', date: new Date(ref.registeredAt),
-                            details: `مكافأة من ${ref.username}`
-                        });
+                const res = await fetch('/api/featured');
+                if (res.ok) {
+                    const data = await res.json();
+                    const grid = document.getElementById('featuredGrid');
+                    if (data.length === 0) {
+                        grid.innerHTML = '<p>لا توجد عروض مميزة حالياً</p>';
+                        return;
                     }
-                });
-
-                allTransactions.sort((a, b) => b.date - a.date);
-
-                if (allTransactions.length === 0) {
-                    container.innerHTML = '<div class="text-center py-8 text-slate-400">لا توجد معاملات حتى الآن</div>';
-                    return;
-                }
-
-                let html = '';
-                allTransactions.forEach(tx => {
-                    const amount = tx.amount.toFixed(2);
-                    let typeClass = '', typeText = '';
-                    if (tx.type === 'deposit') { typeClass = 'type-deposit'; typeText = 'إيداع'; }
-                    else if (tx.type === 'withdrawal') { typeClass = 'type-withdrawal'; typeText = 'سحب'; }
-                    else if (tx.type === 'investment') { typeClass = 'type-investment'; typeText = 'استثمار'; }
-                    else { typeClass = 'type-referral'; typeText = 'إحالة'; }
-
-                    const sign = tx.type === 'withdrawal' ? '- ' : '+ ';
-                    const colorClass = tx.type === 'withdrawal' ? 'text-yellow-400' : 'text-green-400';
-                    const dateStr = tx.date.toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-
-                    html += `
-                        <div class="transaction-card flex flex-wrap justify-between items-center gap-2">
-                            <div class="flex items-center gap-2">
-                                <span class="type-badge ${typeClass}">${typeText}</span>
-                                <span class="text-xs text-slate-400">${dateStr}</span>
-                            </div>
-                            <div class="text-left">
-                                <span class="font-bold ${colorClass}">${sign}${amount} $</span>
-                                <div class="text-xs text-slate-500 mt-1">${esc(tx.details)}</div>
+                    grid.innerHTML = data.map(item => `
+                        <div class="product-card">
+                            <img src="${item.product.image || 'https://via.placeholder.com/300x200/059669/white?text=No+Image'}" alt="${item.product.name}">
+                            <div class="info">
+                                <span class="badge">مميز</span>
+                                <h3>${item.product.name}</h3>
+                                <p>${item.product.seller.storeName || ''}</p>
+                                <p class="price">${item.product.price}$</p>
                             </div>
                         </div>
-                    `;
-                });
-                container.innerHTML = html;
-            } catch (error) {
-                container.innerHTML = '<div class="text-center py-8 text-red-400">فشل تحميل المعاملات</div>';
+                    `).join('');
+                }
+            } catch (err) {
+                console.error(err);
             }
         }
+        loadFeatured();
 
-        // Init
-        window.onload = async () => {
-            await loadTranslations(currentLang); applyTranslations(currentLang);
-            const user = await fetchUserData();
-            if (user) { initSocket(); loadActivities(); loadNotifications(); setInterval(()=>{ if(document.visibilityState==='visible') fetchUserData(); }, 20000); }
-        };
+        // تسجيل الخروج
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = 'index.html';
+        });
+
+        // البحث
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const keyword = document.getElementById('keyword').value.trim();
+            if (keyword) {
+                window.location.href = `offers.html?search=${encodeURIComponent(keyword)}`;
+            }
+        });
     </script>
 </body>
 </html>
