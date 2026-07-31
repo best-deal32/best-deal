@@ -1,494 +1,133 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>لوحة التحكم | Fargo</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-    :root {
-      --bg-deep: #040b14;
-      --red-dark: #800000;
-      --red-mid: #a00000;
-      --red-light: #c00000;
-      --red-accent: #ff3333;
-      --border-light: rgba(255,51,51,0.4);
-      --text-primary: #e0e6f0;
-      --text-dim: #99a8c0;
-    }
-    body {
-      font-family: 'Cairo', sans-serif;
-      background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
-      color: var(--text-primary);
-      min-height: 100vh;
-      padding: 1.5rem;
-    }
-    .glass-panel {
-      background: rgba(20,5,5,0.8);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border-light);
-      border-radius: 2rem;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-    }
-    .btn-red {
-      background: linear-gradient(135deg, var(--red-mid), var(--red-light));
-      color: #fff; font-weight: 800; border-radius: 1.5rem;
-      padding: 0.7rem 1.5rem; transition: 0.3s; cursor: pointer;
-      border: none; display: inline-flex; align-items: center; gap: 0.5rem;
-    }
-    .btn-red:hover { filter: brightness(1.1); transform: translateY(-2px); }
-    .action-btn {
-      padding: 5px 10px; border-radius: 6px; font-size: 0.7rem;
-      font-weight: 800; border: none; cursor: pointer; margin: 2px;
-    }
-    .btn-approve { background: #10b981; color: #fff; }
-    .btn-reject { background: #ef4444; color: #fff; }
-    .btn-view { background: var(--red-dark); color: #fff; }
-    .btn-warn { background: #f59e0b; color: #000; }
-    .badge {
-      padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold;
-    }
-    .badge-pending { background: rgba(245,158,11,0.2); color: #f59e0b; }
-    .badge-approved { background: rgba(16,185,129,0.2); color: #10b981; }
-    .badge-rejected { background: rgba(239,68,68,0.2); color: #ef4444; }
-    .badge-open { background: rgba(255,51,51,0.2); color: #ff3333; }
-    .badge-in_progress { background: rgba(245,158,11,0.2); color: #f59e0b; }
-    .tab-btn {
-      background: transparent; border: none; padding: 0.6rem 1.2rem;
-      border-radius: 2rem; font-weight: 800; color: var(--text-dim);
-      cursor: pointer; transition: 0.2s;
-    }
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--red-mid), var(--red-light));
-      color: #fff;
-    }
-    .table-container {
-      overflow-x: auto; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 0.5rem;
-    }
-    table {
-      width: 100%; border-collapse: collapse; text-align: right; min-width: 850px;
-    }
-    th {
-      padding: 10px 8px; color: var(--red-accent); font-weight: 800;
-      font-size: 0.75rem; border-bottom: 1px solid rgba(255,51,51,0.3);
-    }
-    td {
-      padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem;
-    }
-    tr:hover td { background: rgba(255,51,51,0.08); }
-    .hidden { display: none; }
-    .flex-center {
-      display: flex; align-items: center; justify-content: center; min-height: 80vh;
-    }
-    input, select, textarea {
-      background: rgba(4,11,20,0.7); border: 1px solid rgba(255,51,51,0.4);
-      color: #fff; padding: 10px; border-radius: 10px; width: 100%; margin-bottom: 15px;
-    }
-    @media (max-width: 768px) {
-      body { padding: 1rem; }
-      .glass-panel { padding: 1rem; border-radius: 1.5rem; }
-      .tab-btn { padding: 0.5rem 0.9rem; font-size: 0.8rem; }
-      table { min-width: 650px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة الأدمن - MarketHub</title>
+    <style>
+        /* تصميم مماثل */
+        :root {
+            --green-dark: #059669; --green-light: #6ee7b7;
+            --blue-dark: #1e40af; --blue-light: #93c5fd;
+            --white: #ffffff; --bg-glass: rgba(255, 255, 255, 0.1);
+            --border-glass: rgba(255, 255, 255, 0.2);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #065f46 0%, #1e3a8a 100%);
+            min-height: 100vh; color: var(--white); display: flex; flex-direction: column;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glass); padding: 15px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; }
+        .main-container { flex:1; padding:30px 20px; max-width:1100px; margin:0 auto; width:100%; }
+        .section { background:var(--bg-glass); backdrop-filter:blur(10px); border-radius:20px; padding:20px; margin-bottom:25px; }
+        table { width:100%; border-collapse:collapse; margin-top:10px; }
+        th, td { padding:10px; border-bottom:1px solid var(--border-glass); text-align:right; }
+        .btn { padding:5px 15px; border-radius:20px; border:none; cursor:pointer; }
+        .btn-danger { background:#b91c1c; color:white; }
+        .btn-success { background:var(--green-dark); color:white; }
+    </style>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="logo"><span class="emerald-text">Market</span><span class="blue-text">Hub</span> | أدمن</div>
+        <a href="dashboard.html" style="color:white">الرئيسية</a>
+    </nav>
 
-<!-- نافذة البوابة الملكية -->
-<div id="gatewayScreen" class="flex-center">
-  <div class="glass-panel p-8 max-w-sm w-full text-center transform hover:scale-[1.02] transition duration-300">
-    <i class="fa-solid fa-shield-halved text-5xl text-red-400 mb-4 drop-shadow-[0_0_15px_rgba(255,51,51,0.7)]"></i>
-    <h2 class="text-3xl font-black text-red-300 mb-2">بوابة القيادة</h2>
-    <p class="text-red-200/70 text-sm mb-6">أدخل كلمة المرور للوصول إلى لوحة التحكم</p>
-    <input type="password" id="gatewayPass" class="w-full bg-[#040b14]/80 border border-red-500/40 rounded-2xl py-3 px-4 text-white text-center text-lg placeholder:text-red-200/50 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition" placeholder="كلمة المرور" dir="ltr" />
-    <button id="gatewayBtn" class="btn-red w-full justify-center py-3 mt-4 text-lg">
-      <i class="fa-solid fa-right-to-bracket ml-2"></i> دخول
-    </button>
-    <p class="text-red-200/40 text-xs mt-4">وصول آمن لـ Fargo admin</p>
-  </div>
-</div>
+    <div class="main-container">
+        <div class="section">
+            <h2>المستخدمين</h2>
+            <table id="usersTable"><thead><tr><th>الاسم</th><th>البريد</th><th>الدور</th><th>إجراءات</th></tr></thead><tbody></tbody></table>
+        </div>
 
-<!-- لوحة التحكم الرئيسية -->
-<div id="mainPanel" class="hidden max-w-7xl mx-auto glass-panel p-6">
-  <!-- رأس الصفحة -->
-  <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-    <div class="flex items-center gap-3">
-      <i class="fa-solid fa-shield-halved text-4xl text-red-400 drop-shadow-xl"></i>
-      <h1 class="text-2xl font-black text-red-300 tracking-wide">FARGO - لوحة التحكم</h1>
+        <div class="section">
+            <h2>العروض المميزة الحالية</h2>
+            <div id="featuredList"></div>
+            <h3>إضافة منتج إلى المميزة</h3>
+            <input type="text" id="productIdInput" placeholder="معرف المنتج (UUID)">
+            <button onclick="addFeatured()" class="btn btn-success">إضافة</button>
+        </div>
     </div>
-    <div class="flex gap-3">
-      <button onclick="loadEverything()" class="btn-red"><i class="fa-solid fa-rotate ml-1"></i> تحديث</button>
-      <button onclick="logout()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-xl font-bold text-sm">خروج</button>
-    </div>
-  </div>
 
-  <!-- إحصائيات -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-[#1a0000] border border-red-500/30 rounded-2xl p-4 text-center">
-      <p class="text-xs text-slate-400">المستخدمين</p><p id="stat-users" class="text-2xl font-black text-red-300">0</p>
-    </div>
-    <div class="bg-[#1a0000] border border-red-500/30 rounded-2xl p-4 text-center">
-      <p class="text-xs text-slate-400">إيداعات معلقة</p><p id="stat-deposits" class="text-2xl font-black text-yellow-400">0</p>
-    </div>
-    <div class="bg-[#1a0000] border border-red-500/30 rounded-2xl p-4 text-center">
-      <p class="text-xs text-slate-400">سحوبات معلقة</p><p id="stat-withdrawals" class="text-2xl font-black text-yellow-400">0</p>
-    </div>
-    <div class="bg-[#1a0000] border border-red-500/30 rounded-2xl p-4 text-center">
-      <p class="text-xs text-slate-400">إجمالي الأرصدة</p><p id="stat-balance" class="text-2xl font-black text-red-300">$0</p>
-    </div>
-  </div>
+    <script>
+        async function checkAdmin() {
+            const res = await fetch('/api/auth/me', { credentials: 'include' });
+            if (res.ok) {
+                const user = await res.json();
+                if (user.role !== 'admin') window.location.href = 'dashboard.html';
+            } else {
+                window.location.href = 'login.html';
+            }
+        }
+        checkAdmin();
 
-  <!-- تبويبات -->
-  <div class="flex gap-2 mb-4 flex-wrap justify-center">
-    <button class="tab-btn active" data-tab="users">👥 المستخدمين</button>
-    <button class="tab-btn" data-tab="deposits">💰 الإيداعات</button>
-    <button class="tab-btn" data-tab="withdrawals">💸 السحوبات</button>
-    <button class="tab-btn" data-tab="tickets">🎫 التذاكر</button>
-    <button class="tab-btn" data-tab="analytics">📊 التحليلات</button>
-  </div>
+        async function loadUsers() {
+            const res = await fetch('/api/admin/users', { credentials: 'include' });
+            const users = await res.json();
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.username}</td>
+                    <td>${u.email}</td>
+                    <td>${u.role}</td>
+                    <td>
+                        <select onchange="changeRole('${u.id}', this.value)">
+                            <option value="user" ${u.role==='user'?'selected':''}>مستخدم</option>
+                            <option value="seller" ${u.role==='seller'?'selected':''}>بائع</option>
+                            <option value="admin" ${u.role==='admin'?'selected':''}>أدمن</option>
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
+        }
 
-  <!-- محتوى التبويبات -->
-  <div id="tab-users" class="tab-content">
-    <div class="flex gap-2 mb-3"><input type="text" id="userSearch" placeholder="بحث..." class="bg-black/50 border border-red-500/30 rounded-xl px-3 py-2 text-white w-full sm:w-64" /></div>
-    <div class="table-container"><table><thead><tr><th>المستخدم</th><th>الاسم</th><th>البريد</th><th>الرصيد</th><th>الأرباح</th><th>الإيداعات</th><th>كود الإحالة</th><th>إجراءات</th></tr></thead><tbody id="usersBody"></tbody></table></div>
-  </div>
+        async function changeRole(userId, role) {
+            await fetch(`/api/admin/user/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ role }),
+                credentials: 'include'
+            });
+            loadUsers();
+        }
 
-  <div id="tab-deposits" class="tab-content hidden">
-    <div class="table-container"><table><thead><tr><th>المستخدم</th><th>المبلغ</th><th>رمز المعاملة</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="depositsBody"></tbody></table></div>
-  </div>
+        async function loadFeatured() {
+            const res = await fetch('/api/featured');
+            const featured = await res.json();
+            document.getElementById('featuredList').innerHTML = featured.map(f =>
+                `<div>${f.product.name} (${f.product.id}) <button onclick="removeFeatured('${f.id}')" class="btn btn-danger">حذف</button></div>`
+            ).join('') || '<p>لا توجد عروض مميزة</p>';
+        }
 
-  <div id="tab-withdrawals" class="tab-content hidden">
-    <div class="table-container"><table><thead><tr><th>المستخدم</th><th>المبلغ</th><th>النوع</th><th>المحفظة</th><th>التاريخ</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="withdrawalsBody"></tbody></table></div>
-  </div>
+        async function addFeatured() {
+            const productId = document.getElementById('productIdInput').value.trim();
+            if (!productId) return;
+            const res = await fetch('/api/admin/featured', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId }),
+                credentials: 'include'
+            });
+            if (res.ok) {
+                document.getElementById('productIdInput').value = '';
+                loadFeatured();
+            } else {
+                alert('فشل الإضافة');
+            }
+        }
 
-  <div id="tab-tickets" class="tab-content hidden">
-    <div class="table-container"><table><thead><tr><th>المستخدم</th><th>الموضوع</th><th>الأولوية</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead><tbody id="ticketsBody"></tbody></table></div>
-    <div id="ticketDetailPanel" class="mt-4 p-4 glass-panel hidden"></div>
-  </div>
+        async function removeFeatured(id) {
+            await fetch(`/api/admin/featured/${id}`, { method: 'DELETE', credentials: 'include' });
+            loadFeatured();
+        }
 
-  <div id="tab-analytics" class="tab-content hidden">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-[#1a0000] border border-red-500/20 rounded-2xl p-4"><canvas id="userChart"></canvas></div>
-      <div class="bg-[#1a0000] border border-red-500/20 rounded-2xl p-4"><canvas id="depositChart"></canvas></div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-      <div class="bg-[#1a0000] border border-red-500/20 rounded-2xl p-4"><h3 class="text-red-300 font-bold mb-2">أعلى الأرصدة</h3><div id="topBalance"></div></div>
-      <div class="bg-[#1a0000] border border-red-500/20 rounded-2xl p-4"><h3 class="text-red-300 font-bold mb-2">أعلى الإحالات</h3><div id="topReferrers"></div></div>
-    </div>
-  </div>
-</div>
-
-<script>
-const API = '';
-
-// --- Gateway ---
-document.getElementById('gatewayBtn').addEventListener('click', async () => {
-  const pass = document.getElementById('gatewayPass').value;
-  try {
-    const res = await fetch(API + '/api/auth/verify-admin-gateway', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secretPassword: pass }), credentials: 'include'
-    });
-    const data = await res.json();
-    if (data.success) {
-      document.getElementById('gatewayScreen').classList.add('hidden');
-      document.getElementById('mainPanel').classList.remove('hidden');
-      initSocket();
-      await loadEverything();
-    } else {
-      Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمة المرور غير صحيحة', background: '#071426', color: '#fff' });
-    }
-  } catch (e) { Swal.fire({ icon: 'error', title: 'خطأ', text: 'فشل الاتصال', background: '#071426', color: '#fff' }); }
-});
-
-// --- Tabs ---
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-    document.getElementById('tab-' + btn.dataset.tab)?.classList.remove('hidden');
-    if (btn.dataset.tab === 'analytics') loadAnalytics();
-  });
-});
-
-// --- API Helper ---
-async function api(url, opt = {}) {
-  opt.credentials = 'include';
-  const res = await fetch(url, opt);
-  if (res.status === 401) {
-    document.getElementById('mainPanel').classList.add('hidden');
-    document.getElementById('gatewayScreen').classList.remove('hidden');
-    Swal.fire({ icon: 'warning', title: 'انتهت الجلسة', text: 'أعد إدخال كلمة المرور', background: '#071426', color: '#fff' });
-    throw new Error('Unauthorized');
-  }
-  return res;
-}
-
-// --- Load All Data ---
-async function loadEverything() {
-  try {
-    const [usersR, depositsR, withdrawalsR, ticketsR, analyticsR] = await Promise.all([
-      api(API + '/api/admin/users'),
-      api(API + '/api/admin/deposits'),
-      api(API + '/api/admin/withdrawals'),
-      api(API + '/api/admin/support/tickets'),
-      api(API + '/api/admin/analytics')
-    ]);
-    const users = (await usersR.json()).users || [];
-    const deposits = await depositsR.json();
-    const withdrawals = await withdrawalsR.json();
-    const tickets = await ticketsR.json();
-    const analytics = await analyticsR.json();
-
-    renderUsers(users);
-    renderDeposits(deposits);
-    renderWithdrawals(withdrawals);
-    renderTickets(tickets);
-    renderStats(users, deposits, withdrawals);
-    if (!document.getElementById('tab-analytics').classList.contains('hidden')) loadAnalyticsChart(analytics);
-  } catch (e) { console.error(e); }
-}
-
-// --- RENDER FUNCTIONS ---
-function renderUsers(users) {
-  const tbody = document.getElementById('usersBody');
-  tbody.innerHTML = users.map(u => `
-    <tr>
-      <td><strong>${esc(u.username)}</strong></td>
-      <td>${esc(u.fullName||'—')}</td>
-      <td class="text-xs">${esc(u.email)}</td>
-      <td class="text-red-300">${Number(u.balance||0).toFixed(2)} $</td>
-      <td class="text-green-300">${Number(u.profit||0).toFixed(2)} $</td>
-      <td>${Number(u.totalDeposits||0).toFixed(2)} $</td>
-      <td class="font-mono text-red-200 text-xs">${esc(u.referralCode||'—')}</td>
-      <td>
-        <button onclick="editBalance('${u.id}','${esc(u.username)}',${Number(u.balance||0)})" class="action-btn btn-view">💰</button>
-        <button onclick="resetPw('${u.id}','${esc(u.username)}')" class="action-btn btn-warn">🔑</button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function renderDeposits(deposits) {
-  const thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000);
-  const filtered = deposits.filter(d => new Date(d.date) > thirtyDaysAgo && d.status === 'pending');
-  const tbody = document.getElementById('depositsBody');
-  tbody.innerHTML = filtered.length ? filtered.map(d => `
-    <tr>
-      <td>${esc(d.username)}</td>
-      <td class="text-red-300">${Number(d.amount).toFixed(2)} $</td>
-      <td class="font-mono text-xs text-red-200">${esc(d.screenshotPath || '—')}</td>
-      <td>${new Date(d.date).toLocaleString()}</td>
-      <td><span class="badge badge-pending">معلق</span></td>
-      <td>
-        <button onclick="handleDeposit('${d.id}','approve')" class="action-btn btn-approve">قبول</button>
-        <button onclick="handleDeposit('${d.id}','reject')" class="action-btn btn-reject">رفض</button>
-      </td>
-    </tr>
-  `).join('') : '<tr><td colspan="6" class="text-center py-4">لا توجد طلبات معلقة</td></tr>';
-}
-
-function renderWithdrawals(withdrawals) {
-  const thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000);
-  const filtered = withdrawals.filter(w => new Date(w.date) > thirtyDaysAgo && w.status === 'pending');
-  const tbody = document.getElementById('withdrawalsBody');
-  tbody.innerHTML = filtered.length ? filtered.map(w => `
-    <tr>
-      <td>${esc(w.username)}</td>
-      <td class="text-yellow-400">${Number(w.amount).toFixed(2)} $</td>
-      <td>${w.type === 'profit' ? 'أرباح' : 'أصل'}</td>
-      <td class="text-xs">${esc(w.walletAddress?.substring(0,15)+'...')}</td>
-      <td>${new Date(w.date).toLocaleString()}</td>
-      <td><span class="badge badge-pending">معلق</span></td>
-      <td>
-        <button onclick="handleWithdrawal('${w.id}','approve')" class="action-btn btn-approve">قبول</button>
-        <button onclick="handleWithdrawal('${w.id}','reject')" class="action-btn btn-reject">رفض</button>
-      </td>
-    </tr>
-  `).join('') : '<tr><td colspan="7" class="text-center py-4">لا توجد طلبات معلقة</td></tr>';
-}
-
-function renderTickets(tickets) {
-  const tbody = document.getElementById('ticketsBody');
-  tbody.innerHTML = tickets.length ? tickets.map(t => {
-    let badge = '';
-    if (t.status === 'open') badge = '<span class="badge badge-open">مفتوحة</span>';
-    else if (t.status === 'in_progress') badge = '<span class="badge badge-in_progress">قيد التنفيذ</span>';
-    else badge = '<span class="badge badge-rejected">مغلقة</span>';
-    return `
-      <tr>
-        <td>${esc(t.username)}</td>
-        <td>${esc(t.subject)}</td>
-        <td>${t.priority}</td>
-        <td>${badge}</td>
-        <td class="text-xs">${new Date(t.createdAt).toLocaleString()}</td>
-        <td><button onclick="viewTicket('${t.id}')" class="action-btn btn-view">عرض</button></td>
-      </tr>
-    `;
-  }).join('') : '<tr><td colspan="6" class="text-center py-4">لا توجد تذاكر</td></tr>';
-}
-
-function renderStats(users, deposits, withdrawals) {
-  document.getElementById('stat-users').innerText = users.length;
-  document.getElementById('stat-deposits').innerText = deposits.filter(d => d.status === 'pending').length;
-  document.getElementById('stat-withdrawals').innerText = withdrawals.filter(w => w.status === 'pending').length;
-  document.getElementById('stat-balance').innerText = '$' + users.reduce((s,u) => s + Number(u.balance||0), 0).toFixed(0);
-}
-
-// --- Actions ---
-window.editBalance = async (userId, username, currentBalance) => {
-  const { value: newBal } = await Swal.fire({
-    title: `تعديل رصيد ${username}`, input: 'number', inputValue: currentBalance,
-    showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#ff3333'
-  });
-  if (!newBal) return;
-  await api(API + '/api/admin/set-user-balance', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ userId, newBalance: parseFloat(newBal) })
-  });
-  loadEverything();
-};
-
-window.resetPw = async (userId, username) => {
-  const { value: pass } = await Swal.fire({
-    title: `كلمة مرور جديدة لـ ${username}`, input: 'password', inputPlaceholder: 'الكلمة الجديدة',
-    showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#ff3333'
-  });
-  if (!pass) return;
-  await api(API + '/api/admin/reset-user-password', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ userId, newPassword: pass })
-  });
-  Swal.fire({ icon: 'success', title: 'تم', text: 'تم تغيير كلمة المرور', background: '#071426', color: '#fff' });
-};
-
-window.handleDeposit = async (id, action) => {
-  const confirm = await Swal.fire({
-    title: 'تأكيد', text: `هل تريد ${action==='approve'?'قبول':'رفض'} الإيداع؟`,
-    icon: 'warning', showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#ff3333'
-  });
-  if (!confirm.isConfirmed) return;
-  await api(`${API}/api/admin/deposits/${id}/${action}`, { method: 'POST' });
-  loadEverything();
-};
-
-window.handleWithdrawal = async (id, action) => {
-  const confirm = await Swal.fire({
-    title: 'تأكيد', text: `هل تريد ${action==='approve'?'قبول':'رفض'} السحب؟`,
-    icon: 'warning', showCancelButton: true, background: '#071426', color: '#fff', confirmButtonColor: '#ff3333'
-  });
-  if (!confirm.isConfirmed) return;
-  await api(`${API}/api/admin/withdrawals/${id}/${action}`, { method: 'POST' });
-  loadEverything();
-};
-
-window.viewTicket = async (ticketId) => {
-  const res = await api(`${API}/api/support/tickets/${ticketId}`);
-  const data = await res.json();
-  const panel = document.getElementById('ticketDetailPanel');
-  panel.classList.remove('hidden');
-  panel.innerHTML = `
-    <h3 class="text-lg font-bold text-red-300 mb-2">${esc(data.ticket.subject)}</h3>
-    <p class="text-slate-300 mb-1">${esc(data.ticket.message)}</p>
-    <div class="text-xs text-slate-500 mb-4">${new Date(data.ticket.createdAt).toLocaleString()} | ${data.ticket.status}</div>
-    <div class="space-y-2">${data.replies.map(r => `<div class="bg-black/20 p-2 rounded-lg"><strong>${esc(r.username)}:</strong> ${esc(r.message)}</div>`).join('')}</div>
-    <div class="mt-4 flex gap-2">
-      <input type="text" id="replyInput" class="bg-black/50 border border-red-500/30 rounded-lg p-2 flex-1 text-white" placeholder="اكتب رداً...">
-      <button onclick="replyTicket('${ticketId}')" class="btn-red">رد</button>
-      <button onclick="closeTicket('${ticketId}')" class="bg-gray-600 px-4 py-2 rounded-lg text-white">إغلاق</button>
-    </div>
-  `;
-};
-
-window.replyTicket = async (ticketId) => {
-  const msg = document.getElementById('replyInput').value.trim();
-  if (!msg) return;
-  await api(`${API}/api/support/tickets/${ticketId}/reply`, {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ message: msg })
-  });
-  viewTicket(ticketId);
-  loadEverything();
-};
-
-window.closeTicket = async (ticketId) => {
-  await api(`${API}/api/admin/support/tickets/${ticketId}/status`, {
-    method: 'PUT', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ status: 'closed' })
-  });
-  document.getElementById('ticketDetailPanel').classList.add('hidden');
-  loadEverything();
-};
-
-// Analytics
-let charts = {};
-function loadAnalyticsChart(data) {
-  if (charts.user) charts.user.destroy();
-  if (charts.dep) charts.dep.destroy();
-  if (data.userGrowth?.length) {
-    charts.user = new Chart(document.getElementById('userChart'), {
-      type: 'line', data: { labels: data.userGrowth.map(d=>d.date), datasets: [{ label: 'مستخدمين جدد', data: data.userGrowth.map(d=>d.count), borderColor: '#ff3333' }] }
-    });
-  }
-  if (data.dailyDeposits?.length) {
-    charts.dep = new Chart(document.getElementById('depositChart'), {
-      type: 'bar', data: { labels: data.dailyDeposits.map(d=>d.date), datasets: [{ label: 'إيداعات ($)', data: data.dailyDeposits.map(d=>d.total), backgroundColor: '#a00000' }] }
-    });
-  }
-  document.getElementById('topBalance').innerHTML = (data.topBalanceUsers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-red-300">${Number(u.balance)} $</span></div>`).join('');
-  document.getElementById('topReferrers').innerHTML = (data.topReferrers||[]).map(u => `<div class="flex justify-between py-1"><span>${esc(u.username)}</span><span class="text-red-300">${u.referralCount} مدعو</span></div>`).join('');
-}
-
-async function loadAnalytics() {
-  const res = await api(API + '/api/admin/analytics');
-  loadAnalyticsChart(await res.json());
-}
-
-// Search
-document.getElementById('userSearch')?.addEventListener('input', debounce(async function() {
-  const q = this.value;
-  const res = await api(`${API}/api/admin/users?search=${q}`);
-  renderUsers(((await res.json()).users || []));
-}, 300));
-
-function debounce(fn, ms) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), ms); }; }
-
-function esc(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-
-// Socket
-let currentSocket;
-function initSocket() {
-  currentSocket = io(window.location.origin, { withCredentials: true });
-  currentSocket.on('new-deposit-request', d => {
-    Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'إيداع جديد', text: `${d.username} - ${d.amount}$`, timer: 4000, background: '#1a0000', color: '#fff' });
-    loadEverything();
-  });
-  currentSocket.on('new-withdrawal-request', d => {
-    Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'طلب سحب', text: `${d.username} - ${d.amount}$`, timer: 4000, background: '#1a0000', color: '#fff' });
-    loadEverything();
-  });
-  currentSocket.on('new-ticket', d => {
-    Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: 'تذكرة جديدة', text: `${d.username}: ${d.subject}`, timer: 4000, background: '#1a0000', color: '#fff' });
-    loadEverything();
-  });
-}
-
-function logout() {
-  Swal.fire({ title: 'تسجيل الخروج', text: 'هل أنت متأكد؟', icon: 'question', showCancelButton: true, confirmButtonColor: '#ff3333', background: '#1a0000', color: '#fff' }).then(r => {
-    if (r.isConfirmed) {
-      fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).finally(() => window.location.href = 'admin.html');
-    }
-  });
-}
-
-// Init
-window.onload = () => { /* تنتظر إدخال كلمة المرور */ };
-</script>
+        loadUsers();
+        loadFeatured();
+    </script>
 </body>
 </html>
