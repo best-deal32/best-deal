@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العروض المميزة - MarketHub</title>
+    <style>
+        /* تصميم مشابه */
+        :root {
+            --green-dark: #059669; --green-light: #6ee7b7;
+            --blue-dark: #1e40af; --blue-light: #93c5fd;
+            --white: #ffffff; --bg-glass: rgba(255, 255, 255, 0.1);
+            --border-glass: rgba(255, 255, 255, 0.2);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #065f46 0%, #1e3a8a 100%);
+            min-height: 100vh; color: var(--white); display: flex; flex-direction: column;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glass); padding: 15px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; }
+        .logo .emerald-text { color: var(--green-light); } .logo .blue-text { color: var(--blue-light); }
+        .nav-links a { color: white; text-decoration: none; margin:0 10px; }
+        .main-container { flex:1; padding:30px 20px; max-width:1200px; margin:0 auto; width:100%; }
+        .offers-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap:25px; }
+        .offer-card {
+            background:var(--bg-glass); backdrop-filter:blur(10px); border-radius:20px;
+            border:1px solid var(--border-glass); overflow:hidden;
+        }
+        .offer-card img { width:100%; height:200px; object-fit:cover; }
+        .offer-card .card-body { padding:20px; }
+        .offer-card .badge { background:var(--green-dark); padding:4px 12px; border-radius:20px; }
+        .offer-card .price { color:var(--green-light); font-weight:bold; }
+        .back-link { color:var(--green-light); text-decoration:none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span class="emerald-text">Market</span><span class="blue-text">Hub</span></div>
+        <div class="nav-links">
+            <a href="dashboard.html">الرئيسية</a>
+            <a href="offers.html">العروض</a>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <a href="dashboard.html" class="back-link">← العودة</a>
+        <h1>⭐ العروض المميزة</h1>
+        <div class="offers-grid" id="offersGrid"></div>
+    </div>
+
+    <script>
+        async function loadOffers() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const search = urlParams.get('search') || '';
+            let url = '/api/featured';
+            if (search) url = `/api/search?keyword=${encodeURIComponent(search)}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                const grid = document.getElementById('offersGrid');
+                const products = data.map(item => item.product || item); // featured vs search
+
+                if (products.length === 0) {
+                    grid.innerHTML = '<p>لا توجد نتائج</p>';
+                    return;
+                }
+                grid.innerHTML = products.map(p => `
+                    <div class="offer-card">
+                        <img src="${p.image || 'https://via.placeholder.com/300/059669/white?text=No+Image'}" alt="${p.name}">
+                        <div class="card-body">
+                            <span class="badge">مميز</span>
+                            <h3>${p.name}</h3>
+                            <p>${p.seller?.storeName || ''}</p>
+                            <p class="price">${p.price}$</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        loadOffers();
+    </script>
+</body>
+</html>
