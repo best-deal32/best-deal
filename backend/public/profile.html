@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملفي الشخصي - MarketHub</title>
+    <style>
+        /* تصميم مشابه مع الأقسام */
+        :root {
+            --green-dark: #059669; --green-light: #6ee7b7;
+            --blue-dark: #1e40af; --blue-light: #93c5fd;
+            --white: #ffffff; --bg-glass: rgba(255, 255, 255, 0.1);
+            --border-glass: rgba(255, 255, 255, 0.25);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #065f46 0%, #1e3a8a 100%);
+            min-height: 100vh; color: var(--white); display: flex; flex-direction: column;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glass); padding: 15px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; }
+        .main-container { flex:1; padding:30px 20px; max-width:900px; margin:0 auto; width:100%; }
+        .section { background:var(--bg-glass); backdrop-filter:blur(10px); border:1px solid var(--border-glass); border-radius:20px; padding:20px; margin-bottom:25px; }
+        .profile-header { display:flex; gap:20px; align-items:center; }
+        .store-image { width:100px; height:100px; border-radius:20px; object-fit:cover; background:rgba(0,0,0,0.3); }
+        .btn { background:var(--green-dark); color:white; border:none; padding:8px 20px; border-radius:30px; cursor:pointer; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:100; }
+        .modal-content { background:linear-gradient(135deg,#065f46,#1e3a8a); padding:20px; border-radius:20px; width:90%; max-width:400px; }
+        .form-group input { width:100%; padding:8px; margin:5px 0; border-radius:10px; border:1px solid var(--border-glass); background:rgba(255,255,255,0.1); color:white; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span class="emerald-text">Market</span><span class="blue-text">Hub</span></div>
+        <a href="dashboard.html" class="btn-outline-light">العودة</a>
+    </nav>
+
+    <div class="main-container">
+        <div class="profile-header section">
+            <img id="storeImage" src="" class="store-image" alt="صورة المتجر">
+            <div>
+                <h2 id="storeNameDisplay"></h2>
+                <p id="contactDisplay"></p>
+                <input type="file" id="imageInput" style="display:none" onchange="uploadImage()">
+                <button class="btn" onclick="document.getElementById('imageInput').click()">تغيير الصورة</button>
+                <button class="btn" onclick="openContactModal()">تعديل التواصل</button>
+            </div>
+        </div>
+
+        <!-- المنتجات -->
+        <div class="section">
+            <h3>منتجاتي</h3>
+            <div id="productsList"></div>
+        </div>
+
+        <!-- العروض -->
+        <div class="section">
+            <h3>عروضي</h3>
+            <div id="offersList"></div>
+        </div>
+
+        <!-- مناديب -->
+        <div class="section">
+            <h3>مناديب التوصيل</h3>
+            <div id="driversList"></div>
+            <button class="btn" onclick="openDriverModal()">+ إضافة مندوب</button>
+        </div>
+
+        <!-- مناطق -->
+        <div class="section">
+            <h3>مناطق التوصيل</h3>
+            <div id="locationsList"></div>
+            <button class="btn" onclick="openLocationModal()">+ إضافة منطقة</button>
+        </div>
+    </div>
+
+    <!-- مودال التواصل -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <h3>تعديل رقم التواصل</h3>
+            <input type="text" id="contactInput" placeholder="رقم الهاتف">
+            <button onclick="saveContact()">حفظ</button>
+            <button onclick="closeModal('contactModal')">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- مودال مندوب -->
+    <div id="driverModal" class="modal">
+        <div class="modal-content">
+            <h3>إضافة مندوب</h3>
+            <input type="text" id="driverName" placeholder="الاسم">
+            <input type="text" id="driverPhone" placeholder="الهاتف">
+            <button onclick="addDriver()">حفظ</button>
+            <button onclick="closeModal('driverModal')">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- مودال منطقة -->
+    <div id="locationModal" class="modal">
+        <div class="modal-content">
+            <h3>إضافة منطقة</h3>
+            <input type="text" id="locationName" placeholder="اسم المنطقة">
+            <button onclick="addLocation()">حفظ</button>
+            <button onclick="closeModal('locationModal')">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        let profileData = null;
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/profile', { credentials: 'include' });
+                if (!res.ok) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                profileData = await res.json();
+                document.getElementById('storeNameDisplay').textContent = profileData.storeName || 'اسم المتجر';
+                document.getElementById('contactDisplay').textContent = profileData.contactPhone || 'لا يوجد رقم';
+                if (profileData.storeImage) {
+                    document.getElementById('storeImage').src = profileData.storeImage;
+                }
+                renderProducts(profileData.products);
+                renderOffers(profileData.offers);
+                renderDrivers(profileData.drivers);
+                renderLocations(profileData.locations);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsList');
+            if (products && products.length > 0) {
+                container.innerHTML = products.map(p => `<div>${p.name} - ${p.price}$</div>`).join('');
+            } else {
+                container.innerHTML = '<p>لا توجد منتجات</p>';
+            }
+        }
+
+        function renderOffers(offers) {
+            const container = document.getElementById('offersList');
+            if (offers && offers.length > 0) {
+                container.innerHTML = offers.map(o => `<div>${o.title} (${o.discount || ''})</div>`).join('');
+            } else {
+                container.innerHTML = '<p>لا توجد عروض</p>';
+            }
+        }
+
+        function renderDrivers(drivers) {
+            const container = document.getElementById('driversList');
+            if (drivers && drivers.length > 0) {
+                container.innerHTML = drivers.map(d => `<div>${d.name} - ${d.phone}</div>`).join('');
+            } else {
+                container.innerHTML = '<p>لا يوجد مناديب</p>';
+            }
+        }
+
+        function renderLocations(locations) {
+            const container = document.getElementById('locationsList');
+            if (locations && locations.length > 0) {
+                container.innerHTML = locations.map(l => `<span class="location-tag">${l.name}</span>`).join('');
+            } else {
+                container.innerHTML = '<p>لا توجد مناطق</p>';
+            }
+        }
+
+        function openContactModal() {
+            document.getElementById('contactModal').style.display = 'flex';
+            document.getElementById('contactInput').value = profileData.contactPhone || '';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        async function saveContact() {
+            const phone = document.getElementById('contactInput').value.trim();
+            if (!phone) return;
+            try {
+                const res = await fetch('/api/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contactPhone: phone }),
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    document.getElementById('contactDisplay').textContent = phone;
+                    closeModal('contactModal');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function uploadImage() {
+            const file = document.getElementById('imageInput').files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('storeImage', file);
+            try {
+                const res = await fetch('/api/profile', {
+                    method: 'PUT',
+                    body: formData,
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('storeImage').src = data.storeImage;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function openDriverModal() { document.getElementById('driverModal').style.display = 'flex'; }
+        async function addDriver() {
+            const name = document.getElementById('driverName').value.trim();
+            const phone = document.getElementById('driverPhone').value.trim();
+            if (!name || !phone) return;
+            try {
+                const res = await fetch('/api/drivers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone }),
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    closeModal('driverModal');
+                    loadProfile(); // إعادة تحميل البيانات
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function openLocationModal() { document.getElementById('locationModal').style.display = 'flex'; }
+        async function addLocation() {
+            const name = document.getElementById('locationName').value.trim();
+            if (!name) return;
+            try {
+                const res = await fetch('/api/locations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name }),
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    closeModal('locationModal');
+                    loadProfile();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // بدء التحميل
+        loadProfile();
+    </script>
+</body>
+</html>
