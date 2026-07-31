@@ -11,7 +11,7 @@
             --blue-dark: #1e40af; --blue-light: #93c5fd;
             --white: #ffffff; --text-light: #f0fdf4;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
@@ -35,61 +35,56 @@
             border-radius: 12px; background: rgba(255, 255, 255, 0.1); color: var(--white);
             font-size: 1rem; outline: none;
         }
-        .form-group input:focus { border-color: var(--green-light); background: rgba(255, 255, 255, 0.15); }
+        .form-group input:focus { border-color: var(--green-light); background: rgba(255,255,255,0.15); }
         .btn-register {
             width: 100%; padding: 14px; font-size: 1.1rem; font-weight: 700; color: var(--green-dark);
             background-color: var(--white); border: none; border-radius: 50px; cursor: pointer;
-            margin-top: 10px; margin-bottom: 20px; transition: 0.3s; box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            margin-top: 10px; margin-bottom: 20px; transition:0.3s;
         }
         .btn-register:hover { background-color: #ecfdf5; transform: translateY(-2px); }
         .extra-links { text-align: center; font-size: 0.9rem; }
         .extra-links a { color: var(--green-light); text-decoration: none; }
-        .back-home { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.65); font-size: 0.9rem; text-decoration: none; }
         .error-message { color: #fca5a5; font-size: 0.85rem; margin-top: 5px; display: none; }
-        .form-row { display: flex; gap: 15px; }
-        .form-row .form-group { flex: 1; }
-        @media (max-width: 400px) { .form-row { flex-direction: column; gap: 0; } }
+        .back-home { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.65); font-size: 0.9rem; text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="register-card">
         <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
-        <p class="subtitle">أنشئ حسابك الآن وابدأ بعرض منتجاتك</p>
+        <p class="subtitle">أنشئ حسابك الآن</p>
         <form id="registerForm">
             <div class="form-group">
-                <label for="username">اسم المستخدم</label>
-                <input type="text" id="username" placeholder="اختر اسم مستخدم فريد" required>
+                <label for="username">اسم المستخدم *</label>
+                <input type="text" id="username" required>
             </div>
             <div class="form-group">
-                <label for="storeName">اسم المتجر</label>
-                <input type="text" id="storeName" placeholder="اسم متجرك أو علامتك التجارية" required>
+                <label for="storeName">اسم المتجر *</label>
+                <input type="text" id="storeName" required>
             </div>
             <div class="form-group">
                 <label for="email">البريد الإلكتروني</label>
-                <input type="email" id="email" placeholder="example@mail.com" required>
+                <input type="email" id="email" placeholder="اختياري إذا تم إدخال الهاتف">
             </div>
             <div class="form-group">
                 <label for="phone">رقم الهاتف</label>
-                <input type="tel" id="phone" placeholder="05xxxxxxxx" required>
+                <input type="tel" id="phone" placeholder="اختياري إذا تم إدخال البريد">
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="password">كلمة المرور</label>
-                    <input type="password" id="password" placeholder="********" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">تأكيد كلمة المرور</label>
-                    <input type="password" id="confirmPassword" placeholder="********" required>
-                </div>
+            <div class="form-group">
+                <label for="password">كلمة المرور *</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">تأكيد كلمة المرور *</label>
+                <input type="password" id="confirmPassword" required>
             </div>
             <div id="serverError" class="error-message" style="margin-bottom:10px;"></div>
             <button type="submit" class="btn-register">إنشاء حساب</button>
         </form>
         <div class="extra-links">
-            <a href="login.html">لديك حساب بالفعل؟ سجل الدخول</a>
+            <a href="login.html">لديك حساب؟ سجل الدخول</a>
         </div>
     </div>
-    <a href="index.html" class="back-home">← العودة إلى الصفحة الرئيسية</a>
+    <a href="index.html" class="back-home">← العودة للرئيسية</a>
 
     <script>
         const form = document.getElementById('registerForm');
@@ -100,14 +95,19 @@
             serverError.style.display = 'none';
 
             const username = document.getElementById('username').value.trim();
+            const storeName = document.getElementById('storeName').value.trim();
             const email = document.getElementById('email').value.trim();
             const phone = document.getElementById('phone').value.trim();
-            const storeName = document.getElementById('storeName').value.trim();
             const password = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
 
-            if (!username || !email || !phone || !storeName || !password) {
-                serverError.textContent = 'يرجى ملء جميع الحقول';
+            if (!username || !storeName || !password) {
+                serverError.textContent = 'الحقول المطلوبة فارغة';
+                serverError.style.display = 'block';
+                return;
+            }
+            if (!email && !phone) {
+                serverError.textContent = 'يجب إدخال البريد الإلكتروني أو رقم الهاتف على الأقل';
                 serverError.style.display = 'block';
                 return;
             }
@@ -130,12 +130,14 @@
                     return;
                 }
 
-                // تخزين البريد الإلكتروني مؤقتاً للتحقق
-                sessionStorage.setItem('verifyEmail', email);
-                // الانتقال إلى صفحة التحقق
+                // تخزين بيانات التسجيل للتحقق
+                sessionStorage.setItem('verifyEmail', email || '');
+                sessionStorage.setItem('verifyPhone', phone || '');
+                if (data.telegramLink) {
+                    sessionStorage.setItem('telegramLink', data.telegramLink);
+                }
                 window.location.href = 'verify.html';
             } catch (err) {
-                console.error(err);
                 serverError.textContent = 'خطأ في الاتصال';
                 serverError.style.display = 'block';
             }
