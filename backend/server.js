@@ -2,6 +2,7 @@
 // server.js - MarketHub (Express + PostgreSQL)
 // كامل مع تحقق البريد الإلكتروني (Gmail) وتيليجرام
 // يدعم التسجيل ببريد فقط، هاتف فقط، أو كلاهما
+// إصلاح مشكلة الأعمدة المفقودة عبر ALTER TABLE
 // ============================================================
 
 const express = require('express');
@@ -82,7 +83,6 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
   bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
   console.log('✅ بوت تيليجرام يعمل');
 
-  // أمر /start مع كود التحقق
   bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
     const chatId = msg.chat.id;
     const code = match[1]?.trim();
@@ -117,6 +117,7 @@ const pool = new Pool({ connectionString: dbUrl, ssl: false });
 async function createTables() {
   const client = await pool.connect();
   try {
+    // إنشاء الجداول الأساسية إن لم تكن موجودة
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -130,8 +131,6 @@ async function createTables() {
         contact_phone VARCHAR(20),
         verified BOOLEAN DEFAULT false,
         verification_code VARCHAR(6),
-        verification_code_expires TIMESTAMP,
-        telegram_chat_id VARCHAR(50),
         refresh_token TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       );
@@ -189,8 +188,20 @@ async function createTables() {
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
+
+    // إضافة الأعمدة الجديدة التي قد تكون مفقودة في الإصدارات القديمة
+    const alterQueries = [
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires TIMESTAMP`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(50)`,
+    ];
+    for (const q of alterQueries) {
+      await client.query(q);
+    }
+
     console.log('✅ جداول قاعدة البيانات جاهزة');
-  } finally { client.release(); }
+  } finally {
+    client.release();
+  }
 }
 
 // ---------- إنشاء حساب الأدمن ----------
@@ -258,14 +269,12 @@ function generateVerificationCode() {
 
 // ====================== المصادقة ======================
 
-// تسجيل حساب جديد (يدعم بريد/هاتف اختياريين)
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, phone, password, storeName } = req.body;
     if (!username || !password) return res.status(400).json({ message: 'اسم المستخدم وكلمة المرور مطلوبان' });
     if (!email && !phone) return res.status(400).json({ message: 'يجب إدخال بريد إلكتروني أو رقم هاتف واحد على الأقل' });
 
-    // التحقق من عدم التكرار
     if (email) {
       const e = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
       if (e.rows.length > 0) return res.status(400).json({ message: 'البريد الإلكتروني مستخدم بالفعل' });
@@ -279,7 +288,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const code = generateVerificationCode();
-    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 دقيقة
+    const expires = new Date(Date.now() + 15 * 60 * 1000);
 
     await pool.query(
       `INSERT INTO users (username, email, phone, password, store_name, role, verification_code, verification_code_expires)
@@ -287,7 +296,6 @@ app.post('/api/auth/register', async (req, res) => {
       [username, email || null, phone || null, hashed, storeName || null, code, expires]
     );
 
-    // تحضير رابط تيليجرام إن وُجد البوت وأُدخل الهاتف
     let telegramLink = null;
     if (phone && bot) {
       try {
@@ -296,7 +304,6 @@ app.post('/api/auth/register', async (req, res) => {
       } catch (e) { /* تجاهل */ }
     }
 
-    // إرسال بريد إن وُجد
     if (email) {
       sendVerificationEmail(email, code).catch(err => console.error('فشل إرسال البريد:', err));
     }
@@ -313,7 +320,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-// التحقق عبر رمز البريد الإلكتروني
 app.post('/api/auth/verify-email', async (req, res) => {
   const { email, code } = req.body;
   if (!email || !code) return res.status(400).json({ message: 'البريد والرمز مطلوبان' });
@@ -326,7 +332,6 @@ app.post('/api/auth/verify-email', async (req, res) => {
   res.json({ message: 'تم التحقق بنجاح' });
 });
 
-// إعادة إرسال رمز البريد
 app.post('/api/auth/resend-email', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: 'البريد مطلوب' });
@@ -343,7 +348,6 @@ app.post('/api/auth/resend-email', async (req, res) => {
   }
 });
 
-// تسجيل الدخول (بريد/هاتف/اسم مستخدم)
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { loginId, password } = req.body;
@@ -378,7 +382,6 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Refresh token
 app.post('/api/auth/refresh', async (req, res) => {
   const token = req.cookies.refreshToken;
   if (!token) return res.status(401).json({ message: 'لا جلسة' });
@@ -395,7 +398,6 @@ app.post('/api/auth/refresh', async (req, res) => {
   } catch (err) { res.status(403).json({ message: 'جلسة منتهية' }); }
 });
 
-// تسجيل خروج
 app.post('/api/auth/logout', authenticate, async (req, res) => {
   await pool.query('UPDATE users SET refresh_token = NULL WHERE id = $1', [req.user.id]);
   res.clearCookie('token');
@@ -403,7 +405,6 @@ app.post('/api/auth/logout', authenticate, async (req, res) => {
   res.json({ message: 'تم تسجيل الخروج' });
 });
 
-// بيانات المستخدم
 app.get('/api/auth/me', authenticate, async (req, res) => {
   const { password, refresh_token, verification_code, ...safe } = req.user;
   res.json(safe);
@@ -411,7 +412,6 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
 
 // ====================== المنتجات ======================
 
-// إنشاء منتج
 app.post('/api/products', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   try {
     const { name, description, price, category, size, type, colors } = req.body;
@@ -432,13 +432,11 @@ app.post('/api/products', authenticate, sellerOnly, upload.single('image'), asyn
   }
 });
 
-// منتجات البائع
 app.get('/api/products/my', authenticate, sellerOnly, async (req, res) => {
   const result = await pool.query('SELECT * FROM products WHERE seller_id = $1 ORDER BY created_at DESC', [req.user.id]);
   res.json(result.rows);
 });
 
-// تفاصيل منتج
 app.get('/api/products/:id', async (req, res) => {
   const result = await pool.query(
     'SELECT p.*, u.store_name, u.contact_phone, u.store_image FROM products p JOIN users u ON p.seller_id = u.id WHERE p.id = $1',
@@ -448,7 +446,6 @@ app.get('/api/products/:id', async (req, res) => {
   res.json(result.rows[0]);
 });
 
-// تعديل منتج
 app.put('/api/products/:id', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   const prod = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
   if (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
@@ -465,7 +462,6 @@ app.put('/api/products/:id', authenticate, sellerOnly, upload.single('image'), a
   res.json(updated.rows[0]);
 });
 
-// حذف منتج
 app.delete('/api/products/:id', authenticate, sellerOnly, async (req, res) => {
   const prod = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
   if (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
@@ -475,7 +471,6 @@ app.delete('/api/products/:id', authenticate, sellerOnly, async (req, res) => {
 
 // ====================== العروض ======================
 
-// إنشاء عرض
 app.post('/api/offers', authenticate, sellerOnly, async (req, res) => {
   const { title, discount, productId } = req.body;
   if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
@@ -486,13 +481,11 @@ app.post('/api/offers', authenticate, sellerOnly, async (req, res) => {
   res.status(201).json(result.rows[0]);
 });
 
-// عروضي
 app.get('/api/offers/my', authenticate, sellerOnly, async (req, res) => {
   const result = await pool.query('SELECT * FROM offers WHERE seller_id = $1', [req.user.id]);
   res.json(result.rows);
 });
 
-// حذف عرض
 app.delete('/api/offers/:id', authenticate, sellerOnly, async (req, res) => {
   const off = await pool.query('SELECT * FROM offers WHERE id = $1', [req.params.id]);
   if (off.rows.length === 0 || off.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
@@ -502,7 +495,6 @@ app.delete('/api/offers/:id', authenticate, sellerOnly, async (req, res) => {
 
 // ====================== الملف الشخصي ======================
 
-// تحديث الملف الشخصي
 app.put('/api/profile', authenticate, sellerOnly, upload.single('storeImage'), async (req, res) => {
   const updates = {};
   if (req.file) {
@@ -520,7 +512,6 @@ app.put('/api/profile', authenticate, sellerOnly, upload.single('storeImage'), a
   res.json(safe);
 });
 
-// عرض الملف الشخصي
 app.get('/api/profile', authenticate, sellerOnly, async (req, res) => {
   const user = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
   if (user.rows.length === 0) return res.status(404).json({ message: 'غير موجود' });
@@ -534,7 +525,6 @@ app.get('/api/profile', authenticate, sellerOnly, async (req, res) => {
 
 // ====================== مناديب التوصيل ======================
 
-// إضافة مندوب
 app.post('/api/drivers', authenticate, sellerOnly, async (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) return res.status(400).json({ message: 'الاسم والهاتف مطلوبان' });
@@ -545,13 +535,11 @@ app.post('/api/drivers', authenticate, sellerOnly, async (req, res) => {
   res.status(201).json(result.rows[0]);
 });
 
-// قائمة المندوبين
 app.get('/api/drivers', authenticate, sellerOnly, async (req, res) => {
   const result = await pool.query('SELECT * FROM drivers WHERE seller_id = $1', [req.user.id]);
   res.json(result.rows);
 });
 
-// حذف مندوب
 app.delete('/api/drivers/:id', authenticate, sellerOnly, async (req, res) => {
   const driver = await pool.query('SELECT * FROM drivers WHERE id = $1', [req.params.id]);
   if (driver.rows.length === 0 || driver.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
@@ -585,7 +573,6 @@ app.delete('/api/locations/:id', authenticate, sellerOnly, async (req, res) => {
 
 // ====================== العروض المميزة (أدمن) ======================
 
-// إضافة منتج مميز
 app.post('/api/admin/featured', authenticate, adminOnly, async (req, res) => {
   const { productId } = req.body;
   if (!productId) return res.status(400).json({ message: 'معرف المنتج مطلوب' });
@@ -597,7 +584,6 @@ app.post('/api/admin/featured', authenticate, adminOnly, async (req, res) => {
   res.status(201).json({ message: 'تمت إضافة المنتج إلى المميزة' });
 });
 
-// عرض كل المميز (منتجات + إعلانات عامة)
 app.get('/api/featured', async (req, res) => {
   const productFeatured = await pool.query(
     `SELECT f.id as feature_id, p.*, u.store_name, u.contact_phone, u.store_image
@@ -612,7 +598,6 @@ app.get('/api/featured', async (req, res) => {
   });
 });
 
-// حذف منتج مميز
 app.delete('/api/admin/featured/:id', authenticate, adminOnly, async (req, res) => {
   await pool.query('DELETE FROM featured_offers WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم إزالة التمييز' });
@@ -620,7 +605,6 @@ app.delete('/api/admin/featured/:id', authenticate, adminOnly, async (req, res) 
 
 // ---------- الإعلانات العامة (admin banners) ----------
 
-// إنشاء إعلان عام (بدون منتج)
 app.post('/api/admin/banners', authenticate, adminOnly, upload.single('image'), async (req, res) => {
   const { title, description } = req.body;
   if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
@@ -636,7 +620,6 @@ app.post('/api/admin/banners', authenticate, adminOnly, upload.single('image'), 
   res.status(201).json(banner.rows[0]);
 });
 
-// حذف إعلان عام
 app.delete('/api/admin/banners/:id', authenticate, adminOnly, async (req, res) => {
   await pool.query('DELETE FROM admin_banners WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم حذف الإعلان' });
