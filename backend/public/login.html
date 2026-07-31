@@ -51,7 +51,7 @@
         .back-home:hover { color: var(--white); }
         .error-message { color: #fca5a5; font-size: 0.85rem; margin-top: 5px; display: none; }
         .success-message { color: #6ee7b7; font-size: 0.85rem; margin-top: 5px; display: none; }
-        #resendVerificationLink { color: #6ee7b7; text-decoration: underline; cursor: pointer; background: none; border: none; font: inherit; }
+        #resendLink { color: #6ee7b7; text-decoration: underline; cursor: pointer; background: none; border: none; font: inherit; }
     </style>
 </head>
 <body>
@@ -91,7 +91,6 @@
         const serverError = document.getElementById('serverError');
         const serverSuccess = document.getElementById('serverSuccess');
 
-        // تحميل بيانات محفوظة
         window.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem('rememberedLogin');
             if (saved) {
@@ -102,8 +101,7 @@
             }
         });
 
-        // دالة إرسال طلب إعادة رمز التحقق
-        async function resendVerificationCode(email) {
+        async function resendAndGoToVerify(email) {
             serverError.style.display = 'none';
             serverSuccess.style.display = 'none';
             try {
@@ -114,21 +112,22 @@
                 });
                 const data = await response.json();
                 if (response.ok) {
-                    serverSuccess.textContent = 'تم إرسال رمز جديد إلى بريدك. تحقق من صندوق الوارد.';
-                    serverSuccess.style.display = 'block';
+                    // تخزين البريد وعلامة نجاح الإرسال ثم الانتقال
+                    sessionStorage.setItem('verifyEmail', email);
+                    sessionStorage.setItem('resendSuccess', 'true');
+                    window.location.href = 'verify.html';
                 } else {
                     serverError.textContent = data.message || 'فشل إعادة الإرسال';
                     serverError.style.display = 'block';
                 }
             } catch (err) {
-                serverError.textContent = 'خطأ في الاتصال';
+                serverError.textContent = 'خطأ في الاتصال بالخادم';
                 serverError.style.display = 'block';
             }
         }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // إخفاء جميع الرسائل السابقة
             document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
             serverError.style.display = 'none';
             serverError.innerHTML = '';
@@ -157,15 +156,13 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // إذا كان الحساب غير موثّق (status 403)
                     if (response.status === 403 && data.message && data.message.includes('توثيق')) {
-                        serverError.innerHTML = `الحساب غير موثّق. <button type="button" id="resendVerificationLink">إعادة إرسال رمز التحقق</button>`;
+                        serverError.innerHTML = `الحساب غير موثّق. <button type="button" id="resendLink">إعادة إرسال رمز التحقق</button>`;
                         serverError.style.display = 'block';
-                        // ربط الزر عند ظهوره
-                        document.getElementById('resendVerificationLink').addEventListener('click', () => {
+                        document.getElementById('resendLink').addEventListener('click', () => {
                             const emailCandidate = loginId.value.trim();
                             if (emailCandidate.includes('@')) {
-                                resendVerificationCode(emailCandidate);
+                                resendAndGoToVerify(emailCandidate);
                             } else {
                                 alert('يرجى إدخال بريدك الإلكتروني في حقل المستخدم لإعادة الإرسال.');
                             }
@@ -177,7 +174,6 @@
                     return;
                 }
 
-                // نجاح الدخول
                 if (rememberCheck.checked) {
                     localStorage.setItem('rememberedLogin', JSON.stringify({
                         loginId: loginId.value.trim(),
@@ -187,7 +183,6 @@
                     localStorage.removeItem('rememberedLogin');
                 }
 
-                // التوجيه
                 if (data.redirect) {
                     window.location.href = data.redirect;
                 } else {
