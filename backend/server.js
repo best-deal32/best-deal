@@ -1,5 +1,6 @@
 // ============================================================
-// server.js - MarketHub (Express + PostgreSQL مباشر بدون Prisma)
+// server.js - MarketHub (Express + PostgreSQL مباشر)
+// يعمل على Railway مع خدمة PostgreSQL المُدارة
 // ============================================================
 
 const express = require('express');
@@ -7,7 +8,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { Pool } = require('pg');              // PostgreSQL
+const { Pool } = require('pg');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const path = require('path');
@@ -25,7 +26,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// ---------- Multer (ذاكرة مؤقتة) ----------
+// ---------- Multer ----------
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -35,7 +36,7 @@ const upload = multer({
   }
 });
 
-// ---------- دالة رفع إلى Cloudinary ----------
+// ---------- رفع صورة إلى Cloudinary ----------
 async function uploadToCloudinary(buffer) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -46,13 +47,13 @@ async function uploadToCloudinary(buffer) {
   });
 }
 
-// ---------- إعداد قاعدة البيانات ----------
+// ---------- إعداد قاعدة البيانات (مع SSL للإنتاج) ----------
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-// إنشاء الجداول تلقائياً عند بدء التشغيل
+// ---------- إنشاء الجداول عند بدء التشغيل ----------
 async function createTables() {
   const client = await pool.connect();
   try {
@@ -117,23 +118,17 @@ async function createTables() {
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
-    console.log('✅ جداول قاعدة البيانات جاهزة');
+    console.log('✅ تم تجهيز جداول قاعدة البيانات');
   } finally {
     client.release();
   }
 }
 
-// تشغيل الدالة عند البدء
-createTables().catch(err => {
-  console.error('فشل إنشاء الجداول:', err);
-  process.exit(1);
-});
-
 // ---------- Middleware ----------
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));   // خدمة الواجهة
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ---------- دوال التوكن ----------
 function generateAccessToken(user) {
@@ -151,6 +146,7 @@ async function authenticate(req, res, next) {
     token = authHeader && authHeader.split(' ')[1];
   }
   if (!token) return res.status(401).json({ message: 'يرجى تسجيل الدخول' });
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
@@ -173,7 +169,6 @@ function adminOnly(req, res, next) {
 }
 
 // ====================== [1] المصادقة ======================
-
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, phone, password, storeName } = req.body;
@@ -184,13 +179,11 @@ app.post('/api/auth/register', async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-
     await pool.query(
-      `INSERT INTO users (username, email, phone, password, store_name, role, verification_code)
-       VALUES ($1,$2,$3,$4,$5,'seller',$6)`,
-      [username, email, phone || null, hashed, storeName || null, code]
+      'INSERT INTO users (username, email, phone, password, store_name, role, verification_code) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      [username, email, phone || null, hashed, storeName || null, 'seller', code]
     );
-    console.log(`رمز التحقق لـ ${email}: ${code}`); // استبدل بإرسال بريد حقيقي لاحقاً
+    console.log(`رمز التحقق لـ ${email}: ${code}`);
     res.status(201).json({ message: 'تم التسجيل، تحقق من بريدك الإلكتروني' });
   } catch (err) {
     console.error(err);
@@ -227,12 +220,10 @@ app.post('/api/auth/login', async (req, res) => {
     await pool.query('UPDATE users SET refresh_token = $1 WHERE id = $2', [refreshToken, user.id]);
 
     res.cookie('token', accessToken, {
-      httpOnly: true, secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', maxAge: 15 * 60 * 1000
+      httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 15 * 60 * 1000
     });
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true, secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000
+      httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     const { password: _, refresh_token: __, verification_code: ___, ...safeUser } = user;
@@ -243,32 +234,51 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-app.post('/api/auth/refresh', async (req, res) => { /* ... مشابه للنسخة السابقة ... */ });
-app.post('/api/auth/logout', authenticate, async (req, res) => { /* ... */ });
+app.post('/api/auth/refresh', async (req, res) => {
+  const token = req.cookies.refreshToken;
+  if (!token) return res.status(401).json({ message: 'لا جلسة' });
+  try {
+    const decoded = jwt.verify(token, REFRESH_SECRET);
+    const result = await pool.query('SELECT * FROM users WHERE id = $1 AND refresh_token = $2', [decoded.id, token]);
+    if (result.rows.length === 0) return res.status(403).json({ message: 'جلسة غير صالحة' });
+    const user = result.rows[0];
+    const newAccess = generateAccessToken(user);
+    res.cookie('token', newAccess, {
+      httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', maxAge: 15 * 60 * 1000
+    });
+    res.json({ accessToken: newAccess });
+  } catch (err) {
+    res.status(403).json({ message: 'جلسة منتهية' });
+  }
+});
+
+app.post('/api/auth/logout', authenticate, async (req, res) => {
+  await pool.query('UPDATE users SET refresh_token = NULL WHERE id = $1', [req.user.id]);
+  res.clearCookie('token');
+  res.clearCookie('refreshToken');
+  res.json({ message: 'تم تسجيل الخروج' });
+});
+
 app.get('/api/auth/me', authenticate, async (req, res) => {
   const { password, refresh_token, verification_code, ...safe } = req.user;
   res.json(safe);
 });
 
 // ====================== [2] المنتجات ======================
-
 app.post('/api/products', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   try {
     const { name, description, price, category, size, type, colors } = req.body;
     if (!name || !price || !category) return res.status(400).json({ message: 'الاسم والسعر والفئة مطلوبة' });
-
     let imageUrl = null;
     if (req.file) {
       const result = await uploadToCloudinary(req.file.buffer);
       imageUrl = result.secure_url;
     }
-
     const result = await pool.query(
-      `INSERT INTO products (name, description, price, category, size, type, colors, image, seller_id)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-      [name, description, parseFloat(price), category, size, type, colors, imageUrl, req.user.id]
+      'INSERT INTO products (name, description, price, category, size, type, colors, image, seller_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+      [name, description || null, parseFloat(price), category, size || null, type || null, colors || null, imageUrl, req.user.id]
     );
-    res.status(201).json({ product: result.rows[0], message: 'تم إضافة المنتج' });
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'خطأ في الخادم' });
@@ -276,24 +286,41 @@ app.post('/api/products', authenticate, sellerOnly, upload.single('image'), asyn
 });
 
 app.get('/api/products/my', authenticate, sellerOnly, async (req, res) => {
-  const result = await pool.query(
-    'SELECT * FROM products WHERE seller_id = $1 ORDER BY created_at DESC',
-    [req.user.id]
-  );
+  const result = await pool.query('SELECT * FROM products WHERE seller_id = $1 ORDER BY created_at DESC', [req.user.id]);
   res.json(result.rows);
 });
 
 app.get('/api/products/:id', async (req, res) => {
   const result = await pool.query(
-    `SELECT p.*, u.store_name, u.contact_phone, u.store_image
-     FROM products p JOIN users u ON p.seller_id = u.id WHERE p.id = $1`,
+    'SELECT p.*, u.store_name, u.contact_phone, u.store_image FROM products p JOIN users u ON p.seller_id = u.id WHERE p.id = $1',
     [req.params.id]
   );
   if (result.rows.length === 0) return res.status(404).json({ message: 'المنتج غير موجود' });
   res.json(result.rows[0]);
 });
 
-// ... باقي المسارات (تعديل، حذف) مشابهة مع استعلامات SQL مباشرة
+app.put('/api/products/:id', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
+  const prod = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+  if (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  let image = prod.rows[0].image;
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file.buffer);
+    image = result.secure_url;
+  }
+  const { name, description, price } = req.body;
+  const updated = await pool.query(
+    'UPDATE products SET name=$1, description=$2, price=$3, image=$4 WHERE id=$5 RETURNING *',
+    [name || prod.rows[0].name, description || prod.rows[0].description, parseFloat(price) || prod.rows[0].price, image, req.params.id]
+  );
+  res.json(updated.rows[0]);
+});
+
+app.delete('/api/products/:id', authenticate, sellerOnly, async (req, res) => {
+  const prod = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+  if (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
+  res.json({ message: 'تم حذف المنتج' });
+});
 
 // ====================== [3] العروض ======================
 app.post('/api/offers', authenticate, sellerOnly, async (req, res) => {
@@ -301,7 +328,7 @@ app.post('/api/offers', authenticate, sellerOnly, async (req, res) => {
   if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
   const result = await pool.query(
     'INSERT INTO offers (title, discount, product_id, seller_id) VALUES ($1,$2,$3,$4) RETURNING *',
-    [title, discount, productId || null, req.user.id]
+    [title, discount || null, productId || null, req.user.id]
   );
   res.status(201).json(result.rows[0]);
 });
@@ -311,48 +338,149 @@ app.get('/api/offers/my', authenticate, sellerOnly, async (req, res) => {
   res.json(result.rows);
 });
 
-// ... حذف العرض
+app.delete('/api/offers/:id', authenticate, sellerOnly, async (req, res) => {
+  const off = await pool.query('SELECT * FROM offers WHERE id = $1', [req.params.id]);
+  if (off.rows.length === 0 || off.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  await pool.query('DELETE FROM offers WHERE id = $1', [req.params.id]);
+  res.json({ message: 'تم حذف العرض' });
+});
 
 // ====================== [4] الملف الشخصي ======================
 app.put('/api/profile', authenticate, sellerOnly, upload.single('storeImage'), async (req, res) => {
-  const fields = [];
-  const values = [];
+  const updates = {};
   if (req.file) {
     const result = await uploadToCloudinary(req.file.buffer);
-    fields.push('store_image = $' + (fields.length + 1));
-    values.push(result.secure_url);
+    updates.store_image = result.secure_url;
   }
-  if (req.body.contactPhone) {
-    fields.push('contact_phone = $' + (fields.length + 1));
-    values.push(req.body.contactPhone);
-  }
-  if (fields.length > 0) {
-    values.push(req.user.id);
-    await pool.query(`UPDATE users SET ${fields.join(', ')} WHERE id = $${values.length}`, values);
-  }
-  res.json({ message: 'تم التحديث' });
+  if (req.body.contactPhone) updates.contact_phone = req.body.contactPhone;
+  if (Object.keys(updates).length === 0) return res.status(400).json({ message: 'لا توجد بيانات للتحديث' });
+  const keys = Object.keys(updates);
+  const values = Object.values(updates);
+  const setClause = keys.map((k, i) => `${k} = $${i + 1}`).join(', ');
+  await pool.query(`UPDATE users SET ${setClause} WHERE id = $${values.length + 1}`, [...values, req.user.id]);
+  const updated = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+  const { password, refresh_token, verification_code, ...safe } = updated.rows[0];
+  res.json(safe);
 });
 
 app.get('/api/profile', authenticate, sellerOnly, async (req, res) => {
-  const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
-  const user = userResult.rows[0];
+  const user = await pool.query('SELECT * FROM users WHERE id = $1', [req.user.id]);
+  if (user.rows.length === 0) return res.status(404).json({ message: 'غير موجود' });
+  const { password, refresh_token, verification_code, ...safe } = user.rows[0];
   const drivers = await pool.query('SELECT * FROM drivers WHERE seller_id = $1', [req.user.id]);
   const locations = await pool.query('SELECT * FROM locations WHERE seller_id = $1', [req.user.id]);
   const products = await pool.query('SELECT * FROM products WHERE seller_id = $1', [req.user.id]);
   const offers = await pool.query('SELECT * FROM offers WHERE seller_id = $1', [req.user.id]);
-  const { password, refresh_token, verification_code, ...safe } = user;
-  res.json({
-    ...safe,
-    drivers: drivers.rows,
-    locations: locations.rows,
-    products: products.rows,
-    offers: offers.rows
+  res.json({ ...safe, drivers: drivers.rows, locations: locations.rows, products: products.rows, offers: offers.rows });
+});
+
+// ====================== [5] مناديب التوصيل ======================
+app.post('/api/drivers', authenticate, sellerOnly, async (req, res) => {
+  const { name, phone } = req.body;
+  if (!name || !phone) return res.status(400).json({ message: 'الاسم والهاتف مطلوبان' });
+  const result = await pool.query(
+    'INSERT INTO drivers (name, phone, seller_id) VALUES ($1,$2,$3) RETURNING *',
+    [name, phone, req.user.id]
+  );
+  res.status(201).json(result.rows[0]);
+});
+
+app.get('/api/drivers', authenticate, sellerOnly, async (req, res) => {
+  const result = await pool.query('SELECT * FROM drivers WHERE seller_id = $1', [req.user.id]);
+  res.json(result.rows);
+});
+
+app.delete('/api/drivers/:id', authenticate, sellerOnly, async (req, res) => {
+  const driver = await pool.query('SELECT * FROM drivers WHERE id = $1', [req.params.id]);
+  if (driver.rows.length === 0 || driver.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  await pool.query('DELETE FROM drivers WHERE id = $1', [req.params.id]);
+  res.json({ message: 'تم حذف المندوب' });
+});
+
+// ====================== [6] مناطق التوصيل ======================
+app.post('/api/locations', authenticate, sellerOnly, async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ message: 'اسم المنطقة مطلوب' });
+  const result = await pool.query(
+    'INSERT INTO locations (name, seller_id) VALUES ($1,$2) RETURNING *',
+    [name, req.user.id]
+  );
+  res.status(201).json(result.rows[0]);
+});
+
+app.get('/api/locations', authenticate, sellerOnly, async (req, res) => {
+  const result = await pool.query('SELECT * FROM locations WHERE seller_id = $1', [req.user.id]);
+  res.json(result.rows);
+});
+
+app.delete('/api/locations/:id', authenticate, sellerOnly, async (req, res) => {
+  const loc = await pool.query('SELECT * FROM locations WHERE id = $1', [req.params.id]);
+  if (loc.rows.length === 0 || loc.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  await pool.query('DELETE FROM locations WHERE id = $1', [req.params.id]);
+  res.json({ message: 'تم حذف المنطقة' });
+});
+
+// ====================== [7] العروض المميزة (أدمن) ======================
+app.post('/api/admin/featured', authenticate, adminOnly, async (req, res) => {
+  const { productId } = req.body;
+  if (!productId) return res.status(400).json({ message: 'معرف المنتج مطلوب' });
+  const product = await pool.query('SELECT * FROM products WHERE id = $1', [productId]);
+  if (product.rows.length === 0) return res.status(404).json({ message: 'المنتج غير موجود' });
+  const exists = await pool.query('SELECT * FROM featured_offers WHERE product_id = $1', [productId]);
+  if (exists.rows.length > 0) return res.status(400).json({ message: 'المنتج مميز بالفعل' });
+  await pool.query('INSERT INTO featured_offers (product_id, added_by) VALUES ($1,$2)', [productId, req.user.id]);
+  res.status(201).json({ message: 'تمت إضافة المنتج إلى المميزة' });
+});
+
+app.get('/api/featured', async (req, res) => {
+  const result = await pool.query(
+    `SELECT f.id as feature_id, p.*, u.store_name, u.contact_phone, u.store_image
+     FROM featured_offers f
+     JOIN products p ON f.product_id = p.id
+     JOIN users u ON p.seller_id = u.id`
+  );
+  res.json(result.rows);
+});
+
+app.delete('/api/admin/featured/:id', authenticate, adminOnly, async (req, res) => {
+  await pool.query('DELETE FROM featured_offers WHERE id = $1', [req.params.id]);
+  res.json({ message: 'تم إزالة التمييز' });
+});
+
+// ====================== [8] البحث ======================
+app.get('/api/search', async (req, res) => {
+  const { keyword } = req.query;
+  let query = 'SELECT p.*, u.store_name FROM products p JOIN users u ON p.seller_id = u.id';
+  const params = [];
+  if (keyword) {
+    query += ' WHERE p.name ILIKE $1 OR p.description ILIKE $1 OR u.store_name ILIKE $1';
+    params.push(`%${keyword}%`);
+  }
+  const result = await pool.query(query, params);
+  res.json(result.rows);
+});
+
+// ====================== [9] إدارة المستخدمين (أدمن) ======================
+app.get('/api/admin/users', authenticate, adminOnly, async (req, res) => {
+  const result = await pool.query('SELECT id, username, email, phone, role, store_name, verified, created_at FROM users');
+  res.json(result.rows);
+});
+
+app.put('/api/admin/user/:id', authenticate, adminOnly, async (req, res) => {
+  const { role } = req.body;
+  if (!['user', 'seller', 'admin'].includes(role)) return res.status(400).json({ message: 'دور غير صالح' });
+  await pool.query('UPDATE users SET role = $1 WHERE id = $2', [role, req.params.id]);
+  res.json({ message: 'تم تحديث الدور' });
+});
+
+// ---------- بدء الخادم ----------
+createTables()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 MarketHub يعمل على المنفذ ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('فشل بدء الخادم:', err);
+    process.exit(1);
   });
-});
-
-// ... مناديب، مناطق، مميزة، بحث، أدمن (بنفس النمط، استعلامات SQL مباشرة)
-
-// ====================== بدء الخادم ======================
-app.listen(PORT, () => {
-  console.log(`🚀 MarketHub يعمل على http://localhost:${PORT}`);
-});
