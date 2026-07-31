@@ -2,6 +2,7 @@
 // server.js - MarketHub (Express + PostgreSQL مباشر)
 // يعمل على Railway مع PostgreSQL كخدمة مرتبطة
 // تم تعطيل SSL للاتصال الداخلي (sslmode=disable)
+// الإصدار النهائي لحل مشكلة 502
 // ============================================================
 
 const express = require('express');
@@ -70,74 +71,79 @@ const pool = new Pool({
   ssl: false  // تعطيل SSL (آمن داخل شبكة Railway الخاصة)
 });
 
-// ---------- إنشاء الجداول ----------
+// ---------- إنشاء الجداول (تعمل في الخلفية) ----------
 async function createTables() {
-  const client = await pool.connect();
   try {
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        username VARCHAR(50) UNIQUE NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        phone VARCHAR(20),
-        password VARCHAR(255) NOT NULL,
-        role VARCHAR(20) DEFAULT 'seller',
-        store_name VARCHAR(100),
-        store_image VARCHAR(255),
-        contact_phone VARCHAR(20),
-        verified BOOLEAN DEFAULT false,
-        verification_code VARCHAR(6),
-        refresh_token TEXT,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
+    const client = await pool.connect();
+    try {
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS users (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          username VARCHAR(50) UNIQUE NOT NULL,
+          email VARCHAR(100) UNIQUE NOT NULL,
+          phone VARCHAR(20),
+          password VARCHAR(255) NOT NULL,
+          role VARCHAR(20) DEFAULT 'seller',
+          store_name VARCHAR(100),
+          store_image VARCHAR(255),
+          contact_phone VARCHAR(20),
+          verified BOOLEAN DEFAULT false,
+          verification_code VARCHAR(6),
+          refresh_token TEXT,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
 
-      CREATE TABLE IF NOT EXISTS products (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        name VARCHAR(255) NOT NULL,
-        description TEXT,
-        price DECIMAL(10,2) NOT NULL,
-        category VARCHAR(20) NOT NULL CHECK (category IN ('clothing','food')),
-        size VARCHAR(20),
-        type VARCHAR(50),
-        colors VARCHAR(100),
-        image VARCHAR(255),
-        seller_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        featured BOOLEAN DEFAULT false,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
+        CREATE TABLE IF NOT EXISTS products (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(255) NOT NULL,
+          description TEXT,
+          price DECIMAL(10,2) NOT NULL,
+          category VARCHAR(20) NOT NULL CHECK (category IN ('clothing','food')),
+          size VARCHAR(20),
+          type VARCHAR(50),
+          colors VARCHAR(100),
+          image VARCHAR(255),
+          seller_id UUID REFERENCES users(id) ON DELETE CASCADE,
+          featured BOOLEAN DEFAULT false,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
 
-      CREATE TABLE IF NOT EXISTS offers (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        title VARCHAR(255) NOT NULL,
-        discount VARCHAR(50),
-        product_id UUID REFERENCES products(id) ON DELETE SET NULL,
-        seller_id UUID REFERENCES users(id) ON DELETE CASCADE,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
+        CREATE TABLE IF NOT EXISTS offers (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          title VARCHAR(255) NOT NULL,
+          discount VARCHAR(50),
+          product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+          seller_id UUID REFERENCES users(id) ON DELETE CASCADE,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
 
-      CREATE TABLE IF NOT EXISTS drivers (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        name VARCHAR(100) NOT NULL,
-        phone VARCHAR(20) NOT NULL,
-        seller_id UUID REFERENCES users(id) ON DELETE CASCADE
-      );
+        CREATE TABLE IF NOT EXISTS drivers (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(100) NOT NULL,
+          phone VARCHAR(20) NOT NULL,
+          seller_id UUID REFERENCES users(id) ON DELETE CASCADE
+        );
 
-      CREATE TABLE IF NOT EXISTS locations (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        name VARCHAR(100) NOT NULL,
-        seller_id UUID REFERENCES users(id) ON DELETE CASCADE
-      );
+        CREATE TABLE IF NOT EXISTS locations (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          name VARCHAR(100) NOT NULL,
+          seller_id UUID REFERENCES users(id) ON DELETE CASCADE
+        );
 
-      CREATE TABLE IF NOT EXISTS featured_offers (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        product_id UUID UNIQUE REFERENCES products(id) ON DELETE CASCADE,
-        added_by UUID REFERENCES users(id),
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-    `);
-    console.log('✅ تم تجهيز جداول قاعدة البيانات');
-  } finally {
-    client.release();
+        CREATE TABLE IF NOT EXISTS featured_offers (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          product_id UUID UNIQUE REFERENCES products(id) ON DELETE CASCADE,
+          added_by UUID REFERENCES users(id),
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+      `);
+      console.log('✅ تم تجهيز جداول قاعدة البيانات');
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    console.error('⚠️ تحذير: فشل إنشاء الجداول:', err.message);
+    // لا نوقف الخادم إذا فشلت الجداول، ربما ستنجح لاحقاً
   }
 }
 
@@ -150,7 +156,19 @@ app.use(cookieParser());
 app.get('/health', (req, res) => res.send('OK'));
 
 // خدمة الملفات الثابتة من مجلد public (الواجهة الأمامية)
-app.use(express.static(path.join(__dirname, 'public')));
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
+// معالجة أي مسار غير موجود: إعادة التوجيه إلى index.html (لتطبيقات SPA)
+// أو إظهار رسالة بسيطة إذا لم يوجد index.html
+app.get('*', (req, res) => {
+  const indexPath = path.join(publicPath, 'index.html');
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({ message: 'الصفحة غير موجودة' });
+  }
+});
 
 // ---------- دوال التوكن ----------
 function generateAccessToken(user) {
@@ -495,14 +513,9 @@ app.put('/api/admin/user/:id', authenticate, adminOnly, async (req, res) => {
   res.json({ message: 'تم تحديث الدور' });
 });
 
-// ---------- بدء الخادم ----------
-createTables()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 MarketHub يعمل على المنفذ ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error('فشل بدء الخادم:', err);
-    process.exit(1);
-  });
+// ---------- بدء الخادم (الاستماع فوراً، ثم إنشاء الجداول في الخلفية) ----------
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 MarketHub يعمل على المنفذ ${PORT}`);
+  // إنشاء الجداول بدون تأخير بدء الخادم
+  createTables();
+});
