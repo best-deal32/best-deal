@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - MarketHub</title>
     <style>
-        /* نفس تصميم dashboard السابق ولكن بإضافات */
         :root {
             --green-dark: #059669; --green-light: #6ee7b7;
             --blue-dark: #1e40af; --blue-light: #93c5fd;
@@ -25,9 +24,13 @@
         }
         .logo { font-size: 1.8rem; font-weight: 800; }
         .logo .emerald-text { color: var(--green-light); } .logo .blue-text { color: var(--blue-light); }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a { color: var(--white); text-decoration: none; padding: 8px 16px; border-radius: 20px; transition:0.3s; }
-        .nav-links a:hover { background: rgba(255,255,255,0.15); }
+        .nav-links { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .nav-links a, .nav-links button {
+            color: var(--white); text-decoration: none; padding: 8px 16px;
+            border-radius: 20px; transition:0.3s; background: none; border: none;
+            cursor: pointer; font-size: 1rem; font-family: inherit;
+        }
+        .nav-links a:hover, .nav-links button:hover { background: rgba(255,255,255,0.15); }
         .btn-outline-light {
             border: 1px solid rgba(255,255,255,0.5); background: transparent; color: white;
             padding: 8px 20px; border-radius: 30px; text-decoration: none; transition:0.3s;
@@ -71,17 +74,14 @@
         .badge { background:var(--green-dark); padding:2px 10px; border-radius:20px; font-size:0.75rem; }
         .view-all { color:var(--green-light); text-decoration:none; margin-top:20px; display:inline-block; }
         footer { text-align:center; padding:20px; color:rgba(255,255,255,0.5); }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo"><span class="emerald-text">Market</span><span class="blue-text">Hub</span></div>
-        <div class="nav-links">
-            <a href="dashboard.html">الرئيسية</a>
-            <a href="offers.html">العروض</a>
-            <a href="create-offer.html">إضافة منتج</a>
-            <a href="profile.html">ملفي</a>
-            <a href="#" id="logoutBtn" class="btn-outline-light">تسجيل خروج</a>
+        <div class="nav-links" id="navLinks">
+            <!-- سيتم ملؤها حسب الحالة -->
         </div>
     </nav>
 
@@ -99,16 +99,8 @@
         </div>
 
         <!-- أزرار سريعة -->
-        <div class="quick-actions">
-            <a href="create-offer.html" class="action-card">
-                <div class="icon">➕</div><div class="title">إضافة منتج جديد</div>
-            </a>
-            <a href="offers.html" class="action-card">
-                <div class="icon">⭐</div><div class="title">العروض المميزة</div>
-            </a>
-            <a href="profile.html" class="action-card">
-                <div class="icon">👤</div><div class="title">ملفي الشخصي</div>
-            </a>
+        <div class="quick-actions" id="quickActions">
+            <!-- تُملأ حسب الحالة -->
         </div>
 
         <!-- العروض المميزة -->
@@ -122,20 +114,73 @@
     <footer>© 2025 MarketHub</footer>
 
     <script>
-        // التحقق من تسجيل الدخول
+        // ---------- التحقق من حالة المستخدم ----------
+        let currentUser = null; // سيحتوي على بيانات المستخدم أو null للزائر
+
         async function checkAuth() {
             try {
                 const res = await fetch('/api/auth/me', { credentials: 'include' });
-                if (!res.ok) {
-                    window.location.href = 'login.html';
+                if (res.ok) {
+                    currentUser = await res.json();
+                } else {
+                    currentUser = null; // زائر
                 }
             } catch (err) {
-                window.location.href = 'login.html';
+                currentUser = null;
+            }
+            updateUI();
+        }
+
+        // ---------- تحديث واجهة المستخدم بناءً على الدور ----------
+        function updateUI() {
+            const navLinks = document.getElementById('navLinks');
+            const quickActions = document.getElementById('quickActions');
+
+            if (currentUser && (currentUser.role === 'seller' || currentUser.role === 'admin')) {
+                // ********** واجهة البائع / الأدمن **********
+                navLinks.innerHTML = `
+                    <a href="dashboard.html">الرئيسية</a>
+                    <a href="offers.html">العروض</a>
+                    <a href="create-offer.html">إضافة منتج</a>
+                    <a href="profile.html">ملفي</a>
+                    <button id="logoutBtn" class="btn-outline-light">تسجيل خروج</button>
+                `;
+                quickActions.innerHTML = `
+                    <a href="create-offer.html" class="action-card">
+                        <div class="icon">➕</div><div class="title">إضافة منتج جديد</div>
+                    </a>
+                    <a href="offers.html" class="action-card">
+                        <div class="icon">⭐</div><div class="title">العروض المميزة</div>
+                    </a>
+                    <a href="profile.html" class="action-card">
+                        <div class="icon">👤</div><div class="title">ملفي الشخصي</div>
+                    </a>
+                `;
+                // ربط زر الخروج
+                document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                    window.location.reload();
+                });
+            } else {
+                // ********** واجهة الزائر **********
+                navLinks.innerHTML = `
+                    <a href="dashboard.html">الرئيسية</a>
+                    <a href="offers.html">العروض</a>
+                    <a href="login.html" class="btn-outline-light">تسجيل الدخول</a>
+                `;
+                quickActions.innerHTML = `
+                    <a href="offers.html" class="action-card">
+                        <div class="icon">⭐</div><div class="title">العروض المميزة</div>
+                    </a>
+                    <a href="login.html" class="action-card">
+                        <div class="icon">🔑</div><div class="title">تسجيل الدخول للبيع</div>
+                    </a>
+                `;
             }
         }
-        checkAuth();
 
-        // تحميل العروض المميزة
+        // ---------- تحميل العروض المميزة ----------
         async function loadFeatured() {
             try {
                 const res = await fetch('/api/featured');
@@ -148,12 +193,12 @@
                     }
                     grid.innerHTML = data.map(item => `
                         <div class="product-card">
-                            <img src="${item.product.image || 'https://via.placeholder.com/300x200/059669/white?text=No+Image'}" alt="${item.product.name}">
+                            <img src="${item.image || 'https://via.placeholder.com/300x200/059669/white?text=No+Image'}" alt="${item.name}">
                             <div class="info">
                                 <span class="badge">مميز</span>
-                                <h3>${item.product.name}</h3>
-                                <p>${item.product.seller.storeName || ''}</p>
-                                <p class="price">${item.product.price}$</p>
+                                <h3>${item.name}</h3>
+                                <p>${item.store_name || ''}</p>
+                                <p class="price">${item.price}$</p>
                             </div>
                         </div>
                     `).join('');
@@ -162,16 +207,8 @@
                 console.error(err);
             }
         }
-        loadFeatured();
 
-        // تسجيل الخروج
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-            window.location.href = 'index.html';
-        });
-
-        // البحث
+        // ---------- البحث ----------
         document.getElementById('searchForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const keyword = document.getElementById('keyword').value.trim();
@@ -179,6 +216,9 @@
                 window.location.href = `offers.html?search=${encodeURIComponent(keyword)}`;
             }
         });
+
+        // ---------- بدء التشغيل ----------
+        checkAuth().then(loadFeatured);
     </script>
 </body>
 </html>
