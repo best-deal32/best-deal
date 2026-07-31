@@ -1,7 +1,7 @@
 // ============================================================
 // server.js - MarketHub (Express + PostgreSQL مباشر)
-// متوافق مع Railway و PostgreSQL كخدمة مرتبطة
-// يستخدم DATABASE_PRIVATE_URL إذا وُجد (أسرع وأكثر أمانًا داخل Railway)
+// يعمل على Railway مع PostgreSQL كخدمة مرتبطة
+// Root Directory يجب أن يكون "backend"
 // ============================================================
 
 const express = require('express');
@@ -48,28 +48,25 @@ async function uploadToCloudinary(buffer) {
   });
 }
 
-// ---------- إعداد قاعدة البيانات (يفضّل DATABASE_PRIVATE_URL) ----------
-// في Railway، عند ربط PostgreSQL، ستحصل على DATABASE_URL و DATABASE_PRIVATE_URL
+// ---------- إعداد قاعدة البيانات ----------
 const dbUrl = process.env.DATABASE_PRIVATE_URL || process.env.DATABASE_URL;
-
 if (!dbUrl) {
   console.error('❌ خطأ: لا يوجد متغير DATABASE_URL أو DATABASE_PRIVATE_URL.');
   console.error('تأكد من ربط خدمة PostgreSQL مع هذه الخدمة في Railway.');
   process.exit(1);
 }
 
-// إذا كان الرابط لا يحتوي على sslmode وكان DATABASE_URL هو المستخدم (وليس PRIVATE)، نضيف sslmode
+// إضافة sslmode إذا كان الرابط هو DATABASE_URL فقط ولا يحتوي عليه
 const finalUrl = (dbUrl === process.env.DATABASE_URL && !dbUrl.includes('sslmode'))
   ? dbUrl + (dbUrl.includes('?') ? '&' : '?') + 'sslmode=require'
   : dbUrl;
 
 const pool = new Pool({
   connectionString: finalUrl,
-  // SSL فقط إذا استخدمنا DATABASE_URL العادي، أما PRIVATE فلا يحتاج SSL
   ssl: dbUrl === process.env.DATABASE_PRIVATE_URL ? false : { rejectUnauthorized: false }
 });
 
-// ---------- إنشاء الجداول عند بدء التشغيل ----------
+// ---------- إنشاء الجداول ----------
 async function createTables() {
   const client = await pool.connect();
   try {
@@ -144,6 +141,11 @@ async function createTables() {
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// نقطة فحص صحية لـ Railway
+app.get('/health', (req, res) => res.send('OK'));
+
+// خدمة الملفات الثابتة من مجلد public (الواجهة الأمامية)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ---------- دوال التوكن ----------
