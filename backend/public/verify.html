@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>التحقق من الحساب - MarketHub</title>
     <style>
-        /* نفس تصميم verify السابق */
+        /* نفس التصميم السابق مع إضافات */
         :root {
             --green-dark: #059669; --green-light: #6ee7b7;
             --blue-dark: #1e40af; --blue-light: #93c5fd;
             --white: #ffffff; --text-light: #f0fdf4;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
@@ -20,144 +20,125 @@
             padding: 20px; color: var(--white);
         }
         .verify-card {
-            background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(15px);
-            border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            max-width: 450px; width: 100%; padding: 40px 30px; text-align: center;
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(15px);
+            border-radius: 30px; border: 1px solid rgba(255,255,255,0.25);
+            max-width: 480px; width: 100%; padding: 40px 30px; text-align: center;
         }
-        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
+        h1 { font-size: 2.2rem; margin-bottom: 10px; }
         h1 .emerald-text { color: var(--green-light); } h1 .blue-text { color: var(--blue-light); }
-        .subtitle { color: rgba(255, 255, 255, 0.8); margin-bottom: 25px; }
-        .code-inputs { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; direction: ltr; }
+        .method-box {
+            background: rgba(255,255,255,0.08); border-radius: 15px; padding: 20px; margin: 20px 0;
+        }
+        .code-inputs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; direction: ltr; }
         .code-inputs input {
-            width: 50px; height: 60px; text-align: center; font-size: 1.8rem; font-weight: bold;
-            border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1); color: var(--white); outline: none;
+            width: 45px; height: 55px; text-align: center; font-size: 1.8rem; font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.35); border-radius: 12px;
+            background: rgba(255,255,255,0.1); color: var(--white); outline: none;
         }
-        .code-inputs input:focus { border-color: var(--green-light); background: rgba(255,255,255,0.2); }
-        .btn-verify {
-            width: 100%; padding: 14px; font-size: 1.1rem; font-weight: 700; color: var(--green-dark);
-            background-color: var(--white); border: none; border-radius: 50px; cursor: pointer;
-            margin-bottom: 20px; transition: 0.3s;
-        }
-        .btn-verify:hover { background-color: #ecfdf5; transform: translateY(-2px); }
-        .resend-area { font-size: 0.9rem; color: rgba(255,255,255,0.75); }
-        .resend-area a { color: var(--green-light); text-decoration: none; font-weight: 600; }
-        .resend-area a.disabled { color: rgba(255,255,255,0.4); pointer-events: none; }
-        .error-message { color: #fca5a5; font-size: 0.9rem; margin-bottom: 15px; display: none; }
-        .success-message { color: var(--green-light); font-size: 0.9rem; margin-bottom: 15px; display: none; }
-        .back-home { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.65); font-size: 0.9rem; text-decoration: none; }
+        .btn { width: 100%; padding: 14px; font-weight: 700; border-radius: 50px; cursor: pointer; transition:0.3s; }
+        .btn-primary { background: white; color: var(--green-dark); border: none; }
+        .btn-telegram { background: #2AABEE; color: white; border: none; display: inline-block; width: auto; padding: 12px 25px; text-decoration: none; }
+        .error-message { color: #fca5a5; display: none; }
+        .success-message { color: var(--green-light); display: none; }
+        .back-link { margin-top: 20px; color: var(--green-light); text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="verify-card">
         <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
-        <p class="subtitle">تم إرسال رمز التحقق إلى بريدك الإلكتروني</p>
-        <div id="messages">
-            <div class="error-message" id="errorMsg"></div>
-            <div class="success-message" id="successMsg"></div>
+        <p id="mainMsg">التحقق من الحساب</p>
+
+        <div id="emailSection" class="method-box" style="display:none;">
+            <p>تم إرسال رمز إلى بريدك الإلكتروني</p>
+            <div class="code-inputs" id="codeInputs">
+                <input type="text" maxlength="1" inputmode="numeric" data-index="0">
+                <input type="text" maxlength="1" inputmode="numeric" data-index="1">
+                <input type="text" maxlength="1" inputmode="numeric" data-index="2">
+                <input type="text" maxlength="1" inputmode="numeric" data-index="3">
+                <input type="text" maxlength="1" inputmode="numeric" data-index="4">
+                <input type="text" maxlength="1" inputmode="numeric" data-index="5">
+            </div>
+            <button class="btn btn-primary" id="verifyEmailBtn">تحقق</button>
+            <p style="margin-top:10px;"><a id="resendEmailLink" href="#">إعادة إرسال</a></p>
         </div>
-        <div class="code-inputs" id="codeInputs">
-            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="0">
-            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="1">
-            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="2">
-            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="3">
-            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="4">
-            <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="5">
+
+        <div id="telegramSection" class="method-box" style="display:none;">
+            <p>للتحقق عبر تيليجرام، اضغط على الزر أدناه وافتح البوت ثم أرسل <code>/start</code> مع الرمز.</p>
+            <a id="telegramDeepLink" class="btn btn-telegram" href="#" target="_blank">فتح تيليجرام</a>
         </div>
-        <button class="btn-verify" id="verifyBtn">تحقق</button>
-        <div class="resend-area">
-            <span id="resendText">لم تستلم الرمز؟ </span>
-            <a id="resendLink" class="disabled">إعادة الإرسال (60 ثانية)</a>
-        </div>
+
+        <div id="serverError" class="error-message"></div>
+        <div id="serverSuccess" class="success-message"></div>
+        <a href="register.html" class="back-link">← العودة للتسجيل</a>
     </div>
-    <a href="register.html" class="back-home">← العودة للتسجيل</a>
 
     <script>
-        const email = sessionStorage.getItem('verifyEmail');
-        if (!email) {
-            // إذا لم يوجد بريد مخزن، إعادة للتسجيل
-            // window.location.href = 'register.html';
+        const email = sessionStorage.getItem('verifyEmail') || '';
+        const phone = sessionStorage.getItem('verifyPhone') || '';
+        const telegramLink = sessionStorage.getItem('telegramLink') || '';
+
+        // إظهار الأقسام المناسبة
+        if (email) {
+            document.getElementById('emailSection').style.display = 'block';
+        }
+        if (phone && telegramLink) {
+            document.getElementById('telegramSection').style.display = 'block';
+            document.getElementById('telegramDeepLink').href = telegramLink;
+        }
+        if (!email && !phone) {
+            window.location.href = 'register.html';
         }
 
-        const codeInputs = document.querySelectorAll('.code-inputs input');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const errorMsg = document.getElementById('errorMsg');
-        const successMsg = document.getElementById('successMsg');
-        const resendLink = document.getElementById('resendLink');
-
-        // التنقل التلقائي بين الحقول
-        codeInputs.forEach((input, index) => {
+        // ---------- البريد ----------
+        const codeInputs = document.querySelectorAll('#codeInputs input');
+        codeInputs.forEach((input, idx) => {
             input.addEventListener('input', (e) => {
-                if (e.target.value && index < 5) codeInputs[index+1].focus();
+                if (e.target.value && idx < 5) codeInputs[idx+1].focus();
             });
             input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && !input.value && index > 0) codeInputs[index-1].focus();
+                if (e.key === 'Backspace' && !input.value && idx > 0) codeInputs[idx-1].focus();
             });
         });
 
-        // دالة الحصول على الكود
         function getCode() {
             let code = '';
-            codeInputs.forEach(inp => code += inp.value);
+            codeInputs.forEach(i => code += i.value);
             return code;
         }
 
-        // إرسال التحقق
-        verifyBtn.addEventListener('click', async () => {
+        document.getElementById('verifyEmailBtn').addEventListener('click', async () => {
             const code = getCode();
             if (code.length !== 6) {
-                errorMsg.textContent = 'يرجى إدخال 6 أرقام';
-                errorMsg.style.display = 'block';
+                document.getElementById('serverError').textContent = 'أدخل 6 أرقام';
+                document.getElementById('serverError').style.display = 'block';
                 return;
             }
-
-            try {
-                const response = await fetch('/api/auth/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, code })
-                });
-                const data = await response.json();
-                if (!response.ok) {
-                    errorMsg.textContent = data.message || 'رمز غير صحيح';
-                    errorMsg.style.display = 'block';
-                    successMsg.style.display = 'none';
-                    return;
-                }
-
-                successMsg.textContent = 'تم التحقق بنجاح! جارٍ تحويلك...';
-                successMsg.style.display = 'block';
-                errorMsg.style.display = 'none';
-                sessionStorage.removeItem('verifyEmail');
-                setTimeout(() => { window.location.href = 'login.html'; }, 1500);
-            } catch (err) {
-                errorMsg.textContent = 'خطأ في الاتصال';
-                errorMsg.style.display = 'block';
+            const res = await fetch('/api/auth/verify-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, code })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('serverSuccess').textContent = 'تم التحقق!';
+                document.getElementById('serverSuccess').style.display = 'block';
+                setTimeout(() => window.location.href = 'login.html', 1500);
+            } else {
+                document.getElementById('serverError').textContent = data.message;
+                document.getElementById('serverError').style.display = 'block';
             }
         });
 
-        // مؤقت إعادة الإرسال (وظيفة شكلية، يمكن تفعيلها عبر API حقيقي لاحقاً)
-        let timer = 60;
-        const interval = setInterval(() => {
-            timer--;
-            if (timer <= 0) {
-                resendLink.textContent = 'إعادة الإرسال';
-                resendLink.classList.remove('disabled');
-                clearInterval(interval);
-            } else {
-                resendLink.textContent = `إعادة الإرسال (${timer} ثانية)`;
-            }
-        }, 1000);
-
-        resendLink.addEventListener('click', (e) => {
+        document.getElementById('resendEmailLink').addEventListener('click', async (e) => {
             e.preventDefault();
-            if (resendLink.classList.contains('disabled')) return;
-            // يمكن إرسال طلب إعادة إرسال الكود هنا
-            // حالياً لا يوجد API لذلك، لكن يمكن إضافته
-            timer = 60;
-            resendLink.classList.add('disabled');
-            // إعادة بدء المؤقت
+            const res = await fetch('/api/auth/resend-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            document.getElementById('serverError').style.display = 'block';
+            document.getElementById('serverError').textContent = data.message || 'تم الإرسال';
         });
     </script>
 </body>
