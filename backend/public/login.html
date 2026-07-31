@@ -44,14 +44,13 @@
             transition: all 0.3s ease; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); margin-bottom: 20px;
         }
         .btn-login:hover { background-color: #ecfdf5; transform: translateY(-2px); }
-        .extra-links { text-align: center; font-size: 0.9rem; }
+        .extra-links { text-align: center; font-size: 0.9rem; margin-bottom: 5px; }
         .extra-links a { color: var(--green-light); text-decoration: none; font-weight: 500; }
         .extra-links a:hover { color: var(--white); text-decoration: underline; }
         .back-home { display: block; text-align: center; margin-top: 25px; color: rgba(255, 255, 255, 0.65); font-size: 0.9rem; text-decoration: none; }
         .back-home:hover { color: var(--white); }
         .error-message { color: #fca5a5; font-size: 0.85rem; margin-top: 5px; display: none; }
         .success-message { color: #6ee7b7; font-size: 0.85rem; margin-top: 5px; display: none; }
-        #resendLink { color: #6ee7b7; text-decoration: underline; cursor: pointer; background: none; border: none; font: inherit; }
     </style>
 </head>
 <body>
@@ -74,11 +73,13 @@
                 <label for="rememberMe">تذكرني</label>
             </div>
             <div id="serverError" class="error-message" style="margin-bottom: 15px;"></div>
-            <div id="serverSuccess" class="success-message" style="margin-bottom: 15px;"></div>
             <button type="submit" class="btn-login">تسجيل الدخول</button>
         </form>
         <div class="extra-links">
             <a href="register.html">ليس لديك حساب؟ أنشئ واحداً</a>
+        </div>
+        <div class="extra-links" style="margin-top: 10px;">
+            <a href="#" id="goVerifyLink">تأكيد الحساب (توثيق)</a>
         </div>
     </div>
     <a href="index.html" class="back-home">← العودة إلى الصفحة الرئيسية</a>
@@ -89,8 +90,9 @@
         const password = document.getElementById('password');
         const rememberCheck = document.getElementById('rememberMe');
         const serverError = document.getElementById('serverError');
-        const serverSuccess = document.getElementById('serverSuccess');
+        const goVerifyLink = document.getElementById('goVerifyLink');
 
+        // تحميل بيانات محفوظة
         window.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem('rememberedLogin');
             if (saved) {
@@ -101,37 +103,21 @@
             }
         });
 
-        async function resendAndGoToVerify(email) {
-            serverError.style.display = 'none';
-            serverSuccess.style.display = 'none';
-            try {
-                const response = await fetch('/api/auth/resend-email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    // تخزين البريد وعلامة نجاح الإرسال ثم الانتقال
-                    sessionStorage.setItem('verifyEmail', email);
-                    sessionStorage.setItem('resendSuccess', 'true');
-                    window.location.href = 'verify.html';
-                } else {
-                    serverError.textContent = data.message || 'فشل إعادة الإرسال';
-                    serverError.style.display = 'block';
-                }
-            } catch (err) {
-                serverError.textContent = 'خطأ في الاتصال بالخادم';
-                serverError.style.display = 'block';
+        // زر الانتقال إلى verify.html مع أخذ البريد الحالي
+        goVerifyLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const currentEmail = loginId.value.trim();
+            if (currentEmail.includes('@')) {
+                sessionStorage.setItem('verifyEmail', currentEmail);
             }
-        }
+            window.location.href = 'verify.html';
+        });
 
+        // تسجيل الدخول (بدون تغيير)
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
             serverError.style.display = 'none';
-            serverError.innerHTML = '';
-            serverSuccess.style.display = 'none';
 
             if (!loginId.value.trim()) {
                 document.getElementById('loginIdError').style.display = 'block';
@@ -156,21 +142,8 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    if (response.status === 403 && data.message && data.message.includes('توثيق')) {
-                        serverError.innerHTML = `الحساب غير موثّق. <button type="button" id="resendLink">إعادة إرسال رمز التحقق</button>`;
-                        serverError.style.display = 'block';
-                        document.getElementById('resendLink').addEventListener('click', () => {
-                            const emailCandidate = loginId.value.trim();
-                            if (emailCandidate.includes('@')) {
-                                resendAndGoToVerify(emailCandidate);
-                            } else {
-                                alert('يرجى إدخال بريدك الإلكتروني في حقل المستخدم لإعادة الإرسال.');
-                            }
-                        });
-                    } else {
-                        serverError.textContent = data.message || 'فشل تسجيل الدخول';
-                        serverError.style.display = 'block';
-                    }
+                    serverError.textContent = data.message || 'فشل تسجيل الدخول';
+                    serverError.style.display = 'block';
                     return;
                 }
 
