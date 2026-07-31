@@ -1,7 +1,7 @@
 // ============================================================
 // server.js - MarketHub (Express + PostgreSQL مباشر)
 // يعمل على Railway مع PostgreSQL كخدمة مرتبطة
-// Root Directory يجب أن يكون "backend"
+// تم تعطيل SSL للاتصال الداخلي (sslmode=disable)
 // ============================================================
 
 const express = require('express');
@@ -48,22 +48,26 @@ async function uploadToCloudinary(buffer) {
   });
 }
 
-// ---------- إعداد قاعدة البيانات ----------
-const dbUrl = process.env.DATABASE_PRIVATE_URL || process.env.DATABASE_URL;
+// ---------- إعداد قاعدة البيانات (تعطيل SSL للشبكة الداخلية) ----------
+let dbUrl = process.env.DATABASE_PRIVATE_URL || process.env.DATABASE_URL;
+
 if (!dbUrl) {
-  console.error('❌ خطأ: لا يوجد متغير DATABASE_URL أو DATABASE_PRIVATE_URL.');
-  console.error('تأكد من ربط خدمة PostgreSQL مع هذه الخدمة في Railway.');
+  console.error('❌ خطأ: لا يوجد DATABASE_URL أو DATABASE_PRIVATE_URL.');
+  console.error('تأكد من ربط PostgreSQL مع هذه الخدمة في Railway.');
   process.exit(1);
 }
 
-// إضافة sslmode إذا كان الرابط هو DATABASE_URL فقط ولا يحتوي عليه
-const finalUrl = (dbUrl === process.env.DATABASE_URL && !dbUrl.includes('sslmode'))
-  ? dbUrl + (dbUrl.includes('?') ? '&' : '?') + 'sslmode=require'
-  : dbUrl;
+// إذا استخدمنا DATABASE_URL العام، نعطّل SSL لتجنب مشاكل الشهادات الذاتية
+if (dbUrl === process.env.DATABASE_URL) {
+  // إزالة أي sslmode موجود مسبقاً
+  dbUrl = dbUrl.replace(/(\?|&)sslmode=[^&]*/g, '');
+  // إضافة sslmode=disable لتعطيل SSL تماماً
+  dbUrl += (dbUrl.includes('?') ? '&' : '?') + 'sslmode=disable';
+}
 
 const pool = new Pool({
-  connectionString: finalUrl,
-  ssl: dbUrl === process.env.DATABASE_PRIVATE_URL ? false : { rejectUnauthorized: false }
+  connectionString: dbUrl,
+  ssl: false  // تعطيل SSL (آمن داخل شبكة Railway الخاصة)
 });
 
 // ---------- إنشاء الجداول ----------
