@@ -53,7 +53,6 @@
         <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
         <p id="mainMsg">التحقق من الحساب</p>
 
-        <!-- قسم البريد الإلكتروني -->
         <div id="emailSection" class="method-box">
             <p>أدخل بريدك الإلكتروني ورمز التحقق</p>
             <input type="email" id="verifyEmailInput" class="email-input" placeholder="بريدك الإلكتروني">
@@ -66,12 +65,11 @@
                 <input type="text" maxlength="1" inputmode="numeric" data-index="5">
             </div>
             <button class="btn btn-primary" id="verifyEmailBtn">تحقق</button>
-            <p style="margin-top:10px;"><a id="resendEmailLink" href="#" style="color:#6ee7b7;">إعادة إرسال</a></p>
+            <p style="margin-top:10px;"><a id="resendEmailLink" href="#" style="color:#6ee7b7;">إعادة إرسال الرمز</a></p>
             <div id="emailError" class="error-message"></div>
             <div id="emailSuccess" class="success-message"></div>
         </div>
 
-        <!-- قسم تيليجرام (يظهر فقط لو فيه بيانات) -->
         <div id="telegramSection" class="method-box" style="display:none;">
             <p>للتحقق عبر تيليجرام، اضغط على الزر أدناه لفتح البوت.</p>
             <a id="telegramDeepLink" class="btn btn-telegram" href="#" target="_blank">فتح تيليجرام</a>
@@ -81,24 +79,31 @@
     </div>
 
     <script>
-        // محاولة قراءة البيانات المخزنة من التسجيل
+        // استقبال البيانات من التسجيل أو من إعادة الإرسال
         const savedEmail = sessionStorage.getItem('verifyEmail') || '';
-        const savedPhone = sessionStorage.getItem('verifyPhone') || '';
         const savedTelegramLink = sessionStorage.getItem('telegramLink') || '';
+        const resendSuccess = sessionStorage.getItem('resendSuccess') === 'true';
 
         const emailInput = document.getElementById('verifyEmailInput');
-        // إذا كان لدينا بريد من التسجيل، نملأ الحقل تلقائيًا
         if (savedEmail) {
             emailInput.value = savedEmail;
         }
 
-        // إظهار قسم تيليجرام إذا وُجد رابط
+        // إذا كان هناك رابط تيليجرام
         if (savedTelegramLink) {
             document.getElementById('telegramSection').style.display = 'block';
             document.getElementById('telegramDeepLink').href = savedTelegramLink;
         }
 
-        // ---- التعامل مع حقول الرمز الستة ----
+        // عرض رسالة نجاح إعادة الإرسال إذا أتينا من login
+        if (resendSuccess) {
+            document.getElementById('emailSuccess').textContent = 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.';
+            document.getElementById('emailSuccess').style.display = 'block';
+            // إزالة العلامة حتى لا تظهر عند التحديث
+            sessionStorage.removeItem('resendSuccess');
+        }
+
+        // التعامل مع حقول الرمز
         const codeInputs = document.querySelectorAll('#codeInputs input');
         codeInputs.forEach((input, idx) => {
             input.addEventListener('input', (e) => {
@@ -115,7 +120,7 @@
             return code;
         }
 
-        // ---- زر التحقق ----
+        // التحقق من الرمز
         document.getElementById('verifyEmailBtn').addEventListener('click', async () => {
             const email = emailInput.value.trim();
             const code = getCode();
@@ -143,7 +148,7 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    successEl.textContent = 'تم التحقق بنجاح! جارٍ تحويلك...';
+                    successEl.textContent = 'تم التحقق بنجاح! جارٍ تحويلك إلى صفحة تسجيل الدخول...';
                     successEl.style.display = 'block';
                     sessionStorage.clear();
                     setTimeout(() => { window.location.href = 'login.html'; }, 1500);
@@ -157,7 +162,7 @@
             }
         });
 
-        // ---- إعادة إرسال الرمز ----
+        // إعادة إرسال الرمز من نفس الصفحة
         document.getElementById('resendEmailLink').addEventListener('click', async (e) => {
             e.preventDefault();
             const email = emailInput.value.trim();
