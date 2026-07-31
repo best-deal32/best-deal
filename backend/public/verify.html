@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>التحقق من الحساب - MarketHub</title>
+    <title>توثيق الحساب - MarketHub</title>
     <style>
         :root {
             --green-dark: #059669; --green-light: #6ee7b7;
@@ -36,6 +36,7 @@
         }
         .btn { width: 100%; padding: 14px; font-weight: 700; border-radius: 50px; cursor: pointer; transition:0.3s; }
         .btn-primary { background: white; color: var(--green-dark); border: none; }
+        .btn-secondary { background: transparent; border: 2px solid white; color: white; }
         .btn-telegram { background: #2AABEE; color: white; border: none; display: inline-block; width: auto; padding: 12px 25px; text-decoration: none; border-radius: 50px; }
         .error-message { color: #fca5a5; display: none; font-size: 0.9rem; margin-top: 10px; }
         .success-message { color: var(--green-light); display: none; font-size: 0.9rem; margin-top: 10px; }
@@ -46,12 +47,14 @@
             color: white; font-size: 1rem; outline: none;
         }
         .email-input::placeholder { color: rgba(255,255,255,0.6); }
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
+        .actions .btn { flex: 1; }
     </style>
 </head>
 <body>
     <div class="verify-card">
         <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
-        <p id="mainMsg">التحقق من الحساب</p>
+        <p id="mainMsg">توثيق الحساب</p>
 
         <div id="emailSection" class="method-box">
             <p>أدخل بريدك الإلكتروني ورمز التحقق</p>
@@ -64,14 +67,16 @@
                 <input type="text" maxlength="1" inputmode="numeric" data-index="4">
                 <input type="text" maxlength="1" inputmode="numeric" data-index="5">
             </div>
-            <button class="btn btn-primary" id="verifyEmailBtn">تحقق</button>
-            <p style="margin-top:10px;"><a id="resendEmailLink" href="#" style="color:#6ee7b7;">إعادة إرسال الرمز</a></p>
+            <div class="actions">
+                <button class="btn btn-secondary" id="resendBtn">إعادة إرسال الرمز</button>
+                <button class="btn btn-primary" id="verifyBtn">تحقق</button>
+            </div>
             <div id="emailError" class="error-message"></div>
             <div id="emailSuccess" class="success-message"></div>
         </div>
 
         <div id="telegramSection" class="method-box" style="display:none;">
-            <p>للتحقق عبر تيليجرام، اضغط على الزر أدناه لفتح البوت.</p>
+            <p>للتحقق عبر تيليجرام، اضغط على الزر أدناه.</p>
             <a id="telegramDeepLink" class="btn btn-telegram" href="#" target="_blank">فتح تيليجرام</a>
         </div>
 
@@ -79,31 +84,20 @@
     </div>
 
     <script>
-        // استقبال البيانات من التسجيل أو من إعادة الإرسال
         const savedEmail = sessionStorage.getItem('verifyEmail') || '';
         const savedTelegramLink = sessionStorage.getItem('telegramLink') || '';
-        const resendSuccess = sessionStorage.getItem('resendSuccess') === 'true';
 
         const emailInput = document.getElementById('verifyEmailInput');
         if (savedEmail) {
             emailInput.value = savedEmail;
+            // لا نحذف savedEmail حتى لا يضيع إذا احتاج إعادة تحميل، لكن يمكن إزالته بعد الاستخدام
         }
 
-        // إذا كان هناك رابط تيليجرام
         if (savedTelegramLink) {
             document.getElementById('telegramSection').style.display = 'block';
             document.getElementById('telegramDeepLink').href = savedTelegramLink;
         }
 
-        // عرض رسالة نجاح إعادة الإرسال إذا أتينا من login
-        if (resendSuccess) {
-            document.getElementById('emailSuccess').textContent = 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.';
-            document.getElementById('emailSuccess').style.display = 'block';
-            // إزالة العلامة حتى لا تظهر عند التحديث
-            sessionStorage.removeItem('resendSuccess');
-        }
-
-        // التعامل مع حقول الرمز
         const codeInputs = document.querySelectorAll('#codeInputs input');
         codeInputs.forEach((input, idx) => {
             input.addEventListener('input', (e) => {
@@ -120,25 +114,29 @@
             return code;
         }
 
-        // التحقق من الرمز
-        document.getElementById('verifyEmailBtn').addEventListener('click', async () => {
+        function showError(msg) {
+            document.getElementById('emailError').textContent = msg;
+            document.getElementById('emailError').style.display = 'block';
+            document.getElementById('emailSuccess').style.display = 'none';
+        }
+        function showSuccess(msg) {
+            document.getElementById('emailSuccess').textContent = msg;
+            document.getElementById('emailSuccess').style.display = 'block';
+            document.getElementById('emailError').style.display = 'none';
+        }
+        function clearMessages() {
+            document.getElementById('emailError').style.display = 'none';
+            document.getElementById('emailSuccess').style.display = 'none';
+        }
+
+        // زر التحقق
+        document.getElementById('verifyBtn').addEventListener('click', async () => {
             const email = emailInput.value.trim();
             const code = getCode();
-            const errorEl = document.getElementById('emailError');
-            const successEl = document.getElementById('emailSuccess');
-            errorEl.style.display = 'none';
-            successEl.style.display = 'none';
+            clearMessages();
 
-            if (!email) {
-                errorEl.textContent = 'يرجى إدخال البريد الإلكتروني';
-                errorEl.style.display = 'block';
-                return;
-            }
-            if (code.length !== 6) {
-                errorEl.textContent = 'يرجى إدخال رمز التحقق المكون من 6 أرقام';
-                errorEl.style.display = 'block';
-                return;
-            }
+            if (!email) { showError('يرجى إدخال البريد الإلكتروني'); return; }
+            if (code.length !== 6) { showError('يرجى إدخال رمز التحقق المكون من 6 أرقام'); return; }
 
             try {
                 const res = await fetch('/api/auth/verify-email', {
@@ -148,33 +146,23 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    successEl.textContent = 'تم التحقق بنجاح! جارٍ تحويلك إلى صفحة تسجيل الدخول...';
-                    successEl.style.display = 'block';
-                    sessionStorage.clear();
+                    showSuccess('تم التحقق بنجاح! سيتم تحويلك لتسجيل الدخول...');
+                    sessionStorage.removeItem('verifyEmail');
+                    sessionStorage.removeItem('telegramLink');
                     setTimeout(() => { window.location.href = 'login.html'; }, 1500);
                 } else {
-                    errorEl.textContent = data.message || 'فشل التحقق';
-                    errorEl.style.display = 'block';
+                    showError(data.message || 'فشل التحقق');
                 }
-            } catch (err) {
-                errorEl.textContent = 'خطأ في الاتصال';
-                errorEl.style.display = 'block';
-            }
+            } catch (err) { showError('خطأ في الاتصال'); }
         });
 
-        // إعادة إرسال الرمز من نفس الصفحة
-        document.getElementById('resendEmailLink').addEventListener('click', async (e) => {
-            e.preventDefault();
+        // زر إعادة إرسال الرمز
+        document.getElementById('resendBtn').addEventListener('click', async () => {
             const email = emailInput.value.trim();
-            const errorEl = document.getElementById('emailError');
-            const successEl = document.getElementById('emailSuccess');
-            errorEl.style.display = 'none';
-            successEl.style.display = 'none';
-            if (!email) {
-                errorEl.textContent = 'يرجى إدخال البريد الإلكتروني أولاً';
-                errorEl.style.display = 'block';
-                return;
-            }
+            clearMessages();
+
+            if (!email) { showError('يرجى إدخال البريد الإلكتروني أولاً'); return; }
+
             try {
                 const res = await fetch('/api/auth/resend-email', {
                     method: 'POST',
@@ -183,16 +171,11 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    successEl.textContent = 'تم إرسال رمز جديد إلى بريدك';
-                    successEl.style.display = 'block';
+                    showSuccess('تم إرسال رمز جديد إلى بريدك الإلكتروني.');
                 } else {
-                    errorEl.textContent = data.message || 'فشل إعادة الإرسال';
-                    errorEl.style.display = 'block';
+                    showError(data.message || 'فشل إعادة الإرسال');
                 }
-            } catch (err) {
-                errorEl.textContent = 'خطأ في الاتصال';
-                errorEl.style.display = 'block';
-            }
+            } catch (err) { showError('خطأ في الاتصال'); }
         });
     </script>
 </body>
