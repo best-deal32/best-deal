@@ -2,655 +2,144 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>إنشاء حساب | Fargo</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - MarketHub</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
-        
+        /* نفس التصميم السابق */
         :root {
-            --bg-deep: #040b14;
-            --red-dark: #800000;
-            --red-mid: #a00000;
-            --red-light: #c00000;
-            --red-accent: #ff3333;
-            --text-primary: #e0e6f0;
-            --text-dim: #99a8c0;
+            --green-dark: #059669; --green-light: #6ee7b7;
+            --blue-dark: #1e40af; --blue-light: #93c5fd;
+            --white: #ffffff; --text-light: #f0fdf4;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: radial-gradient(ellipse at top, #1a0000 0%, var(--bg-deep) 70%);
-            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            overflow-x: hidden;
-            position: relative;
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--blue-dark) 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; color: var(--white);
         }
-
-        .bg-glow-1 {
-            position: absolute;
-            top: -120px;
-            right: -120px;
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, rgba(255, 51, 51, 0.12) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(70px);
-            z-index: 0;
-        }
-        .bg-glow-2 {
-            position: absolute;
-            bottom: -120px;
-            left: -120px;
-            width: 420px;
-            height: 420px;
-            background: radial-gradient(circle, rgba(192, 0, 0, 0.08) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(70px);
-            z-index: 0;
-        }
-
         .register-card {
-            background: rgba(20, 5, 5, 0.85);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 51, 51, 0.3);
-            border-radius: 3rem;
-            width: 100%;
-            max-width: 550px;
-            padding: 2.5rem 2.2rem;
-            position: relative;
-            z-index: 10;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-            animation: slideUp 0.7s ease;
+            background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(15px);
+            border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 480px; width: 100%; padding: 40px 30px;
         }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        h1 { text-align: center; font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
+        h1 .emerald-text { color: var(--green-light); } h1 .blue-text { color: var(--blue-light); }
+        .subtitle { text-align: center; color: rgba(255, 255, 255, 0.8); margin-bottom: 25px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-light); }
+        .form-group input {
+            width: 100%; padding: 12px 16px; border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px; background: rgba(255, 255, 255, 0.1); color: var(--white);
+            font-size: 1rem; outline: none;
         }
-
-        .shield-icon {
-            display: block;
-            font-size: 4.5rem;
-            color: var(--red-accent);
-            filter: drop-shadow(0 0 20px rgba(255, 51, 51, 0.6));
-            text-align: center;
-            margin-bottom: 0.3rem;
+        .form-group input:focus { border-color: var(--green-light); background: rgba(255, 255, 255, 0.15); }
+        .btn-register {
+            width: 100%; padding: 14px; font-size: 1.1rem; font-weight: 700; color: var(--green-dark);
+            background-color: var(--white); border: none; border-radius: 50px; cursor: pointer;
+            margin-top: 10px; margin-bottom: 20px; transition: 0.3s; box-shadow: 0 6px 18px rgba(0,0,0,0.15);
         }
-
-        .register-title {
-            font-size: 2.2rem;
-            font-weight: 900;
-            text-align: center;
-            letter-spacing: 2px;
-            color: #fff;
-            margin-bottom: 0.3rem;
-        }
-
-        .register-subtitle {
-            color: #ff9999;
-            font-size: 0.9rem;
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .step {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .step.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .input-label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #ff9999;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--red-accent);
-            font-size: 1rem;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 0.9rem 2.8rem 0.9rem 1.2rem;
-            background: rgba(4, 11, 20, 0.7);
-            border: 1.5px solid rgba(255, 51, 51, 0.3);
-            border-radius: 1rem;
-            color: #fff;
-            font-weight: 600;
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        .input-field:focus {
-            border-color: var(--red-accent);
-            background: rgba(7, 20, 38, 0.8);
-            box-shadow: 0 0 12px rgba(255, 51, 51, 0.15);
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0 1rem;
-        }
-
-        @media (min-width: 500px) {
-            .grid-2 {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .btn-red {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, var(--red-mid) 0%, var(--red-light) 100%);
-            border: none;
-            border-radius: 1rem;
-            color: #fff;
-            font-weight: 900;
-            font-size: 1.05rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 0.8rem;
-            box-shadow: 0 10px 25px rgba(160, 0, 0, 0.5);
-        }
-
-        .btn-red:hover:not(:disabled) {
-            background: linear-gradient(135deg, #880000 0%, #b00000 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(192, 0, 0, 0.6);
-        }
-
-        .btn-red:disabled {
-            background: #1e2a3a;
-            color: #5a6a7a;
-            cursor: not-allowed;
-        }
-
-        .btn-outline-red {
-            background: transparent;
-            border: 1.5px solid var(--red-accent);
-            color: var(--red-accent);
-            font-weight: 700;
-            padding: 0.7rem 1.2rem;
-            border-radius: 1rem;
-            cursor: pointer;
-            transition: 0.3s;
-            white-space: nowrap;
-            font-size: 0.85rem;
-        }
-
-        .btn-outline-red:hover {
-            background: rgba(255, 51, 51, 0.15);
-        }
-
-        .verification-row {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .verification-row input {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        .skip-link {
-            color: var(--red-accent);
-            text-decoration: underline;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-top: 0.5rem;
-            display: inline-block;
-        }
-
-        .back-link {
-            display: inline-block;
-            margin-top: 1.5rem;
-            color: var(--red-accent);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-align: center;
-            width: 100%;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        .lang-selector {
-            display: flex;
-            justify-content: center;
-            gap: 0.4rem;
-            margin-top: 1.8rem;
-            background: rgba(20, 5, 5, 0.6);
-            border-radius: 3rem;
-            padding: 0.3rem;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-            border: 1px solid rgba(255, 51, 51, 0.25);
-        }
-
-        .lang-option {
-            padding: 0.4rem 0.9rem;
-            border-radius: 3rem;
-            font-size: 0.75rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #99a8c0;
-        }
-
-        .lang-option.active {
-            background: linear-gradient(135deg, var(--red-mid), var(--red-light));
-            color: #fff;
-        }
-
-        .lang-option:hover:not(.active) {
-            background: rgba(255, 51, 51, 0.15);
-            color: #fff;
-        }
-
-        @media (max-width: 500px) {
-            .register-card {
-                padding: 2rem 1.5rem;
-                border-radius: 2.5rem;
-            }
-        }
+        .btn-register:hover { background-color: #ecfdf5; transform: translateY(-2px); }
+        .extra-links { text-align: center; font-size: 0.9rem; }
+        .extra-links a { color: var(--green-light); text-decoration: none; }
+        .back-home { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.65); font-size: 0.9rem; text-decoration: none; }
+        .error-message { color: #fca5a5; font-size: 0.85rem; margin-top: 5px; display: none; }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        @media (max-width: 400px) { .form-row { flex-direction: column; gap: 0; } }
     </style>
 </head>
 <body>
-    <div class="bg-glow-1"></div>
-    <div class="bg-glow-2"></div>
-
     <div class="register-card">
-        <div class="shield-icon">
-            <i class="fa-solid fa-shield-halved"></i>
+        <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
+        <p class="subtitle">أنشئ حسابك الآن وابدأ بعرض منتجاتك</p>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="username">اسم المستخدم</label>
+                <input type="text" id="username" placeholder="اختر اسم مستخدم فريد" required>
+            </div>
+            <div class="form-group">
+                <label for="storeName">اسم المتجر</label>
+                <input type="text" id="storeName" placeholder="اسم متجرك أو علامتك التجارية" required>
+            </div>
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" placeholder="example@mail.com" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">رقم الهاتف</label>
+                <input type="tel" id="phone" placeholder="05xxxxxxxx" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <input type="password" id="password" placeholder="********" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">تأكيد كلمة المرور</label>
+                    <input type="password" id="confirmPassword" placeholder="********" required>
+                </div>
+            </div>
+            <div id="serverError" class="error-message" style="margin-bottom:10px;"></div>
+            <button type="submit" class="btn-register">إنشاء حساب</button>
+        </form>
+        <div class="extra-links">
+            <a href="login.html">لديك حساب بالفعل؟ سجل الدخول</a>
         </div>
-        <h1 class="register-title">FARGO</h1>
-        <p class="register-subtitle">أنشئ حسابك وابدأ رحلتك الاستثمارية</p>
-
-        <!-- الخطوة الأولى: البيانات الأساسية -->
-        <div id="step1" class="step active">
-            <div class="grid-2">
-                <div class="input-group">
-                    <label class="input-label">اسم المستخدم</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-user"></i>
-                        <input type="text" id="username" class="input-field" placeholder="اختر اسم مستخدم" required>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label class="input-label">الاسم الكامل</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-signature"></i>
-                        <input type="text" id="fullName" class="input-field" placeholder="اسمك الكامل" required>
-                    </div>
-                </div>
-            </div>
-            <!-- البريد الإلكتروني (اختياري) -->
-            <div class="input-group">
-                <label class="input-label">البريد الإلكتروني (اختياري)</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-envelope"></i>
-                    <input type="email" id="email" class="input-field" placeholder="example@mail.com">
-                </div>
-            </div>
-            <!-- رقم الهاتف (اختياري) -->
-            <div class="input-group">
-                <label class="input-label">رقم الهاتف (اختياري)</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-phone"></i>
-                    <input type="tel" id="phoneNumber" class="input-field" placeholder="مثال: 0912345678" dir="ltr">
-                </div>
-                <p class="text-xs text-red-300/70 mt-1">يجب أن يكون رقم الهاتف بين 10 و15 رقماً إن أدخلته</p>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="input-group">
-                    <label class="input-label">كلمة المرور</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="password" class="input-field" placeholder="••••••••" required>
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label class="input-label">تأكيد كلمة المرور</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-check-circle"></i>
-                        <input type="password" id="confirmPassword" class="input-field" placeholder="••••••••" required>
-                    </div>
-                </div>
-            </div>
-            <button id="nextStepBtn" class="btn-red">
-                <i class="fa-solid fa-arrow-left"></i> متابعة
-            </button>
-        </div>
-
-        <!-- الخطوة الثانية: كود الإحالة ورمز التحقق -->
-        <div id="step2" class="step">
-            <p class="text-sm text-slate-300 text-center mb-6">
-                هل لديك كود فريق؟ أدخله الآن أو تخطَّ هذه الخطوة.
-            </p>
-            <div class="input-group">
-                <label class="input-label">كود الفريق (اختياري)</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-users"></i>
-                    <input type="text" id="referrerCode" class="input-field" placeholder="أدخل الكود أو اتركه فارغاً">
-                </div>
-                <span id="skipReferral" class="skip-link"><i class="fa-solid fa-forward ml-1"></i> تخطي</span>
-            </div>
-
-            <!-- رمز التحقق (اختياري) - يظهر فقط عند إدخال بريد -->
-            <div id="verificationSection" class="flex items-end gap-2 mb-4 hidden">
-                <div class="input-group flex-1">
-                    <label class="input-label">رمز التحقق (اختياري)</label>
-                    <input type="text" id="verificationCode" class="input-field" placeholder="الرمز المرسل إلى بريدك">
-                </div>
-                <button type="button" id="sendCodeBtn" class="btn-outline-red">
-                    <i class="fa-regular fa-paper-plane ml-1"></i> إرسال الرمز
-                </button>
-            </div>
-
-            <button id="registerBtn" class="btn-red mt-4">
-                <i class="fa-solid fa-user-plus"></i> إنشاء الحساب
-            </button>
-            <button id="backToStep1" class="btn-outline-red w-full mt-2 justify-center">
-                <i class="fa-solid fa-arrow-right ml-1"></i> العودة للبيانات
-            </button>
-        </div>
-
-        <div class="lang-selector">
-            <div class="lang-option active" data-lang="ar">العربية</div>
-            <div class="lang-option" data-lang="en">English</div>
-            <div class="lang-option" data-lang="zh">中文</div>
-            <div class="lang-option" data-lang="de">Deutsch</div>
-        </div>
-
-        <p class="text-center text-sm text-slate-500 mt-6">
-            لديك حساب؟ <a href="login.html" class="text-red-400 font-bold hover:underline">سجل دخول</a>
-        </p>
     </div>
+    <a href="index.html" class="back-home">← العودة إلى الصفحة الرئيسية</a>
 
     <script>
-        const API_BASE = '';
-        const URL_SEND_VERIFICATION = `${API_BASE}/api/auth/send-verification`;
-        const URL_REGISTER = `${API_BASE}/api/users/register`;
-        const URL_CHECK_USERNAME = `${API_BASE}/api/users/check-username`;
-        const URL_VALIDATE_EMAIL = `${API_BASE}/api/auth/validate-email`;
+        const form = document.getElementById('registerForm');
+        const serverError = document.getElementById('serverError');
 
-        let socket = null;
-        let currentLang = localStorage.getItem('preferredLanguage') || 'ar';
-        const translations = {};
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            serverError.style.display = 'none';
 
-        // i18n
-        async function loadTranslations(lang) {
-            try {
-                const res = await fetch(`/locales/${lang}/translation.json`);
-                if (res.ok) translations[lang] = await res.json();
-            } catch(e) {}
-        }
-        function applyTranslations(lang) {
-            const t = translations[lang] || {};
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                if(t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
-            });
-            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.documentElement.lang = lang;
-            localStorage.setItem('preferredLanguage', lang);
-            currentLang = lang;
-            document.querySelectorAll('.lang-option').forEach(o => o.classList.toggle('active', o.dataset.lang === lang));
-            document.cookie = `i18n=${lang}; path=/; max-age=31536000`;
-        }
-        document.querySelectorAll('.lang-option').forEach(opt => {
-            opt.addEventListener('click', async () => { await applyTranslations(opt.dataset.lang); });
-        });
-
-        // WebSocket
-        function initSocket() {
-            if (!socket) {
-                socket = io(window.location.origin, { withCredentials: true });
-                socket.on('connect', () => console.log('Socket connected'));
-            }
-        }
-
-        // التنقل بين الخطوات
-        const step1 = document.getElementById('step1');
-        const step2 = document.getElementById('step2');
-        const verificationSection = document.getElementById('verificationSection');
-
-        document.getElementById('nextStepBtn').addEventListener('click', () => {
             const username = document.getElementById('username').value.trim();
-            const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const storeName = document.getElementById('storeName').value.trim();
             const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
 
-            if (!username || !fullName || !password) {
-                Swal.fire({ icon: 'warning', title: 'حقول ناقصة', text: 'يرجى ملء اسم المستخدم والاسم الكامل وكلمة المرور', background: '#1a0000', color: '#fff' });
+            if (!username || !email || !phone || !storeName || !password) {
+                serverError.textContent = 'يرجى ملء جميع الحقول';
+                serverError.style.display = 'block';
                 return;
             }
-            // يجب تقديم بريد أو هاتف
-            if (!email && !phoneNumber) {
-                Swal.fire({ icon: 'warning', title: 'مطلوب', text: 'يرجى إدخال البريد الإلكتروني أو رقم الهاتف على الأقل', background: '#1a0000', color: '#fff' });
+            if (password !== confirm) {
+                serverError.textContent = 'كلمتا المرور غير متطابقتين';
+                serverError.style.display = 'block';
                 return;
             }
-            // التحقق من عدد أرقام الهاتف إن وجد
-            if (phoneNumber) {
-                const phoneDigits = phoneNumber.replace(/\D/g, '');
-                if (phoneDigits.length < 10 || phoneDigits.length > 15) {
-                    Swal.fire({ icon: 'error', title: 'رقم هاتف غير صالح', text: 'يجب أن يكون رقم الهاتف بين 10 و15 رقماً', background: '#1a0000', color: '#fff' });
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, phone, password, storeName })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    serverError.textContent = data.message || 'فشل التسجيل';
+                    serverError.style.display = 'block';
                     return;
                 }
-            }
-            if (password !== confirmPassword) {
-                Swal.fire({ icon: 'error', title: 'خطأ', text: 'كلمتا المرور غير متطابقتين', background: '#1a0000', color: '#fff' });
-                return;
-            }
-            if (password.length < 6) {
-                Swal.fire({ icon: 'error', title: 'ضعيفة', text: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', background: '#1a0000', color: '#fff' });
-                return;
-            }
-            if (email && !email.includes('@')) {
-                Swal.fire({ icon: 'error', title: 'بريد غير صالح', text: 'يرجى إدخال بريد صحيح', background: '#1a0000', color: '#fff' });
-                return;
-            }
 
-            // إظهار قسم رمز التحقق فقط إذا كان البريد موجوداً
-            if (email) {
-                verificationSection.classList.remove('hidden');
-            } else {
-                verificationSection.classList.add('hidden');
-            }
-
-            step1.classList.remove('active');
-            step2.classList.add('active');
-        });
-
-        document.getElementById('backToStep1').addEventListener('click', () => {
-            step2.classList.remove('active');
-            step1.classList.add('active');
-        });
-
-        document.getElementById('skipReferral').addEventListener('click', () => {
-            document.getElementById('referrerCode').value = '';
-        });
-
-        // إرسال رمز التحقق
-        let countdown = 0, countdownInterval;
-        const sendCodeBtn = document.getElementById('sendCodeBtn');
-        sendCodeBtn.addEventListener('click', async () => {
-            const email = document.getElementById('email').value.trim();
-            if (!email || !email.includes('@')) {
-                Swal.fire('خطأ', 'يرجى إدخال بريد صحيح أولاً', 'error');
-                return;
-            }
-            if (countdown > 0) return;
-            sendCodeBtn.disabled = true;
-            const originalText = sendCodeBtn.innerHTML;
-            sendCodeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري...';
-            try {
-                const res = await fetch(URL_SEND_VERIFICATION, {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ email }),
-                    credentials: 'include'
-                });
-                const data = await res.json();
-                if (data.success) {
-                    Swal.fire('تم', 'تم إرسال رمز التحقق إلى بريدك', 'success');
-                    startCountdown(60);
-                } else {
-                    Swal.fire('خطأ', data.message || 'فشل الإرسال', 'error');
-                    sendCodeBtn.disabled = false;
-                    sendCodeBtn.innerHTML = originalText;
-                }
-            } catch(e) {
-                Swal.fire('خطأ', 'فشل الاتصال', 'error');
-                sendCodeBtn.disabled = false;
-                sendCodeBtn.innerHTML = originalText;
+                // تخزين البريد الإلكتروني مؤقتاً للتحقق
+                sessionStorage.setItem('verifyEmail', email);
+                // الانتقال إلى صفحة التحقق
+                window.location.href = 'verify.html';
+            } catch (err) {
+                console.error(err);
+                serverError.textContent = 'خطأ في الاتصال';
+                serverError.style.display = 'block';
             }
         });
-
-        function startCountdown(seconds) {
-            if(countdownInterval) clearInterval(countdownInterval);
-            countdown = seconds;
-            const originalText = sendCodeBtn.innerHTML;
-            sendCodeBtn.disabled = true;
-            countdownInterval = setInterval(() => {
-                countdown--;
-                if(countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    sendCodeBtn.disabled = false;
-                    sendCodeBtn.innerHTML = originalText;
-                } else {
-                    sendCodeBtn.innerHTML = `إعادة الإرسال (${countdown})`;
-                }
-            }, 1000);
-        }
-
-        // تقديم التسجيل النهائي
-        document.getElementById('registerBtn').addEventListener('click', async () => {
-            const username = document.getElementById('username').value.trim();
-            const fullName = document.getElementById('fullName').value.trim();
-            const email = document.getElementById('email').value.trim() || null;
-            const phoneNumber = document.getElementById('phoneNumber').value.trim() || null;
-            const password = document.getElementById('password').value;
-            const referrerCode = document.getElementById('referrerCode').value.trim();
-            const verificationCode = document.getElementById('verificationCode').value.trim();
-
-            const btn = document.getElementById('registerBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري إنشاء الحساب...';
-
-            try {
-                const res = await fetch(URL_REGISTER, {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({
-                        username, password, fullName,
-                        email: email || undefined,
-                        phoneNumber: phoneNumber || undefined,
-                        verificationCode, referrerCode
-                    }),
-                    credentials: 'include'
-                });
-                const data = await res.json();
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success', title: 'تم التسجيل',
-                        text: data.message || 'يمكنك الآن تسجيل الدخول',
-                        background: '#1a0000', color: '#fff'
-                    }).then(() => window.location.href = 'login.html');
-                } else {
-                    Swal.fire({ icon: 'error', title: 'فشل', text: data.message, background: '#1a0000', color: '#fff' });
-                }
-            } catch(e) {
-                Swal.fire({ icon: 'error', title: 'خطأ', text: 'فشل الاتصال', background: '#1a0000', color: '#fff' });
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> إنشاء الحساب';
-            }
-        });
-
-        // التحقق من اسم المستخدم والايميل
-        let usernameTimeout, emailTimeout;
-        document.getElementById('username').addEventListener('input', function() {
-            clearTimeout(usernameTimeout);
-            const val = this.value.trim();
-            if (val.length < 3) return;
-            usernameTimeout = setTimeout(async () => {
-                const res = await fetch(`${URL_CHECK_USERNAME}?username=${val}`);
-                const d = await res.json();
-                if (d.exists) {
-                    Swal.fire({ icon: 'warning', title: 'اسم مستخدم موجود', text: 'اختر اسماً آخر', toast: true, position: 'top-end', timer: 3000, background: '#1a0000', color: '#fff' });
-                }
-            }, 500);
-        });
-        document.getElementById('email').addEventListener('input', function() {
-            clearTimeout(emailTimeout);
-            const val = this.value.trim();
-            if (!val.includes('@')) return;
-            emailTimeout = setTimeout(async () => {
-                const res = await fetch(`${URL_VALIDATE_EMAIL}?email=${encodeURIComponent(val)}`);
-                const d = await res.json();
-                if (!d.valid) {
-                    Swal.fire({ icon: 'warning', title: 'بريد غير صالح', text: d.reason, toast: true, position: 'top-end', timer: 4000, background: '#1a0000', color: '#fff' });
-                }
-            }, 800);
-        });
-
-        window.onload = async () => {
-            await loadTranslations(currentLang);
-            applyTranslations(currentLang);
-            initSocket();
-        };
     </script>
 </body>
 </html>
