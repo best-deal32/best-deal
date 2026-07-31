@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء عرض - MarketHub</title>
+    <style>
+        /* تصميم مشابه للـ dashboard */
+        :root {
+            --green-dark: #059669; --green-light: #6ee7b7;
+            --blue-dark: #1e40af; --blue-light: #93c5fd;
+            --white: #ffffff; --bg-glass: rgba(255, 255, 255, 0.1);
+            --border-glass: rgba(255, 255, 255, 0.25);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #065f46 0%, #1e3a8a 100%);
+            min-height: 100vh; color: var(--white); display: flex; flex-direction: column;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-glass); padding: 15px 30px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; }
+        .logo .emerald-text { color: var(--green-light); } .logo .blue-text { color: var(--blue-light); }
+        .btn-outline-light {
+            border: 1px solid rgba(255,255,255,0.5); background: transparent; color: white;
+            padding: 8px 20px; border-radius: 30px; text-decoration: none;
+        }
+        .main-container { flex:1; padding:30px 20px; max-width:800px; margin:0 auto; width:100%; }
+        .tabs { display:flex; gap:10px; margin-bottom:30px; }
+        .tab-btn {
+            flex:1; padding:12px; text-align:center; font-weight:600; border:1px solid var(--border-glass);
+            background:var(--bg-glass); color:var(--text-light); border-radius:12px; cursor:pointer;
+        }
+        .tab-btn.active { background:rgba(110,231,183,0.25); border-color:var(--green-light); }
+        .tab-content { display:none; background:var(--bg-glass); backdrop-filter:blur(15px); border:1px solid var(--border-glass); border-radius:25px; padding:30px; }
+        .tab-content.active { display:block; }
+        .form-group { margin-bottom:20px; }
+        .form-group label { display:block; margin-bottom:8px; font-weight:600; }
+        .form-group input, .form-group select, .form-group textarea {
+            width:100%; padding:12px 15px; border-radius:12px; background:rgba(255,255,255,0.1);
+            border:1px solid var(--border-glass); color:white; font-size:1rem; outline:none;
+        }
+        .btn-submit {
+            width:100%; padding:14px; font-weight:700; color:var(--green-dark); background:white;
+            border:none; border-radius:50px; cursor:pointer; margin-top:15px;
+        }
+        .error-message { color:#fca5a5; font-size:0.85rem; margin-top:5px; display:none; }
+        .back-link { color:var(--green-light); text-decoration:none; margin-bottom:20px; display:inline-block; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span class="emerald-text">Market</span><span class="blue-text">Hub</span></div>
+        <a href="dashboard.html" class="btn-outline-light">العودة للوحة التحكم</a>
+    </nav>
+
+    <div class="main-container">
+        <a href="dashboard.html" class="back-link">← العودة</a>
+        <h1 style="margin-bottom:20px;">إنشاء عرض جديد</h1>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="clothing">👕 ثياب</button>
+            <button class="tab-btn" data-tab="food">🍔 طعام</button>
+        </div>
+
+        <!-- تبويب الثياب -->
+        <div id="clothing-tab" class="tab-content active">
+            <form id="clothingForm">
+                <div class="form-group"><label>صورة المنتج</label><input type="file" name="image" accept="image/*" required></div>
+                <div class="form-group"><label>المقاس</label>
+                    <select name="size" required>
+                        <option value="">اختر المقاس</option>
+                        <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>نوع القطعة</label>
+                    <select name="type" required>
+                        <option value="">اختر النوع</option>
+                        <option>بنطال</option><option>كنزة</option><option>جاكيت</option><option>حذاء</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>الألوان المتوفرة</label><input type="text" name="colors" placeholder="أحمر، أزرق"></div>
+                <div class="form-group"><label>السعر ($)</label><input type="number" name="price" step="0.01" required></div>
+                <div class="form-group"><label>وصف (اختياري)</label><textarea name="description"></textarea></div>
+                <button type="submit" class="btn-submit">إضافة منتج</button>
+                <div id="clothingError" class="error-message"></div>
+            </form>
+        </div>
+
+        <!-- تبويب الطعام -->
+        <div id="food-tab" class="tab-content">
+            <form id="foodForm">
+                <div class="form-group"><label>صورة الطبق</label><input type="file" name="image" accept="image/*" required></div>
+                <div class="form-group"><label>اسم الطبق</label><input type="text" name="name" required></div>
+                <div class="form-group"><label>الوصف</label><textarea name="description"></textarea></div>
+                <div class="form-group"><label>الفئة</label>
+                    <select name="category" required>
+                        <option value="">اختر</option>
+                        <option>وجبات سريعة</option><option>حلويات</option><option>مشروبات</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>السعر ($)</label><input type="number" name="price" step="0.01" required></div>
+                <button type="submit" class="btn-submit">إضافة منتج</button>
+                <div id="foodError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // تبويبات
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+
+        // دالة مساعدة لإرسال النموذج
+        async function submitProduct(formId, category) {
+            const form = document.getElementById(formId);
+            const errorEl = document.getElementById(category + 'Error');
+            const formData = new FormData(form);
+            formData.append('category', category);
+
+            try {
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    errorEl.textContent = data.message || 'فشل الإضافة';
+                    errorEl.style.display = 'block';
+                } else {
+                    alert('تم إضافة المنتج بنجاح');
+                    form.reset();
+                    errorEl.style.display = 'none';
+                }
+            } catch (err) {
+                errorEl.textContent = 'خطأ في الاتصال';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        document.getElementById('clothingForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            submitProduct('clothingForm', 'clothing');
+        });
+
+        document.getElementById('foodForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            submitProduct('foodForm', 'food');
+        });
+    </script>
+</body>
+</html>
