@@ -3,6 +3,7 @@
 // يعمل على Railway مع PostgreSQL كخدمة مرتبطة
 // تم تعطيل SSL للاتصال الداخلي (sslmode=disable)
 // مع إنشاء حساب الأدمن الثابت تلقائياً
+// وصلاحيات الأدمن الموسعة (إضافة/حذف إعلانات عامة)
 // ============================================================
 
 const express = require('express');
@@ -133,6 +134,16 @@ async function createTables() {
         added_by UUID REFERENCES users(id),
         created_at TIMESTAMP DEFAULT NOW()
       );
+
+      -- جدول الإعلانات العامة التي ينشئها الأدمن (بدون منتج محدد)
+      CREATE TABLE IF NOT EXISTS admin_banners (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        image VARCHAR(255),
+        added_by UUID REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT NOW()
+      );
     `);
     console.log('✅ جداول قاعدة البيانات جاهزة');
   } finally {
@@ -153,7 +164,6 @@ async function createAdminUser() {
       );
       console.log('✅ تم إنشاء حساب الأدمن: MHDADMIN123');
     } else {
-      // تأكد من أن الحساب مفعل ودوره admin
       await pool.query("UPDATE users SET verified = true, role = 'admin' WHERE username = 'MHDADMIN123'");
       console.log('✅ حساب الأدمن موجود وجاهز');
     }
@@ -273,7 +283,6 @@ app.post('/api/auth/login', async (req, res) => {
     });
 
     const { password: _, refresh_token: __, verification_code: ___, ...safeUser } = user;
-    // إعادة توجيه الأدمن مباشرة إلى admin.html
     const redirectUrl = user.role === 'admin' ? '/admin.html' : '/dashboard.html';
     res.json({ ...safeUser, accessToken, redirect: redirectUrl });
   } catch (err) {
@@ -469,6 +478,7 @@ app.delete('/api/locations/:id', authenticate, sellerOnly, async (req, res) => {
 });
 
 // ====================== [7] العروض المميزة (أدمن) ======================
+// إضافة منتج مميز
 app.post('/api/admin/featured', authenticate, adminOnly, async (req, res) => {
   const { productId } = req.body;
   if (!productId) return res.status(400).json({ message: 'معرف المنتج مطلوب' });
@@ -480,19 +490,51 @@ app.post('/api/admin/featured', authenticate, adminOnly, async (req, res) => {
   res.status(201).json({ message: 'تمت إضافة المنتج إلى المميزة' });
 });
 
+// عرض كل المميز (منتجات + إعلانات عامة)
 app.get('/api/featured', async (req, res) => {
-  const result = await pool.query(
+  // المنتجات المميزة
+  const productFeatured = await pool.query(
     `SELECT f.id as feature_id, p.*, u.store_name, u.contact_phone, u.store_image
      FROM featured_offers f
      JOIN products p ON f.product_id = p.id
      JOIN users u ON p.seller_id = u.id`
   );
-  res.json(result.rows);
+  // الإعلانات العامة
+  const banners = await pool.query('SELECT * FROM admin_banners ORDER BY created_at DESC');
+  res.json({
+    products: productFeatured.rows,
+    banners: banners.rows
+  });
 });
 
+// حذف منتج مميز
 app.delete('/api/admin/featured/:id', authenticate, adminOnly, async (req, res) => {
   await pool.query('DELETE FROM featured_offers WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم إزالة التمييز' });
+});
+
+// ---------- الصلاحيات الجديدة: إدارة الإعلانات العامة ----------
+
+// إنشاء إعلان عام (بدون منتج)
+app.post('/api/admin/banners', authenticate, adminOnly, upload.single('image'), async (req, res) => {
+  const { title, description } = req.body;
+  if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
+  let imageUrl = null;
+  if (req.file) {
+    const result = await uploadToCloudinary(req.file.buffer);
+    imageUrl = result.secure_url;
+  }
+  const banner = await pool.query(
+    'INSERT INTO admin_banners (title, description, image, added_by) VALUES ($1,$2,$3,$4) RETURNING *',
+    [title, description || null, imageUrl, req.user.id]
+  );
+  res.status(201).json(banner.rows[0]);
+});
+
+// حذف إعلان عام
+app.delete('/api/admin/banners/:id', authenticate, adminOnly, async (req, res) => {
+  await pool.query('DELETE FROM admin_banners WHERE id = $1', [req.params.id]);
+  res.json({ message: 'تم حذف الإعلان' });
 });
 
 // ====================== [8] البحث ======================
@@ -526,7 +568,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 MarketHub يعمل على المنفذ ${PORT}`);
   try {
     await createTables();
-    await createAdminUser();  // إنشاء الأدمن تلقائياً
+    await createAdminUser();
   } catch (err) {
     console.error('خطأ في التهيئة:', err);
   }
