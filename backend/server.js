@@ -3,6 +3,7 @@
 // النسخة النهائية الكاملة: هاتف + تيليجرام فقط
 // جميع المسارات موجودة دون أي اختصار
 // معالجة شاملة للأخطاء، إصلاح 502، معالجة UnhandledPromiseRejection
+// فحص إعدادات Cloudinary عند بدء التشغيل
 // ============================================================
 
 const express = require('express');
@@ -22,12 +23,21 @@ const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'change-me-too';
 
-// ---------- Cloudinary ----------
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+// ---------- فحص إعدادات Cloudinary ----------
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.error('❌ خطأ في إعدادات Cloudinary. تأكد من وجود المتغيرات التالية:');
+  console.error('   - CLOUDINARY_CLOUD_NAME');
+  console.error('   - CLOUDINARY_API_KEY');
+  console.error('   - CLOUDINARY_API_SECRET');
+  console.error('   سيتم تعطيل رفع الصور.');
+} else {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+  console.log('✅ إعدادات Cloudinary صحيحة');
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -61,7 +71,6 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
   bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
   console.log('✅ بوت تيليجرام يعمل');
 
-  // معالجة خطأ 409 Conflict تلقائياً
   bot.on('polling_error', (error) => {
     if (error.code === 'ETELEGRAM' && error.message.includes('409 Conflict')) {
       console.warn('⚠️ تعارض في البوت (409 Conflict). سيتم إيقاف وإعادة تشغيل البولينج...');
@@ -175,7 +184,6 @@ async function createTables() {
       );
     `);
 
-    // إضافة الأعمدة الجديدة إن لم تكن موجودة
     const alterQueries = [
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires TIMESTAMP`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(50)`,
@@ -530,6 +538,11 @@ app.post('/api/admin/banners', authenticate, adminOnly, upload.single('image'), 
   try {
     const { title, description } = req.body;
     if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
+
+    // التحقق من أن Cloudinary مهيأ قبل الرفع
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return res.status(500).json({ message: 'إعدادات Cloudinary غير مكتملة. راجع المتغيرات في Railway.' });
+    }
 
     let imageUrl = null;
     if (req.file) {
