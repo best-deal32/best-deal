@@ -3,79 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء حساب - MarketHub</title>
+    <title>إنشاء حساب - سلة</title>
     <style>
-        /* نفس التصميم السابق */
         :root {
-            --green-dark: #059669; --green-light: #6ee7b7;
-            --blue-dark: #1e40af; --blue-light: #93c5fd;
-            --white: #ffffff; --text-light: #f0fdf4;
+            --bg-dark: #0d0d0d;
+            --bg-card: #1a1a1a;
+            --gold: #d4af37;
+            --gold-light: #f1c40f;
+            --text: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border: #333;
+            --input-bg: #222;
+            --radius: 20px;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, var(--green-dark) 0%, var(--blue-dark) 100%);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; color: var(--white);
+            background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text);
         }
         .register-card {
-            background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(15px);
-            border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            max-width: 480px; width: 100%; padding: 40px 30px;
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.15);
+            max-width: 480px;
+            width: 100%;
+            padding: 40px 30px;
         }
-        h1 { text-align: center; font-size: 2.5rem; font-weight: 700; margin-bottom: 10px; }
-        h1 .emerald-text { color: var(--green-light); } h1 .blue-text { color: var(--blue-light); }
-        .subtitle { text-align: center; color: rgba(255, 255, 255, 0.8); margin-bottom: 25px; }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-light); }
+        .basket-logo {
+            font-size: 3.5rem;
+            filter: drop-shadow(0 0 10px var(--gold-light));
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gold);
+        }
         .form-group input {
-            width: 100%; padding: 12px 16px; border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px; background: rgba(255, 255, 255, 0.1); color: var(--white);
-            font-size: 1rem; outline: none;
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
         }
-        .form-group input:focus { border-color: var(--green-light); background: rgba(255,255,255,0.15); }
+        .form-group input::placeholder { color: var(--text-muted); }
+        .form-group input:focus { border-color: var(--gold); background: #2a2a2a; }
         .btn-register {
-            width: 100%; padding: 14px; font-size: 1.1rem; font-weight: 700; color: var(--green-dark);
-            background-color: var(--white); border: none; border-radius: 50px; cursor: pointer;
-            margin-top: 10px; margin-bottom: 20px; transition:0.3s;
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #000;
+            background-color: var(--gold);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+            margin-top: 10px;
+            margin-bottom: 20px;
         }
-        .btn-register:hover { background-color: #ecfdf5; transform: translateY(-2px); }
-        .extra-links { text-align: center; font-size: 0.9rem; }
-        .extra-links a { color: var(--green-light); text-decoration: none; }
-        .error-message { color: #fca5a5; font-size: 0.85rem; margin-top: 5px; display: none; }
-        .back-home { display: block; text-align: center; margin-top: 25px; color: rgba(255,255,255,0.65); font-size: 0.9rem; text-decoration: none; }
+        .btn-register:hover { background-color: var(--gold-light); transform: translateY(-2px); }
+        .extra-links {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .extra-links a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .extra-links a:hover { text-decoration: underline; }
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        .back-home:hover { color: var(--gold); }
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        .success-message {
+            color: #2ecc71;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="register-card">
-        <h1><span class="emerald-text">Market</span><span class="blue-text">Hub</span></h1>
-        <p class="subtitle">أنشئ حسابك الآن</p>
+        <div class="basket-logo">🧺</div>
+        <h1>سلة</h1>
+        <p class="subtitle">أنشئ حسابك وابدأ في عرض منتجاتك</p>
+
         <form id="registerForm">
             <div class="form-group">
-                <label for="username">اسم المستخدم *</label>
-                <input type="text" id="username" required>
+                <label for="username">اسم المستخدم</label>
+                <input type="text" id="username" placeholder="اختر اسم مستخدم فريد" required>
             </div>
             <div class="form-group">
-                <label for="storeName">اسم المتجر *</label>
-                <input type="text" id="storeName" required>
-            </div>
-            <div class="form-group">
-                <label for="email">البريد الإلكتروني</label>
-                <input type="email" id="email" placeholder="اختياري إذا تم إدخال الهاتف">
+                <label for="storeName">اسم المتجر</label>
+                <input type="text" id="storeName" placeholder="اسم متجرك أو علامتك التجارية">
             </div>
             <div class="form-group">
                 <label for="phone">رقم الهاتف</label>
-                <input type="tel" id="phone" placeholder="اختياري إذا تم إدخال البريد">
+                <input type="tel" id="phone" placeholder="مثال: 0999123456" required>
+                <div class="error-message" id="phoneError">يرجى إدخال رقم الهاتف</div>
             </div>
             <div class="form-group">
-                <label for="password">كلمة المرور *</label>
-                <input type="password" id="password" required>
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" placeholder="********" required>
             </div>
             <div class="form-group">
-                <label for="confirmPassword">تأكيد كلمة المرور *</label>
-                <input type="password" id="confirmPassword" required>
+                <label for="confirmPassword">تأكيد كلمة المرور</label>
+                <input type="password" id="confirmPassword" placeholder="********" required>
+                <div class="error-message" id="passwordError">كلمتا المرور غير متطابقتين</div>
             </div>
             <div id="serverError" class="error-message" style="margin-bottom:10px;"></div>
             <button type="submit" class="btn-register">إنشاء حساب</button>
@@ -84,36 +165,34 @@
             <a href="login.html">لديك حساب؟ سجل الدخول</a>
         </div>
     </div>
-    <a href="index.html" class="back-home">← العودة للرئيسية</a>
+    <a href="index.html" class="back-home">← العودة إلى الصفحة الرئيسية</a>
 
     <script>
         const form = document.getElementById('registerForm');
         const serverError = document.getElementById('serverError');
+        const passwordError = document.getElementById('passwordError');
+        const phoneError = document.getElementById('phoneError');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            // إخفاء الرسائل السابقة
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
             serverError.style.display = 'none';
 
             const username = document.getElementById('username').value.trim();
             const storeName = document.getElementById('storeName').value.trim();
-            const email = document.getElementById('email').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value;
             const confirm = document.getElementById('confirmPassword').value;
 
-            if (!username || !storeName || !password) {
-                serverError.textContent = 'الحقول المطلوبة فارغة';
-                serverError.style.display = 'block';
-                return;
-            }
-            if (!email && !phone) {
-                serverError.textContent = 'يجب إدخال البريد الإلكتروني أو رقم الهاتف على الأقل';
+            // التحقق من الحقول
+            if (!username || !phone || !password) {
+                serverError.textContent = 'يرجى ملء جميع الحقول المطلوبة';
                 serverError.style.display = 'block';
                 return;
             }
             if (password !== confirm) {
-                serverError.textContent = 'كلمتا المرور غير متطابقتين';
-                serverError.style.display = 'block';
+                passwordError.style.display = 'block';
                 return;
             }
 
@@ -121,24 +200,34 @@
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, phone, password, storeName })
+                    body: JSON.stringify({
+                        username,
+                        phone,
+                        password,
+                        storeName: storeName || undefined
+                    })
                 });
+
                 const data = await response.json();
+
                 if (!response.ok) {
                     serverError.textContent = data.message || 'فشل التسجيل';
                     serverError.style.display = 'block';
                     return;
                 }
 
-                // تخزين بيانات التسجيل للتحقق
-                sessionStorage.setItem('verifyEmail', email || '');
-                sessionStorage.setItem('verifyPhone', phone || '');
+                // تخزين رابط تيليجرام ورقم الهاتف للتحقق
                 if (data.telegramLink) {
                     sessionStorage.setItem('telegramLink', data.telegramLink);
+                    sessionStorage.setItem('verifyPhone', phone);
                 }
+
+                // الانتقال إلى صفحة التحقق
                 window.location.href = 'verify.html';
+
             } catch (err) {
-                serverError.textContent = 'خطأ في الاتصال';
+                console.error(err);
+                serverError.textContent = 'خطأ في الاتصال بالخادم';
                 serverError.style.display = 'block';
             }
         });
