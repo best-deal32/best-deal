@@ -25,8 +25,6 @@
             display: flex;
             flex-direction: column;
         }
-
-        /* شريط علوي */
         .navbar {
             display: flex;
             align-items: center;
@@ -67,8 +65,6 @@
             font-weight: bold;
         }
         .btn-logout:hover { background: var(--gold); color: #000; }
-
-        /* محتوى رئيسي */
         .main-container {
             flex: 1;
             padding: 30px 20px;
@@ -76,8 +72,6 @@
             margin: 0 auto;
             width: 100%;
         }
-
-        /* بطاقات */
         .section {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -94,112 +88,25 @@
             align-items: center;
             gap: 10px;
         }
-
-        /* جداول */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th {
-            text-align: right;
-            color: var(--gold-light);
-            padding: 12px;
-            border-bottom: 2px solid var(--gold);
-        }
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-            color: var(--text);
-        }
-        .btn-sm {
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: right; color: var(--gold-light); padding: 12px; border-bottom: 2px solid var(--gold); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+        .btn-sm { padding: 6px 14px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-role { background: var(--gold); color: #000; }
         .btn-role:hover { background: var(--gold-light); }
         .btn-delete { background: var(--danger); color: white; }
         .btn-delete:hover { background: #e74c3c; }
-        select {
-            background: #222;
-            color: var(--text);
-            border: 1px solid var(--gold);
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        /* إضافة منتج مميز */
-        .featured-form {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .featured-form input {
-            flex: 1;
-            background: #222;
-            border: 1px solid var(--border);
-            color: white;
-            padding: 12px 15px;
-            border-radius: 30px;
-        }
-        .btn-add {
-            background: var(--gold);
-            color: #000;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* إعلانات عامة */
-        .banner-form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .banner-form-grid input, .banner-form-grid textarea {
-            background: #222;
-            border: 1px solid var(--border);
-            color: white;
-            padding: 12px;
-            border-radius: 12px;
-        }
-        .banner-form-grid button {
-            grid-column: span 2;
-            background: var(--gold);
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* رسائل */
-        .message {
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            display: none;
-        }
+        select { background: #222; color: var(--text); border: 1px solid var(--gold); padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+        .featured-form { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .featured-form input { flex: 1; background: #222; border: 1px solid var(--border); color: white; padding: 12px 15px; border-radius: 30px; }
+        .btn-add { background: var(--gold); color: #000; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        .banner-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .banner-form-grid input, .banner-form-grid textarea { background: #222; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 12px; }
+        .banner-form-grid button { grid-column: span 2; background: var(--gold); color: #000; border: none; padding: 12px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        .message { padding: 10px; border-radius: 8px; margin: 10px 0; display: none; }
         .message.success { background: #2ecc71; color: white; display: block; }
         .message.error { background: #e74c3c; color: white; display: block; }
-
-        /* تذييل */
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-        }
-
+        footer { text-align: center; padding: 20px; color: var(--text-muted); border-top: 1px solid var(--border); }
         @media (max-width: 768px) {
             .navbar { flex-direction: column; gap: 10px; }
             .banner-form-grid { grid-template-columns: 1fr; }
@@ -208,7 +115,6 @@
     </style>
 </head>
 <body>
-    <!-- شريط التنقل -->
     <nav class="navbar">
         <div class="logo">
             <span class="basket-icon">🧺</span>
@@ -222,10 +128,8 @@
     </nav>
 
     <div class="main-container">
-        <!-- رسائل عامة -->
         <div id="globalMessage" class="message"></div>
 
-        <!-- إدارة المستخدمين -->
         <div class="section">
             <h2>👥 إدارة المستخدمين</h2>
             <table id="usersTable">
@@ -244,7 +148,6 @@
             </table>
         </div>
 
-        <!-- إدارة العروض المميزة -->
         <div class="section">
             <h2>⭐ إضافة منتج إلى العروض المميزة</h2>
             <div class="featured-form">
@@ -255,17 +158,14 @@
             <div id="featuredList"></div>
         </div>
 
-        <!-- إدارة الإعلانات العامة -->
         <div class="section">
             <h2>📢 إضافة إعلان عام (Banner)</h2>
-            <form id="bannerForm" enctype="multipart/form-data">
-                <div class="banner-form-grid">
-                    <input type="text" id="bannerTitle" placeholder="عنوان الإعلان" required>
-                    <input type="file" id="bannerImage" accept="image/*">
-                    <textarea id="bannerDesc" placeholder="وصف (اختياري)" rows="3"></textarea>
-                    <button type="submit" id="addBannerBtn">إضافة الإعلان</button>
-                </div>
-            </form>
+            <div class="banner-form-grid">
+                <input type="text" id="bannerTitle" placeholder="عنوان الإعلان" required>
+                <input type="file" id="bannerImage" accept="image/*">
+                <textarea id="bannerDesc" placeholder="وصف (اختياري)" rows="3"></textarea>
+                <button type="button" id="addBannerBtn">إضافة الإعلان</button>
+            </div>
             <h3>الإعلانات الحالية</h3>
             <div id="bannersList"></div>
         </div>
@@ -274,7 +174,7 @@
     <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
 
     <script>
-        // التحقق من الأدمن
+        // التحقق من صلاحية الأدمن
         async function checkAdmin() {
             try {
                 const res = await fetch('/api/auth/me', { credentials: 'include' });
@@ -283,7 +183,6 @@
                 if (user.role !== 'admin') { window.location.href = 'dashboard.html'; }
             } catch (e) { window.location.href = 'login.html'; }
         }
-        checkAdmin();
 
         // ---------- المستخدمين ----------
         async function loadUsers() {
@@ -397,8 +296,7 @@
             `).join('');
         }
 
-        async function addBanner(e) {
-            e.preventDefault();
+        async function addBanner() {
             const title = document.getElementById('bannerTitle').value.trim();
             const desc = document.getElementById('bannerDesc').value.trim();
             const fileInput = document.getElementById('bannerImage');
@@ -433,7 +331,6 @@
             loadBanners();
         }
 
-        // ---------- دوال مساعدة ----------
         function showMessage(msg, type) {
             const el = document.getElementById('globalMessage');
             el.textContent = msg;
@@ -441,19 +338,22 @@
             setTimeout(() => { el.className = 'message'; }, 3000);
         }
 
-        // ربط الأزرار
-        document.getElementById('addFeaturedBtn').addEventListener('click', addFeatured);
-        document.getElementById('bannerForm').addEventListener('submit', addBanner);
-        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-            window.location.href = 'index.html';
-        });
+        // ربط الأحداث بعد تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdmin();
 
-        // تحميل البيانات الأولية
-        loadUsers();
-        loadFeatured();
-        loadBanners();
+            document.getElementById('addFeaturedBtn').addEventListener('click', addFeatured);
+            document.getElementById('addBannerBtn').addEventListener('click', addBanner);
+            document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                window.location.href = 'index.html';
+            });
+
+            loadUsers();
+            loadFeatured();
+            loadBanners();
+        });
     </script>
 </body>
 </html>
