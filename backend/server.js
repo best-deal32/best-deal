@@ -1,8 +1,8 @@
 // ============================================================
 // server.js - سلة (Express + PostgreSQL + Telegram Bot)
 // النسخة النهائية الكاملة: هاتف + تيليجرام فقط
-// معالجة خطأ 409 Conflict للبوت تلقائياً
 // جميع المسارات موجودة دون أي اختصار
+// معالجة شاملة للأخطاء، إصلاح 502، معالجة UnhandledPromiseRejection
 // ============================================================
 
 const express = require('express');
@@ -55,18 +55,19 @@ if (dbUrl === process.env.DATABASE_URL) {
 }
 const pool = new Pool({ connectionString: dbUrl, ssl: false });
 
-// ---------- تيليجرام (البوت) مع معالجة 409 Conflict ----------
+// ---------- تيليجرام (البوت) مع معالجة خطأ 409 ----------
 let bot = null;
 if (process.env.TELEGRAM_BOT_TOKEN) {
   bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
   console.log('✅ بوت تيليجرام يعمل');
 
+  // معالجة خطأ 409 Conflict تلقائياً
   bot.on('polling_error', (error) => {
     if (error.code === 'ETELEGRAM' && error.message.includes('409 Conflict')) {
-      console.warn('تعارض في البوت، سيتم إيقاف وإعادة تشغيل البولينج...');
-      bot.stopPolling().then(() => {
-        setTimeout(() => bot.startPolling(), 2000);
-      });
+      console.warn('⚠️ تعارض في البوت (409 Conflict). سيتم إيقاف وإعادة تشغيل البولينج...');
+      bot.stopPolling().then(() => setTimeout(() => bot.startPolling(), 2000));
+    } else {
+      console.error('خطأ في البولينج:', error);
     }
   });
 
@@ -174,6 +175,7 @@ async function createTables() {
       );
     `);
 
+    // إضافة الأعمدة الجديدة إن لم تكن موجودة
     const alterQueries = [
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires TIMESTAMP`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(50)`,
@@ -525,18 +527,30 @@ app.delete('/api/admin/featured/:id', authenticate, adminOnly, async (req, res) 
 // ====================== الإعلانات العامة (أدمن) ======================
 
 app.post('/api/admin/banners', authenticate, adminOnly, upload.single('image'), async (req, res) => {
-  const { title, description } = req.body;
-  if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
-  let imageUrl = null;
-  if (req.file) {
-    const result = await uploadToCloudinary(req.file.buffer);
-    imageUrl = result.secure_url;
+  try {
+    const { title, description } = req.body;
+    if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
+
+    let imageUrl = null;
+    if (req.file) {
+      try {
+        const result = await uploadToCloudinary(req.file.buffer);
+        imageUrl = result.secure_url;
+      } catch (cloudErr) {
+        console.error('فشل رفع الصورة إلى Cloudinary:', cloudErr);
+        return res.status(500).json({ message: 'فشل رفع الصورة. تحقق من إعدادات Cloudinary.' });
+      }
+    }
+
+    const banner = await pool.query(
+      'INSERT INTO admin_banners (title, description, image, added_by) VALUES ($1,$2,$3,$4) RETURNING *',
+      [title, description || null, imageUrl, req.user.id]
+    );
+    res.status(201).json(banner.rows[0]);
+  } catch (err) {
+    console.error('خطأ في إضافة الإعلان:', err);
+    res.status(500).json({ message: 'خطأ في الخادم أثناء إضافة الإعلان.' });
   }
-  const banner = await pool.query(
-    'INSERT INTO admin_banners (title, description, image, added_by) VALUES ($1,$2,$3,$4) RETURNING *',
-    [title, description || null, imageUrl, req.user.id]
-  );
-  res.status(201).json(banner.rows[0]);
 });
 
 app.delete('/api/admin/banners/:id', authenticate, adminOnly, async (req, res) => {
@@ -572,7 +586,6 @@ app.put('/api/admin/user/:id', authenticate, adminOnly, async (req, res) => {
   res.json({ message: 'تم تحديث الدور' });
 });
 
-// حذف مستخدم (يمنع حذف الأدمن)
 app.delete('/api/admin/user/:id', authenticate, adminOnly, async (req, res) => {
   try {
     const result = await pool.query('DELETE FROM users WHERE id = $1 AND role != $2', [req.params.id, 'admin']);
@@ -581,11 +594,19 @@ app.delete('/api/admin/user/:id', authenticate, adminOnly, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ message: 'خطأ أثناء الحذف' }); }
 });
 
+// ---------- معالجة شاملة للرفض غير المعالج ----------
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Promise Rejection:', reason);
+});
+
 // ---------- بدء الخادم ----------
 (async () => {
   try {
     await createTables();
     await createAdminUser();
     app.listen(PORT, '0.0.0.0', () => console.log(`🚀 سلة تعمل على المنفذ ${PORT}`));
-  } catch (err) { console.error('فشل بدء الخادم:', err); process.exit(1); }
+  } catch (err) {
+    console.error('فشل بدء الخادم:', err);
+    process.exit(1);
+  }
 })();
