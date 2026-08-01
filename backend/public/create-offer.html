@@ -3,129 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء عرض - MarketHub</title>
+    <title>إنشاء عرض - سلة</title>
     <style>
-        /* تصميم مشابه للـ dashboard */
         :root {
-            --green-dark: #059669; --green-light: #6ee7b7;
-            --blue-dark: #1e40af; --blue-light: #93c5fd;
-            --white: #ffffff; --bg-glass: rgba(255, 255, 255, 0.1);
-            --border-glass: rgba(255, 255, 255, 0.25);
+            --bg-dark: #0d0d0d;
+            --bg-card: #1a1a1a;
+            --gold: #d4af37;
+            --gold-light: #f1c40f;
+            --text: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border: #333;
+            --radius: 16px;
+            --input-bg: #222;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #065f46 0%, #1e3a8a 100%);
-            min-height: 100vh; color: var(--white); display: flex; flex-direction: column;
+            background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+
+        /* شريط علوي */
         .navbar {
-            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-glass); padding: 15px 30px;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--gold);
+            padding: 15px 30px;
         }
-        .logo { font-size: 1.8rem; font-weight: 800; }
-        .logo .emerald-text { color: var(--green-light); } .logo .blue-text { color: var(--blue-light); }
-        .btn-outline-light {
-            border: 1px solid rgba(255,255,255,0.5); background: transparent; color: white;
-            padding: 8px 20px; border-radius: 30px; text-decoration: none;
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
         }
-        .main-container { flex:1; padding:30px 20px; max-width:800px; margin:0 auto; width:100%; }
-        .tabs { display:flex; gap:10px; margin-bottom:30px; }
+        .logo .basket-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 6px var(--gold-light));
+        }
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .nav-links a:hover { color: var(--gold); }
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .btn-logout:hover { background: var(--gold); color: #000; }
+
+        /* محتوى رئيسي */
+        .main-container {
+            flex: 1;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .back-link {
+            color: var(--gold);
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        h1 {
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-desc {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        /* تبويبات */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
         .tab-btn {
-            flex:1; padding:12px; text-align:center; font-weight:600; border:1px solid var(--border-glass);
-            background:var(--bg-glass); color:var(--text-light); border-radius:12px; cursor:pointer;
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
         }
-        .tab-btn.active { background:rgba(110,231,183,0.25); border-color:var(--green-light); }
-        .tab-content { display:none; background:var(--bg-glass); backdrop-filter:blur(15px); border:1px solid var(--border-glass); border-radius:25px; padding:30px; }
-        .tab-content.active { display:block; }
-        .form-group { margin-bottom:20px; }
-        .form-group label { display:block; margin-bottom:8px; font-weight:600; }
-        .form-group input, .form-group select, .form-group textarea {
-            width:100%; padding:12px 15px; border-radius:12px; background:rgba(255,255,255,0.1);
-            border:1px solid var(--border-glass); color:white; font-size:1rem; outline:none;
+        .tab-btn.active {
+            background: var(--gold);
+            color: #000;
+            border-color: var(--gold-light);
+            box-shadow: 0 0 15px rgba(212,175,55,0.3);
         }
+
+        .tab-content {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+        .tab-content.active { display: block; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--gold);
+            background: #2a2a2a;
+        }
+        .form-group input[type="file"] {
+            padding: 10px;
+        }
+        .form-group select option {
+            background: #1a1a1a;
+            color: var(--text);
+        }
+
         .btn-submit {
-            width:100%; padding:14px; font-weight:700; color:var(--green-dark); background:white;
-            border:none; border-radius:50px; cursor:pointer; margin-top:15px;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #000;
+            background: var(--gold);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+            margin-top: 20px;
         }
-        .error-message { color:#fca5a5; font-size:0.85rem; margin-top:5px; display:none; }
-        .back-link { color:var(--green-light); text-decoration:none; margin-bottom:20px; display:inline-block; }
+        .btn-submit:hover {
+            background: var(--gold-light);
+            box-shadow: 0 6px 20px rgba(241,196,15,0.4);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 500px) {
+            .tabs { flex-direction: column; }
+            .navbar { flex-direction: column; gap: 10px; }
+        }
     </style>
 </head>
 <body>
+    <!-- الشريط العلوي -->
     <nav class="navbar">
-        <div class="logo"><span class="emerald-text">Market</span><span class="blue-text">Hub</span></div>
-        <a href="dashboard.html" class="btn-outline-light">العودة للوحة التحكم</a>
+        <a href="dashboard.html" class="logo">
+            <span class="basket-icon">🧺</span>
+            <span>سلة</span>
+        </a>
+        <div class="nav-links">
+            <a href="dashboard.html">الرئيسية</a>
+            <a href="offers.html">العروض</a>
+            <a href="profile.html">ملفي</a>
+            <button class="btn-logout" id="logoutBtn">تسجيل الخروج</button>
+        </div>
     </nav>
 
     <div class="main-container">
-        <a href="dashboard.html" class="back-link">← العودة</a>
-        <h1 style="margin-bottom:20px;">إنشاء عرض جديد</h1>
+        <a href="dashboard.html" class="back-link">← العودة إلى الرئيسية</a>
+        <h1>➕ إنشاء عرض جديد</h1>
+        <p class="page-desc">املأ البيانات لإضافة منتج إلى متجرك</p>
+
+        <!-- أزرار التبويب -->
         <div class="tabs">
-            <button class="tab-btn active" data-tab="clothing">👕 ثياب</button>
-            <button class="tab-btn" data-tab="food">🍔 طعام</button>
+            <button class="tab-btn active" onclick="switchTab('clothing')">👕 ثياب</button>
+            <button class="tab-btn" onclick="switchTab('food')">🍔 طعام</button>
         </div>
 
         <!-- تبويب الثياب -->
         <div id="clothing-tab" class="tab-content active">
             <form id="clothingForm">
-                <div class="form-group"><label>صورة المنتج</label><input type="file" name="image" accept="image/*" required></div>
-                <div class="form-group"><label>المقاس</label>
+                <div class="form-group">
+                    <label>📷 صورة المنتج</label>
+                    <input type="file" name="image" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label>📏 المقاس</label>
                     <select name="size" required>
                         <option value="">اختر المقاس</option>
                         <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option>
+                        <option>XXL</option><option>3XL</option><option>4XL</option>
                     </select>
                 </div>
-                <div class="form-group"><label>نوع القطعة</label>
+                <div class="form-group">
+                    <label>👚 نوع القطعة</label>
                     <select name="type" required>
                         <option value="">اختر النوع</option>
                         <option>بنطال</option><option>كنزة</option><option>جاكيت</option><option>حذاء</option>
+                        <option>قميص</option><option>تي شيرت</option><option>فستان</option>
+                        <option>تنورة</option><option>معطف</option><option>بدلة</option>
                     </select>
                 </div>
-                <div class="form-group"><label>الألوان المتوفرة</label><input type="text" name="colors" placeholder="أحمر، أزرق"></div>
-                <div class="form-group"><label>السعر ($)</label><input type="number" name="price" step="0.01" required></div>
-                <div class="form-group"><label>وصف (اختياري)</label><textarea name="description"></textarea></div>
-                <button type="submit" class="btn-submit">إضافة منتج</button>
-                <div id="clothingError" class="error-message"></div>
+                <div class="form-group">
+                    <label>🎨 الألوان المتوفرة</label>
+                    <input type="text" name="colors" placeholder="مثال: أحمر، أزرق، أسود" required>
+                </div>
+                <div class="form-group">
+                    <label>💰 السعر (بالدولار)</label>
+                    <input type="number" name="price" min="1" step="0.01" placeholder="أدخل السعر" required>
+                </div>
+                <div class="form-group">
+                    <label>📝 وصف (اختياري)</label>
+                    <textarea name="description" rows="3" placeholder="تفاصيل إضافية عن المنتج"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">إضافة عرض الثياب</button>
+                <div id="clothingError" class="error-message">يرجى ملء جميع الحقول المطلوبة</div>
             </form>
         </div>
 
         <!-- تبويب الطعام -->
         <div id="food-tab" class="tab-content">
             <form id="foodForm">
-                <div class="form-group"><label>صورة الطبق</label><input type="file" name="image" accept="image/*" required></div>
-                <div class="form-group"><label>اسم الطبق</label><input type="text" name="name" required></div>
-                <div class="form-group"><label>الوصف</label><textarea name="description"></textarea></div>
-                <div class="form-group"><label>الفئة</label>
+                <div class="form-group">
+                    <label>📷 صورة الطبق</label>
+                    <input type="file" name="image" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label>🍽️ اسم الطبق</label>
+                    <input type="text" name="name" placeholder="أدخل اسم الطبق" required>
+                </div>
+                <div class="form-group">
+                    <label>📋 الفئة</label>
                     <select name="category" required>
-                        <option value="">اختر</option>
-                        <option>وجبات سريعة</option><option>حلويات</option><option>مشروبات</option>
+                        <option value="">اختر الفئة</option>
+                        <option>وجبات سريعة</option><option>مأكولات بحرية</option>
+                        <option>حلويات</option><option>مشروبات</option><option>معجنات</option>
+                        <option>وجبات منزلية</option>
                     </select>
                 </div>
-                <div class="form-group"><label>السعر ($)</label><input type="number" name="price" step="0.01" required></div>
-                <button type="submit" class="btn-submit">إضافة منتج</button>
-                <div id="foodError" class="error-message"></div>
+                <div class="form-group">
+                    <label>💰 السعر (بالدولار)</label>
+                    <input type="number" name="price" min="1" step="0.01" placeholder="أدخل السعر" required>
+                </div>
+                <div class="form-group">
+                    <label>📝 وصف</label>
+                    <textarea name="description" rows="3" placeholder="وصف مختصر للمكونات أو المذاق"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">إضافة عرض الطعام</button>
+                <div id="foodError" class="error-message">يرجى ملء جميع الحقول المطلوبة</div>
             </form>
         </div>
     </div>
 
-    <script>
-        // تبويبات
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
-            });
-        });
+    <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
 
-        // دالة مساعدة لإرسال النموذج
+    <script>
+        // التحقق من تسجيل الدخول كبائع
+        async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth/me', { credentials: 'include' });
+                if (!res.ok) { window.location.href = 'login.html'; return; }
+                const user = await res.json();
+                if (user.role !== 'seller' && user.role !== 'admin') {
+                    alert('يجب أن تكون بائعاً لإضافة منتجات.');
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (e) { window.location.href = 'login.html'; }
+        }
+        checkAuth();
+
+        // تبديل التبويبات
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            if (tab === 'clothing') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('clothing-tab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('food-tab').classList.add('active');
+            }
+        }
+
+        // دالة إرسال عامة
         async function submitProduct(formId, category) {
             const form = document.getElementById(formId);
-            const errorEl = document.getElementById(category + 'Error');
+            const errorEl = document.getElementById(category === 'clothing' ? 'clothingError' : 'foodError');
+            errorEl.style.display = 'none';
+
+            // جمع البيانات
             const formData = new FormData(form);
-            formData.append('category', category);
+            formData.append('category', category); // 'clothing' أو 'food'
+
+            // التحقق من الحقول المطلوبة يدوياً
+            const requiredInputs = form.querySelectorAll('[required]');
+            let valid = true;
+            requiredInputs.forEach(input => {
+                if (!input.value) valid = false;
+            });
+            if (!valid) {
+                errorEl.textContent = 'يرجى ملء جميع الحقول المطلوبة';
+                errorEl.style.display = 'block';
+                return;
+            }
 
             try {
                 const response = await fetch('/api/products', {
@@ -134,28 +376,35 @@
                     credentials: 'include'
                 });
                 const data = await response.json();
-                if (!response.ok) {
-                    errorEl.textContent = data.message || 'فشل الإضافة';
-                    errorEl.style.display = 'block';
-                } else {
-                    alert('تم إضافة المنتج بنجاح');
+                if (response.ok) {
+                    alert('تم إضافة المنتج بنجاح!');
                     form.reset();
-                    errorEl.style.display = 'none';
+                } else {
+                    errorEl.textContent = data.message || 'فشل إضافة المنتج';
+                    errorEl.style.display = 'block';
                 }
             } catch (err) {
-                errorEl.textContent = 'خطأ في الاتصال';
+                console.error(err);
+                errorEl.textContent = 'خطأ في الاتصال بالخادم';
                 errorEl.style.display = 'block';
             }
         }
 
+        // ربط النماذج
         document.getElementById('clothingForm').addEventListener('submit', (e) => {
             e.preventDefault();
             submitProduct('clothingForm', 'clothing');
         });
-
         document.getElementById('foodForm').addEventListener('submit', (e) => {
             e.preventDefault();
             submitProduct('foodForm', 'food');
+        });
+
+        // تسجيل الخروج
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = 'index.html';
         });
     </script>
 </body>
