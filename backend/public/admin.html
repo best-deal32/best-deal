@@ -159,19 +159,19 @@
         }
 
         /* إعلانات عامة */
-        .banner-form {
+        .banner-form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
-        .banner-form input, .banner-form textarea {
+        .banner-form-grid input, .banner-form-grid textarea {
             background: #222;
             border: 1px solid var(--border);
             color: white;
             padding: 12px;
             border-radius: 12px;
         }
-        .banner-form button {
+        .banner-form-grid button {
             grid-column: span 2;
             background: var(--gold);
             color: #000;
@@ -202,8 +202,8 @@
 
         @media (max-width: 768px) {
             .navbar { flex-direction: column; gap: 10px; }
-            .banner-form { grid-template-columns: 1fr; }
-            .banner-form button { grid-column: 1; }
+            .banner-form-grid { grid-template-columns: 1fr; }
+            .banner-form-grid button { grid-column: 1; }
         }
     </style>
 </head>
@@ -258,12 +258,14 @@
         <!-- إدارة الإعلانات العامة -->
         <div class="section">
             <h2>📢 إضافة إعلان عام (Banner)</h2>
-            <div class="banner-form" id="bannerForm">
-                <input type="text" id="bannerTitle" placeholder="عنوان الإعلان" required>
-                <input type="file" id="bannerImage" accept="image/*">
-                <textarea id="bannerDesc" placeholder="وصف (اختياري)" rows="3"></textarea>
-                <button type="button" id="addBannerBtn">إضافة الإعلان</button>
-            </div>
+            <form id="bannerForm" enctype="multipart/form-data">
+                <div class="banner-form-grid">
+                    <input type="text" id="bannerTitle" placeholder="عنوان الإعلان" required>
+                    <input type="file" id="bannerImage" accept="image/*">
+                    <textarea id="bannerDesc" placeholder="وصف (اختياري)" rows="3"></textarea>
+                    <button type="submit" id="addBannerBtn">إضافة الإعلان</button>
+                </div>
+            </form>
             <h3>الإعلانات الحالية</h3>
             <div id="bannersList"></div>
         </div>
@@ -293,7 +295,7 @@
                     <td>${u.username}</td>
                     <td>${u.phone || '—'}</td>
                     <td>
-                        <select onchange="changeRole('${u.id}', this.value)" data-original="${u.role}">
+                        <select onchange="changeRole('${u.id}', this.value)">
                             <option value="user" ${u.role==='user'?'selected':''}>مستخدم</option>
                             <option value="seller" ${u.role==='seller'?'selected':''}>بائع</option>
                             <option value="admin" ${u.role==='admin'?'selected':''}>أدمن</option>
@@ -322,7 +324,6 @@
 
         async function deleteUser(userId) {
             if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع.')) return;
-            // ننتظر أن يدعم السيرفر هذا المسار (سنضيفه لاحقاً)
             const res = await fetch(`/api/admin/user/${userId}`, {
                 method: 'DELETE',
                 credentials: 'include'
@@ -396,7 +397,8 @@
             `).join('');
         }
 
-        async function addBanner() {
+        async function addBanner(e) {
+            e.preventDefault();
             const title = document.getElementById('bannerTitle').value.trim();
             const desc = document.getElementById('bannerDesc').value.trim();
             const fileInput = document.getElementById('bannerImage');
@@ -405,20 +407,24 @@
             if (desc) formData.append('description', desc);
             if (fileInput.files[0]) formData.append('image', fileInput.files[0]);
 
-            const res = await fetch('/api/admin/banners', {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            });
-            if (res.ok) {
-                document.getElementById('bannerTitle').value = '';
-                document.getElementById('bannerDesc').value = '';
-                fileInput.value = '';
-                loadBanners();
-                showMessage('تم إضافة الإعلان', 'success');
-            } else {
-                const data = await res.json();
-                showMessage(data.message || 'خطأ', 'error');
+            try {
+                const res = await fetch('/api/admin/banners', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    document.getElementById('bannerTitle').value = '';
+                    document.getElementById('bannerDesc').value = '';
+                    fileInput.value = '';
+                    loadBanners();
+                    showMessage('تم إضافة الإعلان', 'success');
+                } else {
+                    const data = await res.json();
+                    showMessage(data.message || 'خطأ في الإضافة', 'error');
+                }
+            } catch (err) {
+                showMessage('فشل الاتصال بالخادم', 'error');
             }
         }
 
@@ -437,7 +443,7 @@
 
         // ربط الأزرار
         document.getElementById('addFeaturedBtn').addEventListener('click', addFeatured);
-        document.getElementById('addBannerBtn').addEventListener('click', addBanner);
+        document.getElementById('bannerForm').addEventListener('submit', addBanner);
         document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
             await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
