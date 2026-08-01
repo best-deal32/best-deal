@@ -174,7 +174,6 @@
     <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
 
     <script>
-        // دالة عامة لعرض الرسائل
         function showMessage(msg, type) {
             const el = document.getElementById('globalMessage');
             el.textContent = msg;
@@ -182,54 +181,39 @@
             setTimeout(() => { el.className = 'message'; }, 3000);
         }
 
-        // التحقق من صلاحية الأدمن
         async function checkAdmin() {
             try {
                 const res = await fetch('/api/auth/me', { credentials: 'include' });
-                if (!res.ok) {
-                    window.location.href = 'login.html';
-                    return false;
-                }
+                if (!res.ok) { window.location.href = 'login.html'; return false; }
                 const user = await res.json();
-                if (user.role !== 'admin') {
-                    window.location.href = 'dashboard.html';
-                    return false;
-                }
+                if (user.role !== 'admin') { window.location.href = 'dashboard.html'; return false; }
                 return true;
-            } catch (e) {
-                window.location.href = 'login.html';
-                return false;
-            }
+            } catch (e) { window.location.href = 'login.html'; return false; }
         }
 
-        // ---------- المستخدمين ----------
         async function loadUsers() {
-            try {
-                const res = await fetch('/api/admin/users', { credentials: 'include' });
-                const users = await res.json();
-                const tbody = document.querySelector('#usersTable tbody');
-                tbody.innerHTML = users.map(u => `
-                    <tr>
-                        <td>${u.username}</td>
-                        <td>${u.phone || '—'}</td>
-                        <td>
-                            <select onchange="changeRole('${u.id}', this.value)">
-                                <option value="user" ${u.role==='user'?'selected':''}>مستخدم</option>
-                                <option value="seller" ${u.role==='seller'?'selected':''}>بائع</option>
-                                <option value="admin" ${u.role==='admin'?'selected':''}>أدمن</option>
-                            </select>
-                        </td>
-                        <td>${u.store_name || '—'}</td>
-                        <td>${u.verified ? '✅' : '❌'}</td>
-                        <td>${new Date(u.created_at).toLocaleDateString('ar')}</td>
-                        <td>
-                            <button class="btn-sm btn-delete" onclick="deleteUser('${u.id}')">🗑 حذف</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) {
-                console.error('loadUsers error:', err);
-            }
+            const res = await fetch('/api/admin/users', { credentials: 'include' });
+            const users = await res.json();
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.username}</td>
+                    <td>${u.phone || '—'}</td>
+                    <td>
+                        <select onchange="changeRole('${u.id}', this.value)">
+                            <option value="user" ${u.role==='user'?'selected':''}>مستخدم</option>
+                            <option value="seller" ${u.role==='seller'?'selected':''}>بائع</option>
+                            <option value="admin" ${u.role==='admin'?'selected':''}>أدمن</option>
+                        </select>
+                    </td>
+                    <td>${u.store_name || '—'}</td>
+                    <td>${u.verified ? '✅' : '❌'}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString('ar')}</td>
+                    <td>
+                        <button class="btn-sm btn-delete" onclick="deleteUser('${u.id}')">🗑 حذف</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         async function changeRole(userId, newRole) {
@@ -258,49 +242,21 @@
             }
         }
 
-        // ---------- العروض المميزة ----------
         async function loadFeatured() {
-            try {
-                const res = await fetch('/api/featured');
-                const data = await res.json();
-                const products = data.products || [];
-                const container = document.getElementById('featuredList');
-                if (products.length === 0) {
-                    container.innerHTML = '<p>لا توجد منتجات مميزة</p>';
-                    return;
-                }
-                container.innerHTML = products.map(p => `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:10px; border-radius:12px; margin-bottom:8px;">
-                        <span>${p.name} (${p.id})</span>
-                        <button class="btn-sm btn-delete" onclick="removeFeatured('${p.feature_id}')">إزالة</button>
-                    </div>
-                `).join('');
-            } catch (err) {
-                console.error('loadFeatured error:', err);
-            }
-        }
-
-        async function addFeatured() {
-            console.log('addFeatured clicked');
-            const productId = document.getElementById('productIdInput').value.trim();
-            if (!productId) {
-                showMessage('يرجى إدخال معرف المنتج', 'error');
+            const res = await fetch('/api/featured');
+            const data = await res.json();
+            const products = data.products || [];
+            const container = document.getElementById('featuredList');
+            if (products.length === 0) {
+                container.innerHTML = '<p>لا توجد منتجات مميزة</p>';
                 return;
             }
-            const res = await fetch('/api/admin/featured', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId }),
-                credentials: 'include'
-            });
-            if (res.ok) {
-                document.getElementById('productIdInput').value = '';
-                loadFeatured();
-                showMessage('تمت الإضافة', 'success');
-            } else {
-                const data = await res.json();
-                showMessage(data.message || 'خطأ', 'error');
-            }
+            container.innerHTML = products.map(p => `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:10px; border-radius:12px; margin-bottom:8px;">
+                    <span>${p.name} (${p.id})</span>
+                    <button class="btn-sm btn-delete" onclick="removeFeatured('${p.feature_id}')">إزالة</button>
+                </div>
+            `).join('');
         }
 
         async function removeFeatured(id) {
@@ -308,58 +264,21 @@
             loadFeatured();
         }
 
-        // ---------- الإعلانات العامة ----------
         async function loadBanners() {
-            try {
-                const res = await fetch('/api/featured');
-                const data = await res.json();
-                const banners = data.banners || [];
-                const container = document.getElementById('bannersList');
-                if (banners.length === 0) {
-                    container.innerHTML = '<p>لا توجد إعلانات</p>';
-                    return;
-                }
-                container.innerHTML = banners.map(b => `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:10px; border-radius:12px; margin-bottom:8px;">
-                        <span>${b.title}</span>
-                        <button class="btn-sm btn-delete" onclick="deleteBanner('${b.id}')">حذف</button>
-                    </div>
-                `).join('');
-            } catch (err) {
-                console.error('loadBanners error:', err);
+            const res = await fetch('/api/featured');
+            const data = await res.json();
+            const banners = data.banners || [];
+            const container = document.getElementById('bannersList');
+            if (banners.length === 0) {
+                container.innerHTML = '<p>لا توجد إعلانات</p>';
+                return;
             }
-        }
-
-        async function addBanner() {
-            console.log('addBanner clicked');
-            const title = document.getElementById('bannerTitle').value.trim();
-            const desc = document.getElementById('bannerDesc').value.trim();
-            const fileInput = document.getElementById('bannerImage');
-            const formData = new FormData();
-            formData.append('title', title);
-            if (desc) formData.append('description', desc);
-            if (fileInput.files[0]) formData.append('image', fileInput.files[0]);
-
-            try {
-                const res = await fetch('/api/admin/banners', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-                if (res.ok) {
-                    document.getElementById('bannerTitle').value = '';
-                    document.getElementById('bannerDesc').value = '';
-                    fileInput.value = '';
-                    loadBanners();
-                    showMessage('تم إضافة الإعلان', 'success');
-                } else {
-                    const data = await res.json();
-                    showMessage(data.message || 'خطأ في الإضافة', 'error');
-                }
-            } catch (err) {
-                console.error('addBanner error:', err);
-                showMessage('فشل الاتصال بالخادم', 'error');
-            }
+            container.innerHTML = banners.map(b => `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:10px; border-radius:12px; margin-bottom:8px;">
+                    <span>${b.title}</span>
+                    <button class="btn-sm btn-delete" onclick="deleteBanner('${b.id}')">حذف</button>
+                </div>
+            `).join('');
         }
 
         async function deleteBanner(id) {
@@ -367,13 +286,95 @@
             loadBanners();
         }
 
-        // ---------- ربط الأحداث بعد تحميل الصفحة ----------
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('DOM loaded');
-            const isAdmin = await checkAdmin();
-            if (!isAdmin) return; // توقف إذا لم يكن أدمن
+        // ---------- الدوال الجديدة مع التنبيهات للتشخيص ----------
+        async function addBanner() {
+            console.log('addBanner clicked');
+            alert('تم الضغط على زر إضافة الإعلان');
 
-            // ربط الأزرار
+            const title = document.getElementById('bannerTitle').value.trim();
+            const desc = document.getElementById('bannerDesc').value.trim();
+            const fileInput = document.getElementById('bannerImage');
+
+            if (!title) {
+                showMessage('يرجى إدخال عنوان الإعلان', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            if (desc) formData.append('description', desc);
+            if (fileInput.files[0]) formData.append('image', fileInput.files[0]);
+
+            console.log('سيتم إرسال:', title, desc, fileInput.files[0]?.name);
+
+            try {
+                const res = await fetch('/api/admin/banners', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                console.log('استجابة الخادم:', res.status);
+
+                if (res.ok) {
+                    document.getElementById('bannerTitle').value = '';
+                    document.getElementById('bannerDesc').value = '';
+                    fileInput.value = '';
+                    loadBanners();
+                    showMessage('تم إضافة الإعلان', 'success');
+                } else {
+                    const data = await res.json().catch(() => ({ message: 'استجابة غير صالحة من الخادم' }));
+                    console.error('خطأ من الخادم:', data);
+                    showMessage(data.message || 'خطأ في الإضافة', 'error');
+                }
+            } catch (err) {
+                console.error('فشل الاتصال:', err);
+                showMessage('فشل الاتصال بالخادم. تحقق من الاتصال بالإنترنت.', 'error');
+            }
+        }
+
+        async function addFeatured() {
+            console.log('addFeatured clicked');
+            alert('تم الضغط على زر إضافة عرض مميز');
+
+            const productId = document.getElementById('productIdInput').value.trim();
+            if (!productId) {
+                showMessage('يرجى إدخال معرف المنتج', 'error');
+                return;
+            }
+
+            console.log('معرف المنتج:', productId);
+
+            try {
+                const res = await fetch('/api/admin/featured', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId }),
+                    credentials: 'include'
+                });
+
+                console.log('استجابة الخادم:', res.status);
+
+                if (res.ok) {
+                    document.getElementById('productIdInput').value = '';
+                    loadFeatured();
+                    showMessage('تمت الإضافة', 'success');
+                } else {
+                    const data = await res.json().catch(() => ({ message: 'استجابة غير صالحة' }));
+                    console.error('خطأ من الخادم:', data);
+                    showMessage(data.message || 'خطأ', 'error');
+                }
+            } catch (err) {
+                console.error('فشل الاتصال:', err);
+                showMessage('فشل الاتصال بالخادم', 'error');
+            }
+        }
+
+        // ربط الأحداث بعد تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isAdmin = await checkAdmin();
+            if (!isAdmin) return;
+
             document.getElementById('addFeaturedBtn').addEventListener('click', addFeatured);
             document.getElementById('addBannerBtn').addEventListener('click', addBanner);
             document.getElementById('logoutBtn').addEventListener('click', async (e) => {
@@ -382,9 +383,6 @@
                 window.location.href = 'index.html';
             });
 
-            console.log('Events bound');
-
-            // تحميل البيانات
             loadUsers();
             loadFeatured();
             loadBanners();
