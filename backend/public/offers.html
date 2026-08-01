@@ -3,89 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>العروض المميزة - MarketHub</title>
+    <title>العروض المميزة - سلة</title>
     <style>
-        /* تصميم مشابه */
         :root {
-            --green-dark: #059669; --green-light: #6ee7b7;
-            --blue-dark: #1e40af; --blue-light: #93c5fd;
-            --white: #ffffff; --bg-glass: rgba(255, 255, 255, 0.1);
-            --border-glass: rgba(255, 255, 255, 0.2);
+            --bg-dark: #0d0d0d;
+            --bg-card: #1a1a1a;
+            --gold: #d4af37;
+            --gold-light: #f1c40f;
+            --text: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border: #333;
+            --input-bg: #222;
+            --radius: 20px;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #065f46 0%, #1e3a8a 100%);
-            min-height: 100vh; color: var(--white); display: flex; flex-direction: column;
+            background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+
+        /* الشريط العلوي */
         .navbar {
-            background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-glass); padding: 15px 30px;
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--gold);
+            padding: 15px 30px;
         }
-        .logo { font-size: 1.8rem; font-weight: 800; }
-        .logo .emerald-text { color: var(--green-light); } .logo .blue-text { color: var(--blue-light); }
-        .nav-links a { color: white; text-decoration: none; margin:0 10px; }
-        .main-container { flex:1; padding:30px 20px; max-width:1200px; margin:0 auto; width:100%; }
-        .offers-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap:25px; }
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+        .logo .basket-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 6px var(--gold-light));
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+        .nav-links a:hover { color: var(--gold); background: rgba(212,175,55,0.1); }
+        .btn-login {
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            background: transparent;
+            padding: 8px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .btn-login:hover { background: var(--gold); color: #000; }
+
+        /* المحتوى الرئيسي */
+        .main-container {
+            flex: 1;
+            padding: 30px 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-desc {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        /* شبكة العروض */
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
         .offer-card {
-            background:var(--bg-glass); backdrop-filter:blur(10px); border-radius:20px;
-            border:1px solid var(--border-glass); overflow:hidden;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
         }
-        .offer-card img { width:100%; height:200px; object-fit:cover; }
-        .offer-card .card-body { padding:20px; }
-        .offer-card .badge { background:var(--green-dark); padding:4px 12px; border-radius:20px; }
-        .offer-card .price { color:var(--green-light); font-weight:bold; }
-        .back-link { color:var(--green-light); text-decoration:none; }
+        .offer-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(212,175,55,0.2);
+        }
+        .offer-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #111;
+        }
+        .offer-card .card-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .badge {
+            background: var(--gold);
+            color: #000;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+            width: fit-content;
+        }
+        .offer-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        .offer-card .store {
+            color: var(--gold-light);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .offer-card .description {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            flex: 1;
+        }
+        .offer-card .price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+        .btn-details {
+            display: block;
+            text-align: center;
+            padding: 10px;
+            background: var(--gold);
+            color: #000;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-details:hover { background: var(--gold-light); }
+
+        .banner-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+        }
+        .banner-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(212,175,55,0.2);
+        }
+        .banner-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #111;
+        }
+        .banner-card .card-body {
+            padding: 20px;
+        }
+        .banner-card h3 { color: var(--text); margin-bottom: 5px; }
+        .banner-card p { color: var(--text-muted); }
+
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px;
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+
+        @media (max-width: 600px) {
+            .navbar { flex-direction: column; gap: 10px; }
+        }
     </style>
 </head>
 <body>
+    <!-- الشريط العلوي -->
     <nav class="navbar">
-        <div class="logo"><span class="emerald-text">Market</span><span class="blue-text">Hub</span></div>
+        <a href="dashboard.html" class="logo">
+            <span class="basket-icon">🧺</span>
+            <span>سلة</span>
+        </a>
         <div class="nav-links">
             <a href="dashboard.html">الرئيسية</a>
             <a href="offers.html">العروض</a>
+            <a href="login.html" class="btn-login">تسجيل الدخول</a>
         </div>
     </nav>
 
     <div class="main-container">
-        <a href="dashboard.html" class="back-link">← العودة</a>
-        <h1>⭐ العروض المميزة</h1>
-        <div class="offers-grid" id="offersGrid"></div>
+        <h1 class="page-title">⭐ العروض المميزة</h1>
+        <p class="page-desc">منتجات وعروض مختارة بعناية من الإدارة</p>
+
+        <!-- شبكة العروض -->
+        <div class="offers-grid" id="offersGrid">
+            <!-- تُملأ ديناميكياً -->
+        </div>
     </div>
+
+    <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
 
     <script>
         async function loadOffers() {
             const urlParams = new URLSearchParams(window.location.search);
-            const search = urlParams.get('search') || '';
-            let url = '/api/featured';
-            if (search) url = `/api/search?keyword=${encodeURIComponent(search)}`;
+            const searchQuery = urlParams.get('search') || '';
+
+            const grid = document.getElementById('offersGrid');
 
             try {
-                const res = await fetch(url);
-                const data = await res.json();
-                const grid = document.getElementById('offersGrid');
-                const products = data.map(item => item.product || item); // featured vs search
-
-                if (products.length === 0) {
-                    grid.innerHTML = '<p>لا توجد نتائج</p>';
+                if (searchQuery) {
+                    // عرض نتائج البحث
+                    const res = await fetch(`/api/search?keyword=${encodeURIComponent(searchQuery)}`);
+                    const products = await res.json();
+                    if (products.length === 0) {
+                        grid.innerHTML = '<div class="empty-message">لا توجد نتائج للبحث</div>';
+                        return;
+                    }
+                    grid.innerHTML = products.map(p => `
+                        <div class="offer-card">
+                            <img src="${p.image || 'https://via.placeholder.com/400x300/1a1a1a/d4af37?text=🧺+سلة'}" alt="${p.name}">
+                            <div class="card-body">
+                                <h3>${p.name}</h3>
+                                <p class="store">${p.store_name || '—'}</p>
+                                <p class="price">${p.price}$</p>
+                                <a href="product-details.html?id=${p.id}" class="btn-details">عرض التفاصيل</a>
+                            </div>
+                        </div>
+                    `).join('');
                     return;
                 }
-                grid.innerHTML = products.map(p => `
+
+                // عرض العروض المميزة (منتجات + إعلانات)
+                const res = await fetch('/api/featured');
+                const data = await res.json();
+                const products = data.products || [];
+                const banners = data.banners || [];
+
+                if (products.length === 0 && banners.length === 0) {
+                    grid.innerHTML = '<div class="empty-message">لا توجد عروض مميزة حالياً</div>';
+                    return;
+                }
+
+                let html = '';
+
+                // المنتجات المميزة
+                products.forEach(p => {
+                    html += `
                     <div class="offer-card">
-                        <img src="${p.image || 'https://via.placeholder.com/300/059669/white?text=No+Image'}" alt="${p.name}">
+                        <img src="${p.image || 'https://via.placeholder.com/400x300/1a1a1a/d4af37?text=🧺+سلة'}" alt="${p.name}">
                         <div class="card-body">
                             <span class="badge">مميز</span>
                             <h3>${p.name}</h3>
-                            <p>${p.seller?.storeName || ''}</p>
+                            <p class="store">${p.store_name || ''}</p>
                             <p class="price">${p.price}$</p>
+                            <a href="product-details.html?id=${p.id}" class="btn-details">عرض التفاصيل</a>
                         </div>
-                    </div>
-                `).join('');
+                    </div>`;
+                });
+
+                // الإعلانات العامة
+                banners.forEach(b => {
+                    html += `
+                    <div class="banner-card">
+                        ${b.image ? `<img src="${b.image}" alt="${b.title}">` : ''}
+                        <div class="card-body">
+                            <h3>${b.title}</h3>
+                            ${b.description ? `<p>${b.description}</p>` : ''}
+                        </div>
+                    </div>`;
+                });
+
+                grid.innerHTML = html;
+
             } catch (err) {
-                console.error(err);
+                console.error('خطأ في تحميل العروض:', err);
+                grid.innerHTML = '<div class="empty-message">تعذر تحميل العروض حالياً</div>';
             }
         }
+
         loadOffers();
     </script>
 </body>
