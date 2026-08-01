@@ -1,8 +1,7 @@
 // ============================================================
 // server.js - MarketHub (Express + PostgreSQL)
-// كامل مع تحقق البريد الإلكتروني (Brevo) وتيليجرام (اختياري)
-// يدعم التسجيل ببريد فقط، هاتف فقط، أو كلاهما
-// تم استبدال Nodemailer بـ Brevo API
+// نسخة الهاتف فقط مع تحقق تيليجرام
+// لا يوجد بريد إلكتروني إطلاقاً
 // ============================================================
 
 const express = require('express');
@@ -16,33 +15,6 @@ const cloudinary = require('cloudinary').v2;
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
-
-// ---------- Brevo (Sendinblue) ----------
-let SibApiV3Sdk = null;
-let brevoClient = null;
-
-if (process.env.BREVO_API_KEY) {
-  SibApiV3Sdk = require('@sendinblue/client');
-  brevoClient = new SibApiV3Sdk.TransactionalEmailsApi();
-  SibApiV3Sdk.ApiClient.instance.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
-  console.log('✅ Brevo جاهز لإرسال البريد الإلكتروني');
-} else {
-  console.warn('⚠️ BREVO_API_KEY غير موجود. لن يتم إرسال رسائل تحقق.');
-}
-
-async function sendVerificationEmail(email, code) {
-  if (!brevoClient) {
-    console.log(`رمز التحقق (بريد) لـ ${email}: ${code}`);
-    return;
-  }
-  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
-    to: [{ email: email }],
-    sender: { email: 'noreply@markethub.com', name: 'MarketHub' },
-    subject: 'رمز التحقق من MarketHub',
-    htmlContent: `<h2>رمز التحقق الخاص بك هو:</h2><h1 style="color:#059669;">${code}</h1><p>ينتهي خلال 15 دقيقة.</p>`
-  });
-  await brevoClient.sendTransacEmail(sendSmtpEmail);
-}
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -74,7 +46,15 @@ async function uploadToCloudinary(buffer) {
   });
 }
 
-// ---------- تيليجرام ----------
+// ---------- قاعدة البيانات ----------
+let dbUrl = process.env.DATABASE_PRIVATE_URL || process.env.DATABASE_URL;
+if (!dbUrl) { console.error('❌ لا يوجد DATABASE_URL'); process.exit(1); }
+if (dbUrl === process.env.DATABASE_URL) {
+  dbUrl = dbUrl.replace(/(\?|&)sslmode=[^&]*/g, '') + (dbUrl.includes('?') ? '&' : '?') + 'sslmode=disable';
+}
+const pool = new Pool({ connectionString: dbUrl, ssl: false });
+
+// ---------- تيليجرام (البوت) ----------
 let bot = null;
 if (process.env.TELEGRAM_BOT_TOKEN) {
   bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
@@ -84,33 +64,31 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
     const chatId = msg.chat.id;
     const code = match[1]?.trim();
     if (!code) {
-      bot.sendMessage(chatId, 'أرسل /start متبوعاً برمز التحقق لتفعيل حسابك.');
+      bot.sendMessage(chatId, '👋 مرحباً! أرسل /start متبوعاً برمز التحقق الذي حصلت عليه من الموقع لتفعيل حسابك.');
       return;
     }
-    const result = await pool.query(
-      `UPDATE users SET telegram_chat_id = $1, verified = true, verification_code = NULL, verification_code_expires = NULL
-       WHERE verification_code = $2 AND verified = false AND verification_code_expires > NOW()
-       RETURNING username`,
-      [chatId.toString(), code]
-    );
-    if (result.rowCount > 0) {
-      bot.sendMessage(chatId, `✅ تم التحقق بنجاح! مرحباً ${result.rows[0].username}. يمكنك الآن تسجيل الدخول.`);
-    } else {
-      bot.sendMessage(chatId, '❌ الرمز غير صحيح أو منتهي الصلاحية. حاول مرة أخرى.');
+    try {
+      const result = await pool.query(
+        `UPDATE users SET telegram_chat_id = $1, verified = true, verification_code = NULL, verification_code_expires = NULL
+         WHERE verification_code = $2 AND verified = false AND verification_code_expires > NOW()
+         RETURNING username`,
+        [chatId.toString(), code]
+      );
+      if (result.rowCount > 0) {
+        bot.sendMessage(chatId, `✅ تم التحقق بنجاح! مرحباً ${result.rows[0].username}.\nيمكنك الآن تسجيل الدخول في الموقع.`);
+      } else {
+        bot.sendMessage(chatId, '❌ الرمز غير صحيح أو منتهي الصلاحية. حاول مرة أخرى.');
+      }
+    } catch (err) {
+      console.error('خطأ في معالجة رمز تيليجرام:', err);
+      bot.sendMessage(chatId, '❌ حدث خطأ، يرجى المحاولة لاحقاً.');
     }
   });
 } else {
-  console.log('ℹ️ بوت تيليجرام غير مفعل. التحقق عبر الهاتف غير متاح.');
+  console.warn('⚠️ لم يتم توفير TELEGRAM_BOT_TOKEN. التحقق عبر تيليجرام غير متاح.');
 }
 
-// ---------- قاعدة البيانات ----------
-let dbUrl = process.env.DATABASE_PRIVATE_URL || process.env.DATABASE_URL;
-if (!dbUrl) { console.error('❌ لا يوجد DATABASE_URL'); process.exit(1); }
-if (dbUrl === process.env.DATABASE_URL) {
-  dbUrl = dbUrl.replace(/(\?|&)sslmode=[^&]*/g, '') + (dbUrl.includes('?') ? '&' : '?') + 'sslmode=disable';
-}
-const pool = new Pool({ connectionString: dbUrl, ssl: false });
-
+// ---------- إنشاء الجداول ----------
 async function createTables() {
   const client = await pool.connect();
   try {
@@ -118,8 +96,7 @@ async function createTables() {
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         username VARCHAR(50) UNIQUE NOT NULL,
-        email VARCHAR(100) UNIQUE,
-        phone VARCHAR(20) UNIQUE,
+        phone VARCHAR(20) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
         role VARCHAR(20) DEFAULT 'seller',
         store_name VARCHAR(100),
@@ -127,6 +104,8 @@ async function createTables() {
         contact_phone VARCHAR(20),
         verified BOOLEAN DEFAULT false,
         verification_code VARCHAR(6),
+        verification_code_expires TIMESTAMP,
+        telegram_chat_id VARCHAR(50),
         refresh_token TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       );
@@ -185,12 +164,15 @@ async function createTables() {
       );
     `);
 
+    // إضافة الأعمدة الجديدة إن لم تكن موجودة
     const alterQueries = [
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires TIMESTAMP`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(50)`,
+      // قد نحتاج لإزالة عمود البريد الإلكتروني إذا كان موجوداً، لكن الأفضل تركه أو تجاهله
+      `ALTER TABLE users DROP COLUMN IF EXISTS email CASCADE`
     ];
     for (const q of alterQueries) {
-      await client.query(q);
+      await client.query(q).catch(() => {}); // تجاهل الخطأ إذا لم يكن العمود موجودًا
     }
 
     console.log('✅ جداول قاعدة البيانات جاهزة');
@@ -199,14 +181,15 @@ async function createTables() {
   }
 }
 
+// ---------- إنشاء حساب الأدمن ----------
 async function createAdminUser() {
   const result = await pool.query('SELECT id FROM users WHERE username = $1', ['MHDADMIN123']);
   if (result.rows.length === 0) {
     const hashed = await bcrypt.hash('MHDFREEZE0619', 10);
     await pool.query(
-      `INSERT INTO users (username, email, password, role, verified)
+      `INSERT INTO users (username, phone, password, role, verified)
        VALUES ($1, $2, $3, 'admin', true)`,
-      ['MHDADMIN123', 'admin@markethub.com', hashed]
+      ['MHDADMIN123', '0000000000', hashed] // رقم هاتف افتراضي للأدمن
     );
     console.log('✅ تم إنشاء حساب الأدمن: MHDADMIN123');
   } else {
@@ -260,56 +243,48 @@ function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// ====================== المصادقة ======================
+// ====================== [1] المصادقة ======================
 
+// تسجيل حساب جديد (هاتف فقط)
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { username, email, phone, password, storeName } = req.body;
-    if (!username || !password) return res.status(400).json({ message: 'اسم المستخدم وكلمة المرور مطلوبان' });
-    if (!email && !phone) return res.status(400).json({ message: 'يجب إدخال بريد إلكتروني أو رقم هاتف واحد على الأقل' });
+    const { username, phone, password, storeName } = req.body;
+    if (!username || !phone || !password) return res.status(400).json({ message: 'اسم المستخدم ورقم الهاتف وكلمة المرور مطلوبة' });
 
-    if (email) {
-      const e = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-      if (e.rows.length > 0) return res.status(400).json({ message: 'البريد الإلكتروني مستخدم بالفعل' });
-    }
-    if (phone) {
-      const p = await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
-      if (p.rows.length > 0) return res.status(400).json({ message: 'رقم الهاتف مستخدم بالفعل' });
-    }
+    // التحقق من عدم تكرار الهاتف أو اسم المستخدم
+    const p = await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
+    if (p.rows.length > 0) return res.status(400).json({ message: 'رقم الهاتف مستخدم بالفعل' });
     const u = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
     if (u.rows.length > 0) return res.status(400).json({ message: 'اسم المستخدم مستخدم بالفعل' });
 
     const hashed = await bcrypt.hash(password, 10);
     const code = generateVerificationCode();
-    const expires = new Date(Date.now() + 15 * 60 * 1000);
+    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 دقيقة
 
     await pool.query(
-      `INSERT INTO users (username, email, phone, password, store_name, role, verification_code, verification_code_expires)
-       VALUES ($1,$2,$3,$4,$5,'seller',$6,$7)`,
-      [username, email || null, phone || null, hashed, storeName || null, code, expires]
+      `INSERT INTO users (username, phone, password, store_name, role, verification_code, verification_code_expires)
+       VALUES ($1,$2,$3,$4,'seller',$5,$6)`,
+      [username, phone, hashed, storeName || null, code, expires]
     );
 
+    // توليد رابط تيليجرام
     let telegramLink = null;
-    if (phone && bot) {
+    if (bot) {
       try {
         const botInfo = await bot.getMe();
         telegramLink = `https://t.me/${botInfo.username}?start=${code}`;
-      } catch (e) { /* تجاهل */ }
-    }
-
-    if (email) {
-      try {
-        await sendVerificationEmail(email, code);
-      } catch (err) {
-        console.error('فشل إرسال البريد:', err);
-        return res.status(500).json({ message: 'فشل إرسال رمز التحقق إلى بريدك الإلكتروني. تأكد من صحة البريد أو حاول لاحقًا.' });
+      } catch (e) {
+        console.error('فشل الحصول على معلومات البوت:', e);
       }
     }
 
+    if (!telegramLink) {
+      return res.status(500).json({ message: 'التحقق عبر تيليجرام غير متاح حالياً. يرجى المحاولة لاحقاً.' });
+    }
+
     res.status(201).json({
-      message: 'تم التسجيل بنجاح. يرجى التحقق من وسيلة التواصل.',
-      email: email || null,
-      phone: phone || null,
+      message: 'تم التسجيل بنجاح. انتقل إلى تيليجرام للتحقق.',
+      phone,
       telegramLink
     });
   } catch (err) {
@@ -318,47 +293,20 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-app.post('/api/auth/verify-email', async (req, res) => {
-  const { email, code } = req.body;
-  if (!email || !code) return res.status(400).json({ message: 'البريد والرمز مطلوبان' });
-  const result = await pool.query(
-    'SELECT * FROM users WHERE email = $1 AND verification_code = $2 AND verified = false AND verification_code_expires > NOW()',
-    [email, code]
-  );
-  if (result.rows.length === 0) return res.status(400).json({ message: 'رمز غير صحيح أو منتهي الصلاحية' });
-  await pool.query('UPDATE users SET verified = true, verification_code = NULL, verification_code_expires = NULL WHERE email = $1', [email]);
-  res.json({ message: 'تم التحقق بنجاح' });
-});
-
-app.post('/api/auth/resend-email', async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ message: 'البريد مطلوب' });
-  const result = await pool.query('SELECT * FROM users WHERE email = $1 AND verified = false', [email]);
-  if (result.rows.length === 0) return res.status(404).json({ message: 'المستخدم غير موجود أو مفعل بالفعل' });
-  const code = generateVerificationCode();
-  const expires = new Date(Date.now() + 15 * 60 * 1000);
-  await pool.query('UPDATE users SET verification_code = $1, verification_code_expires = $2 WHERE email = $3', [code, expires, email]);
-  try {
-    await sendVerificationEmail(email, code);
-    res.json({ message: 'تم إرسال رمز جديد' });
-  } catch (err) {
-    res.status(500).json({ message: 'فشل إرسال الرمز' });
-  }
-});
-
+// تسجيل الدخول (اسم مستخدم أو رقم هاتف + كلمة مرور)
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { loginId, password } = req.body;
-    if (!loginId || !password) return res.status(400).json({ message: 'بيانات الدخول مطلوبة' });
+    if (!loginId || !password) return res.status(400).json({ message: 'يرجى إدخال بيانات الدخول' });
     const result = await pool.query(
-      'SELECT * FROM users WHERE email = $1 OR phone = $1 OR username = $1',
+      'SELECT * FROM users WHERE username = $1 OR phone = $1',
       [loginId]
     );
     if (result.rows.length === 0) return res.status(401).json({ message: 'بيانات غير صحيحة' });
     const user = result.rows[0];
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: 'بيانات غير صحيحة' });
-    if (!user.verified) return res.status(403).json({ message: 'يجب توثيق الحساب أولاً' });
+    if (!user.verified) return res.status(403).json({ message: 'يجب توثيق الحساب أولاً عبر تيليجرام' });
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
@@ -408,7 +356,7 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
   res.json(safe);
 });
 
-// ====================== المنتجات ======================
+// ====================== [2] المنتجات ======================
 
 app.post('/api/products', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   try {
@@ -467,7 +415,7 @@ app.delete('/api/products/:id', authenticate, sellerOnly, async (req, res) => {
   res.json({ message: 'تم حذف المنتج' });
 });
 
-// ====================== العروض ======================
+// ====================== [3] العروض ======================
 
 app.post('/api/offers', authenticate, sellerOnly, async (req, res) => {
   const { title, discount, productId } = req.body;
@@ -491,7 +439,7 @@ app.delete('/api/offers/:id', authenticate, sellerOnly, async (req, res) => {
   res.json({ message: 'تم حذف العرض' });
 });
 
-// ====================== الملف الشخصي ======================
+// ====================== [4] الملف الشخصي ======================
 
 app.put('/api/profile', authenticate, sellerOnly, upload.single('storeImage'), async (req, res) => {
   const updates = {};
@@ -521,7 +469,7 @@ app.get('/api/profile', authenticate, sellerOnly, async (req, res) => {
   res.json({ ...safe, drivers: drivers.rows, locations: locations.rows, products: products.rows, offers: offers.rows });
 });
 
-// ====================== مناديب التوصيل ======================
+// ====================== [5] مناديب التوصيل ======================
 
 app.post('/api/drivers', authenticate, sellerOnly, async (req, res) => {
   const { name, phone } = req.body;
@@ -545,7 +493,7 @@ app.delete('/api/drivers/:id', authenticate, sellerOnly, async (req, res) => {
   res.json({ message: 'تم حذف المندوب' });
 });
 
-// ====================== مناطق التوصيل ======================
+// ====================== [6] مناطق التوصيل ======================
 
 app.post('/api/locations', authenticate, sellerOnly, async (req, res) => {
   const { name } = req.body;
@@ -569,7 +517,7 @@ app.delete('/api/locations/:id', authenticate, sellerOnly, async (req, res) => {
   res.json({ message: 'تم حذف المنطقة' });
 });
 
-// ====================== العروض المميزة (أدمن) ======================
+// ====================== [7] العروض المميزة (أدمن) ======================
 
 app.post('/api/admin/featured', authenticate, adminOnly, async (req, res) => {
   const { productId } = req.body;
@@ -623,7 +571,7 @@ app.delete('/api/admin/banners/:id', authenticate, adminOnly, async (req, res) =
   res.json({ message: 'تم حذف الإعلان' });
 });
 
-// ====================== البحث ======================
+// ====================== [8] البحث ======================
 
 app.get('/api/search', async (req, res) => {
   const { keyword } = req.query;
@@ -637,10 +585,10 @@ app.get('/api/search', async (req, res) => {
   res.json(result.rows);
 });
 
-// ====================== إدارة المستخدمين (أدمن) ======================
+// ====================== [9] إدارة المستخدمين (أدمن) ======================
 
 app.get('/api/admin/users', authenticate, adminOnly, async (req, res) => {
-  const result = await pool.query('SELECT id, username, email, phone, role, store_name, verified, created_at FROM users');
+  const result = await pool.query('SELECT id, username, phone, role, store_name, verified, created_at FROM users');
   res.json(result.rows);
 });
 
