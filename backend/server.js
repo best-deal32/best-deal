@@ -1,6 +1,7 @@
 // ============================================================
 // server.js - سلة (Express + PostgreSQL + Telegram Bot)
 // النسخة النهائية الكاملة: هاتف + تيليجرام فقط
+// معالجة خطأ 409 Conflict للبوت تلقائياً
 // جميع المسارات موجودة دون أي اختصار
 // ============================================================
 
@@ -54,11 +55,20 @@ if (dbUrl === process.env.DATABASE_URL) {
 }
 const pool = new Pool({ connectionString: dbUrl, ssl: false });
 
-// ---------- تيليجرام (البوت) ----------
+// ---------- تيليجرام (البوت) مع معالجة 409 Conflict ----------
 let bot = null;
 if (process.env.TELEGRAM_BOT_TOKEN) {
   bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
   console.log('✅ بوت تيليجرام يعمل');
+
+  bot.on('polling_error', (error) => {
+    if (error.code === 'ETELEGRAM' && error.message.includes('409 Conflict')) {
+      console.warn('تعارض في البوت، سيتم إيقاف وإعادة تشغيل البولينج...');
+      bot.stopPolling().then(() => {
+        setTimeout(() => bot.startPolling(), 2000);
+      });
+    }
+  });
 
   bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
     const chatId = msg.chat.id;
