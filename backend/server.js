@@ -1,9 +1,8 @@
 // ============================================================
 // server.js - سلة (Express + PostgreSQL + Telegram Bot)
-// النسخة النهائية الكاملة: هاتف + تيليجرام فقط
-// جميع المسارات موجودة دون أي اختصار
-// معالجة شاملة للأخطاء، إصلاح 502، معالجة UnhandledPromiseRejection
-// فحص إعدادات Cloudinary عند بدء التشغيل
+// النسخة النهائية المعدلة: ألبسة فقط (تم حذف قسم الطعام)
+// جميع الحقول النصية للمنتج حرة (بدون قوائم منسدلة مسبقة)
+// معالجة شاملة للأخطاء، إصلاح 502، فحص Cloudinary
 // ============================================================
 
 const express = require('express');
@@ -108,7 +107,7 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
   console.warn('⚠️ لم يتم توفير TELEGRAM_BOT_TOKEN. التحقق عبر تيليجرام غير متاح.');
 }
 
-// ---------- إنشاء الجداول ----------
+// ---------- إنشاء الجداول (بدون قيود على category) ----------
 async function createTables() {
   const client = await pool.connect();
   try {
@@ -135,10 +134,10 @@ async function createTables() {
         name VARCHAR(255) NOT NULL,
         description TEXT,
         price DECIMAL(10,2) NOT NULL,
-        category VARCHAR(20) NOT NULL CHECK (category IN ('clothing','food')),
-        size VARCHAR(20),
-        type VARCHAR(50),
-        colors VARCHAR(100),
+        category VARCHAR(50) NOT NULL DEFAULT 'clothing',
+        size VARCHAR(100),
+        type VARCHAR(100),
+        colors VARCHAR(255),
         image VARCHAR(255),
         seller_id UUID REFERENCES users(id) ON DELETE CASCADE,
         featured BOOLEAN DEFAULT false,
@@ -345,20 +344,32 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
   res.json(safe);
 });
 
-// ====================== المنتجات ======================
+// ====================== المنتجات (مع حقول حرة) ======================
 
 app.post('/api/products', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   try {
     const { name, description, price, category, size, type, colors } = req.body;
-    if (!name || !price || !category) return res.status(400).json({ message: 'الاسم والسعر والفئة مطلوبة' });
+    if (!name || !price) return res.status(400).json({ message: 'اسم المنتج والسعر مطلوبان' });
+    // category يمكن أن يكون أي قيمة نصية، وليس إجبارياً
     let imageUrl = null;
     if (req.file) {
       const result = await uploadToCloudinary(req.file.buffer);
       imageUrl = result.secure_url;
     }
     const result = await pool.query(
-      'INSERT INTO products (name, description, price, category, size, type, colors, image, seller_id) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
-      [name, description || null, parseFloat(price), category, size || null, type || null, colors || null, imageUrl, req.user.id]
+      `INSERT INTO products (name, description, price, category, size, type, colors, image, seller_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+      [
+        name,
+        description || null,
+        parseFloat(price),
+        category || 'clothing', // افتراضي "clothing" إذا لم يحدد
+        size || null,
+        type || null,
+        colors || null,
+        imageUrl,
+        req.user.id
+      ]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { console.error(err); res.status(500).json({ message: 'خطأ في الخادم' }); }
@@ -371,7 +382,8 @@ app.get('/api/products/my', authenticate, sellerOnly, async (req, res) => {
 
 app.get('/api/products/:id', async (req, res) => {
   const result = await pool.query(
-    'SELECT p.*, u.store_name, u.contact_phone, u.store_image FROM products p JOIN users u ON p.seller_id = u.id WHERE p.id = $1',
+    `SELECT p.*, u.store_name, u.contact_phone, u.store_image
+     FROM products p JOIN users u ON p.seller_id = u.id WHERE p.id = $1`,
     [req.params.id]
   );
   if (result.rows.length === 0) return res.status(404).json({ message: 'المنتج غير موجود' });
@@ -386,10 +398,19 @@ app.put('/api/products/:id', authenticate, sellerOnly, upload.single('image'), a
     const result = await uploadToCloudinary(req.file.buffer);
     image = result.secure_url;
   }
-  const { name, description, price } = req.body;
+  const { name, description, price, size, type, colors } = req.body;
   const updated = await pool.query(
-    'UPDATE products SET name=$1, description=$2, price=$3, image=$4 WHERE id=$5 RETURNING *',
-    [name || prod.rows[0].name, description || prod.rows[0].description, parseFloat(price) || prod.rows[0].price, image, req.params.id]
+    `UPDATE products SET name=$1, description=$2, price=$3, size=$4, type=$5, colors=$6, image=$7 WHERE id=$8 RETURNING *`,
+    [
+      name || prod.rows[0].name,
+      description !== undefined ? description : prod.rows[0].description,
+      price ? parseFloat(price) : prod.rows[0].price,
+      size !== undefined ? size : prod.rows[0].size,
+      type !== undefined ? type : prod.rows[0].type,
+      colors !== undefined ? colors : prod.rows[0].colors,
+      image,
+      req.params.id
+    ]
   );
   res.json(updated.rows[0]);
 });
@@ -539,7 +560,6 @@ app.post('/api/admin/banners', authenticate, adminOnly, upload.single('image'), 
     const { title, description } = req.body;
     if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
 
-    // التحقق من أن Cloudinary مهيأ قبل الرفع
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       return res.status(500).json({ message: 'إعدادات Cloudinary غير مكتملة. راجع المتغيرات في Railway.' });
     }
