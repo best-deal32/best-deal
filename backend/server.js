@@ -1,8 +1,7 @@
 // ============================================================
 // server.js - سلة (Express + PostgreSQL + Telegram Bot)
-// النسخة النهائية المعدلة: ألبسة فقط (تم حذف قسم الطعام)
-// جميع الحقول النصية للمنتج حرة (بدون قوائم منسدلة مسبقة)
-// معالجة شاملة للأخطاء، إصلاح 502، فحص Cloudinary
+// النسخة النهائية المعدلة: ألبسة فقط، دعم الباقات والترقيات
+// نظام إشعارات بسيط للأدمن والبائعين
 // ============================================================
 
 const express = require('express');
@@ -22,13 +21,9 @@ const PORT = process.env.PORT || 8080;
 const JWT_SECRET = process.env.JWT_SECRET || 'change-me';
 const REFRESH_SECRET = process.env.REFRESH_SECRET || 'change-me-too';
 
-// ---------- فحص إعدادات Cloudinary ----------
+// ---------- Cloudinary ----------
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.error('❌ خطأ في إعدادات Cloudinary. تأكد من وجود المتغيرات التالية:');
-  console.error('   - CLOUDINARY_CLOUD_NAME');
-  console.error('   - CLOUDINARY_API_KEY');
-  console.error('   - CLOUDINARY_API_SECRET');
-  console.error('   سيتم تعطيل رفع الصور.');
+  console.error('❌ خطأ في إعدادات Cloudinary. تأكد من وجود المتغيرات المطلوبة.');
 } else {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -64,7 +59,7 @@ if (dbUrl === process.env.DATABASE_URL) {
 }
 const pool = new Pool({ connectionString: dbUrl, ssl: false });
 
-// ---------- تيليجرام (البوت) مع معالجة خطأ 409 ----------
+// ---------- تيليجرام ----------
 let bot = null;
 if (process.env.TELEGRAM_BOT_TOKEN) {
   bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
@@ -72,10 +67,8 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
 
   bot.on('polling_error', (error) => {
     if (error.code === 'ETELEGRAM' && error.message.includes('409 Conflict')) {
-      console.warn('⚠️ تعارض في البوت (409 Conflict). سيتم إيقاف وإعادة تشغيل البولينج...');
+      console.warn('⚠️ تعارض بوت. إعادة تشغيل البولينج...');
       bot.stopPolling().then(() => setTimeout(() => bot.startPolling(), 2000));
-    } else {
-      console.error('خطأ في البولينج:', error);
     }
   });
 
@@ -83,7 +76,7 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
     const chatId = msg.chat.id;
     const code = match[1]?.trim();
     if (!code) {
-      bot.sendMessage(chatId, '👋 مرحباً! أرسل /start متبوعاً برمز التحقق الذي حصلت عليه من الموقع لتفعيل حسابك.');
+      bot.sendMessage(chatId, 'أرسل /start متبوعاً برمز التحقق.');
       return;
     }
     try {
@@ -94,20 +87,20 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
         [chatId.toString(), code]
       );
       if (result.rowCount > 0) {
-        bot.sendMessage(chatId, `✅ تم التحقق بنجاح! مرحباً ${result.rows[0].username}.\nيمكنك الآن تسجيل الدخول في الموقع.`);
+        bot.sendMessage(chatId, `✅ تم التحقق! مرحباً ${result.rows[0].username}.`);
       } else {
-        bot.sendMessage(chatId, '❌ الرمز غير صحيح أو منتهي الصلاحية. حاول مرة أخرى.');
+        bot.sendMessage(chatId, '❌ الرمز غير صحيح أو منتهي الصلاحية.');
       }
     } catch (err) {
-      console.error('خطأ في معالجة رمز تيليجرام:', err);
-      bot.sendMessage(chatId, '❌ حدث خطأ، يرجى المحاولة لاحقاً.');
+      console.error('خطأ تيليجرام:', err);
+      bot.sendMessage(chatId, '❌ خطأ. حاول لاحقاً.');
     }
   });
 } else {
-  console.warn('⚠️ لم يتم توفير TELEGRAM_BOT_TOKEN. التحقق عبر تيليجرام غير متاح.');
+  console.warn('⚠️ لم يتم توفير TELEGRAM_BOT_TOKEN.');
 }
 
-// ---------- إنشاء الجداول (بدون قيود على category) ----------
+// ---------- إنشاء الجداول ----------
 async function createTables() {
   const client = await pool.connect();
   try {
@@ -126,6 +119,7 @@ async function createTables() {
         verification_code_expires TIMESTAMP,
         telegram_chat_id VARCHAR(50),
         refresh_token TEXT,
+        max_products INT DEFAULT 20,
         created_at TIMESTAMP DEFAULT NOW()
       );
 
@@ -181,12 +175,34 @@ async function createTables() {
         added_by UUID REFERENCES users(id),
         created_at TIMESTAMP DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS subscription_requests (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        username VARCHAR(50) NOT NULL,
+        pack_name VARCHAR(100) NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        extra_products INT NOT NULL,
+        payment_receipt VARCHAR(255),
+        status VARCHAR(20) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS notifications (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        message TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
     `);
 
+    // أعمدة إضافية
     const alterQueries = [
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires TIMESTAMP`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(50)`,
-      `ALTER TABLE users DROP COLUMN IF EXISTS email`
+      `ALTER TABLE users DROP COLUMN IF EXISTS email`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS max_products INT DEFAULT 20`
     ];
     for (const q of alterQueries) {
       await client.query(q).catch(() => {});
@@ -202,8 +218,8 @@ async function createAdminUser() {
   if (result.rows.length === 0) {
     const hashed = await bcrypt.hash('MHDFREEZE0619', 10);
     await pool.query(
-      `INSERT INTO users (username, phone, password, role, verified)
-       VALUES ($1, $2, $3, 'admin', true)`,
+      `INSERT INTO users (username, phone, password, role, verified, max_products)
+       VALUES ($1, $2, $3, 'admin', true, 9999)`,
       ['MHDADMIN123', '0000000000', hashed]
     );
     console.log('✅ تم إنشاء حساب الأدمن: MHDADMIN123');
@@ -258,8 +274,12 @@ function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// ====================== المصادقة ======================
+// ---------- دوال الإشعارات ----------
+async function addNotification(userId, message) {
+  await pool.query('INSERT INTO notifications (user_id, message) VALUES ($1, $2)', [userId, message]);
+}
 
+// ====================== المصادقة ======================
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, phone, password, storeName } = req.body;
@@ -341,35 +361,39 @@ app.post('/api/auth/logout', authenticate, async (req, res) => {
 
 app.get('/api/auth/me', authenticate, async (req, res) => {
   const { password, refresh_token, verification_code, ...safe } = req.user;
-  res.json(safe);
+  // حساب عدد المنتجات الحالي
+  const count = await pool.query('SELECT COUNT(*)::int AS cnt FROM products WHERE seller_id = $1', [req.user.id]);
+  res.json({ ...safe, currentProducts: count.rows[0].cnt, maxProducts: req.user.max_products || 20 });
 });
 
-// ====================== المنتجات (مع حقول حرة) ======================
-
+// ====================== المنتجات (ألبسة فقط) ======================
 app.post('/api/products', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   try {
-    const { name, description, price, category, size, type, colors } = req.body;
+    // فحص عدد المنتجات مقابل الحد المسموح
+    const countResult = await pool.query('SELECT COUNT(*)::int AS cnt FROM products WHERE seller_id = $1', [req.user.id]);
+    const currentCount = countResult.rows[0].cnt;
+    const maxAllowed = req.user.max_products || 20;
+    if (currentCount >= maxAllowed) {
+      return res.status(403).json({
+        message: 'لقد تجاوزت الحد المسموح من المنتجات. يرجى ترقية باقتك.',
+        current: currentCount,
+        max: maxAllowed
+      });
+    }
+
+    const { name, description, price, size, type, colors } = req.body;
     if (!name || !price) return res.status(400).json({ message: 'اسم المنتج والسعر مطلوبان' });
-    // category يمكن أن يكون أي قيمة نصية، وليس إجبارياً
+
     let imageUrl = null;
     if (req.file) {
       const result = await uploadToCloudinary(req.file.buffer);
       imageUrl = result.secure_url;
     }
+
     const result = await pool.query(
       `INSERT INTO products (name, description, price, category, size, type, colors, image, seller_id)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-      [
-        name,
-        description || null,
-        parseFloat(price),
-        category || 'clothing', // افتراضي "clothing" إذا لم يحدد
-        size || null,
-        type || null,
-        colors || null,
-        imageUrl,
-        req.user.id
-      ]
+       VALUES ($1,$2,$3,'clothing',$4,$5,$6,$7,$8) RETURNING *`,
+      [name, description || null, parseFloat(price), size || null, type || null, colors || null, imageUrl, req.user.id]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { console.error(err); res.status(500).json({ message: 'خطأ في الخادم' }); }
@@ -423,7 +447,6 @@ app.delete('/api/products/:id', authenticate, sellerOnly, async (req, res) => {
 });
 
 // ====================== العروض ======================
-
 app.post('/api/offers', authenticate, sellerOnly, async (req, res) => {
   const { title, discount, productId } = req.body;
   if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
@@ -447,7 +470,6 @@ app.delete('/api/offers/:id', authenticate, sellerOnly, async (req, res) => {
 });
 
 // ====================== الملف الشخصي ======================
-
 app.put('/api/profile', authenticate, sellerOnly, upload.single('storeImage'), async (req, res) => {
   const updates = {};
   if (req.file) {
@@ -476,8 +498,7 @@ app.get('/api/profile', authenticate, sellerOnly, async (req, res) => {
   res.json({ ...safe, drivers: drivers.rows, locations: locations.rows, products: products.rows, offers: offers.rows });
 });
 
-// ====================== مناديب التوصيل ======================
-
+// ====================== مناديب ومناطق ======================
 app.post('/api/drivers', authenticate, sellerOnly, async (req, res) => {
   const { name, phone } = req.body;
   if (!name || !phone) return res.status(400).json({ message: 'الاسم والهاتف مطلوبان' });
@@ -487,20 +508,16 @@ app.post('/api/drivers', authenticate, sellerOnly, async (req, res) => {
   );
   res.status(201).json(result.rows[0]);
 });
-
 app.get('/api/drivers', authenticate, sellerOnly, async (req, res) => {
   const result = await pool.query('SELECT * FROM drivers WHERE seller_id = $1', [req.user.id]);
   res.json(result.rows);
 });
-
 app.delete('/api/drivers/:id', authenticate, sellerOnly, async (req, res) => {
   const driver = await pool.query('SELECT * FROM drivers WHERE id = $1', [req.params.id]);
   if (driver.rows.length === 0 || driver.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
   await pool.query('DELETE FROM drivers WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم حذف المندوب' });
 });
-
-// ====================== مناطق التوصيل ======================
 
 app.post('/api/locations', authenticate, sellerOnly, async (req, res) => {
   const { name } = req.body;
@@ -511,12 +528,10 @@ app.post('/api/locations', authenticate, sellerOnly, async (req, res) => {
   );
   res.status(201).json(result.rows[0]);
 });
-
 app.get('/api/locations', authenticate, sellerOnly, async (req, res) => {
   const result = await pool.query('SELECT * FROM locations WHERE seller_id = $1', [req.user.id]);
   res.json(result.rows);
 });
-
 app.delete('/api/locations/:id', authenticate, sellerOnly, async (req, res) => {
   const loc = await pool.query('SELECT * FROM locations WHERE id = $1', [req.params.id]);
   if (loc.rows.length === 0 || loc.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
@@ -524,8 +539,7 @@ app.delete('/api/locations/:id', authenticate, sellerOnly, async (req, res) => {
   res.json({ message: 'تم حذف المنطقة' });
 });
 
-// ====================== العروض المميزة (أدمن) ======================
-
+// ====================== العروض المميزة والإعلانات ======================
 app.post('/api/admin/featured', authenticate, adminOnly, async (req, res) => {
   const { productId } = req.body;
   if (!productId) return res.status(400).json({ message: 'معرف المنتج مطلوب' });
@@ -536,63 +550,43 @@ app.post('/api/admin/featured', authenticate, adminOnly, async (req, res) => {
   await pool.query('INSERT INTO featured_offers (product_id, added_by) VALUES ($1,$2)', [productId, req.user.id]);
   res.status(201).json({ message: 'تمت إضافة المنتج إلى المميزة' });
 });
-
 app.get('/api/featured', async (req, res) => {
   const productFeatured = await pool.query(
     `SELECT f.id as feature_id, p.*, u.store_name, u.contact_phone, u.store_image
-     FROM featured_offers f
-     JOIN products p ON f.product_id = p.id
+     FROM featured_offers f JOIN products p ON f.product_id = p.id
      JOIN users u ON p.seller_id = u.id`
   );
   const banners = await pool.query('SELECT * FROM admin_banners ORDER BY created_at DESC');
   res.json({ products: productFeatured.rows, banners: banners.rows });
 });
-
 app.delete('/api/admin/featured/:id', authenticate, adminOnly, async (req, res) => {
   await pool.query('DELETE FROM featured_offers WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم إزالة التمييز' });
 });
 
-// ====================== الإعلانات العامة (أدمن) ======================
-
 app.post('/api/admin/banners', authenticate, adminOnly, upload.single('image'), async (req, res) => {
   try {
     const { title, description } = req.body;
     if (!title) return res.status(400).json({ message: 'العنوان مطلوب' });
-
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      return res.status(500).json({ message: 'إعدادات Cloudinary غير مكتملة. راجع المتغيرات في Railway.' });
-    }
-
+    if (!process.env.CLOUDINARY_CLOUD_NAME) return res.status(500).json({ message: 'إعدادات Cloudinary غير مكتملة.' });
     let imageUrl = null;
     if (req.file) {
-      try {
-        const result = await uploadToCloudinary(req.file.buffer);
-        imageUrl = result.secure_url;
-      } catch (cloudErr) {
-        console.error('فشل رفع الصورة إلى Cloudinary:', cloudErr);
-        return res.status(500).json({ message: 'فشل رفع الصورة. تحقق من إعدادات Cloudinary.' });
-      }
+      const result = await uploadToCloudinary(req.file.buffer);
+      imageUrl = result.secure_url;
     }
-
     const banner = await pool.query(
       'INSERT INTO admin_banners (title, description, image, added_by) VALUES ($1,$2,$3,$4) RETURNING *',
       [title, description || null, imageUrl, req.user.id]
     );
     res.status(201).json(banner.rows[0]);
-  } catch (err) {
-    console.error('خطأ في إضافة الإعلان:', err);
-    res.status(500).json({ message: 'خطأ في الخادم أثناء إضافة الإعلان.' });
-  }
+  } catch (err) { console.error(err); res.status(500).json({ message: 'خطأ في الخادم' }); }
 });
-
 app.delete('/api/admin/banners/:id', authenticate, adminOnly, async (req, res) => {
   await pool.query('DELETE FROM admin_banners WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم حذف الإعلان' });
 });
 
-// ====================== البحث ======================
-
+// ====================== البحث وإدارة المستخدمين ======================
 app.get('/api/search', async (req, res) => {
   const { keyword } = req.query;
   let query = 'SELECT p.*, u.store_name FROM products p JOIN users u ON p.seller_id = u.id';
@@ -605,29 +599,112 @@ app.get('/api/search', async (req, res) => {
   res.json(result.rows);
 });
 
-// ====================== إدارة المستخدمين (أدمن) ======================
-
 app.get('/api/admin/users', authenticate, adminOnly, async (req, res) => {
-  const result = await pool.query('SELECT id, username, phone, role, store_name, verified, created_at FROM users');
+  const result = await pool.query('SELECT id, username, phone, role, store_name, verified, max_products, created_at FROM users');
   res.json(result.rows);
 });
-
 app.put('/api/admin/user/:id', authenticate, adminOnly, async (req, res) => {
   const { role } = req.body;
   if (!['user', 'seller', 'admin'].includes(role)) return res.status(400).json({ message: 'دور غير صالح' });
   await pool.query('UPDATE users SET role = $1 WHERE id = $2', [role, req.params.id]);
   res.json({ message: 'تم تحديث الدور' });
 });
-
 app.delete('/api/admin/user/:id', authenticate, adminOnly, async (req, res) => {
-  try {
-    const result = await pool.query('DELETE FROM users WHERE id = $1 AND role != $2', [req.params.id, 'admin']);
-    if (result.rowCount === 0) return res.status(404).json({ message: 'المستخدم غير موجود أو لا يمكن حذف أدمن آخر' });
-    res.json({ message: 'تم حذف المستخدم بنجاح' });
-  } catch (err) { console.error(err); res.status(500).json({ message: 'خطأ أثناء الحذف' }); }
+  const result = await pool.query('DELETE FROM users WHERE id = $1 AND role != $2', [req.params.id, 'admin']);
+  if (result.rowCount === 0) return res.status(404).json({ message: 'المستخدم غير موجود أو لا يمكن حذف أدمن آخر' });
+  res.json({ message: 'تم حذف المستخدم بنجاح' });
 });
 
-// ---------- معالجة شاملة للرفض غير المعالج ----------
+// ====================== نظام الباقات والترقيات ======================
+
+// تقديم طلب ترقية (للبائع)
+app.post('/api/subscription/request', authenticate, sellerOnly, upload.single('receipt'), async (req, res) => {
+  try {
+    const { pack } = req.body;
+    const extraProducts = parseInt(pack);
+    if (![50, 100, 150, 200].includes(extraProducts)) {
+      return res.status(400).json({ message: 'الباقة غير صالحة. اختر 50، 100، 150... منتج إضافي.' });
+    }
+    const amount = (extraProducts / 50) * 5; // كل 50 منتج = 5 دولار
+
+    let receiptUrl = null;
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+      receiptUrl = result.secure_url;
+    } else {
+      return res.status(400).json({ message: 'يجب رفع إيصال الدفع (صورة شام كاش).' });
+    }
+
+    await pool.query(
+      `INSERT INTO subscription_requests (user_id, username, pack_name, amount, extra_products, payment_receipt)
+       VALUES ($1,$2,$3,$4,$5,$6)`,
+      [req.user.id, req.user.username, `${extraProducts} منتج إضافي`, amount, extraProducts, receiptUrl]
+    );
+
+    // إشعار للأدمن
+    const admins = await pool.query("SELECT id FROM users WHERE role = 'admin'");
+    for (const admin of admins.rows) {
+      await addNotification(admin.id, `طلب ترقية جديد من ${req.user.username} - ${extraProducts} منتج إضافي.`);
+    }
+
+    res.json({ message: 'تم تقديم طلب الترقية بنجاح. سنقوم بمراجعته قريباً.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'خطأ في تقديم الطلب.' });
+  }
+});
+
+// الأدمن: عرض طلبات الترقية
+app.get('/api/admin/subscription-requests', authenticate, adminOnly, async (req, res) => {
+  const result = await pool.query('SELECT * FROM subscription_requests ORDER BY created_at DESC');
+  res.json(result.rows);
+});
+
+// الأدمن: قبول طلب ترقية
+app.put('/api/admin/subscription-requests/:id/approve', authenticate, adminOnly, async (req, res) => {
+  const reqId = req.params.id;
+  const request = await pool.query('SELECT * FROM subscription_requests WHERE id = $1', [reqId]);
+  if (request.rows.length === 0) return res.status(404).json({ message: 'الطلب غير موجود' });
+  if (request.rows[0].status !== 'pending') return res.status(400).json({ message: 'الطلب ليس قيد الانتظار' });
+
+  const { user_id, extra_products } = request.rows[0];
+
+  // زيادة حد المنتجات
+  await pool.query('UPDATE users SET max_products = COALESCE(max_products, 20) + $1 WHERE id = $2', [extra_products, user_id]);
+  // تحديث حالة الطلب
+  await pool.query('UPDATE subscription_requests SET status = $1 WHERE id = $2', ['approved', reqId]);
+
+  // إشعار للبائع
+  await addNotification(user_id, `تمت الموافقة على ترقية باقتك! تمت إضافة ${extra_products} منتج إضافي.`);
+
+  res.json({ message: 'تمت الموافقة على الترقية.' });
+});
+
+// الأدمن: رفض طلب ترقية
+app.put('/api/admin/subscription-requests/:id/reject', authenticate, adminOnly, async (req, res) => {
+  const reqId = req.params.id;
+  await pool.query('UPDATE subscription_requests SET status = $1 WHERE id = $2', ['rejected', reqId]);
+
+  const request = await pool.query('SELECT user_id, extra_products FROM subscription_requests WHERE id = $1', [reqId]);
+  if (request.rows.length > 0) {
+    await addNotification(request.rows[0].user_id, `تم رفض طلب ترقية الباقة (${request.rows[0].extra_products} منتج).`);
+  }
+
+  res.json({ message: 'تم رفض الطلب.' });
+});
+
+// ====================== الإشعارات (للمستخدم الحالي) ======================
+app.get('/api/notifications', authenticate, async (req, res) => {
+  const result = await pool.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50', [req.user.id]);
+  res.json(result.rows);
+});
+
+app.put('/api/notifications/:id/read', authenticate, async (req, res) => {
+  await pool.query('UPDATE notifications SET is_read = true WHERE id = $1 AND user_id = $2', [req.params.id, req.user.id]);
+  res.json({ message: 'ok' });
+});
+
+// ---------- معالجة الأخطاء ----------
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Promise Rejection:', reason);
 });
