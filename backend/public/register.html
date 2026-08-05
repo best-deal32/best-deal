@@ -6,21 +6,23 @@
     <title>إنشاء حساب - سلة</title>
     <style>
         :root {
-            --bg-dark: #0d0d0d;
-            --bg-card: #1a1a1a;
-            --gold: #d4af37;
-            --gold-light: #f1c40f;
-            --text: #e0e0e0;
-            --text-muted: #aaaaaa;
-            --border: #333;
-            --input-bg: #222;
+            --primary-red: #b22222;
+            --primary-light-red: #dc3545;
+            --primary-yellow: #f4b400;
+            --primary-light-yellow: #ffcc00;
+            --bg-dark: #1c1c1c;
+            --bg-card: #262626;
+            --text: #f5f5f5;
+            --text-muted: #bbbbbb;
+            --border: #404040;
+            --input-bg: #333;
             --radius: 20px;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+            background: radial-gradient(circle at top, #2d1a1a 0%, #0f0a0a 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -29,18 +31,18 @@
             color: var(--text);
         }
         .register-card {
-            background: rgba(20, 20, 20, 0.9);
+            background: rgba(38, 38, 38, 0.9);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--gold);
+            border: 1px solid var(--primary-yellow);
             border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(244, 180, 0, 0.15);
             max-width: 480px;
             width: 100%;
             padding: 40px 30px;
         }
         .basket-logo {
             font-size: 3.5rem;
-            filter: drop-shadow(0 0 10px var(--gold-light));
+            filter: drop-shadow(0 0 10px var(--primary-yellow));
             text-align: center;
             margin-bottom: 10px;
         }
@@ -48,7 +50,7 @@
             text-align: center;
             font-size: 2.2rem;
             font-weight: 700;
-            color: var(--gold);
+            color: var(--primary-yellow);
             margin-bottom: 5px;
         }
         .subtitle {
@@ -64,7 +66,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: var(--gold);
+            color: var(--primary-yellow);
         }
         .form-group input {
             width: 100%;
@@ -78,33 +80,29 @@
             transition: border-color 0.3s, background 0.3s;
         }
         .form-group input::placeholder { color: var(--text-muted); }
-        .form-group input:focus { border-color: var(--gold); background: #2a2a2a; }
+        .form-group input:focus { border-color: var(--primary-yellow); background: #3a3a3a; }
         .btn-register {
             width: 100%;
             padding: 14px;
             font-size: 1.1rem;
             font-weight: 700;
-            color: #000;
-            background-color: var(--gold);
+            color: white;
+            background-color: var(--primary-red);
             border: none;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5);
             margin-top: 10px;
             margin-bottom: 20px;
         }
-        .btn-register:hover { background-color: var(--gold-light); transform: translateY(-2px); }
+        .btn-register:hover { background-color: var(--primary-light-red); transform: translateY(-2px); }
         .extra-links {
             text-align: center;
             font-size: 0.9rem;
             margin-bottom: 5px;
         }
-        .extra-links a {
-            color: var(--gold);
-            text-decoration: none;
-            font-weight: 500;
-        }
+        .extra-links a { color: var(--primary-yellow); text-decoration: none; font-weight: 500; }
         .extra-links a:hover { text-decoration: underline; }
         .back-home {
             display: block;
@@ -114,7 +112,7 @@
             font-size: 0.9rem;
             text-decoration: none;
         }
-        .back-home:hover { color: var(--gold); }
+        .back-home:hover { color: var(--primary-yellow); }
         .error-message {
             color: #e74c3c;
             font-size: 0.85rem;
@@ -133,11 +131,11 @@
     <div class="register-card">
         <div class="basket-logo">🧺</div>
         <h1>سلة</h1>
-        <p class="subtitle">أنشئ حسابك وابدأ في عرض منتجاتك</p>
+        <p class="subtitle">أنشئ حسابك وابدأ في عرض ألبستك</p>
 
         <form id="registerForm">
             <div class="form-group">
-                <label for="username">اسم المستخدم</label>
+                <label for="username">اسم المستخدم *</label>
                 <input type="text" id="username" placeholder="اختر اسم مستخدم فريد" required>
             </div>
             <div class="form-group">
@@ -145,16 +143,16 @@
                 <input type="text" id="storeName" placeholder="اسم متجرك أو علامتك التجارية">
             </div>
             <div class="form-group">
-                <label for="phone">رقم الهاتف</label>
+                <label for="phone">رقم الهاتف *</label>
                 <input type="tel" id="phone" placeholder="مثال: 0999123456" required>
                 <div class="error-message" id="phoneError">يرجى إدخال رقم الهاتف</div>
             </div>
             <div class="form-group">
-                <label for="password">كلمة المرور</label>
+                <label for="password">كلمة المرور *</label>
                 <input type="password" id="password" placeholder="********" required>
             </div>
             <div class="form-group">
-                <label for="confirmPassword">تأكيد كلمة المرور</label>
+                <label for="confirmPassword">تأكيد كلمة المرور *</label>
                 <input type="password" id="confirmPassword" placeholder="********" required>
                 <div class="error-message" id="passwordError">كلمتا المرور غير متطابقتين</div>
             </div>
@@ -175,7 +173,7 @@
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // إخفاء الرسائل السابقة
+            // إخفاء جميع رسائل الخطأ
             document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
             serverError.style.display = 'none';
 
