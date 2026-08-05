@@ -12,21 +12,16 @@
             --primary-light-yellow: #ffcc00;
             --bg-dark: #1c1c1c;
             --bg-card: #262626;
-            --bg-sidebar: #1a1a1a;
             --text: #f5f5f5;
             --text-muted: #bbbbbb;
-            --danger: #e74c3c;
-            --success: #2ecc71;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #f59e0b;
             --border: #404040;
             --radius: 16px;
+            --input-bg: #333;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: radial-gradient(circle at top, #2d1a1a 0%, #0f0a0a 100%);
@@ -34,10 +29,8 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
         }
-
-        /* ========== شريط علوي ========== */
+        /* شريط علوي */
         .navbar {
             display: flex;
             align-items: center;
@@ -51,7 +44,6 @@
             top: 0;
             z-index: 100;
         }
-
         .logo {
             display: flex;
             align-items: center;
@@ -60,20 +52,16 @@
             color: var(--primary-yellow);
             font-size: 2rem;
             font-weight: 800;
-            letter-spacing: -1px;
         }
-
         .logo .basket-icon {
             font-size: 2.5rem;
             filter: drop-shadow(0 0 8px var(--primary-yellow));
         }
-
         .nav-links {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-
         .nav-links a {
             color: var(--text);
             text-decoration: none;
@@ -82,13 +70,10 @@
             border-radius: 30px;
             transition: 0.3s;
         }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            background: rgba(244, 180, 0, 0.15);
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(244,180,0,0.15);
             color: var(--primary-yellow);
         }
-
         .btn-logout {
             background: transparent;
             border: 2px solid var(--primary-yellow);
@@ -100,13 +85,7 @@
             transition: 0.3s;
             font-size: 0.95rem;
         }
-
-        .btn-logout:hover {
-            background: var(--primary-yellow);
-            color: #000;
-        }
-
-        /* زر القائمة للجوال */
+        .btn-logout:hover { background: var(--primary-yellow); color: #000; }
         .menu-toggle {
             display: none;
             background: none;
@@ -115,29 +94,19 @@
             font-size: 2rem;
             cursor: pointer;
         }
-
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
                 flex-direction: column;
                 position: absolute;
-                top: 70px;
-                left: 0;
-                right: 0;
-                background: var(--bg-sidebar);
+                top: 70px; left:0; right:0;
+                background: #1a1a1a;
                 border-bottom: 2px solid var(--primary-yellow);
-                padding: 20px;
-                gap: 15px;
+                padding: 20px; gap: 15px;
             }
-            .nav-links.show {
-                display: flex;
-            }
-            .menu-toggle {
-                display: block;
-            }
+            .nav-links.show { display: flex; }
+            .menu-toggle { display: block; }
         }
-
-        /* ========== المحتوى الرئيسي ========== */
         .main-container {
             flex: 1;
             padding: 30px 20px;
@@ -145,8 +114,6 @@
             margin: 0 auto;
             width: 100%;
         }
-
-        /* ========== البطاقات ========== */
         .section {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -156,7 +123,6 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.4);
             border-top: 4px solid var(--primary-yellow);
         }
-
         .section h2 {
             color: var(--primary-yellow);
             margin-bottom: 20px;
@@ -164,21 +130,9 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
         }
-
-        /* ========== الجداول ========== */
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 700px;
-        }
-
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th {
             text-align: right;
             color: var(--primary-light-yellow);
@@ -186,14 +140,12 @@
             border-bottom: 2px solid var(--primary-yellow);
             white-space: nowrap;
         }
-
         td {
             padding: 12px 8px;
             border-bottom: 1px solid var(--border);
             color: var(--text);
             white-space: nowrap;
         }
-
         .btn-sm {
             padding: 6px 14px;
             border-radius: 20px;
@@ -204,36 +156,14 @@
             font-size: 0.9rem;
             margin: 2px;
         }
-
-        .btn-role {
-            background: var(--primary-yellow);
-            color: #000;
-        }
-        .btn-role:hover {
-            background: var(--primary-light-yellow);
-        }
-        .btn-delete {
-            background: var(--danger);
-            color: white;
-        }
-        .btn-delete:hover {
-            background: #c0392b;
-        }
-        .btn-approve {
-            background: var(--success);
-            color: white;
-        }
-        .btn-approve:hover {
-            background: #27ae60;
-        }
-        .btn-reject {
-            background: #f39c12;
-            color: #000;
-        }
-        .btn-reject:hover {
-            background: #e67e22;
-        }
-
+        .btn-role { background: var(--primary-yellow); color: #000; }
+        .btn-role:hover { background: var(--primary-light-yellow); }
+        .btn-delete { background: var(--danger); color: white; }
+        .btn-delete:hover { background: #b91c1c; }
+        .btn-approve { background: var(--success); color: white; }
+        .btn-approve:hover { background: #15803d; }
+        .btn-reject { background: var(--warning); color: #000; }
+        .btn-reject:hover { background: #fbbf24; }
         select {
             background: #333;
             color: var(--text);
@@ -242,15 +172,12 @@
             border-radius: 8px;
             cursor: pointer;
         }
-
-        /* ========== النماذج ========== */
         .form-inline {
             display: flex;
             gap: 15px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-
         .form-inline input {
             flex: 1;
             background: #333;
@@ -259,9 +186,7 @@
             padding: 12px 15px;
             border-radius: 30px;
             min-width: 200px;
-            font-size: 1rem;
         }
-
         .btn-add {
             background: var(--primary-red);
             color: white;
@@ -271,20 +196,13 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
-            font-size: 1rem;
-            white-space: nowrap;
         }
-
-        .btn-add:hover {
-            background: var(--primary-light-red);
-        }
-
+        .btn-add:hover { background: var(--primary-light-red); }
         .banner-form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
-
         .banner-form-grid input,
         .banner-form-grid textarea {
             background: #333;
@@ -292,9 +210,7 @@
             color: white;
             padding: 12px;
             border-radius: 12px;
-            font-size: 1rem;
         }
-
         .banner-form-grid button {
             grid-column: span 2;
             background: var(--primary-red);
@@ -304,52 +220,30 @@
             border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 1rem;
         }
-
-        @media (max-width: 600px) {
-            .banner-form-grid {
-                grid-template-columns: 1fr;
-            }
-            .banner-form-grid button {
-                grid-column: 1;
-            }
-        }
-
-        /* ========== الرسائل ========== */
         .message {
-            padding: 12px 20px;
+            padding: 10px 15px;
             border-radius: 8px;
-            margin: 15px 0;
+            margin: 10px 0;
             display: none;
             font-weight: 500;
         }
-
-        .message.success {
-            background: var(--success);
-            color: white;
-            display: block;
-        }
-
-        .message.error {
-            background: var(--danger);
-            color: white;
-            display: block;
-        }
-
-        /* ========== التذييل ========== */
+        .message.success { background: var(--success); color: white; display: block; }
+        .message.error { background: var(--danger); color: white; display: block; }
         footer {
             text-align: center;
             padding: 20px;
             color: var(--text-muted);
             border-top: 1px solid var(--border);
             margin-top: auto;
-            font-size: 0.9rem;
+        }
+        @media (max-width: 600px) {
+            .banner-form-grid { grid-template-columns: 1fr; }
+            .banner-form-grid button { grid-column: 1; }
         }
     </style>
 </head>
 <body>
-    <!-- شريط التنقل -->
     <nav class="navbar">
         <a href="dashboard.html" class="logo">
             <span class="basket-icon">🧺</span>
@@ -377,7 +271,7 @@
                             <th>رقم الهاتف</th>
                             <th>الدور</th>
                             <th>متجر</th>
-                            <th>المنتجات</th>
+                            <th>الحد الأقصى</th>
                             <th>مفعل</th>
                             <th>تاريخ التسجيل</th>
                             <th>إجراءات</th>
@@ -425,6 +319,7 @@
                             <th>الباقة</th>
                             <th>المبلغ</th>
                             <th>منتجات إضافية</th>
+                            <th>المدة</th>
                             <th>الإيصال</th>
                             <th>الحالة</th>
                             <th>التاريخ</th>
@@ -440,7 +335,6 @@
     <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
 
     <script>
-        // ---------- دوال عامة ----------
         function showMessage(msg, type) {
             const el = document.getElementById('globalMessage');
             el.textContent = msg;
@@ -448,7 +342,6 @@
             setTimeout(() => { el.className = 'message'; }, 4000);
         }
 
-        // ---------- التحقق من الأدمن ----------
         async function checkAdmin() {
             try {
                 const res = await fetch('/api/auth/me', { credentials: 'include' });
@@ -459,7 +352,7 @@
             } catch (e) { window.location.href = 'login.html'; return false; }
         }
 
-        // ---------- إدارة المستخدمين ----------
+        // ---------- المستخدمين ----------
         async function loadUsers() {
             try {
                 const res = await fetch('/api/admin/users', { credentials: 'include' });
@@ -477,7 +370,7 @@
                             </select>
                         </td>
                         <td>${u.store_name || '—'}</td>
-                        <td>${u.currentProducts ?? '?'} / ${u.max_products ?? 20}</td>
+                        <td>${u.max_products || 20}</td>
                         <td>${u.verified ? '✅' : '❌'}</td>
                         <td>${new Date(u.created_at).toLocaleDateString('ar')}</td>
                         <td>
@@ -595,7 +488,7 @@
                 const requests = await res.json();
                 const tbody = document.querySelector('#subscriptionTable tbody');
                 if (requests.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-muted);">لا توجد طلبات ترقية</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">لا توجد طلبات ترقية</td></tr>';
                     return;
                 }
                 tbody.innerHTML = requests.map(r => `
@@ -604,6 +497,7 @@
                         <td>${r.pack_name}</td>
                         <td>${r.amount}$</td>
                         <td>${r.extra_products}</td>
+                        <td>${r.duration || '—'}</td>
                         <td><a href="${r.payment_receipt}" target="_blank" style="color:#fbbf24;">عرض</a></td>
                         <td>${r.status === 'pending' ? '⏳ قيد الانتظار' : r.status === 'approved' ? '✅ مقبول' : '❌ مرفوض'}</td>
                         <td>${new Date(r.created_at).toLocaleDateString('ar')}</td>
@@ -632,11 +526,10 @@
             else { const data = await res.json(); showMessage(data.message||'خطأ', 'error'); }
         }
 
-        // ---------- ربط الأحداث ----------
+        // ربط الأحداث
         document.addEventListener('DOMContentLoaded', async () => {
             if (!(await checkAdmin())) return;
 
-            // زر القائمة للجوال
             document.getElementById('menuToggle').addEventListener('click', () => {
                 document.getElementById('navLinks').classList.toggle('show');
             });
