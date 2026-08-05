@@ -1,7 +1,7 @@
 // ============================================================
 // server.js - سلة (Express + PostgreSQL + Telegram Bot)
-// النسخة النهائية المعدلة: ألبسة فقط، دعم الباقات والترقيات
-// نظام إشعارات بسيط للأدمن والبائعين
+// النسخة النهائية الكاملة مع نظام الباقات والترقيات
+// دعم الألبسة فقط، تحقق تيليجرام، إشعارات، حدود المنتجات
 // ============================================================
 
 const express = require('express');
@@ -67,7 +67,7 @@ if (process.env.TELEGRAM_BOT_TOKEN) {
 
   bot.on('polling_error', (error) => {
     if (error.code === 'ETELEGRAM' && error.message.includes('409 Conflict')) {
-      console.warn('⚠️ تعارض بوت. إعادة تشغيل البولينج...');
+      console.warn('⚠️ تعارض بوت. إعادة تشغيل...');
       bot.stopPolling().then(() => setTimeout(() => bot.startPolling(), 2000));
     }
   });
@@ -185,6 +185,7 @@ async function createTables() {
         extra_products INT NOT NULL,
         payment_receipt VARCHAR(255),
         status VARCHAR(20) DEFAULT 'pending',
+        duration VARCHAR(50),
         created_at TIMESTAMP DEFAULT NOW()
       );
 
@@ -197,12 +198,12 @@ async function createTables() {
       );
     `);
 
-    // أعمدة إضافية
     const alterQueries = [
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_code_expires TIMESTAMP`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(50)`,
       `ALTER TABLE users DROP COLUMN IF EXISTS email`,
-      `ALTER TABLE users ADD COLUMN IF NOT EXISTS max_products INT DEFAULT 20`
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS max_products INT DEFAULT 20`,
+      `ALTER TABLE subscription_requests ADD COLUMN IF NOT EXISTS duration VARCHAR(50)`
     ];
     for (const q of alterQueries) {
       await client.query(q).catch(() => {});
@@ -361,7 +362,6 @@ app.post('/api/auth/logout', authenticate, async (req, res) => {
 
 app.get('/api/auth/me', authenticate, async (req, res) => {
   const { password, refresh_token, verification_code, ...safe } = req.user;
-  // حساب عدد المنتجات الحالي
   const count = await pool.query('SELECT COUNT(*)::int AS cnt FROM products WHERE seller_id = $1', [req.user.id]);
   res.json({ ...safe, currentProducts: count.rows[0].cnt, maxProducts: req.user.max_products || 20 });
 });
@@ -369,7 +369,6 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
 // ====================== المنتجات (ألبسة فقط) ======================
 app.post('/api/products', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   try {
-    // فحص عدد المنتجات مقابل الحد المسموح
     const countResult = await pool.query('SELECT COUNT(*)::int AS cnt FROM products WHERE seller_id = $1', [req.user.id]);
     const currentCount = countResult.rows[0].cnt;
     const maxAllowed = req.user.max_products || 20;
@@ -616,32 +615,30 @@ app.delete('/api/admin/user/:id', authenticate, adminOnly, async (req, res) => {
 });
 
 // ====================== نظام الباقات والترقيات ======================
-
-// تقديم طلب ترقية (للبائع)
 app.post('/api/subscription/request', authenticate, sellerOnly, upload.single('receipt'), async (req, res) => {
   try {
-    const { pack } = req.body;
+    const { pack, duration, amount: priceAmount } = req.body;
     const extraProducts = parseInt(pack);
     if (![50, 100, 150, 200].includes(extraProducts)) {
-      return res.status(400).json({ message: 'الباقة غير صالحة. اختر 50، 100، 150... منتج إضافي.' });
+      return res.status(400).json({ message: 'باقة غير صالحة.' });
     }
-    const amount = (extraProducts / 50) * 5; // كل 50 منتج = 5 دولار
+    // استخدم السعر المرسل من الواجهة (الذي يحسب حسب المدة) أو احتسبه هنا
+    const finalAmount = parseFloat(priceAmount) || (extraProducts / 50) * 5;
 
     let receiptUrl = null;
     if (req.file) {
       const result = await uploadToCloudinary(req.file.buffer);
       receiptUrl = result.secure_url;
     } else {
-      return res.status(400).json({ message: 'يجب رفع إيصال الدفع (صورة شام كاش).' });
+      return res.status(400).json({ message: 'يجب رفع إيصال الدفع.' });
     }
 
     await pool.query(
-      `INSERT INTO subscription_requests (user_id, username, pack_name, amount, extra_products, payment_receipt)
-       VALUES ($1,$2,$3,$4,$5,$6)`,
-      [req.user.id, req.user.username, `${extraProducts} منتج إضافي`, amount, extraProducts, receiptUrl]
+      `INSERT INTO subscription_requests (user_id, username, pack_name, amount, extra_products, payment_receipt, duration)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [req.user.id, req.user.username, `${extraProducts} منتج إضافي`, finalAmount, extraProducts, receiptUrl, duration || 'شهر']
     );
 
-    // إشعار للأدمن
     const admins = await pool.query("SELECT id FROM users WHERE role = 'admin'");
     for (const admin of admins.rows) {
       await addNotification(admin.id, `طلب ترقية جديد من ${req.user.username} - ${extraProducts} منتج إضافي.`);
@@ -654,13 +651,11 @@ app.post('/api/subscription/request', authenticate, sellerOnly, upload.single('r
   }
 });
 
-// الأدمن: عرض طلبات الترقية
 app.get('/api/admin/subscription-requests', authenticate, adminOnly, async (req, res) => {
   const result = await pool.query('SELECT * FROM subscription_requests ORDER BY created_at DESC');
   res.json(result.rows);
 });
 
-// الأدمن: قبول طلب ترقية
 app.put('/api/admin/subscription-requests/:id/approve', authenticate, adminOnly, async (req, res) => {
   const reqId = req.params.id;
   const request = await pool.query('SELECT * FROM subscription_requests WHERE id = $1', [reqId]);
@@ -669,18 +664,14 @@ app.put('/api/admin/subscription-requests/:id/approve', authenticate, adminOnly,
 
   const { user_id, extra_products } = request.rows[0];
 
-  // زيادة حد المنتجات
   await pool.query('UPDATE users SET max_products = COALESCE(max_products, 20) + $1 WHERE id = $2', [extra_products, user_id]);
-  // تحديث حالة الطلب
   await pool.query('UPDATE subscription_requests SET status = $1 WHERE id = $2', ['approved', reqId]);
 
-  // إشعار للبائع
   await addNotification(user_id, `تمت الموافقة على ترقية باقتك! تمت إضافة ${extra_products} منتج إضافي.`);
 
   res.json({ message: 'تمت الموافقة على الترقية.' });
 });
 
-// الأدمن: رفض طلب ترقية
 app.put('/api/admin/subscription-requests/:id/reject', authenticate, adminOnly, async (req, res) => {
   const reqId = req.params.id;
   await pool.query('UPDATE subscription_requests SET status = $1 WHERE id = $2', ['rejected', reqId]);
@@ -693,7 +684,7 @@ app.put('/api/admin/subscription-requests/:id/reject', authenticate, adminOnly, 
   res.json({ message: 'تم رفض الطلب.' });
 });
 
-// ====================== الإشعارات (للمستخدم الحالي) ======================
+// ====================== الإشعارات ======================
 app.get('/api/notifications', authenticate, async (req, res) => {
   const result = await pool.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50', [req.user.id]);
   res.json(result.rows);
