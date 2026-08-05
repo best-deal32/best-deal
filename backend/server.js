@@ -1,7 +1,6 @@
 // ============================================================
 // server.js - سلة (Express + PostgreSQL + Telegram Bot)
-// النسخة النهائية الكاملة مع نظام الباقات والترقيات
-// دعم الألبسة فقط، تحقق تيليجرام، إشعارات، حدود المنتجات
+// النسخة النهائية الكاملة مع نظام الباقات والترقيات والإعدادات
 // ============================================================
 
 const express = require('express');
@@ -23,14 +22,14 @@ const REFRESH_SECRET = process.env.REFRESH_SECRET || 'change-me-too';
 
 // ---------- Cloudinary ----------
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.error('❌ خطأ في إعدادات Cloudinary. تأكد من وجود المتغيرات المطلوبة.');
+  console.error('❌ خطأ في إعدادات Cloudinary.');
 } else {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
   });
-  console.log('✅ إعدادات Cloudinary صحيحة');
+  console.log('✅ Cloudinary جاهز');
 }
 
 const upload = multer({
@@ -114,6 +113,8 @@ async function createTables() {
         store_name VARCHAR(100),
         store_image VARCHAR(255),
         contact_phone VARCHAR(20),
+        description TEXT,
+        telegram_username VARCHAR(50),
         verified BOOLEAN DEFAULT false,
         verification_code VARCHAR(6),
         verification_code_expires TIMESTAMP,
@@ -160,6 +161,12 @@ async function createTables() {
         seller_id UUID REFERENCES users(id) ON DELETE CASCADE
       );
 
+      CREATE TABLE IF NOT EXISTS custom_menus (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        seller_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL
+      );
+
       CREATE TABLE IF NOT EXISTS featured_offers (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         product_id UUID UNIQUE REFERENCES products(id) ON DELETE CASCADE,
@@ -203,6 +210,8 @@ async function createTables() {
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_chat_id VARCHAR(50)`,
       `ALTER TABLE users DROP COLUMN IF EXISTS email`,
       `ALTER TABLE users ADD COLUMN IF NOT EXISTS max_products INT DEFAULT 20`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS description TEXT`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS telegram_username VARCHAR(50)`,
       `ALTER TABLE subscription_requests ADD COLUMN IF NOT EXISTS duration VARCHAR(50)`
     ];
     for (const q of alterQueries) {
@@ -275,7 +284,6 @@ function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// ---------- دوال الإشعارات ----------
 async function addNotification(userId, message) {
   await pool.query('INSERT INTO notifications (user_id, message) VALUES ($1, $2)', [userId, message]);
 }
@@ -494,7 +502,51 @@ app.get('/api/profile', authenticate, sellerOnly, async (req, res) => {
   const locations = await pool.query('SELECT * FROM locations WHERE seller_id = $1', [req.user.id]);
   const products = await pool.query('SELECT * FROM products WHERE seller_id = $1', [req.user.id]);
   const offers = await pool.query('SELECT * FROM offers WHERE seller_id = $1', [req.user.id]);
-  res.json({ ...safe, drivers: drivers.rows, locations: locations.rows, products: products.rows, offers: offers.rows });
+  const menus = await pool.query('SELECT name FROM custom_menus WHERE seller_id = $1', [req.user.id]);
+  res.json({
+    ...safe,
+    drivers: drivers.rows,
+    locations: locations.rows,
+    products: products.rows,
+    offers: offers.rows,
+    custom_menus: menus.rows.map(r => r.name)
+  });
+});
+
+// ====================== إعدادات المتجر الجديدة ======================
+
+// تغيير كلمة المرور
+app.put('/api/profile/change-password', authenticate, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) return res.status(400).json({ message: 'كلمة المرور الحالية والجديدة مطلوبة' });
+  const user = await pool.query('SELECT password FROM users WHERE id = $1', [req.user.id]);
+  const match = await bcrypt.compare(currentPassword, user.rows[0].password);
+  if (!match) return res.status(400).json({ message: 'كلمة المرور الحالية غير صحيحة' });
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashed, req.user.id]);
+  res.json({ message: 'تم تغيير كلمة المرور بنجاح' });
+});
+
+// تحديث وصف المتجر
+app.put('/api/profile/description', authenticate, sellerOnly, async (req, res) => {
+  const { description } = req.body;
+  await pool.query('UPDATE users SET description = $1 WHERE id = $2', [description || null, req.user.id]);
+  res.json({ message: 'تم حفظ الوصف' });
+});
+
+// إضافة قائمة مخصصة
+app.post('/api/profile/custom-menu', authenticate, sellerOnly, async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ message: 'اسم القائمة مطلوب' });
+  await pool.query('INSERT INTO custom_menus (seller_id, name) VALUES ($1, $2)', [req.user.id, name]);
+  res.json({ message: 'تم إضافة القائمة' });
+});
+
+// تحديث حساب التليجرام
+app.put('/api/profile/telegram', authenticate, sellerOnly, async (req, res) => {
+  const { telegramUsername } = req.body;
+  await pool.query('UPDATE users SET telegram_username = $1 WHERE id = $2', [telegramUsername || null, req.user.id]);
+  res.json({ message: 'تم تحديث حساب التليجرام' });
 });
 
 // ====================== مناديب ومناطق ======================
@@ -622,7 +674,6 @@ app.post('/api/subscription/request', authenticate, sellerOnly, upload.single('r
     if (![50, 100, 150, 200].includes(extraProducts)) {
       return res.status(400).json({ message: 'باقة غير صالحة.' });
     }
-    // استخدم السعر المرسل من الواجهة (الذي يحسب حسب المدة) أو احتسبه هنا
     const finalAmount = parseFloat(priceAmount) || (extraProducts / 50) * 5;
 
     let receiptUrl = null;
