@@ -6,24 +6,27 @@
     <title>ملفي الشخصي - سلة</title>
     <style>
         :root {
-            --bg-dark: #0d0d0d;
-            --bg-card: #1a1a1a;
-            --gold: #d4af37;
-            --gold-light: #f1c40f;
-            --text: #e0e0e0;
-            --text-muted: #aaaaaa;
-            --border: #333;
+            --primary-red: #b22222;
+            --primary-light-red: #dc3545;
+            --primary-yellow: #f4b400;
+            --primary-light-yellow: #ffcc00;
+            --bg-dark: #1c1c1c;
+            --bg-card: #262626;
+            --text: #f5f5f5;
+            --text-muted: #bbbbbb;
+            --border: #404040;
             --radius: 16px;
-            --input-bg: #222;
+            --input-bg: #333;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+            background: radial-gradient(circle at top, #2d1a1a 0%, #0f0a0a 100%);
             color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         /* شريط علوي */
@@ -31,31 +34,39 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--gold);
-            padding: 15px 30px;
-            flex-wrap: wrap;
-            gap: 10px;
+            border-bottom: 2px solid var(--primary-yellow);
+            padding: 0 20px;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .logo {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--gold);
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
+            color: var(--primary-yellow);
+            font-size: 2rem;
+            font-weight: 800;
         }
         .logo .basket-icon {
             font-size: 2.5rem;
-            filter: drop-shadow(0 0 6px var(--gold-light));
+            filter: drop-shadow(0 0 8px var(--primary-yellow));
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
         .nav-links a, .nav-links button {
             color: var(--text);
             text-decoration: none;
-            margin: 0 10px;
-            font-weight: 500;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 30px;
             transition: 0.3s;
             background: none;
             border: none;
@@ -63,20 +74,43 @@
             font-size: 1rem;
             font-family: inherit;
         }
-        .nav-links a:hover, .nav-links button:hover { color: var(--gold); }
-        .btn-outline {
-            border: 1px solid var(--gold);
-            color: var(--gold);
+        .nav-links a:hover, .nav-links button:hover {
+            background: rgba(244,180,0,0.1);
+            color: var(--primary-yellow);
+        }
+        .btn-logout {
             background: transparent;
-            padding: 8px 20px;
+            border: 2px solid var(--primary-yellow);
+            color: var(--primary-yellow);
+            padding: 8px 22px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
             transition: 0.3s;
         }
-        .btn-outline:hover { background: var(--gold); color: #000; }
+        .btn-logout:hover { background: var(--primary-yellow); color: #000; }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary-yellow);
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 70px; left:0; right:0;
+                background: #1a1a1a;
+                border-bottom: 2px solid var(--primary-yellow);
+                padding: 20px; gap: 15px;
+            }
+            .nav-links.show { display:flex; }
+            .menu-toggle { display: block; }
+        }
 
-        /* محتوى */
         .main-container {
             flex: 1;
             padding: 30px 20px;
@@ -85,7 +119,7 @@
             width: 100%;
         }
         .back-link {
-            color: var(--gold);
+            color: var(--primary-yellow);
             text-decoration: none;
             margin-bottom: 20px;
             display: inline-block;
@@ -93,6 +127,7 @@
         }
         .back-link:hover { text-decoration: underline; }
 
+        /* رأس البروفايل */
         .profile-header {
             display: flex;
             gap: 25px;
@@ -104,6 +139,7 @@
             border-radius: var(--radius);
             padding: 25px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            border-top: 4px solid var(--primary-yellow);
         }
         .store-image-wrapper {
             position: relative;
@@ -112,7 +148,7 @@
             border-radius: 20px;
             overflow: hidden;
             background: var(--input-bg);
-            border: 2px solid var(--gold);
+            border: 2px solid var(--primary-yellow);
             cursor: pointer;
         }
         .store-image-wrapper img {
@@ -132,9 +168,9 @@
         }
         .store-image-upload {
             position: absolute;
-            bottom: 0; left: 0; right: 0;
+            bottom: 0; left:0; right:0;
             background: rgba(0,0,0,0.7);
-            color: var(--gold);
+            color: var(--primary-yellow);
             text-align: center;
             padding: 5px;
             font-size: 0.8rem;
@@ -143,14 +179,14 @@
         .store-name {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--gold);
+            color: var(--primary-yellow);
         }
         .contact-number {
             color: var(--text-muted);
             margin: 8px 0;
         }
         .btn-edit {
-            background: var(--gold);
+            background: var(--primary-yellow);
             color: #000;
             border: none;
             padding: 8px 20px;
@@ -159,9 +195,9 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .btn-edit:hover { background: var(--gold-light); }
+        .btn-edit:hover { background: var(--primary-light-yellow); }
 
-        /* أقسام */
+        /* الأقسام */
         .section {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -169,9 +205,10 @@
             padding: 25px;
             margin-bottom: 25px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            border-top: 4px solid var(--primary-yellow);
         }
         .section h2 {
-            color: var(--gold);
+            color: var(--primary-yellow);
             margin-bottom: 15px;
             font-size: 1.5rem;
             display: flex;
@@ -190,8 +227,8 @@
             gap: 10px;
         }
         .discount-badge {
-            background: var(--gold);
-            color: #000;
+            background: var(--primary-red);
+            color: white;
             padding: 3px 12px;
             border-radius: 20px;
             font-weight: bold;
@@ -215,7 +252,7 @@
             background: #111;
         }
         .product-mini .pname { font-weight: 600; margin: 8px 0 4px; }
-        .product-mini .pprice { color: var(--gold); font-weight: bold; }
+        .product-mini .pprice { color: var(--primary-yellow); font-weight: bold; }
 
         .locations {
             display: flex;
@@ -223,7 +260,7 @@
             gap: 8px;
         }
         .location-tag {
-            background: var(--gold);
+            background: var(--primary-yellow);
             color: #000;
             padding: 5px 14px;
             border-radius: 20px;
@@ -231,8 +268,8 @@
         }
 
         .add-btn {
-            background: var(--gold);
-            color: #000;
+            background: var(--primary-red);
+            color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 30px;
@@ -244,35 +281,69 @@
             gap: 8px;
             transition: 0.3s;
         }
-        .add-btn:hover { background: var(--gold-light); }
+        .add-btn:hover { background: var(--primary-light-red); }
 
+        /* الإعدادات */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .settings-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            color: var(--text);
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .settings-btn:hover {
+            border-color: var(--primary-yellow);
+            background: #2a2a2a;
+        }
+        .settings-btn .icon {
+            font-size: 2rem;
+        }
+
+        /* المودال */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            top: 0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(5px);
             align-items: center; justify-content: center;
-            z-index: 100;
+            z-index: 200;
         }
         .modal-content {
             background: var(--bg-card);
-            border: 1px solid var(--gold);
+            border: 2px solid var(--primary-yellow);
             border-radius: var(--radius);
-            padding: 25px;
+            padding: 30px;
             width: 90%;
-            max-width: 400px;
+            max-width: 500px;
             color: var(--text);
         }
-        .modal-content h3 { color: var(--gold); margin-bottom: 15px; }
-        .modal-content input {
+        .modal-content h3 {
+            color: var(--primary-yellow);
+            margin-bottom: 20px;
+        }
+        .modal-content input, .modal-content textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 10px;
             border: 1px solid var(--border);
             background: var(--input-bg);
             color: var(--text);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-family: inherit;
         }
         .modal-actions {
             display: flex;
@@ -280,10 +351,10 @@
             justify-content: flex-end;
         }
         .save-btn {
-            background: var(--gold);
-            color: #000;
+            background: var(--primary-red);
+            color: white;
             border: none;
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
@@ -292,7 +363,7 @@
             background: transparent;
             border: 1px solid var(--text-muted);
             color: var(--text);
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 30px;
             cursor: pointer;
         }
@@ -302,6 +373,7 @@
             padding: 20px;
             color: var(--text-muted);
             border-top: 1px solid var(--border);
+            margin-top: auto;
         }
     </style>
 </head>
@@ -311,11 +383,12 @@
             <span class="basket-icon">🧺</span>
             <span>سلة</span>
         </a>
-        <div class="nav-links">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <div class="nav-links" id="navLinks">
             <a href="dashboard.html">الرئيسية</a>
             <a href="offers.html">العروض</a>
             <a href="create-offer.html">إضافة منتج</a>
-            <button class="btn-outline" id="logoutBtn">تسجيل الخروج</button>
+            <button class="btn-logout" id="logoutBtn">تسجيل الخروج</button>
         </div>
     </nav>
 
@@ -362,6 +435,30 @@
             <div class="locations" id="locationsList"></div>
             <button class="add-btn" onclick="openLocationModal()">+ إضافة منطقة</button>
         </div>
+
+        <!-- الإعدادات الجديدة -->
+        <div class="section">
+            <h2>⚙️ إعدادات المتجر</h2>
+            <div class="settings-grid">
+                <div class="settings-btn" onclick="openPasswordModal()">
+                    <span class="icon">🔒</span> تغيير كلمة المرور
+                </div>
+                <div class="settings-btn" onclick="openDescriptionModal()">
+                    <span class="icon">📝</span> وصف المتجر
+                </div>
+                <div class="settings-btn" onclick="openLocationModal()">
+                    <span class="icon">📍</span> إضافة موقع
+                </div>
+                <div class="settings-btn" onclick="openCustomMenuModal()">
+                    <span class="icon">📂</span> قوائم مخصصة
+                </div>
+                <div class="settings-btn" onclick="openTelegramModal()">
+                    <span class="icon">✈️</span> تغيير حساب التليجرام
+                </div>
+            </div>
+            <!-- عرض القوائم المخصصة المضافة -->
+            <div style="margin-top:20px;" id="customMenusContainer"></div>
+        </div>
     </div>
 
     <!-- مودال تعديل رقم التواصل -->
@@ -401,54 +498,97 @@
         </div>
     </div>
 
+    <!-- مودال تغيير كلمة المرور -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>تغيير كلمة المرور</h3>
+            <input type="password" id="currentPassword" placeholder="كلمة المرور الحالية">
+            <input type="password" id="newPassword" placeholder="كلمة المرور الجديدة">
+            <input type="password" id="confirmNewPassword" placeholder="تأكيد الجديدة">
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeModal('passwordModal')">إلغاء</button>
+                <button class="save-btn" onclick="changePassword()">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال وصف المتجر -->
+    <div id="descriptionModal" class="modal">
+        <div class="modal-content">
+            <h3>وصف المتجر</h3>
+            <textarea id="storeDescription" rows="5" placeholder="اكتب وصفاً لمتجرك..."></textarea>
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeModal('descriptionModal')">إلغاء</button>
+                <button class="save-btn" onclick="saveDescription()">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال قوائم مخصصة -->
+    <div id="customMenuModal" class="modal">
+        <div class="modal-content">
+            <h3>إضافة قائمة مخصصة</h3>
+            <input type="text" id="customMenuName" placeholder="اسم القائمة (مثال: عروض الصيف)">
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeModal('customMenuModal')">إلغاء</button>
+                <button class="save-btn" onclick="addCustomMenu()">إضافة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال تغيير حساب التليجرام -->
+    <div id="telegramModal" class="modal">
+        <div class="modal-content">
+            <h3>تغيير حساب التليجرام للتوثيق</h3>
+            <input type="text" id="newTelegramUsername" placeholder="اسم المستخدم في تليجرام (@username)">
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeModal('telegramModal')">إلغاء</button>
+                <button class="save-btn" onclick="updateTelegram()">حفظ</button>
+            </div>
+        </div>
+    </div>
+
     <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
 
     <script>
-        // التحقق من تسجيل الدخول كبائع
+        // التحقق من تسجيل الدخول
         async function checkAuth() {
-            try {
-                const res = await fetch('/api/auth/me', { credentials: 'include' });
-                if (!res.ok) { window.location.href = 'login.html'; return; }
-                const user = await res.json();
-                if (user.role !== 'seller' && user.role !== 'admin') {
-                    alert('يجب أن تكون بائعاً للوصول لهذه الصفحة.');
-                    window.location.href = 'dashboard.html';
-                }
-            } catch (e) { window.location.href = 'login.html'; }
+            const res = await fetch('/api/auth/me', { credentials: 'include' });
+            if (!res.ok) { window.location.href = 'login.html'; return; }
+            const user = await res.json();
+            if (user.role !== 'seller' && user.role !== 'admin') { window.location.href = 'dashboard.html'; }
         }
 
         // تحميل بيانات الملف الشخصي
         async function loadProfile() {
-            try {
-                const res = await fetch('/api/profile', { credentials: 'include' });
-                if (!res.ok) { alert('فشل تحميل البيانات'); return; }
-                const data = await res.json();
+            const res = await fetch('/api/profile', { credentials: 'include' });
+            if (!res.ok) { alert('فشل تحميل البيانات'); return; }
+            const data = await res.json();
 
-                document.getElementById('storeNameDisplay').textContent = data.store_name || 'اسم المتجر';
-                document.getElementById('contactDisplay').textContent = data.contact_phone ? `📞 ${data.contact_phone}` : '📞 لا يوجد رقم تواصل';
+            document.getElementById('storeNameDisplay').textContent = data.store_name || 'اسم المتجر';
+            document.getElementById('contactDisplay').textContent = data.contact_phone ? `📞 ${data.contact_phone}` : '📞 لا يوجد رقم تواصل';
 
-                if (data.store_image) {
-                    document.getElementById('storeImagePreview').src = data.store_image;
-                    document.getElementById('storeImagePreview').style.display = 'block';
-                    document.getElementById('imagePlaceholder').style.display = 'none';
-                }
+            if (data.store_image) {
+                document.getElementById('storeImagePreview').src = data.store_image;
+                document.getElementById('storeImagePreview').style.display = 'block';
+                document.getElementById('imagePlaceholder').style.display = 'none';
+            }
 
-                renderProducts(data.products || []);
-                renderOffers(data.offers || []);
-                renderDrivers(data.drivers || []);
-                renderLocations(data.locations || []);
-            } catch (err) { console.error(err); }
+            renderProducts(data.products || []);
+            renderOffers(data.offers || []);
+            renderDrivers(data.drivers || []);
+            renderLocations(data.locations || []);
+            renderCustomMenus(data.custom_menus || []);
+            if (data.description) document.getElementById('storeDescription').value = data.description;
+            if (data.telegram_username) document.getElementById('newTelegramUsername').value = data.telegram_username;
         }
 
         function renderProducts(products) {
             const grid = document.getElementById('productsGrid');
-            if (products.length === 0) {
-                grid.innerHTML = '<p style="color:var(--text-muted);">لا توجد منتجات</p>';
-                return;
-            }
+            if (products.length === 0) { grid.innerHTML = '<p style="color:var(--text-muted);">لا توجد منتجات</p>'; return; }
             grid.innerHTML = products.map(p => `
                 <div class="product-mini">
-                    <img src="${p.image || 'https://via.placeholder.com/150x100/1a1a1a/d4af37?text=🧺'}" alt="${p.name}">
+                    <img src="${p.image || 'https://via.placeholder.com/150x100/1c1c1c/f4b400?text=🧺'}" alt="${p.name}">
                     <div class="pname">${p.name}</div>
                     <div class="pprice">${p.price}$</div>
                 </div>
@@ -457,10 +597,7 @@
 
         function renderOffers(offers) {
             const container = document.getElementById('offersList');
-            if (offers.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted);">لا توجد عروض</p>';
-                return;
-            }
+            if (offers.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد عروض</p>'; return; }
             container.innerHTML = offers.map(o => `
                 <div class="list-item">
                     <span>${o.title}</span>
@@ -471,10 +608,7 @@
 
         function renderDrivers(drivers) {
             const container = document.getElementById('driversList');
-            if (drivers.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted);">لا يوجد مناديب</p>';
-                return;
-            }
+            if (drivers.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">لا يوجد مناديب</p>'; return; }
             container.innerHTML = drivers.map(d => `
                 <div class="list-item">
                     <span>🧑‍💼 ${d.name}</span>
@@ -485,32 +619,25 @@
 
         function renderLocations(locations) {
             const container = document.getElementById('locationsList');
-            if (locations.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted);">لا توجد مناطق</p>';
-                return;
-            }
-            container.innerHTML = locations.map(l => `
-                <span class="location-tag">${l.name}</span>
-            `).join('');
+            if (locations.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد مناطق</p>'; return; }
+            container.innerHTML = locations.map(l => `<span class="location-tag">${l.name}</span>`).join('');
+        }
+
+        function renderCustomMenus(menus) {
+            const container = document.getElementById('customMenusContainer');
+            if (!menus || menus.length === 0) { container.innerHTML = ''; return; }
+            container.innerHTML = '<h3 style="color:var(--primary-yellow);">القوائم المخصصة</h3>' + menus.map(m => `<span class="location-tag" style="margin:4px;">${m}</span>`).join('');
         }
 
         // دوال المودال
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        function openContactModal() {
-            document.getElementById('newContact').value = '';
-            openModal('contactModal');
-        }
+        function openContactModal() { openModal('contactModal'); }
         async function saveContact() {
             const phone = document.getElementById('newContact').value.trim();
             if (!phone) return;
-            await fetch('/api/profile', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contactPhone: phone }),
-                credentials: 'include'
-            });
+            await fetch('/api/profile', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({contactPhone: phone}), credentials:'include' });
             closeModal('contactModal');
             loadProfile();
         }
@@ -519,15 +646,10 @@
         async function addDriver() {
             const name = document.getElementById('driverName').value.trim();
             const phone = document.getElementById('driverPhone').value.trim();
-            if (!name || !phone) return;
-            await fetch('/api/drivers', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, phone }),
-                credentials: 'include'
-            });
-            document.getElementById('driverName').value = '';
-            document.getElementById('driverPhone').value = '';
+            if (!name||!phone) return;
+            await fetch('/api/drivers', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name,phone}), credentials:'include' });
+            document.getElementById('driverName').value='';
+            document.getElementById('driverPhone').value='';
             closeModal('driverModal');
             loadProfile();
         }
@@ -536,36 +658,76 @@
         async function addLocation() {
             const name = document.getElementById('locationName').value.trim();
             if (!name) return;
-            await fetch('/api/locations', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name }),
-                credentials: 'include'
-            });
-            document.getElementById('locationName').value = '';
+            await fetch('/api/locations', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name}), credentials:'include' });
+            document.getElementById('locationName').value='';
             closeModal('locationModal');
             loadProfile();
         }
 
-        // رفع صورة المتجر
         async function uploadStoreImage() {
             const file = document.getElementById('storeImageInput').files[0];
             if (!file) return;
             const formData = new FormData();
             formData.append('storeImage', file);
-            await fetch('/api/profile', {
-                method: 'PUT',
-                body: formData,
-                credentials: 'include'
-            });
+            await fetch('/api/profile', { method:'PUT', body: formData, credentials:'include' });
             loadProfile();
+        }
+
+        // الإعدادات الجديدة
+        function openPasswordModal() { openModal('passwordModal'); }
+        async function changePassword() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmNewPassword').value;
+            if (!current || !newPass || newPass !== confirm) {
+                alert('تأكد من البيانات');
+                return;
+            }
+            // استدعاء API تغيير كلمة المرور (سيُضاف لاحقاً)
+            alert('تم تغيير كلمة المرور (محاكاة)');
+            closeModal('passwordModal');
+        }
+
+        function openDescriptionModal() { openModal('descriptionModal'); }
+        async function saveDescription() {
+            const desc = document.getElementById('storeDescription').value.trim();
+            // استدعاء API حفظ الوصف (سيُضاف)
+            alert('تم حفظ الوصف (محاكاة)');
+            closeModal('descriptionModal');
+        }
+
+        function openCustomMenuModal() { openModal('customMenuModal'); }
+        function addCustomMenu() {
+            const name = document.getElementById('customMenuName').value.trim();
+            if (!name) return;
+            // حفظ قائمة مخصصة (محاكاة)
+            alert(`تم إضافة القائمة "${name}"`);
+            document.getElementById('customMenuName').value = '';
+            closeModal('customMenuModal');
+            // تحديث عرض القوائم (محلياً)
+            const container = document.getElementById('customMenusContainer');
+            const existing = container.innerHTML;
+            container.innerHTML = existing + `<span class="location-tag" style="margin:4px;">${name}</span>`;
+        }
+
+        function openTelegramModal() { openModal('telegramModal'); }
+        function updateTelegram() {
+            const username = document.getElementById('newTelegramUsername').value.trim();
+            if (!username) return;
+            // استدعاء API تحديث التليجرام (سيُضاف)
+            alert(`تم تحديث حساب التليجرام إلى @${username}`);
+            closeModal('telegramModal');
         }
 
         // تسجيل الخروج
         document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
-            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            await fetch('/api/auth/logout', { method:'POST', credentials:'include' });
             window.location.href = 'index.html';
+        });
+
+        document.getElementById('menuToggle').addEventListener('click', ()=>{
+            document.getElementById('navLinks').classList.toggle('show');
         });
 
         // بدء التشغيل
