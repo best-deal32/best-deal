@@ -6,12 +6,14 @@
     <title>سلة - السوق الرقمي</title>
     <style>
         :root {
-            --bg-dark: #0d0d0d;
-            --gold: #d4af37;
-            --gold-light: #f1c40f;
-            --text: #e0e0e0;
-            --text-muted: #aaaaaa;
-            --white: #ffffff;
+            --primary-red: #b22222;
+            --primary-light-red: #dc3545;
+            --primary-yellow: #f4b400;
+            --primary-light-yellow: #ffcc00;
+            --bg-dark: #1c1c1c;
+            --text: #f5f5f5;
+            --text-muted: #bbbbbb;
+            --radius: 20px;
         }
 
         * {
@@ -23,7 +25,7 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            background: radial-gradient(circle at top, #1a1a1a 0%, #000000 100%);
+            background: radial-gradient(circle at top, #2d1a1a 0%, #0f0a0a 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -32,13 +34,13 @@
             color: var(--text);
         }
 
-        /* بطاقة ترحيبية */
+        /* البطاقة الزجاجية */
         .welcome-card {
-            background: rgba(20, 20, 20, 0.9);
+            background: rgba(38, 38, 38, 0.85);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--gold);
+            border: 1px solid var(--primary-yellow);
             border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(244, 180, 0, 0.2);
             max-width: 550px;
             width: 100%;
             padding: 50px 30px;
@@ -47,14 +49,14 @@
 
         .basket-logo {
             font-size: 5rem;
-            filter: drop-shadow(0 0 15px var(--gold-light));
+            filter: drop-shadow(0 0 15px var(--primary-yellow));
             margin-bottom: 10px;
         }
 
         h1 {
             font-size: 3.5rem;
             font-weight: 800;
-            color: var(--gold);
+            color: var(--primary-yellow);
             margin-bottom: 10px;
             letter-spacing: -1px;
         }
@@ -76,7 +78,7 @@
             margin-bottom: 6px;
         }
 
-        /* أزرار */
+        /* الأزرار */
         .actions {
             display: flex;
             flex-direction: column;
@@ -107,38 +109,38 @@
         }
 
         .btn-primary {
-            background-color: var(--gold);
-            color: #000;
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+            background-color: var(--primary-red);
+            color: white;
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5);
         }
 
         .btn-primary:hover {
-            background-color: var(--gold-light);
+            background-color: var(--primary-light-red);
             transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(241, 196, 15, 0.5);
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.6);
         }
 
         .btn-outline {
-            border: 2px solid var(--gold);
+            border: 2px solid var(--primary-yellow);
             background: transparent;
-            color: var(--gold);
+            color: var(--primary-yellow);
         }
 
         .btn-outline:hover {
-            background: rgba(212, 175, 55, 0.1);
+            background: rgba(244, 180, 0, 0.15);
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 8px 20px rgba(244, 180, 0, 0.3);
         }
 
         .btn-ghost {
-            border: 1px solid rgba(212, 175, 55, 0.4);
+            border: 1px solid rgba(244, 180, 0, 0.4);
             color: var(--text-muted);
             font-weight: 500;
         }
 
         .btn-ghost:hover {
-            background: rgba(212, 175, 55, 0.1);
-            color: var(--gold);
+            background: rgba(244, 180, 0, 0.1);
+            color: var(--primary-yellow);
             transform: translateY(-3px);
         }
 
@@ -158,7 +160,7 @@
 
         <div class="welcome-message">
             <p class="main">مرحباً بك في سوقك الرقمي</p>
-            <p class="sub">اعرض منتجاتك، واكتشف عروض المتاجر الأخرى</p>
+            <p class="sub">اعرض ألبستك ومنتجاتك، واكتشف عروض المتاجر الأخرى</p>
             <p class="sub">انضم إلينا اليوم أو تصفح كزائر</p>
         </div>
 
