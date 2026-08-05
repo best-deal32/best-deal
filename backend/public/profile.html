@@ -29,7 +29,6 @@
             overflow-x: hidden;
         }
 
-        /* شريط علوي */
         .navbar {
             display: flex;
             align-items: center;
@@ -127,7 +126,6 @@
         }
         .back-link:hover { text-decoration: underline; }
 
-        /* رأس البروفايل */
         .profile-header {
             display: flex;
             gap: 25px;
@@ -197,7 +195,6 @@
         }
         .btn-edit:hover { background: var(--primary-light-yellow); }
 
-        /* الأقسام */
         .section {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -283,7 +280,6 @@
         }
         .add-btn:hover { background: var(--primary-light-red); }
 
-        /* الإعدادات */
         .settings-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -312,7 +308,6 @@
             font-size: 2rem;
         }
 
-        /* المودال */
         .modal {
             display: none;
             position: fixed;
@@ -436,7 +431,7 @@
             <button class="add-btn" onclick="openLocationModal()">+ إضافة منطقة</button>
         </div>
 
-        <!-- الإعدادات الجديدة -->
+        <!-- الإعدادات -->
         <div class="section">
             <h2>⚙️ إعدادات المتجر</h2>
             <div class="settings-grid">
@@ -455,8 +450,10 @@
                 <div class="settings-btn" onclick="openTelegramModal()">
                     <span class="icon">✈️</span> تغيير حساب التليجرام
                 </div>
+                <div class="settings-btn" onclick="window.location.href='upgrade.html'">
+                    <span class="icon">⬆️</span> ترقية الباقة
+                </div>
             </div>
-            <!-- عرض القوائم المخصصة المضافة -->
             <div style="margin-top:20px;" id="customMenusContainer"></div>
         </div>
     </div>
@@ -683,40 +680,71 @@
                 alert('تأكد من البيانات');
                 return;
             }
-            // استدعاء API تغيير كلمة المرور (سيُضاف لاحقاً)
-            alert('تم تغيير كلمة المرور (محاكاة)');
-            closeModal('passwordModal');
+            try {
+                const res = await fetch('/api/profile/change-password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('تم تغيير كلمة المرور بنجاح');
+                    closeModal('passwordModal');
+                } else {
+                    alert(data.message || 'فشل تغيير كلمة المرور');
+                }
+            } catch (err) { alert('خطأ في الاتصال'); }
         }
 
         function openDescriptionModal() { openModal('descriptionModal'); }
         async function saveDescription() {
             const desc = document.getElementById('storeDescription').value.trim();
-            // استدعاء API حفظ الوصف (سيُضاف)
-            alert('تم حفظ الوصف (محاكاة)');
-            closeModal('descriptionModal');
+            try {
+                await fetch('/api/profile/description', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description: desc }),
+                    credentials: 'include'
+                });
+                alert('تم حفظ الوصف');
+                closeModal('descriptionModal');
+            } catch (err) { alert('خطأ في الاتصال'); }
         }
 
         function openCustomMenuModal() { openModal('customMenuModal'); }
-        function addCustomMenu() {
+        async function addCustomMenu() {
             const name = document.getElementById('customMenuName').value.trim();
             if (!name) return;
-            // حفظ قائمة مخصصة (محاكاة)
-            alert(`تم إضافة القائمة "${name}"`);
-            document.getElementById('customMenuName').value = '';
-            closeModal('customMenuModal');
-            // تحديث عرض القوائم (محلياً)
-            const container = document.getElementById('customMenusContainer');
-            const existing = container.innerHTML;
-            container.innerHTML = existing + `<span class="location-tag" style="margin:4px;">${name}</span>`;
+            try {
+                const res = await fetch('/api/profile/custom-menu', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name }),
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    document.getElementById('customMenuName').value = '';
+                    closeModal('customMenuModal');
+                    loadProfile();
+                }
+            } catch (err) { alert('خطأ في الاتصال'); }
         }
 
         function openTelegramModal() { openModal('telegramModal'); }
-        function updateTelegram() {
+        async function updateTelegram() {
             const username = document.getElementById('newTelegramUsername').value.trim();
             if (!username) return;
-            // استدعاء API تحديث التليجرام (سيُضاف)
-            alert(`تم تحديث حساب التليجرام إلى @${username}`);
-            closeModal('telegramModal');
+            try {
+                await fetch('/api/profile/telegram', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ telegramUsername: username }),
+                    credentials: 'include'
+                });
+                alert('تم تحديث حساب التليجرام');
+                closeModal('telegramModal');
+            } catch (err) { alert('خطأ في الاتصال'); }
         }
 
         // تسجيل الخروج
