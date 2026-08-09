@@ -6,240 +6,398 @@
     <title>لوحة الأدمن - سلة</title>
     <style>
         :root {
-            --primary-red: #b22222;
-            --primary-light-red: #dc3545;
-            --primary-yellow: #f4b400;
-            --primary-light-yellow: #ffcc00;
+            --red: #b22222;
+            --red-light: #dc3545;
+            --gold: #f4b400;
+            --gold-light: #ffcc00;
             --bg-dark: #1c1c1c;
-            --bg-card: #262626;
-            --text: #f5f5f5;
+            --bg-card: rgba(30, 30, 30, 0.75);
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text: #f0f0f0;
             --text-muted: #bbbbbb;
-            --danger: #dc2626;
-            --success: #16a34a;
-            --warning: #f59e0b;
-            --border: #404040;
-            --radius: 16px;
-            --input-bg: #333;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --border: #444;
+            --radius: 18px;
+            --transition: 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at top, #2d1a1a 0%, #0f0a0a 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 20% 20%, #3a1010, #0f0505);
             color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            backdrop-filter: blur(2px);
         }
-        /* شريط علوي */
+
+        /* ========== شريط التنقل الزجاجي ========== */
         .navbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(0,0,0,0.85);
+            background: rgba(10, 0, 0, 0.7);
             backdrop-filter: blur(20px);
-            border-bottom: 2px solid var(--primary-yellow);
-            padding: 0 20px;
+            border-bottom: 1px solid rgba(244, 180, 0, 0.4);
+            padding: 0 25px;
             height: 70px;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
+
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-            color: var(--primary-yellow);
+            color: var(--gold);
             font-size: 2rem;
             font-weight: 800;
+            letter-spacing: -1px;
         }
+
         .logo .basket-icon {
             font-size: 2.5rem;
-            filter: drop-shadow(0 0 8px var(--primary-yellow));
+            filter: drop-shadow(0 0 10px var(--gold));
+            transition: transform 0.3s;
         }
+
+        .logo:hover .basket-icon {
+            transform: rotate(-5deg) scale(1.1);
+        }
+
         .nav-links {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        .nav-links a {
+
+        .nav-links a,
+        .nav-links button {
             color: var(--text);
             text-decoration: none;
             font-weight: 600;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 30px;
-            transition: 0.3s;
-        }
-        .nav-links a:hover, .nav-links a.active {
-            background: rgba(244,180,0,0.15);
-            color: var(--primary-yellow);
-        }
-        .btn-logout {
+            transition: var(--transition);
             background: transparent;
-            border: 2px solid var(--primary-yellow);
-            color: var(--primary-yellow);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a::after,
+        .nav-links button::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gold);
+            opacity: 0;
+            transition: opacity 0.2s;
+            border-radius: 30px;
+            z-index: -1;
+        }
+
+        .nav-links a:hover,
+        .nav-links button:hover {
+            color: #000;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links button:hover::after {
+            opacity: 1;
+        }
+
+        .btn-logout {
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid var(--red);
+            color: var(--red-light);
             padding: 8px 22px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
-            font-size: 0.95rem;
+            transition: var(--transition);
         }
-        .btn-logout:hover { background: var(--primary-yellow); color: #000; }
+
+        .btn-logout:hover {
+            background: var(--red);
+            color: white;
+        }
+
         .menu-toggle {
             display: none;
             background: none;
             border: none;
-            color: var(--primary-yellow);
+            color: var(--gold);
             font-size: 2rem;
             cursor: pointer;
         }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
                 flex-direction: column;
                 position: absolute;
-                top: 70px; left:0; right:0;
-                background: #1a1a1a;
-                border-bottom: 2px solid var(--primary-yellow);
-                padding: 20px; gap: 15px;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(20, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                border-bottom: 2px solid var(--gold);
+                padding: 25px;
+                gap: 18px;
+                border-radius: 0 0 20px 20px;
             }
-            .nav-links.show { display: flex; }
-            .menu-toggle { display: block; }
+            .nav-links.show {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
         }
+
+        /* ========== المحتوى الرئيسي ========== */
         .main-container {
             flex: 1;
-            padding: 30px 20px;
-            max-width: 1400px;
+            padding: 35px 25px;
+            max-width: 1450px;
             margin: 0 auto;
             width: 100%;
         }
+
+        /* ========== البطاقات الزجاجية ========== */
         .section {
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            border-top: 4px solid var(--primary-yellow);
+            padding: 28px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(244, 180, 0, 0.15) inset;
+            border-top: 1px solid rgba(244, 180, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
         }
+
+        .section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.6), 0 0 20px rgba(244,180,0,0.1);
+        }
+
         .section h2 {
-            color: var(--primary-yellow);
-            margin-bottom: 20px;
-            font-size: 1.6rem;
+            color: var(--gold-light);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            border-bottom: 1px solid rgba(244,180,0,0.25);
+            padding-bottom: 15px;
         }
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+
+        /* ========== الجداول الزجاجية ========== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 14px;
+            background: rgba(0,0,0,0.25);
+            padding: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
         th {
             text-align: right;
-            color: var(--primary-light-yellow);
-            padding: 12px 8px;
-            border-bottom: 2px solid var(--primary-yellow);
+            color: var(--gold);
+            padding: 14px 12px;
+            border-bottom: 2px solid var(--gold);
             white-space: nowrap;
+            font-weight: 700;
+            font-size: 0.95rem;
         }
+
         td {
-            padding: 12px 8px;
-            border-bottom: 1px solid var(--border);
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
             color: var(--text);
             white-space: nowrap;
         }
-        .btn-sm {
-            padding: 6px 14px;
-            border-radius: 20px;
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* ========== الأزرار الزجاجية ========== */
+        .btn {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
             border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
             font-size: 0.9rem;
-            margin: 2px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transform: scale(1);
         }
-        .btn-role { background: var(--primary-yellow); color: #000; }
-        .btn-role:hover { background: var(--primary-light-yellow); }
-        .btn-delete { background: var(--danger); color: white; }
-        .btn-delete:hover { background: #b91c1c; }
-        .btn-approve { background: var(--success); color: white; }
-        .btn-approve:hover { background: #15803d; }
-        .btn-reject { background: var(--warning); color: #000; }
-        .btn-reject:hover { background: #fbbf24; }
-        select {
-            background: #333;
-            color: var(--text);
-            border: 1px solid var(--primary-yellow);
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
+
+        .btn:active {
+            transform: scale(0.94);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
+
+        .btn-approve {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .btn-approve:hover {
+            background: var(--success);
+            color: #000;
+        }
+
+        .btn-reject {
+            background: rgba(243, 156, 18, 0.2);
+            border: 1px solid #f39c12;
+            color: #f39c12;
+        }
+
+        .btn-reject:hover {
+            background: #f39c12;
+            color: #000;
+        }
+
+        .btn-delete {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-primary {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid var(--red-light);
+            color: var(--red-light);
+        }
+
+        .btn-primary:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        .btn-gold {
+            background: rgba(244, 180, 0, 0.15);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+        }
+
+        .btn-gold:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        /* ========== حقول الإدخال الزجاجية ========== */
+        input, textarea, select {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, background 0.3s;
+            backdrop-filter: blur(10px);
+            width: 100%;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--gold);
+            background: rgba(255,255,255,0.1);
+        }
+
         .form-inline {
             display: flex;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
         }
-        .form-inline input {
-            flex: 1;
-            background: #333;
-            border: 1px solid var(--border);
-            color: white;
-            padding: 12px 15px;
-            border-radius: 30px;
-            min-width: 200px;
-        }
-        .btn-add {
-            background: var(--primary-red);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-add:hover { background: var(--primary-light-red); }
-        .banner-form-grid {
+
+        .banner-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 18px;
         }
-        .banner-form-grid input,
-        .banner-form-grid textarea {
-            background: #333;
-            border: 1px solid var(--border);
-            color: white;
-            padding: 12px;
-            border-radius: 12px;
+
+        @media (max-width: 600px) {
+            .banner-grid {
+                grid-template-columns: 1fr;
+            }
         }
-        .banner-form-grid button {
-            grid-column: span 2;
-            background: var(--primary-red);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+
+        /* ========== الإشعارات المتحركة ========== */
         .message {
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin: 10px 0;
+            padding: 14px 22px;
+            border-radius: 12px;
+            margin: 15px 0;
             display: none;
             font-weight: 500;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.4s ease;
         }
-        .message.success { background: var(--success); color: white; display: block; }
-        .message.error { background: var(--danger); color: white; display: block; }
+
+        .message.success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         footer {
             text-align: center;
             padding: 20px;
             color: var(--text-muted);
-            border-top: 1px solid var(--border);
+            border-top: 1px solid rgba(255,255,255,0.1);
             margin-top: auto;
-        }
-        @media (max-width: 600px) {
-            .banner-form-grid { grid-template-columns: 1fr; }
-            .banner-form-grid button { grid-column: 1; }
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -252,7 +410,7 @@
         <button class="menu-toggle" id="menuToggle">☰</button>
         <div class="nav-links" id="navLinks">
             <a href="dashboard.html">الرئيسية</a>
-            <a href="admin.html" class="active">لوحة التحكم</a>
+            <a href="admin.html" style="color:var(--gold);">لوحة التحكم</a>
             <button class="btn-logout" id="logoutBtn">تسجيل الخروج</button>
         </div>
     </nav>
@@ -260,7 +418,7 @@
     <div class="main-container">
         <div id="globalMessage" class="message"></div>
 
-        <!-- إدارة المستخدمين -->
+        <!-- المستخدمين -->
         <div class="section">
             <h2>👥 إدارة المستخدمين</h2>
             <div class="table-wrapper">
@@ -282,30 +440,28 @@
             </div>
         </div>
 
-        <!-- إدارة العروض المميزة -->
+        <!-- العروض المميزة -->
         <div class="section">
             <h2>⭐ العروض المميزة</h2>
             <div class="form-inline">
                 <input type="text" id="productIdInput" placeholder="معرف المنتج (UUID)">
-                <button class="btn-add" id="addFeaturedBtn">إضافة</button>
+                <button class="btn btn-primary" id="addFeaturedBtn">➕ إضافة</button>
             </div>
-            <h3 style="color:var(--primary-yellow); margin-top:15px;">المنتجات المميزة الحالية</h3>
-            <div id="featuredList"></div>
+            <div id="featuredList" style="margin-top:20px;"></div>
         </div>
 
         <!-- الإعلانات العامة -->
         <div class="section">
-            <h2>📢 إعلان عام (Banner)</h2>
+            <h2>📢 إعلان عام</h2>
             <form id="bannerForm" enctype="multipart/form-data">
-                <div class="banner-form-grid">
+                <div class="banner-grid">
                     <input type="text" id="bannerTitle" placeholder="عنوان الإعلان" required>
-                    <input type="file" id="bannerImage" accept="image/*">
+                    <input type="file" id="bannerImage" accept="image/*" style="padding:10px;">
                     <textarea id="bannerDesc" placeholder="وصف (اختياري)" rows="3"></textarea>
-                    <button type="submit" id="addBannerBtn">إضافة الإعلان</button>
+                    <button type="submit" class="btn btn-primary" style="grid-column:span 2;">➕ إضافة الإعلان</button>
                 </div>
             </form>
-            <h3 style="color:var(--primary-yellow); margin-top:15px;">الإعلانات الحالية</h3>
-            <div id="bannersList"></div>
+            <div id="bannersList" style="margin-top:20px;"></div>
         </div>
 
         <!-- طلبات الترقية -->
@@ -330,16 +486,36 @@
                 </table>
             </div>
         </div>
+
+        <!-- سجل الحذف -->
+        <div class="section">
+            <h2>🗑 سجل الحذف الإداري</h2>
+            <div class="table-wrapper">
+                <table id="deletionLogsTable">
+                    <thead>
+                        <tr>
+                            <th>المنتج</th>
+                            <th>البائع</th>
+                            <th>حذف بواسطة</th>
+                            <th>السبب</th>
+                            <th>التاريخ</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
 
     <script>
+        // ---------- دوال عامة ----------
         function showMessage(msg, type) {
             const el = document.getElementById('globalMessage');
             el.textContent = msg;
             el.className = `message ${type}`;
-            setTimeout(() => { el.className = 'message'; }, 4000);
+            setTimeout(() => el.className = 'message', 4500);
         }
 
         async function checkAdmin() {
@@ -352,39 +528,36 @@
             } catch (e) { window.location.href = 'login.html'; return false; }
         }
 
-        // ---------- المستخدمين ----------
+        // ========== المستخدمين ==========
         async function loadUsers() {
-            try {
-                const res = await fetch('/api/admin/users', { credentials: 'include' });
-                const users = await res.json();
-                const tbody = document.querySelector('#usersTable tbody');
-                tbody.innerHTML = users.map(u => `
-                    <tr>
-                        <td>${u.username}</td>
-                        <td>${u.phone || '—'}</td>
-                        <td>
-                            <select onchange="changeRole('${u.id}', this.value)">
-                                <option value="user" ${u.role==='user'?'selected':''}>مستخدم</option>
-                                <option value="seller" ${u.role==='seller'?'selected':''}>بائع</option>
-                                <option value="admin" ${u.role==='admin'?'selected':''}>أدمن</option>
-                            </select>
-                        </td>
-                        <td>${u.store_name || '—'}</td>
-                        <td>${u.max_products || 20}</td>
-                        <td>${u.verified ? '✅' : '❌'}</td>
-                        <td>${new Date(u.created_at).toLocaleDateString('ar')}</td>
-                        <td>
-                            <button class="btn-sm btn-delete" onclick="deleteUser('${u.id}')">🗑 حذف</button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error(err); }
+            const res = await fetch('/api/admin/users', { credentials: 'include' });
+            const users = await res.json();
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = users.map(u => `
+                <tr>
+                    <td><strong>${u.username}</strong></td>
+                    <td>${u.phone || '—'}</td>
+                    <td>
+                        <select onchange="changeRole('${u.id}', this.value)" style="width:auto; padding:6px 12px;">
+                            <option value="user" ${u.role==='user'?'selected':''}>مستخدم</option>
+                            <option value="seller" ${u.role==='seller'?'selected':''}>بائع</option>
+                            <option value="admin" ${u.role==='admin'?'selected':''}>أدمن</option>
+                        </select>
+                    </td>
+                    <td>${u.store_name || '—'}</td>
+                    <td>${u.max_products || 20}</td>
+                    <td>${u.verified ? '✅' : '❌'}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString('ar')}</td>
+                    <td>
+                        <button class="btn btn-delete" onclick="deleteUser('${u.id}')">🗑</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         async function changeRole(userId, newRole) {
             await fetch(`/api/admin/user/${userId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'PUT', headers: {'Content-Type':'application/json'},
                 body: JSON.stringify({ role: newRole }),
                 credentials: 'include'
             });
@@ -394,22 +567,25 @@
 
         async function deleteUser(userId) {
             if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
-            const res = await fetch(`/api/admin/user/${userId}`, { method: 'DELETE', credentials: 'include' });
+            const res = await fetch(`/api/admin/user/${userId}`, { method:'DELETE', credentials:'include' });
             if (res.ok) { showMessage('تم حذف المستخدم', 'success'); loadUsers(); }
-            else { const data = await res.json().catch(()=>({message:'فشل'})); showMessage(data.message||'فشل', 'error'); }
+            else { showMessage('فشل الحذف', 'error'); }
         }
 
-        // ---------- العروض المميزة ----------
+        // ========== العروض المميزة ==========
         async function loadFeatured() {
             const res = await fetch('/api/featured');
             const data = await res.json();
             const products = data.products || [];
             const container = document.getElementById('featuredList');
-            if (products.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد منتجات مميزة</p>'; return; }
+            if (!products.length) {
+                container.innerHTML = '<p style="color:var(--text-muted);">لا توجد منتجات مميزة</p>';
+                return;
+            }
             container.innerHTML = products.map(p => `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#333; padding:10px; border-radius:12px; margin-bottom:8px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:14px; border-radius:14px; margin-bottom:10px;">
                     <span>${p.name} <small style="color:var(--text-muted);">(${p.id})</small></span>
-                    <button class="btn-sm btn-delete" onclick="removeFeatured('${p.feature_id}')">إزالة</button>
+                    <button class="btn btn-delete" onclick="removeFeatured('${p.feature_id}')">إزالة</button>
                 </div>
             `).join('');
         }
@@ -418,31 +594,30 @@
             const productId = document.getElementById('productIdInput').value.trim();
             if (!productId) return;
             const res = await fetch('/api/admin/featured', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method:'POST', headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({ productId }),
-                credentials: 'include'
+                credentials:'include'
             });
-            if (res.ok) { document.getElementById('productIdInput').value = ''; loadFeatured(); showMessage('تمت الإضافة', 'success'); }
-            else { const data = await res.json(); showMessage(data.message||'خطأ', 'error'); }
+            if (res.ok) { document.getElementById('productIdInput').value=''; loadFeatured(); showMessage('تمت الإضافة','success'); }
+            else { const data = await res.json(); showMessage(data.message||'خطأ','error'); }
         }
 
         async function removeFeatured(id) {
-            await fetch(`/api/admin/featured/${id}`, { method: 'DELETE', credentials: 'include' });
+            await fetch(`/api/admin/featured/${id}`, { method:'DELETE', credentials:'include' });
             loadFeatured();
         }
 
-        // ---------- الإعلانات العامة ----------
+        // ========== الإعلانات ==========
         async function loadBanners() {
             const res = await fetch('/api/featured');
             const data = await res.json();
             const banners = data.banners || [];
             const container = document.getElementById('bannersList');
-            if (banners.length === 0) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد إعلانات</p>'; return; }
+            if (!banners.length) { container.innerHTML = '<p style="color:var(--text-muted);">لا توجد إعلانات</p>'; return; }
             container.innerHTML = banners.map(b => `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#333; padding:10px; border-radius:12px; margin-bottom:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.05); padding:14px; border-radius:14px; margin-bottom:10px;">
                     <span>${b.title}</span>
-                    <button class="btn-sm btn-delete" onclick="deleteBanner('${b.id}')">حذف</button>
+                    <button class="btn btn-delete" onclick="deleteBanner('${b.id}')">حذف</button>
                 </div>
             `).join('');
         }
@@ -451,101 +626,115 @@
             e.preventDefault();
             const title = document.getElementById('bannerTitle').value.trim();
             const desc = document.getElementById('bannerDesc').value.trim();
-            const fileInput = document.getElementById('bannerImage');
+            const file = document.getElementById('bannerImage').files[0];
             const formData = new FormData();
             formData.append('title', title);
             if (desc) formData.append('description', desc);
-            if (fileInput.files[0]) formData.append('image', fileInput.files[0]);
+            if (file) formData.append('image', file);
 
-            try {
-                const res = await fetch('/api/admin/banners', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'include'
-                });
-                if (res.ok) {
-                    document.getElementById('bannerTitle').value = '';
-                    document.getElementById('bannerDesc').value = '';
-                    fileInput.value = '';
-                    loadBanners();
-                    showMessage('تم إضافة الإعلان', 'success');
-                } else {
-                    const data = await res.json();
-                    showMessage(data.message||'خطأ', 'error');
-                }
-            } catch (err) { showMessage('فشل الاتصال', 'error'); }
+            const res = await fetch('/api/admin/banners', { method:'POST', body:formData, credentials:'include' });
+            if (res.ok) {
+                document.getElementById('bannerTitle').value = '';
+                document.getElementById('bannerDesc').value = '';
+                document.getElementById('bannerImage').value = '';
+                loadBanners();
+                showMessage('تم إضافة الإعلان', 'success');
+            } else {
+                const data = await res.json();
+                showMessage(data.message||'خطأ', 'error');
+            }
         }
 
         async function deleteBanner(id) {
-            await fetch(`/api/admin/banners/${id}`, { method: 'DELETE', credentials: 'include' });
+            await fetch(`/api/admin/banners/${id}`, { method:'DELETE', credentials:'include' });
             loadBanners();
         }
 
-        // ---------- طلبات الترقية ----------
-        async function loadSubscriptionRequests() {
-            try {
-                const res = await fetch('/api/admin/subscription-requests', { credentials: 'include' });
-                const requests = await res.json();
-                const tbody = document.querySelector('#subscriptionTable tbody');
-                if (requests.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">لا توجد طلبات ترقية</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = requests.map(r => `
-                    <tr>
-                        <td>${r.username}</td>
-                        <td>${r.pack_name}</td>
-                        <td>${r.amount}$</td>
-                        <td>${r.extra_products}</td>
-                        <td>${r.duration || '—'}</td>
-                        <td><a href="${r.payment_receipt}" target="_blank" style="color:#fbbf24;">عرض</a></td>
-                        <td>${r.status === 'pending' ? '⏳ قيد الانتظار' : r.status === 'approved' ? '✅ مقبول' : '❌ مرفوض'}</td>
-                        <td>${new Date(r.created_at).toLocaleDateString('ar')}</td>
-                        <td>
-                            ${r.status === 'pending' ? `
-                                <button class="btn-sm btn-approve" onclick="approveRequest('${r.id}')">قبول</button>
-                                <button class="btn-sm btn-reject" onclick="rejectRequest('${r.id}')">رفض</button>
-                            ` : '—'}
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (err) { console.error(err); }
+        // ========== طلبات الترقية ==========
+        async function loadSubscriptions() {
+            const res = await fetch('/api/admin/subscription-requests', { credentials:'include' });
+            const requests = await res.json();
+            const tbody = document.querySelector('#subscriptionTable tbody');
+            if (!requests.length) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted);">لا توجد طلبات</td></tr>';
+                return;
+            }
+            tbody.innerHTML = requests.map(r => `
+                <tr>
+                    <td>${r.username}</td>
+                    <td>${r.pack_name}</td>
+                    <td>${r.amount}$</td>
+                    <td>${r.extra_products}</td>
+                    <td>${r.duration || '—'}</td>
+                    <td><a href="${r.payment_receipt}" target="_blank" style="color:var(--gold);">عرض</a></td>
+                    <td>${r.status === 'pending' ? '⏳ قيد الانتظار' : r.status === 'approved' ? '✅ مقبول' : '❌ مرفوض'}</td>
+                    <td>${new Date(r.created_at).toLocaleDateString('ar')}</td>
+                    <td>
+                        ${r.status === 'pending' ? `
+                            <button class="btn btn-approve" onclick="approveRequest('${r.id}')">قبول</button>
+                            <button class="btn btn-reject" onclick="rejectRequest('${r.id}')">رفض</button>
+                        ` : '—'}
+                    </td>
+                </tr>
+            `).join('');
         }
 
         async function approveRequest(id) {
-            if (!confirm('هل أنت متأكد من قبول هذا الطلب؟')) return;
-            const res = await fetch(`/api/admin/subscription-requests/${id}/approve`, { method: 'PUT', credentials: 'include' });
-            if (res.ok) { showMessage('تمت الموافقة على الترقية', 'success'); loadSubscriptionRequests(); loadUsers(); }
+            if (!confirm('قبول الطلب؟')) return;
+            const res = await fetch(`/api/admin/subscription-requests/${id}/approve`, { method:'PUT', credentials:'include' });
+            if (res.ok) { showMessage('تمت الموافقة', 'success'); loadSubscriptions(); loadUsers(); }
             else { const data = await res.json(); showMessage(data.message||'خطأ', 'error'); }
         }
 
         async function rejectRequest(id) {
-            if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
-            const res = await fetch(`/api/admin/subscription-requests/${id}/reject`, { method: 'PUT', credentials: 'include' });
-            if (res.ok) { showMessage('تم رفض الطلب', 'success'); loadSubscriptionRequests(); }
-            else { const data = await res.json(); showMessage(data.message||'خطأ', 'error'); }
+            if (!confirm('رفض الطلب؟')) return;
+            const res = await fetch(`/api/admin/subscription-requests/${id}/reject`, { method:'PUT', credentials:'include' });
+            if (res.ok) { showMessage('تم الرفض', 'success'); loadSubscriptions(); }
         }
 
-        // ربط الأحداث
+        // ========== سجل الحذف ==========
+        async function loadDeletionLogs() {
+            try {
+                const res = await fetch('/api/admin/deletion-logs', { credentials:'include' });
+                const logs = await res.json();
+                const tbody = document.querySelector('#deletionLogsTable tbody');
+                if (!logs.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">لا توجد عمليات حذف</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = logs.map(log => `
+                    <tr>
+                        <td>${log.product_name || '—'}</td>
+                        <td>${log.seller_username || '—'}</td>
+                        <td>${log.deleted_by_username || '—'}</td>
+                        <td>${log.reason || '—'}</td>
+                        <td>${new Date(log.created_at).toLocaleDateString('ar')}</td>
+                    </tr>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        // ========== بدء التشغيل ==========
         document.addEventListener('DOMContentLoaded', async () => {
             if (!(await checkAdmin())) return;
 
-            document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('menuToggle').onclick = () => {
                 document.getElementById('navLinks').classList.toggle('show');
-            });
+            };
 
-            document.getElementById('addFeaturedBtn').addEventListener('click', addFeatured);
-            document.getElementById('bannerForm').addEventListener('submit', addBanner);
-            document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            document.getElementById('addFeaturedBtn').onclick = addFeatured;
+            document.getElementById('bannerForm').onsubmit = addBanner;
+            document.getElementById('logoutBtn').onclick = async (e) => {
                 e.preventDefault();
-                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                await fetch('/api/auth/logout', { method:'POST', credentials:'include' });
                 window.location.href = 'index.html';
-            });
+            };
 
             loadUsers();
             loadFeatured();
             loadBanners();
-            loadSubscriptionRequests();
+            loadSubscriptions();
+            loadDeletionLogs();
         });
     </script>
 </body>
