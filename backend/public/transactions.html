@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل المعاملات - سلة</title>
+    <style>
+        :root {
+            --red: #b22222;
+            --red-light: #dc3545;
+            --gold: #f4b400;
+            --gold-light: #ffcc00;
+            --bg-dark: #1c1c1c;
+            --bg-card: rgba(30, 30, 30, 0.75);
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text: #f0f0f0;
+            --text-muted: #bbbbbb;
+            --border: #444;
+            --radius: 20px;
+            --transition: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 30% 20%, #3a1010, #0f0505);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* شريط التنقل */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(244, 180, 0, 0.4);
+            padding: 0 25px;
+            height: 70px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--gold);
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .logo .basket-icon {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 10px var(--gold));
+            transition: transform 0.3s;
+        }
+
+        .logo:hover .basket-icon {
+            transform: rotate(-5deg) scale(1.1);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-links a,
+        .nav-links button {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 30px;
+            transition: var(--transition);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .nav-links a:hover,
+        .nav-links button:hover {
+            background: rgba(244,180,0,0.15);
+            color: var(--gold);
+        }
+
+        .btn-logout {
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid var(--red);
+            color: var(--red-light);
+            padding: 8px 22px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        .btn-logout:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--gold);
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(20, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                border-bottom: 2px solid var(--gold);
+                padding: 25px;
+                gap: 18px;
+                border-radius: 0 0 20px 20px;
+            }
+            .nav-links.show {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* المحتوى الرئيسي */
+        .main-container {
+            flex: 1;
+            padding: 35px 25px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .back-link {
+            color: var(--gold);
+            text-decoration: none;
+            margin-bottom: 25px;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            color: var(--gold-light);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* البطاقات */
+        .section {
+            background: var(--bg-card);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border-top: 1px solid rgba(244,180,0,0.3);
+        }
+
+        .section h2 {
+            color: var(--gold-light);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(244,180,0,0.25);
+            padding-bottom: 15px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 14px;
+            background: rgba(0,0,0,0.25);
+            padding: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        th {
+            text-align: right;
+            color: var(--gold);
+            padding: 14px 12px;
+            border-bottom: 2px solid var(--gold);
+            white-space: nowrap;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .badge-active {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .badge-deleted {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="dashboard.html" class="logo">
+            <span class="basket-icon">🧺</span>
+            <span>سلة</span>
+        </a>
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <div class="nav-links" id="navLinks">
+            <a href="dashboard.html">الرئيسية</a>
+            <a href="offers.html">العروض</a>
+            <a href="profile.html">ملفي</a>
+            <button class="btn-logout" id="logoutBtn">تسجيل الخروج</button>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <a href="profile.html" class="back-link">← العودة للملف الشخصي</a>
+        <h1>📋 سجل المعاملات</h1>
+
+        <!-- المنتجات النشطة -->
+        <div class="section">
+            <h2>✅ المنتجات النشطة</h2>
+            <div id="activeProductsContainer">
+                <div class="table-wrapper">
+                    <table id="activeProductsTable">
+                        <thead>
+                            <tr>
+                                <th>المنتج</th>
+                                <th>السعر</th>
+                                <th>تاريخ النشر</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- المنتجات المحذوفة -->
+        <div class="section">
+            <h2>🗑 سجل المنتجات المحذوفة</h2>
+            <div id="deletedProductsContainer">
+                <div class="table-wrapper">
+                    <table id="deletedProductsTable">
+                        <thead>
+                            <tr>
+                                <th>المنتج</th>
+                                <th>سبب الحذف</th>
+                                <th>تاريخ الحذف</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
+
+    <script>
+        // التحقق من تسجيل الدخول
+        async function checkAuth() {
+            const res = await fetch('/api/auth/me', { credentials: 'include' });
+            if (!res.ok) { window.location.href = 'login.html'; return null; }
+            const user = await res.json();
+            if (user.role !== 'seller' && user.role !== 'admin') {
+                window.location.href = 'dashboard.html';
+                return null;
+            }
+            return user;
+        }
+
+        // تحميل البيانات
+        async function loadTransactions() {
+            try {
+                const res = await fetch('/api/profile', { credentials: 'include' });
+                if (!res.ok) throw new Error('فشل تحميل البيانات');
+                const data = await res.json();
+
+                renderActiveProducts(data.products || []);
+                renderDeletedProducts(data.deletedProducts || []);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('activeProductsContainer').innerHTML = '<div class="empty-message">⚠️ تعذر تحميل المعاملات</div>';
+            }
+        }
+
+        function renderActiveProducts(products) {
+            const tbody = document.querySelector('#activeProductsTable tbody');
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-message">لا توجد منتجات نشطة</td></tr>';
+                return;
+            }
+            tbody.innerHTML = products.map(p => `
+                <tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.price}$</td>
+                    <td>${new Date(p.created_at).toLocaleDateString('ar')}</td>
+                    <td><span class="badge-active">نشط</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDeletedProducts(deleted) {
+            const tbody = document.querySelector('#deletedProductsTable tbody');
+            if (deleted.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-message">لا توجد منتجات محذوفة</td></tr>';
+                return;
+            }
+            tbody.innerHTML = deleted.map(d => `
+                <tr>
+                    <td><strong>${d.product_name || '—'}</strong></td>
+                    <td>${d.reason || '—'}</td>
+                    <td>${new Date(d.created_at).toLocaleDateString('ar')}</td>
+                    <td><span class="badge-deleted">محذوف</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // أحداث التنقل
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            document.getElementById('navLinks').classList.toggle('show');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            window.location.href = 'index.html';
+        });
+
+        // بدء التشغيل
+        checkAuth().then(user => {
+            if (user) loadTransactions();
+        });
+    </script>
+</body>
+</html>
