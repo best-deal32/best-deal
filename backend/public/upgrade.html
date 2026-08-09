@@ -6,178 +6,261 @@
     <title>ترقية الباقة - سلة</title>
     <style>
         :root {
-            --primary-red: #b22222;
-            --primary-light-red: #dc3545;
-            --primary-yellow: #f4b400;
-            --primary-light-yellow: #ffcc00;
+            --red: #b22222;
+            --red-light: #dc3545;
+            --gold: #f4b400;
+            --gold-light: #ffcc00;
             --bg-dark: #1c1c1c;
-            --bg-card: #262626;
-            --text: #f5f5f5;
+            --bg-card: rgba(30, 30, 30, 0.75);
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text: #f0f0f0;
             --text-muted: #bbbbbb;
-            --border: #404040;
-            --radius: 16px;
-            --input-bg: #333;
+            --border: #444;
+            --radius: 20px;
+            --transition: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
         }
+
         * { margin:0; padding:0; box-sizing:border-box; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at top, #2d1a1a 0%, #0f0a0a 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 30% 20%, #3a1010, #0f0505);
             color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
         }
+
+        /* شريط التنقل */
         .navbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(0,0,0,0.85);
+            background: rgba(10, 0, 0, 0.7);
             backdrop-filter: blur(20px);
-            border-bottom: 2px solid var(--primary-yellow);
-            padding: 0 20px;
+            border-bottom: 1px solid rgba(244, 180, 0, 0.4);
+            padding: 0 25px;
             height: 70px;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
+
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-            color: var(--primary-yellow);
+            color: var(--gold);
             font-size: 2rem;
             font-weight: 800;
         }
+
         .logo .basket-icon {
             font-size: 2.5rem;
-            filter: drop-shadow(0 0 8px var(--primary-yellow));
+            filter: drop-shadow(0 0 10px var(--gold));
+            transition: transform 0.3s;
         }
+
+        .logo:hover .basket-icon {
+            transform: rotate(-5deg) scale(1.1);
+        }
+
         .nav-links { display: flex; align-items: center; gap: 20px; }
-        .nav-links a {
+        .nav-links a, .nav-links button {
             color: var(--text);
             text-decoration: none;
             font-weight: 600;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 30px;
-            transition: 0.3s;
-        }
-        .nav-links a:hover { background: rgba(244,180,0,0.1); color: var(--primary-yellow); }
-        .btn-logout {
+            transition: var(--transition);
             background: transparent;
-            border: 2px solid var(--primary-yellow);
-            color: var(--primary-yellow);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .nav-links a:hover, .nav-links button:hover {
+            background: rgba(244,180,0,0.15);
+            color: var(--gold);
+        }
+
+        .btn-logout {
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid var(--red);
+            color: var(--red-light);
             padding: 8px 22px;
             border-radius: 30px;
-            cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
         }
-        .btn-logout:hover { background: var(--primary-yellow); color: #000; }
-        .menu-toggle { display:none; background:none; border:none; color:var(--primary-yellow); font-size:2rem; cursor:pointer; }
+
+        .btn-logout:hover { background: var(--red); color: white; }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--gold);
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
         @media (max-width: 768px) {
-            .nav-links { display:none; flex-direction:column; position:absolute; top:70px; left:0; right:0; background:#1a1a1a; border-bottom:2px solid var(--primary-yellow); padding:20px; gap:15px; }
-            .nav-links.show { display:flex; }
-            .menu-toggle { display:block; }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 70px; left:0; right:0;
+                background: rgba(20, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                border-bottom: 2px solid var(--gold);
+                padding: 25px; gap: 18px;
+                border-radius: 0 0 20px 20px;
+            }
+            .nav-links.show { display: flex; }
+            .menu-toggle { display: block; }
         }
 
         .main-container {
             flex: 1;
-            padding: 30px 20px;
-            max-width: 1200px;
+            padding: 35px 25px;
+            max-width: 1250px;
             margin: 0 auto;
             width: 100%;
         }
-        .back-link { color:var(--primary-yellow); text-decoration:none; margin-bottom:20px; display:inline-block; font-weight:500; }
+
+        .back-link { color: var(--gold); text-decoration:none; margin-bottom:20px; display:inline-block; font-weight:500; }
         .back-link:hover { text-decoration:underline; }
-        h1 { font-size:2.2rem; color:var(--primary-yellow); margin-bottom:10px; }
-        .page-desc { color:var(--text-muted); margin-bottom:30px; }
+
+        h1 { font-size:2.4rem; color:var(--gold-light); margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+        .page-desc { color:var(--text-muted); margin-bottom:35px; font-size:1.1rem; }
 
         /* شبكة الباقات */
         .packages-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 25px;
+            margin-bottom: 40px;
         }
+
         .package-card {
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            border-top: 4px solid var(--primary-yellow);
-            transition: 0.3s;
+            padding: 28px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border-top: 2px solid var(--gold);
+            transition: var(--transition);
         }
-        .package-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(244,180,0,0.2); }
+
+        .package-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.6), 0 0 25px rgba(244,180,0,0.15);
+        }
+
         .package-card h2 {
-            color: var(--primary-yellow);
+            color: var(--gold-light);
             font-size: 1.8rem;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
-        .plan-options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+
+        .plan-options { display: flex; flex-direction: column; gap: 14px; }
+
         .plan-option {
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px 20px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: var(--transition);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
-        .plan-option:hover { border-color: var(--primary-yellow); background: #2a2a2a; }
-        .plan-option.selected { border-color: var(--primary-yellow); background: rgba(244,180,0,0.1); }
-        .plan-option .duration { font-weight: 600; color: var(--text); }
-        .plan-option .price { font-weight: bold; color: var(--primary-yellow); font-size: 1.2rem; }
+
+        .plan-option:hover { border-color: var(--gold); background: rgba(244,180,0,0.1); }
+        .plan-option.selected {
+            border-color: var(--gold);
+            background: rgba(244,180,0,0.2);
+            box-shadow: 0 0 15px rgba(244,180,0,0.2);
+        }
+
+        .plan-option .duration { font-weight: 600; color: var(--text); font-size:1.1rem; }
+        .plan-option .price { font-weight: bold; color: var(--gold); font-size:1.4rem; }
+
         .btn-buy {
             width: 100%;
             margin-top: 20px;
-            padding: 14px;
-            background: var(--primary-red);
+            padding: 16px;
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid var(--red-light);
             color: white;
-            border: none;
-            border-radius: 30px;
+            border-radius: 50px;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             cursor: pointer;
-            transition: 0.3s;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
         }
-        .btn-buy:hover { background: var(--primary-light-red); }
 
+        .btn-buy:hover { background: var(--red); border-color: var(--red); }
+        .btn-buy:active { transform: scale(0.97); }
+
+        /* المودال */
         .modal {
             display: none;
             position: fixed;
             top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
             align-items:center; justify-content:center;
             z-index:200;
         }
+
         .modal-content {
             background: var(--bg-card);
-            border: 2px solid var(--primary-yellow);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--gold);
             border-radius: var(--radius);
-            padding: 30px;
+            padding: 35px;
             width: 90%;
             max-width: 500px;
             color: var(--text);
             text-align: center;
         }
-        .modal-content h3 { color: var(--primary-yellow); margin-bottom:20px; }
-        .modal-content p { margin-bottom:15px; color:var(--text-muted); }
-        .modal-content input[type="file"] { margin: 15px 0; }
-        .modal-actions { display:flex; gap:10px; justify-content:center; margin-top:20px; }
-        .save-btn { background:var(--primary-red); color:white; border:none; padding:10px 25px; border-radius:30px; font-weight:bold; cursor:pointer; }
-        .cancel-btn { background:transparent; border:1px solid var(--text-muted); color:var(--text); padding:10px 25px; border-radius:30px; cursor:pointer; }
 
-        footer { text-align:center; padding:20px; color:var(--text-muted); border-top:1px solid var(--border); margin-top:auto; }
+        .modal-content h3 { color: var(--gold-light); margin-bottom:20px; font-size:1.6rem; }
+        .modal-content p { margin-bottom:15px; color:var(--text-muted); }
+        .modal-content .price-highlight { color: var(--gold); font-size: 2rem; font-weight: bold; margin: 15px 0; }
+        .modal-content input[type="file"] { margin: 15px 0; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; width: 100%; color: white; }
+        .modal-actions { display:flex; gap:10px; justify-content:center; margin-top:25px; }
+        .save-btn {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid var(--red-light);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .save-btn:hover { background: var(--red); }
+        .cancel-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: var(--text);
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        footer { text-align:center; padding:20px; color:var(--text-muted); border-top:1px solid rgba(255,255,255,0.1); margin-top:auto; }
     </style>
 </head>
 <body>
@@ -198,18 +281,19 @@
     <div class="main-container">
         <a href="dashboard.html" class="back-link">← العودة للوحة التحكم</a>
         <h1>⬆️ ترقية الباقة</h1>
-        <p class="page-desc">اختر الباقة المناسبة لمتجرك وارفع إيصال الدفع. يمكنك شراء أكثر من باقة.</p>
+        <p class="page-desc">اختر الباقة والمدة المناسبة لمتجرك. بعد الدفع عبر شام كاش، ارفع صورة الإيصال للمراجعة.</p>
 
         <div class="packages-grid" id="packagesGrid"></div>
     </div>
 
-    <!-- مودال تأكيد الشراء ورفع الإيصال -->
+    <!-- مودال تأكيد الشراء -->
     <div id="purchaseModal" class="modal">
         <div class="modal-content">
             <h3>تأكيد الترقية</h3>
             <p id="selectedPlanInfo"></p>
-            <p>يرجى تحويل المبلغ إلى حساب شام كاش ورفع صورة الإيصال:</p>
-            <p style="color:var(--primary-yellow); font-weight:bold;">رقم شام كاش: 0999123456</p>
+            <p>المبلغ المطلوب تحويله عبر شام كاش:</p>
+            <div class="price-highlight" id="selectedPrice"></div>
+            <p style="color:var(--gold-light); font-weight:bold;">رقم شام كاش: 0999123456</p>
             <input type="file" id="receiptImage" accept="image/*" required>
             <div class="modal-actions">
                 <button class="cancel-btn" onclick="closeModal()">إلغاء</button>
@@ -221,7 +305,7 @@
     <footer>© 2025 سلة - جميع الحقوق محفوظة</footer>
 
     <script>
-        // تعريف الباقات
+        // تعريف الباقات كما تم الاتفاق عليه
         const packages = [
             {
                 size: 50,
@@ -278,11 +362,9 @@
             // إضافة أحداث النقر على خيارات الخطط
             document.querySelectorAll('.plan-option').forEach(opt => {
                 opt.addEventListener('click', function(e) {
-                    // إلغاء التحديد السابق في نفس البطاقة
                     const card = this.closest('.package-card');
                     card.querySelectorAll('.plan-option').forEach(el => el.classList.remove('selected'));
                     this.classList.add('selected');
-                    // تخزين الاختيار مؤقتاً
                     card.setAttribute('data-selected-size', this.dataset.size);
                     card.setAttribute('data-selected-duration', this.dataset.duration);
                     card.setAttribute('data-selected-price', this.dataset.price);
@@ -308,12 +390,12 @@
                         price: parseFloat(price),
                         label: label
                     };
-                    // عرض المودال مع معلومات الباقة
+                    // عرض المودال
                     document.getElementById('selectedPlanInfo').innerHTML = `
-                        <strong>${packages.find(p=>p.size===parseInt(size)).title.split(' ').slice(0,2).join(' ')}</strong><br>
-                        المدة: ${duration}<br>
-                        السعر: <span style="color:var(--primary-yellow); font-weight:bold;">${price}$</span>
+                        <strong>${packages.find(p=>p.size===parseInt(size)).title}</strong><br>
+                        المدة: ${duration}
                     `;
+                    document.getElementById('selectedPrice').textContent = `${price}$`;
                     document.getElementById('purchaseModal').style.display = 'flex';
                 });
             });
@@ -324,21 +406,16 @@
             document.getElementById('receiptImage').value = '';
         }
 
-        // تأكيد الشراء وإرسال الطلب
+        // تأكيد الشراء
         document.getElementById('confirmPurchaseBtn').addEventListener('click', async () => {
             const fileInput = document.getElementById('receiptImage');
             const file = fileInput.files[0];
-            if (!file) {
-                alert('يرجى رفع صورة الإيصال.');
-                return;
-            }
+            if (!file) { alert('يرجى رفع صورة الإيصال.'); return; }
             if (!selectedPackage) return;
 
             const formData = new FormData();
             formData.append('receipt', file);
-            // نرسل pack (عدد المنتجات) كما هو متوقع في السيرفر
             formData.append('pack', selectedPackage.size);
-            // نرسل أيضاً بيانات إضافية لاستخدامها عند تحديث السيرفر
             formData.append('duration', selectedPackage.duration);
             formData.append('amount', selectedPackage.price);
 
@@ -355,10 +432,7 @@
                 } else {
                     alert(data.message || 'فشل تقديم الطلب.');
                 }
-            } catch (err) {
-                console.error(err);
-                alert('خطأ في الاتصال بالخادم.');
-            }
+            } catch (err) { console.error(err); alert('خطأ في الاتصال.'); }
         });
 
         // زر القائمة للجوال
@@ -377,4 +451,4 @@
         renderPackages();
     </script>
 </body>
-</html>
+</html>س
