@@ -6,126 +6,167 @@
     <title>ملفي الشخصي - سلة</title>
     <style>
         :root {
-            --primary-red: #b22222;
-            --primary-light-red: #dc3545;
-            --primary-yellow: #f4b400;
-            --primary-light-yellow: #ffcc00;
+            --red: #b22222;
+            --red-light: #dc3545;
+            --gold: #f4b400;
+            --gold-light: #ffcc00;
             --bg-dark: #1c1c1c;
-            --bg-card: #262626;
-            --text: #f5f5f5;
+            --bg-card: rgba(30, 30, 30, 0.75);
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --text: #f0f0f0;
             --text-muted: #bbbbbb;
-            --border: #404040;
-            --radius: 16px;
-            --input-bg: #333;
+            --border: #444;
+            --radius: 20px;
+            --transition: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at top, #2d1a1a 0%, #0f0a0a 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 30% 20%, #3a1010, #0f0505);
             color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
         }
 
+        /* شريط التنقل */
         .navbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(0,0,0,0.85);
+            background: rgba(10, 0, 0, 0.7);
             backdrop-filter: blur(20px);
-            border-bottom: 2px solid var(--primary-yellow);
-            padding: 0 20px;
+            border-bottom: 1px solid rgba(244, 180, 0, 0.4);
+            padding: 0 25px;
             height: 70px;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
+
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-            color: var(--primary-yellow);
+            color: var(--gold);
             font-size: 2rem;
             font-weight: 800;
         }
+
         .logo .basket-icon {
             font-size: 2.5rem;
-            filter: drop-shadow(0 0 8px var(--primary-yellow));
+            filter: drop-shadow(0 0 10px var(--gold));
+            transition: transform 0.3s;
         }
+
+        .logo:hover .basket-icon {
+            transform: rotate(-5deg) scale(1.1);
+        }
+
         .nav-links {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        .nav-links a, .nav-links button {
+
+        .nav-links a,
+        .nav-links button {
             color: var(--text);
             text-decoration: none;
             font-weight: 600;
-            padding: 8px 16px;
+            padding: 10px 18px;
             border-radius: 30px;
-            transition: 0.3s;
-            background: none;
+            transition: var(--transition);
+            background: transparent;
             border: none;
             cursor: pointer;
             font-size: 1rem;
             font-family: inherit;
         }
-        .nav-links a:hover, .nav-links button:hover {
-            background: rgba(244,180,0,0.1);
-            color: var(--primary-yellow);
+
+        .nav-links a:hover,
+        .nav-links button:hover {
+            background: rgba(244,180,0,0.15);
+            color: var(--gold);
         }
+
         .btn-logout {
-            background: transparent;
-            border: 2px solid var(--primary-yellow);
-            color: var(--primary-yellow);
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid var(--red);
+            color: var(--red-light);
             padding: 8px 22px;
             border-radius: 30px;
-            cursor: pointer;
             font-weight: bold;
-            transition: 0.3s;
         }
-        .btn-logout:hover { background: var(--primary-yellow); color: #000; }
+
+        .btn-logout:hover {
+            background: var(--red);
+            color: white;
+        }
+
         .menu-toggle {
             display: none;
             background: none;
             border: none;
-            color: var(--primary-yellow);
+            color: var(--gold);
             font-size: 2rem;
             cursor: pointer;
         }
+
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
                 flex-direction: column;
                 position: absolute;
-                top: 70px; left:0; right:0;
-                background: #1a1a1a;
-                border-bottom: 2px solid var(--primary-yellow);
-                padding: 20px; gap: 15px;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(20, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                border-bottom: 2px solid var(--gold);
+                padding: 25px;
+                gap: 18px;
+                border-radius: 0 0 20px 20px;
             }
-            .nav-links.show { display:flex; }
-            .menu-toggle { display: block; }
+            .nav-links.show {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
         }
 
+        /* المحتوى الرئيسي */
         .main-container {
             flex: 1;
-            padding: 30px 20px;
-            max-width: 1000px;
+            padding: 35px 25px;
+            max-width: 1100px;
             margin: 0 auto;
             width: 100%;
         }
+
         .back-link {
-            color: var(--primary-yellow);
+            color: var(--gold);
             text-decoration: none;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: inline-block;
             font-weight: 500;
         }
-        .back-link:hover { text-decoration: underline; }
 
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* رأس البروفايل */
         .profile-header {
             display: flex;
             gap: 25px;
@@ -133,28 +174,38 @@
             margin-bottom: 35px;
             flex-wrap: wrap;
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            border-top: 4px solid var(--primary-yellow);
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border-top: 1px solid rgba(244,180,0,0.3);
         }
+
         .store-image-wrapper {
             position: relative;
             width: 130px;
             height: 130px;
             border-radius: 20px;
             overflow: hidden;
-            background: var(--input-bg);
-            border: 2px solid var(--primary-yellow);
+            background: rgba(255,255,255,0.05);
+            border: 2px solid var(--gold);
             cursor: pointer;
+            transition: var(--transition);
         }
+
+        .store-image-wrapper:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(244,180,0,0.3);
+        }
+
         .store-image-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
+
         .store-image-placeholder {
             width: 100%;
             height: 100%;
@@ -164,199 +215,269 @@
             font-size: 3rem;
             color: var(--text-muted);
         }
+
         .store-image-upload {
             position: absolute;
-            bottom: 0; left:0; right:0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: rgba(0,0,0,0.7);
-            color: var(--primary-yellow);
+            color: var(--gold-light);
             text-align: center;
-            padding: 5px;
+            padding: 6px;
             font-size: 0.8rem;
             font-weight: bold;
+            cursor: pointer;
         }
+
         .store-name {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--primary-yellow);
+            color: var(--gold-light);
         }
+
         .contact-number {
             color: var(--text-muted);
             margin: 8px 0;
+            font-size: 1rem;
         }
+
         .btn-edit {
-            background: var(--primary-yellow);
-            color: #000;
-            border: none;
+            background: rgba(244,180,0,0.15);
+            border: 1px solid var(--gold);
+            color: var(--gold);
             padding: 8px 20px;
             border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
         }
-        .btn-edit:hover { background: var(--primary-light-yellow); }
 
+        .btn-edit:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        /* الأقسام */
         .section {
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
             border-radius: var(--radius);
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-            border-top: 4px solid var(--primary-yellow);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border-top: 1px solid rgba(244,180,0,0.3);
         }
+
         .section h2 {
-            color: var(--primary-yellow);
-            margin-bottom: 15px;
+            color: var(--gold-light);
+            margin-bottom: 20px;
             font-size: 1.5rem;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+
         .list-item {
-            background: var(--input-bg);
-            border-radius: 12px;
-            padding: 12px 18px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 14px;
+            padding: 14px 18px;
             margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
         }
+
         .discount-badge {
-            background: var(--primary-red);
-            color: white;
-            padding: 3px 12px;
+            background: rgba(220,53,69,0.2);
+            border: 1px solid var(--red-light);
+            color: var(--red-light);
+            padding: 4px 14px;
             border-radius: 20px;
             font-weight: bold;
         }
+
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
+            gap: 18px;
         }
+
         .product-mini {
-            background: var(--input-bg);
-            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 16px;
             overflow: hidden;
             text-align: center;
-            padding-bottom: 10px;
+            padding-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: var(--transition);
         }
+
+        .product-mini:hover {
+            transform: translateY(-3px);
+            border-color: var(--gold);
+        }
+
         .product-mini img {
             width: 100%;
             height: 100px;
             object-fit: cover;
             background: #111;
         }
-        .product-mini .pname { font-weight: 600; margin: 8px 0 4px; }
-        .product-mini .pprice { color: var(--primary-yellow); font-weight: bold; }
+
+        .product-mini .pname {
+            font-weight: 600;
+            margin: 8px 0 4px;
+            font-size: 0.9rem;
+        }
+
+        .product-mini .pprice {
+            color: var(--gold);
+            font-weight: bold;
+        }
 
         .locations {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
         }
+
         .location-tag {
-            background: var(--primary-yellow);
-            color: #000;
-            padding: 5px 14px;
+            background: rgba(244,180,0,0.15);
+            border: 1px solid var(--gold);
+            color: var(--gold-light);
+            padding: 6px 16px;
             border-radius: 20px;
             font-weight: 500;
         }
 
         .add-btn {
-            background: var(--primary-red);
-            color: white;
-            border: none;
-            padding: 10px 20px;
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid var(--red-light);
+            color: var(--red-light);
+            padding: 10px 22px;
             border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 12px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: 0.3s;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
         }
-        .add-btn:hover { background: var(--primary-light-red); }
 
+        .add-btn:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        /* الإعدادات */
         .settings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 15px;
         }
+
         .settings-btn {
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px 15px;
             text-align: center;
             cursor: pointer;
-            transition: 0.3s;
+            transition: var(--transition);
             color: var(--text);
             font-weight: 600;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
+            backdrop-filter: blur(5px);
         }
+
         .settings-btn:hover {
-            border-color: var(--primary-yellow);
-            background: #2a2a2a;
+            border-color: var(--gold);
+            background: rgba(244,180,0,0.1);
+            transform: translateY(-3px);
         }
+
         .settings-btn .icon {
             font-size: 2rem;
         }
 
+        /* المودال */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            align-items: center; justify-content: center;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
             z-index: 200;
         }
+
         .modal-content {
             background: var(--bg-card);
-            border: 2px solid var(--primary-yellow);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--gold);
             border-radius: var(--radius);
             padding: 30px;
             width: 90%;
-            max-width: 500px;
+            max-width: 480px;
             color: var(--text);
         }
+
         .modal-content h3 {
-            color: var(--primary-yellow);
+            color: var(--gold-light);
             margin-bottom: 20px;
         }
-        .modal-content input, .modal-content textarea {
+
+        .modal-content input,
+        .modal-content textarea {
             width: 100%;
             padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--input-bg);
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.07);
             color: var(--text);
             margin-bottom: 15px;
             font-family: inherit;
+            outline: none;
         }
+
         .modal-actions {
             display: flex;
             gap: 10px;
             justify-content: flex-end;
         }
+
         .save-btn {
-            background: var(--primary-red);
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid var(--red-light);
             color: white;
-            border: none;
             padding: 10px 25px;
             border-radius: 30px;
             font-weight: bold;
             cursor: pointer;
         }
+
+        .save-btn:hover {
+            background: var(--red);
+        }
+
         .cancel-btn {
             background: transparent;
-            border: 1px solid var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.3);
             color: var(--text);
             padding: 10px 25px;
             border-radius: 30px;
@@ -367,7 +488,7 @@
             text-align: center;
             padding: 20px;
             color: var(--text-muted);
-            border-top: 1px solid var(--border);
+            border-top: 1px solid rgba(255,255,255,0.1);
             margin-top: auto;
         }
     </style>
@@ -390,7 +511,7 @@
     <div class="main-container">
         <a href="dashboard.html" class="back-link">← العودة للوحة التحكم</a>
 
-        <!-- رأس الصفحة -->
+        <!-- رأس البروفايل -->
         <div class="profile-header">
             <div class="store-image-wrapper" onclick="document.getElementById('storeImageInput').click()">
                 <img id="storeImagePreview" src="" alt="صورة المتجر" style="display:none;">
@@ -431,9 +552,9 @@
             <button class="add-btn" onclick="openLocationModal()">+ إضافة منطقة</button>
         </div>
 
-        <!-- الإعدادات -->
+        <!-- الإعدادات + سجل المعاملات -->
         <div class="section">
-            <h2>⚙️ إعدادات المتجر</h2>
+            <h2>⚙️ الإعدادات وسجل المعاملات</h2>
             <div class="settings-grid">
                 <div class="settings-btn" onclick="openPasswordModal()">
                     <span class="icon">🔒</span> تغيير كلمة المرور
@@ -452,6 +573,10 @@
                 </div>
                 <div class="settings-btn" onclick="window.location.href='upgrade.html'">
                     <span class="icon">⬆️</span> ترقية الباقة
+                </div>
+                <!-- زر سجل المعاملات الجديد -->
+                <div class="settings-btn" onclick="window.location.href='transactions.html'" style="border-color: var(--gold);">
+                    <span class="icon">📋</span> سجل المعاملات
                 </div>
             </div>
             <div style="margin-top:20px;" id="customMenusContainer"></div>
@@ -623,7 +748,7 @@
         function renderCustomMenus(menus) {
             const container = document.getElementById('customMenusContainer');
             if (!menus || menus.length === 0) { container.innerHTML = ''; return; }
-            container.innerHTML = '<h3 style="color:var(--primary-yellow);">القوائم المخصصة</h3>' + menus.map(m => `<span class="location-tag" style="margin:4px;">${m}</span>`).join('');
+            container.innerHTML = '<h3 style="color:var(--gold-light); margin-bottom:10px;">القوائم المخصصة</h3>' + menus.map(m => `<span class="location-tag" style="margin:4px;">${m}</span>`).join('');
         }
 
         // دوال المودال
@@ -680,71 +805,57 @@
                 alert('تأكد من البيانات');
                 return;
             }
-            try {
-                const res = await fetch('/api/profile/change-password', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
-                    credentials: 'include'
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert('تم تغيير كلمة المرور بنجاح');
-                    closeModal('passwordModal');
-                } else {
-                    alert(data.message || 'فشل تغيير كلمة المرور');
-                }
-            } catch (err) { alert('خطأ في الاتصال'); }
+            const res = await fetch('/api/profile/change-password', {
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ currentPassword: current, newPassword: newPass }),
+                credentials:'include'
+            });
+            const data = await res.json();
+            alert(data.message || 'تم تغيير كلمة المرور');
+            closeModal('passwordModal');
         }
 
         function openDescriptionModal() { openModal('descriptionModal'); }
         async function saveDescription() {
             const desc = document.getElementById('storeDescription').value.trim();
-            try {
-                await fetch('/api/profile/description', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ description: desc }),
-                    credentials: 'include'
-                });
-                alert('تم حفظ الوصف');
-                closeModal('descriptionModal');
-            } catch (err) { alert('خطأ في الاتصال'); }
+            await fetch('/api/profile/description', {
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ description: desc }),
+                credentials:'include'
+            });
+            closeModal('descriptionModal');
+            loadProfile();
         }
 
         function openCustomMenuModal() { openModal('customMenuModal'); }
         async function addCustomMenu() {
             const name = document.getElementById('customMenuName').value.trim();
             if (!name) return;
-            try {
-                const res = await fetch('/api/profile/custom-menu', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name }),
-                    credentials: 'include'
-                });
-                if (res.ok) {
-                    document.getElementById('customMenuName').value = '';
-                    closeModal('customMenuModal');
-                    loadProfile();
-                }
-            } catch (err) { alert('خطأ في الاتصال'); }
+            await fetch('/api/profile/custom-menu', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ name }),
+                credentials:'include'
+            });
+            document.getElementById('customMenuName').value = '';
+            closeModal('customMenuModal');
+            loadProfile();
         }
 
         function openTelegramModal() { openModal('telegramModal'); }
         async function updateTelegram() {
             const username = document.getElementById('newTelegramUsername').value.trim();
             if (!username) return;
-            try {
-                await fetch('/api/profile/telegram', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ telegramUsername: username }),
-                    credentials: 'include'
-                });
-                alert('تم تحديث حساب التليجرام');
-                closeModal('telegramModal');
-            } catch (err) { alert('خطأ في الاتصال'); }
+            await fetch('/api/profile/telegram', {
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ telegramUsername: username }),
+                credentials:'include'
+            });
+            closeModal('telegramModal');
+            loadProfile();
         }
 
         // تسجيل الخروج
