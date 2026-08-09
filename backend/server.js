@@ -1,6 +1,6 @@
 // ============================================================
 // server.js - سلة (Express + PostgreSQL + Telegram Bot)
-// النسخة النهائية الكاملة مع نظام الباقات والترقيات والإعدادات
+// النسخة النهائية مع صلاحيات الأدمن العامة وسجل الحذف والإشعارات
 // ============================================================
 
 const express = require('express');
@@ -201,6 +201,17 @@ async function createTables() {
         user_id UUID REFERENCES users(id) ON DELETE CASCADE,
         message TEXT NOT NULL,
         is_read BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
+      -- جدول سجل الحذف والإجراءات الإدارية
+      CREATE TABLE IF NOT EXISTS deletion_logs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        product_name VARCHAR(255),
+        product_id UUID,
+        seller_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        deleted_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        reason TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       );
     `);
@@ -423,7 +434,10 @@ app.get('/api/products/:id', async (req, res) => {
 
 app.put('/api/products/:id', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   const prod = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
-  if (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  // السماح للأدمن بالتعديل على أي منتج
+  if (req.user.role !== 'admin' && (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id)) {
+    return res.status(403).json({ message: 'غير مصرح' });
+  }
   let image = prod.rows[0].image;
   if (req.file) {
     const result = await uploadToCloudinary(req.file.buffer);
@@ -448,9 +462,26 @@ app.put('/api/products/:id', authenticate, sellerOnly, upload.single('image'), a
 
 app.delete('/api/products/:id', authenticate, sellerOnly, async (req, res) => {
   const prod = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
-  if (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  // السماح للأدمن بحذف أي منتج
+  if (req.user.role !== 'admin' && (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id)) {
+    return res.status(403).json({ message: 'غير مصرح' });
+  }
+
+  const reason = req.body.reason || 'حذف من قبل الإدارة';
+
+  // تسجيل عملية الحذف
+  await pool.query(
+    'INSERT INTO deletion_logs (product_name, product_id, seller_id, deleted_by, reason) VALUES ($1,$2,$3,$4,$5)',
+    [prod.rows[0].name, req.params.id, prod.rows[0].seller_id, req.user.id, reason]
+  );
+
+  // إرسال إشعار للمستخدم
+  if (prod.rows[0].seller_id) {
+    await addNotification(prod.rows[0].seller_id, `تم حذف منتجك "${prod.rows[0].name}" بواسطة الإدارة. السبب: ${reason}`);
+  }
+
   await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
-  res.json({ message: 'تم حذف المنتج' });
+  res.json({ message: 'تم حذف المنتج بنجاح' });
 });
 
 // ====================== العروض ======================
@@ -471,7 +502,9 @@ app.get('/api/offers/my', authenticate, sellerOnly, async (req, res) => {
 
 app.delete('/api/offers/:id', authenticate, sellerOnly, async (req, res) => {
   const off = await pool.query('SELECT * FROM offers WHERE id = $1', [req.params.id]);
-  if (off.rows.length === 0 || off.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  if (req.user.role !== 'admin' && (off.rows.length === 0 || off.rows[0].seller_id !== req.user.id)) {
+    return res.status(403).json({ message: 'غير مصرح' });
+  }
   await pool.query('DELETE FROM offers WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم حذف العرض' });
 });
@@ -503,22 +536,22 @@ app.get('/api/profile', authenticate, sellerOnly, async (req, res) => {
   const products = await pool.query('SELECT * FROM products WHERE seller_id = $1', [req.user.id]);
   const offers = await pool.query('SELECT * FROM offers WHERE seller_id = $1', [req.user.id]);
   const menus = await pool.query('SELECT name FROM custom_menus WHERE seller_id = $1', [req.user.id]);
+  const deletedProducts = await pool.query('SELECT * FROM deletion_logs WHERE seller_id = $1 ORDER BY created_at DESC', [req.user.id]);
   res.json({
     ...safe,
     drivers: drivers.rows,
     locations: locations.rows,
     products: products.rows,
     offers: offers.rows,
-    custom_menus: menus.rows.map(r => r.name)
+    custom_menus: menus.rows.map(r => r.name),
+    deletedProducts: deletedProducts.rows
   });
 });
 
-// ====================== إعدادات المتجر الجديدة ======================
-
-// تغيير كلمة المرور
+// ====================== إعدادات المتجر ======================
 app.put('/api/profile/change-password', authenticate, async (req, res) => {
   const { currentPassword, newPassword } = req.body;
-  if (!currentPassword || !newPassword) return res.status(400).json({ message: 'كلمة المرور الحالية والجديدة مطلوبة' });
+  if (!currentPassword || !newPassword) return res.status(400).json({ message: 'مطلوب كلمة المرور الحالية والجديدة' });
   const user = await pool.query('SELECT password FROM users WHERE id = $1', [req.user.id]);
   const match = await bcrypt.compare(currentPassword, user.rows[0].password);
   if (!match) return res.status(400).json({ message: 'كلمة المرور الحالية غير صحيحة' });
@@ -527,14 +560,12 @@ app.put('/api/profile/change-password', authenticate, async (req, res) => {
   res.json({ message: 'تم تغيير كلمة المرور بنجاح' });
 });
 
-// تحديث وصف المتجر
 app.put('/api/profile/description', authenticate, sellerOnly, async (req, res) => {
   const { description } = req.body;
   await pool.query('UPDATE users SET description = $1 WHERE id = $2', [description || null, req.user.id]);
   res.json({ message: 'تم حفظ الوصف' });
 });
 
-// إضافة قائمة مخصصة
 app.post('/api/profile/custom-menu', authenticate, sellerOnly, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ message: 'اسم القائمة مطلوب' });
@@ -542,7 +573,6 @@ app.post('/api/profile/custom-menu', authenticate, sellerOnly, async (req, res) 
   res.json({ message: 'تم إضافة القائمة' });
 });
 
-// تحديث حساب التليجرام
 app.put('/api/profile/telegram', authenticate, sellerOnly, async (req, res) => {
   const { telegramUsername } = req.body;
   await pool.query('UPDATE users SET telegram_username = $1 WHERE id = $2', [telegramUsername || null, req.user.id]);
@@ -565,7 +595,9 @@ app.get('/api/drivers', authenticate, sellerOnly, async (req, res) => {
 });
 app.delete('/api/drivers/:id', authenticate, sellerOnly, async (req, res) => {
   const driver = await pool.query('SELECT * FROM drivers WHERE id = $1', [req.params.id]);
-  if (driver.rows.length === 0 || driver.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  if (req.user.role !== 'admin' && (driver.rows.length === 0 || driver.rows[0].seller_id !== req.user.id)) {
+    return res.status(403).json({ message: 'غير مصرح' });
+  }
   await pool.query('DELETE FROM drivers WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم حذف المندوب' });
 });
@@ -585,7 +617,9 @@ app.get('/api/locations', authenticate, sellerOnly, async (req, res) => {
 });
 app.delete('/api/locations/:id', authenticate, sellerOnly, async (req, res) => {
   const loc = await pool.query('SELECT * FROM locations WHERE id = $1', [req.params.id]);
-  if (loc.rows.length === 0 || loc.rows[0].seller_id !== req.user.id) return res.status(403).json({ message: 'غير مصرح' });
+  if (req.user.role !== 'admin' && (loc.rows.length === 0 || loc.rows[0].seller_id !== req.user.id)) {
+    return res.status(403).json({ message: 'غير مصرح' });
+  }
   await pool.query('DELETE FROM locations WHERE id = $1', [req.params.id]);
   res.json({ message: 'تم حذف المنطقة' });
 });
@@ -744,6 +778,18 @@ app.get('/api/notifications', authenticate, async (req, res) => {
 app.put('/api/notifications/:id/read', authenticate, async (req, res) => {
   await pool.query('UPDATE notifications SET is_read = true WHERE id = $1 AND user_id = $2', [req.params.id, req.user.id]);
   res.json({ message: 'ok' });
+});
+
+// ====================== سجل الحذف (للأدمن) ======================
+app.get('/api/admin/deletion-logs', authenticate, adminOnly, async (req, res) => {
+  const result = await pool.query(
+    `SELECT dl.*, u.username as deleted_by_username, seller.username as seller_username
+     FROM deletion_logs dl
+     LEFT JOIN users u ON dl.deleted_by = u.id
+     LEFT JOIN users seller ON dl.seller_id = seller.id
+     ORDER BY dl.created_at DESC`
+  );
+  res.json(result.rows);
 });
 
 // ---------- معالجة الأخطاء ----------
