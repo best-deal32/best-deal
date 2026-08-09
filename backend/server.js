@@ -1,6 +1,6 @@
 // ============================================================
 // server.js - سلة (Express + PostgreSQL + Telegram Bot)
-// النسخة النهائية مع صلاحيات الأدمن العامة وسجل الحذف والإشعارات
+// النسخة النهائية الشاملة: جميع الوظائف والميزات مكتملة
 // ============================================================
 
 const express = require('express');
@@ -22,7 +22,7 @@ const REFRESH_SECRET = process.env.REFRESH_SECRET || 'change-me-too';
 
 // ---------- Cloudinary ----------
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.error('❌ خطأ في إعدادات Cloudinary.');
+  console.error('❌ خطأ في إعدادات Cloudinary. تأكد من وجود المتغيرات المطلوبة.');
 } else {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -204,7 +204,6 @@ async function createTables() {
         created_at TIMESTAMP DEFAULT NOW()
       );
 
-      -- جدول سجل الحذف والإجراءات الإدارية
       CREATE TABLE IF NOT EXISTS deletion_logs (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         product_name VARCHAR(255),
@@ -385,7 +384,7 @@ app.get('/api/auth/me', authenticate, async (req, res) => {
   res.json({ ...safe, currentProducts: count.rows[0].cnt, maxProducts: req.user.max_products || 20 });
 });
 
-// ====================== المنتجات (ألبسة فقط) ======================
+// ====================== المنتجات ======================
 app.post('/api/products', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   try {
     const countResult = await pool.query('SELECT COUNT(*)::int AS cnt FROM products WHERE seller_id = $1', [req.user.id]);
@@ -434,7 +433,6 @@ app.get('/api/products/:id', async (req, res) => {
 
 app.put('/api/products/:id', authenticate, sellerOnly, upload.single('image'), async (req, res) => {
   const prod = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
-  // السماح للأدمن بالتعديل على أي منتج
   if (req.user.role !== 'admin' && (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id)) {
     return res.status(403).json({ message: 'غير مصرح' });
   }
@@ -462,20 +460,17 @@ app.put('/api/products/:id', authenticate, sellerOnly, upload.single('image'), a
 
 app.delete('/api/products/:id', authenticate, sellerOnly, async (req, res) => {
   const prod = await pool.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
-  // السماح للأدمن بحذف أي منتج
   if (req.user.role !== 'admin' && (prod.rows.length === 0 || prod.rows[0].seller_id !== req.user.id)) {
     return res.status(403).json({ message: 'غير مصرح' });
   }
 
   const reason = req.body.reason || 'حذف من قبل الإدارة';
 
-  // تسجيل عملية الحذف
   await pool.query(
     'INSERT INTO deletion_logs (product_name, product_id, seller_id, deleted_by, reason) VALUES ($1,$2,$3,$4,$5)',
     [prod.rows[0].name, req.params.id, prod.rows[0].seller_id, req.user.id, reason]
   );
 
-  // إرسال إشعار للمستخدم
   if (prod.rows[0].seller_id) {
     await addNotification(prod.rows[0].seller_id, `تم حذف منتجك "${prod.rows[0].name}" بواسطة الإدارة. السبب: ${reason}`);
   }
